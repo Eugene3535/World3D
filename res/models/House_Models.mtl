@@ -1,0 +1,38 @@
+# Blender 4.0.2 MTL File: 'House_Models.blend'
+# www.blender.org
+
+newmtl House_01
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Textures/House_01/House_01_House_01_BaseColor.png
+map_Ns Textures/House_01/House_01_House_01_Roughness.png
+map_refl Textures/House_01/House_01_House_01_Metallic.png
+map_Bump -bm 1.000000 Textures/House_01/House_01_House_01_Normal.png
+
+newmtl House_03
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Textures/House_03/House_03_House_03_BaseColor.png
+map_Ns Textures/House_03/House_03_House_03_Roughness.png
+map_refl Textures/House_03/House_03_House_03_Metallic.png
+map_Bump -bm 1.000000 Textures/House_03/House_03_House_03_Normal.png
+
+newmtl House__02
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Textures/House_02/House_02_House__02_BaseColor.png
+map_Ns Textures/House_02/House_02_House__02_Roughness.png
+map_refl Textures/House_02/House_02_House__02_Metallic.png
+map_Bump -bm 1.000000 Textures/House_02/House_02_House__02_Normal.png
