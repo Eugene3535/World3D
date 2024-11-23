@@ -29,23 +29,17 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 set(_src_files
-	src/graphics/Image.cpp
-	src/graphics/Texture2D.cpp
-	src/graphics/Shader.cpp
-	src/graphics/VertexBuffer.cpp
-	src/loaders/MeshLoader.cpp
-	src/view/Camera.cpp
+	src/Image.cpp
+	src/Texture.cpp
+	src/ShaderProgram.cpp
 	src/main.cpp
 )
 
 set(_hdr_files
-	src/graphics/Image.hpp
-	src/graphics/Texture2D.hpp
-	src/graphics/Shader.hpp
-	src/graphics/Vertex.hpp
-	src/graphics/VertexBuffer.hpp
-	src/loaders/MeshLoader.hpp
-	src/view/Camera.hpp
+	src/Image.hpp
+	src/Texture.hpp
+	src/ShaderProgram.hpp
+	src/Vertex.hpp
 )
 
 set(_all_files

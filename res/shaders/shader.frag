@@ -4,5 +4,6 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = vec4(0, 1, 1, 1);
+    // FragColor = texture2D(texture0, tex_coord) * outColor;
+    FragColor = vec4(0, 1, 0, 1);
 }

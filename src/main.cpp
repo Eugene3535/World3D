@@ -1,5 +1,3 @@
-#include <memory>
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -7,35 +5,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "view/Camera.hpp"
-#include "graphics/Shader.hpp"
-#include "loaders/MeshLoader.hpp"
-
-const unsigned SCR_WIDTH = 1200;
-const unsigned SCR_HEIGHT = 800;
-
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-
-GLFWwindow* window;
-
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
-float xoffset;
-float yoffset;
-bool camUpdate = true;
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-bool IsKeyPressed(int key);
+#include "Image.hpp"
+#include "Texture.hpp"
+#include "ShaderProgram.hpp"
 
 int main()
 {
+    const GLint SCR_WIDTH = 1200;
+    const GLint SCR_HEIGHT = 800;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "World3D", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "World3D", nullptr, nullptr);
 
     if (!window)
     {
@@ -46,15 +30,11 @@ int main()
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-//  Callbacks
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int32_t width, int32_t height)
     {
         glViewport(0, 0, width, height);
     });
-
-    glfwSetCursorPosCallback(window, mouse_callback);
 
     if (!gladLoadGL())
     {
@@ -63,145 +43,183 @@ int main()
         return -1;
     }
 
+    auto is_key_pressed = [window](int32_t key)
+    {
+        return glfwGetKey(window, key) == GLFW_PRESS;
+    };
+
     glEnable(GL_DEPTH_TEST);
 
-#ifdef DEBUG
-    glEnable(GL_DEBUG_OUTPUT);
+    Image imageMap;
+    imageMap.loadFromFile("res/textures/heightmap.png");
 
-    glDebugMessageCallback( [](GLenum source,
-                 GLenum type,
-                 GLuint id,
-                 GLenum severity,
-                 GLsizei length,
-                 const GLchar* message,
-                 const void* userParam )
-        {
-            fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-                    ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );
-        }, 0 );
-#endif
+    const uint8_t* pixels = imageMap.getPixels();
+ 
+    const GLuint mapHeight = imageMap.getHeight();
+    const GLuint mapWidth = imageMap.getWidth();
 
-//  Shaders
-    Shader grid_shader;
+    std::vector<glm::vec3> vertices(mapHeight * mapWidth);
+    std::vector<glm::vec2> tex_coords(vertices.size());
+
+    std::vector<GLuint> indices;
+    indices.reserve(vertices.size() * 2);
+
+    const float offsetZ = 1.0f / mapHeight;
+    const float offsetX = 1.0f / mapWidth;
+
+    size_t index = 0;
+
+    float Z = 0;
+
+    for (size_t z = 0; z < mapHeight; ++z)
     {
-        if(!grid_shader.compile("res/shaders/shader.vert", "res/shaders/shader.frag"))
+        float X = 0;
+        
+        for (size_t x = 0; x < mapWidth; ++x)
         {
-            glfwTerminate();
+            const uint8_t* pixel = pixels + ((z * mapWidth + x) << 2);
+            int y = (int)pixel[0];
+            float Y = y * 0.0002f;
 
-            return -1;
+            vertices[index].x = X;
+            vertices[index].y = Y;
+            vertices[index].z = Z;
+            
+            tex_coords[index].x = X;
+            tex_coords[index].y = Z;
+
+            X += offsetX;
+
+            index++;
+        }
+        Z += offsetZ;
+    }
+
+    for(GLuint i = 0; i < mapHeight - 1; ++i) // 19 800
+    {
+        for(GLuint j = 0; j < mapWidth; ++j)
+        {
+            indices.push_back(mapWidth * i + j);
+            indices.push_back(mapWidth * (i + 1) + j);       
         }
     }
-    grid_shader.bind(&grid_shader);
 
-    Shader model_shader;
-    {
-        if(!model_shader.compile("res/shaders/object_shader.vert", "res/shaders/object_shader.frag"))
-        {
-            glfwTerminate();
+    // GLuint texture = Texture().createFromImage(imageMap, GL_CLAMP_TO_BORDER, GL_LINEAR);
 
-            return -1;
-        }
-    }
+    GLuint VAO, VBO[2], EBO;
 
-    int grid_mvp = grid_shader.getUniformLocation("MVP");
-    int model_mvp = model_shader.getUniformLocation("MVP");
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(2, VBO);
+    glGenBuffers(1, &EBO);
 
-    if((grid_mvp == -1) || (model_mvp == -1))
-    {
-        glfwTerminate();
+    glBindVertexArray(VAO);
 
-        return -1;
-    }
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), NULL);
+    glEnableVertexAttribArray(0);
 
-    std::vector<VertexBuffer> meshes;
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * tex_coords.size(), tex_coords.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+    glEnableVertexAttribArray(1);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), indices.data(), GL_STATIC_DRAW);
+   
+    glBindVertexArray(0);
 
-    if(!MeshLoader().load_meshes_from_file("res/models/House_Models.obj", meshes))
-    {
-        glfwTerminate();
+    GLuint shader = ShaderProgram().compile("res/shaders/shader.vert", "res/shaders/shader.frag");
+    glUseProgram(shader);
+    int mvpLoc = glGetUniformLocation(shader, "MVP");
 
-        return -1;
-    }
+    glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 
-    glm::mat4 model_transform = 
-    glm::translate(glm::identity<glm::mat4>(), glm::vec3(20, 1, 20)) * 
-    glm::rotate(glm::identity<glm::mat4>(), glm::radians(45.0f), glm::vec3(0, 1, 0)) *
-    glm::scale(glm::identity<glm::mat4>(), glm::vec3(2, 2, 2));
+    float pitch = 20;
+    float yaw = 0;
+    glm::vec2 pos = { 0, 0 };
 
-    Camera camera;
-    glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10000.0f);
+    const GLuint numStrips = mapWidth - 1;
+    const GLuint numTrisPerStrip = mapWidth * 2 - 2;
 
-//  Main loop
     while (!glfwWindowShouldClose(window))
     {
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        if(IsKeyPressed(GLFW_KEY_ESCAPE)) 
+        if(is_key_pressed(GLFW_KEY_ESCAPE)) 
         {
             glfwSetWindowShouldClose(window, true);
             continue;
         }
 
-        if (IsKeyPressed(GLFW_KEY_W))
-            camera.move(Camera::FORWARD, deltaTime);
-
-        if (IsKeyPressed(GLFW_KEY_S))
-            camera.move(Camera::BACKWARD, deltaTime);
-
-        if (IsKeyPressed(GLFW_KEY_A))
-            camera.move(Camera::LEFT, deltaTime);
-
-        if (IsKeyPressed(GLFW_KEY_D))
-            camera.move(Camera::RIGHT, deltaTime);
-
-
-        if (camUpdate)
+        if (is_key_pressed(GLFW_KEY_UP))
         {
-            camera.rotate(xoffset * 0.1f, yoffset * 0.1f);
-            camUpdate = false;
+            pitch += 1;
+            if (pitch > 180) pitch = 180;
         }
 
-        glm::mat4 view_projection_matrix = projection * camera.getViewMatrix();
+        if (is_key_pressed(GLFW_KEY_DOWN))
+        {
+            pitch -= 1;
+            if (pitch < 0) pitch = 0;
+        }
+
+        if (is_key_pressed(GLFW_KEY_LEFT))
+        {
+            yaw += 1;
+        }
+
+        if (is_key_pressed(GLFW_KEY_RIGHT))
+        {
+            yaw -= 1;
+        }
+
+        float radians = glm::radians(-yaw);
+        float speed = 0.0f;
+
+        if (is_key_pressed(GLFW_KEY_W))   speed = 0.1f;
+        if (is_key_pressed(GLFW_KEY_S))   speed = -0.1f;
+        if (is_key_pressed(GLFW_KEY_A)) { speed = 0.1f; radians -= M_PI_2; }
+        if (is_key_pressed(GLFW_KEY_D)) { speed = 0.1f; radians += M_PI_2; }
+
+        if (speed != 0.0f)
+        {
+            pos.x += sin(radians) * speed;
+            pos.y += cos(radians) * speed;
+        }
+
+        glm::mat4 model_view = glm::mat4(1.0f);
+        model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+        model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 0.0f, 1.0f));
+        model_view = glm::translate(model_view, glm::vec3(-pos.x, -pos.y, -3.0f));
+
+        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(projection * model_view));
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-//      MODEL
-        Shader::bind(&model_shader);
-        glUniformMatrix4fv(model_mvp, 1, GL_FALSE, glm::value_ptr(view_projection_matrix * model_transform)); 
+        glBindVertexArray(VAO);
 
-        for(auto& m : meshes)
-            m.draw();
+        for(GLuint strip = 0; strip < numStrips; ++strip)
+        {
+            glDrawElements(GL_TRIANGLE_STRIP,   // primitive type
+                           numTrisPerStrip + 2, // number of indices to render
+                           GL_UNSIGNED_INT,     // index data type
+            reinterpret_cast<const void*>(sizeof(GLuint) * (numTrisPerStrip + 2) * strip)); // offset to starting index
+        }
 
-        Shader::bind(nullptr);
+        glBindVertexArray(0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    glDeleteProgram(shader);
+    glDeleteBuffers(2, VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO);
+
     glfwDestroyWindow(window);
     glfwTerminate();
 
     return 0;
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    camUpdate = true;
-    xoffset = xpos - lastX;
-    yoffset = lastY - ypos; 
-
-    lastX = xpos;
-    lastY = ypos;
-}
-
-bool IsKeyPressed(int key)
-{
-    if( ! window) 
-        return false; // Not initialized
-
-    return glfwGetKey(window, key) == GLFW_PRESS;
 }
