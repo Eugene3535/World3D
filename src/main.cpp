@@ -9,6 +9,37 @@
 #include "Texture.hpp"
 #include "ShaderProgram.hpp"
 
+// static void framebufferResizeCallback(GLFWwindow *window, int width, int height)
+// {
+//     auto app = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window));
+//     app->framebufferResized = true;
+// }
+
+float lastX = 1200 / 2.0f;
+float lastY = 800 / 2.0f;
+float pitch = 20;
+float yaw = 180;
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    GLfloat xoffset = xpos - lastX;
+    GLfloat yoffset = lastY - ypos; // Обратный порядок вычитания потому что оконные Y-координаты возрастают с верху вниз 
+    lastX = xpos;
+    lastY = ypos;
+
+    GLfloat sensitivity = 0.05f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw   -= xoffset;
+    pitch += yoffset;
+
+    if(pitch > 89.0f)
+    pitch =  89.0f;
+    if(pitch < -89.0f)
+    pitch = -89.0f;
+}
+
 int main()
 {
     const GLint SCR_WIDTH = 1200;
@@ -30,11 +61,15 @@ int main()
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetWindowUserPointer(window, this);
 
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int32_t width, int32_t height)
     {
         glViewport(0, 0, width, height);
     });
+
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     if (!gladLoadGL())
     {
@@ -79,10 +114,10 @@ int main()
         {
             const uint8_t* pixel = pixels + ((z * mapWidth + x) * imageMap.getBytePerPixel());
             int y = (int)pixel[0];
-            float Y = y * 0.0002f;
+            float Y = y * 0.02f;
 
             vertices[index].x = x;
-            vertices[index].y = 0;
+            vertices[index].y = Y;
             vertices[index].z = z;
             
             tex_coords[index].x = X;
@@ -135,8 +170,6 @@ int main()
 
     glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 
-    float pitch = 20;
-    float yaw = 180;
     glm::vec2 pos = { 3, 5 };
 
     const GLuint numStrips = mapWidth - 1;
@@ -148,28 +181,6 @@ int main()
         {
             glfwSetWindowShouldClose(window, true);
             continue;
-        }
-
-        if (is_key_pressed(GLFW_KEY_UP))
-        {
-            pitch += 1;
-            if (pitch > 45) pitch = 45;
-        }
-
-        if (is_key_pressed(GLFW_KEY_DOWN))
-        {
-            pitch -= 1;
-            if (pitch < -20) pitch = -20;
-        }
-
-        if (is_key_pressed(GLFW_KEY_LEFT))
-        {
-            yaw += 1;
-        }
-
-        if (is_key_pressed(GLFW_KEY_RIGHT))
-        {
-            yaw -= 1;
         }
 
         float radians = glm::radians(yaw);
