@@ -82,8 +82,8 @@ int main()
             float Y = y * 0.0002f;
 
             vertices[index].x = x;
-            vertices[index].y = z;
-            vertices[index].z = 0;
+            vertices[index].y = 0;
+            vertices[index].z = z;
             
             tex_coords[index].x = X;
             tex_coords[index].y = Z;
@@ -136,8 +136,8 @@ int main()
     glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 
     float pitch = 20;
-    float yaw = 0;
-    glm::vec2 pos = { 0, 0 };
+    float yaw = 180;
+    glm::vec2 pos = { 3, 5 };
 
     const GLuint numStrips = mapWidth - 1;
     const GLuint numTrisPerStrip = mapWidth * 2 - 2;
@@ -153,13 +153,13 @@ int main()
         if (is_key_pressed(GLFW_KEY_UP))
         {
             pitch += 1;
-            if (pitch > 180) pitch = 180;
+            if (pitch > 45) pitch = 45;
         }
 
         if (is_key_pressed(GLFW_KEY_DOWN))
         {
             pitch -= 1;
-            if (pitch < 0) pitch = 0;
+            if (pitch < -20) pitch = -20;
         }
 
         if (is_key_pressed(GLFW_KEY_LEFT))
@@ -172,24 +172,24 @@ int main()
             yaw -= 1;
         }
 
-        float radians = glm::radians(-yaw);
+        float radians = glm::radians(yaw);
         float speed = 0.0f;
 
-        if (is_key_pressed(GLFW_KEY_W))   speed = 0.1f;
-        if (is_key_pressed(GLFW_KEY_S))   speed = -0.1f;
+        if (is_key_pressed(GLFW_KEY_W))   speed = -0.1f;
+        if (is_key_pressed(GLFW_KEY_S))   speed = 0.1f;
         if (is_key_pressed(GLFW_KEY_A)) { speed = 0.1f; radians -= M_PI_2; }
         if (is_key_pressed(GLFW_KEY_D)) { speed = 0.1f; radians += M_PI_2; }
 
         if (speed != 0.0f)
         {
-            pos.x += sin(radians) * speed;
-            pos.y += cos(radians) * speed;
+            pos.x += sinf(radians) * speed;
+            pos.y += cosf(radians) * speed;
         }
 
         glm::mat4 model_view = glm::mat4(1.0f);
         model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-        model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 0.0f, 1.0f));
-        model_view = glm::translate(model_view, glm::vec3(-pos.x, -pos.y, -5.0f));
+        model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+        model_view = glm::translate(model_view, glm::vec3(-pos.x, -3.0f, -pos.y));
 
         auto MVP = projection * model_view;
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVP));
