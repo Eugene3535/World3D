@@ -77,13 +77,13 @@ int main()
         
         for (size_t x = 0; x < mapWidth; ++x)
         {
-            const uint8_t* pixel = pixels + ((z * mapWidth + x) << 2);
+            const uint8_t* pixel = pixels + ((z * mapWidth + x) * imageMap.getBytePerPixel());
             int y = (int)pixel[0];
             float Y = y * 0.0002f;
 
-            vertices[index].x = X;
-            vertices[index].y = Y;
-            vertices[index].z = Z;
+            vertices[index].x = x;
+            vertices[index].y = z;
+            vertices[index].z = 0;
             
             tex_coords[index].x = X;
             tex_coords[index].y = Z;
@@ -189,9 +189,10 @@ int main()
         glm::mat4 model_view = glm::mat4(1.0f);
         model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 0.0f, 1.0f));
-        model_view = glm::translate(model_view, glm::vec3(-pos.x, -pos.y, -3.0f));
+        model_view = glm::translate(model_view, glm::vec3(-pos.x, -pos.y, -5.0f));
 
-        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(projection * model_view));
+        auto MVP = projection * model_view;
+        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVP));
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
