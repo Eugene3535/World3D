@@ -52,7 +52,7 @@ add_executable(${PROJECT_NAME} ${_src_files} ${_hdr_files})
 add_subdirectory(${EXTERNAL_DIR}/glfw glfw)
 add_subdirectory(${EXTERNAL_DIR}/glad/core glad)
 add_subdirectory(${EXTERNAL_DIR}/glm glm)
-add_subdirectory(${EXTERNAL_DIR}/assimp assimp)
+#add_subdirectory(${EXTERNAL_DIR}/assimp assimp)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -61,7 +61,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	glfw 
 	glad 
 	glm
-	assimp
+#	assimp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

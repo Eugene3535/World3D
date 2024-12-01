@@ -22,7 +22,7 @@ bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
     if (!data)
         return false;
 
-    m_pixels.resize(static_cast<size_t>((m_width * m_height) << 2));
+    m_pixels.resize(static_cast<size_t>(m_width * m_height * m_bytePerPixel));
     memcpy(m_pixels.data(), data, m_pixels.size());
     stbi_image_free(data);
 

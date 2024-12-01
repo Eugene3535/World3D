@@ -114,7 +114,7 @@ int main()
         {
             const uint8_t* pixel = pixels + ((z * mapWidth + x) * imageMap.getBytePerPixel());
             int y = (int)pixel[0];
-            float Y = y * 0.02f;
+            float Y = y * 0.03f;
 
             vertices[index].x = x;
             vertices[index].y = Y;
@@ -139,7 +139,15 @@ int main()
         }
     }
 
-    // GLuint texture = Texture().createFromImage(imageMap, GL_CLAMP_TO_BORDER, GL_LINEAR);
+    Image imgCrackedEarth; imgCrackedEarth.loadFromFile("res/textures/cracked_earth.jpg");
+    Image imgRock;         imgRock.loadFromFile("res/textures/rock.jpg");
+    Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
+    Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
+
+    GLuint texCrackedEarth = Texture().createFromImage(imgCrackedEarth, GL_CLAMP_TO_BORDER, GL_LINEAR);
+    GLuint texRock         = Texture().createFromImage(imgRock, GL_CLAMP_TO_BORDER, GL_LINEAR);
+    GLuint texGrass        = Texture().createFromImage(imgGrass, GL_CLAMP_TO_BORDER, GL_LINEAR);
+    GLuint texClover       = Texture().createFromImage(imgClover, GL_CLAMP_TO_BORDER, GL_LINEAR);
 
     GLuint VAO, VBO[2], EBO;
 
@@ -164,9 +172,14 @@ int main()
    
     glBindVertexArray(0);
 
-    GLuint shader = ShaderProgram().compile("res/shaders/shader.vert", "res/shaders/shader.frag");
+    GLuint shader = ShaderProgram().compile("res/shaders/terrain_shader.vert", "res/shaders/terrain_shader.frag");
     glUseProgram(shader);
     int mvpLoc = glGetUniformLocation(shader, "MVP");
+
+    glUniform1i(glGetUniformLocation(shader, "cracked_earth"), 0);
+    glUniform1i(glGetUniformLocation(shader, "rock"), 1);
+    glUniform1i(glGetUniformLocation(shader, "grass"), 2);
+    glUniform1i(glGetUniformLocation(shader, "clover"), 3);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 
@@ -186,10 +199,10 @@ int main()
         float radians = glm::radians(yaw);
         float speed = 0.0f;
 
-        if (is_key_pressed(GLFW_KEY_W))   speed = -0.1f;
-        if (is_key_pressed(GLFW_KEY_S))   speed = 0.1f;
-        if (is_key_pressed(GLFW_KEY_A)) { speed = 0.1f; radians -= M_PI_2; }
-        if (is_key_pressed(GLFW_KEY_D)) { speed = 0.1f; radians += M_PI_2; }
+        if (is_key_pressed(GLFW_KEY_W))   speed = -1.f;
+        if (is_key_pressed(GLFW_KEY_S))   speed = 1.f;
+        if (is_key_pressed(GLFW_KEY_A)) { speed = 1.f; radians -= M_PI_2; }
+        if (is_key_pressed(GLFW_KEY_D)) { speed = 1.f; radians += M_PI_2; }
 
         if (speed != 0.0f)
         {
@@ -200,14 +213,23 @@ int main()
         glm::mat4 model_view = glm::mat4(1.0f);
         model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-        model_view = glm::translate(model_view, glm::vec3(-pos.x, -3.0f, -pos.y));
+        model_view = glm::translate(model_view, glm::vec3(-pos.x, -10.0f, -pos.y));
 
         auto MVP = projection * model_view;
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVP));
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texCrackedEarth);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texRock);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, texGrass);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, texClover);
 
         glBindVertexArray(VAO);
 
