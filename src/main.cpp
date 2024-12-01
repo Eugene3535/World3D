@@ -120,8 +120,8 @@ int main()
             vertices[index].y = Y;
             vertices[index].z = z;
             
-            tex_coords[index].x = X;
-            tex_coords[index].y = Z;
+            tex_coords[index].x = x;
+            tex_coords[index].y = z;
 
             X += offsetX;
 
@@ -144,10 +144,10 @@ int main()
     Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
     Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
 
-    GLuint texCrackedEarth = Texture().createFromImage(imgCrackedEarth, GL_CLAMP_TO_BORDER, GL_LINEAR);
-    GLuint texRock         = Texture().createFromImage(imgRock, GL_CLAMP_TO_BORDER, GL_LINEAR);
-    GLuint texGrass        = Texture().createFromImage(imgGrass, GL_CLAMP_TO_BORDER, GL_LINEAR);
-    GLuint texClover       = Texture().createFromImage(imgClover, GL_CLAMP_TO_BORDER, GL_LINEAR);
+    GLuint texCrackedEarth = Texture().createFromImage(imgCrackedEarth, GL_REPEAT, GL_LINEAR);
+    GLuint texRock         = Texture().createFromImage(imgRock, GL_REPEAT, GL_LINEAR);
+    GLuint texGrass        = Texture().createFromImage(imgGrass, GL_REPEAT, GL_LINEAR);
+    GLuint texClover       = Texture().createFromImage(imgClover, GL_REPEAT, GL_LINEAR);
 
     GLuint VAO, VBO[2], EBO;
 
@@ -199,10 +199,10 @@ int main()
         float radians = glm::radians(yaw);
         float speed = 0.0f;
 
-        if (is_key_pressed(GLFW_KEY_W))   speed = -1.f;
-        if (is_key_pressed(GLFW_KEY_S))   speed = 1.f;
-        if (is_key_pressed(GLFW_KEY_A)) { speed = 1.f; radians -= M_PI_2; }
-        if (is_key_pressed(GLFW_KEY_D)) { speed = 1.f; radians += M_PI_2; }
+        if (is_key_pressed(GLFW_KEY_W))   speed = -0.1f;
+        if (is_key_pressed(GLFW_KEY_S))   speed =  0.1f;
+        if (is_key_pressed(GLFW_KEY_A)) { speed =  0.1f; radians -= M_PI_2; }
+        if (is_key_pressed(GLFW_KEY_D)) { speed =  0.1f; radians += M_PI_2; }
 
         if (speed != 0.0f)
         {
@@ -213,7 +213,7 @@ int main()
         glm::mat4 model_view = glm::mat4(1.0f);
         model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-        model_view = glm::translate(model_view, glm::vec3(-pos.x, -10.0f, -pos.y));
+        model_view = glm::translate(model_view, glm::vec3(-pos.x, -3.0f, -pos.y));
 
         auto MVP = projection * model_view;
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVP));
