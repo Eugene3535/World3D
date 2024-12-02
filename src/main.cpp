@@ -99,35 +99,29 @@ int main()
     std::vector<GLuint> indices;
     indices.reserve(vertices.size() * 2);
 
-    const float offsetZ = 1.0f / mapHeight;
-    const float offsetX = 1.0f / mapWidth;
+    std::vector<float> heightmap(vertices.size());
 
     size_t index = 0;
 
-    float Z = 0;
-
     for (size_t z = 0; z < mapHeight; ++z)
     {
-        float X = 0;
-        
         for (size_t x = 0; x < mapWidth; ++x)
         {
             const uint8_t* pixel = pixels + ((z * mapWidth + x) * imageMap.getBytePerPixel());
-            int y = (int)pixel[0];
+            int32_t y = static_cast<int32_t>(pixel[0]);
             float Y = y * 0.03f;
 
             vertices[index].x = x;
             vertices[index].y = Y;
             vertices[index].z = z;
             
-            tex_coords[index].x = x;
-            tex_coords[index].y = z;
+            tex_coords[index].x = x * 0.3f;
+            tex_coords[index].y = z * 0.3f;
 
-            X += offsetX;
+            heightmap[index] = Y;
 
-            index++;
+            ++index;
         }
-        Z += offsetZ;
     }
 
     for(GLuint i = 0; i < mapHeight - 1; ++i) // 19 800
@@ -213,7 +207,7 @@ int main()
         glm::mat4 model_view = glm::mat4(1.0f);
         model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-        model_view = glm::translate(model_view, glm::vec3(-pos.x, -3.0f, -pos.y));
+        model_view = glm::translate(model_view, glm::vec3(-pos.x, -7.0f, -pos.y));
 
         auto MVP = projection * model_view;
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVP));
