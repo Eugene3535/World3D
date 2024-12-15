@@ -49,7 +49,7 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     Image imgSnow;     imgSnow.loadFromFile("res/textures/snow.png");
     Image imgPavement; imgPavement.loadFromFile("res/textures/pavement.jpg");
-    Image imgPath;     imgPath.loadFromFile("res/textures/path.png");
+    Image imgPath;     imgPath.loadFromFile("res/textures/test.png");
 
     GLuint texSnow     = Texture().createFromImage(imgSnow, GL_REPEAT, GL_LINEAR);
     GLuint texPavement = Texture().createFromImage(imgPavement, GL_REPEAT, GL_LINEAR);
