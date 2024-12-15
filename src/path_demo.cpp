@@ -9,6 +9,7 @@
 
 #include "Image.hpp"
 #include "Texture.hpp"
+#include "Vertex.hpp"
 #include "ShaderProgram.hpp"
 
 static float lastX = 1200 / 2.0f;
@@ -58,37 +59,27 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     float mapWidth = static_cast<float>(imgPath.getWidth());
     float mapHeight = static_cast<float>(imgPath.getHeight());
 
-    std::array<glm::vec3, 4> vertices = 
+    std::array<Vertex, 4> vertices = 
     {
-        glm::vec3(0.0f,     0.0f, 0.0f),
-        glm::vec3(mapWidth, 0.0f, 0.0f),
-        glm::vec3(mapWidth, 0.0f, mapHeight),
-        glm::vec3(0.0f,     0.0f, mapHeight)
+        Vertex(glm::vec3(0.0f, 0.0f, 0.0f),          glm::vec2(0.0f,  0.0f)),
+        Vertex(glm::vec3(mapWidth, 0.0f, 0.0f),      glm::vec2(20.0f, 0.0f)),
+        Vertex(glm::vec3(mapWidth, 0.0f, mapHeight), glm::vec2(20.0f, 20.0f)),
+        Vertex(glm::vec3(0.0f, 0.0f, mapHeight),     glm::vec2(0.0f,  20.0f))
     };
 
-    std::array<glm::vec2, 4> tex_coords = 
-    {
-        glm::vec2(0.0f,  0.0f),
-        glm::vec2(20.0f, 0.0f),
-        glm::vec2(20.0f, 20.0f),
-        glm::vec2(0.0f,  20.0f)
-    };
-
-    GLuint VAO, VBO[2];
+    GLuint VAO, VBO;
 
     glGenVertexArrays(1, &VAO);
-    glGenBuffers(2, VBO);
+    glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), NULL);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * tex_coords.size(), tex_coords.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, uv)));
     glEnableVertexAttribArray(1);
    
     glBindVertexArray(0);
@@ -157,7 +148,7 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     }
 
     glDeleteProgram(shader);
-    glDeleteBuffers(2, VBO);
+    glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
 
     glDeleteTextures(1, &texPath);

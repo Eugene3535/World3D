@@ -32,6 +32,7 @@ set(_src_files
 	src/Image.cpp
 	src/Texture.cpp
 	src/ShaderProgram.cpp
+	src/Vertex.cpp
 	src/heightmap_demo.cpp
 	src/path_demo.cpp
 	src/main.cpp
