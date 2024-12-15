@@ -55,12 +55,15 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     GLuint texPavement = Texture().createFromImage(imgPavement, GL_REPEAT, GL_LINEAR);
     GLuint texPath     = Texture().createFromImage(imgPath, GL_CLAMP_TO_BORDER, GL_LINEAR);
 
+    float mapWidth = static_cast<float>(imgPath.getWidth());
+    float mapHeight = static_cast<float>(imgPath.getHeight());
+
     std::array<glm::vec3, 4> vertices = 
     {
-        glm::vec3(0.0f,   0.0f, 0.0f),
-        glm::vec3(400.0f, 0.0f, 0.0f),
-        glm::vec3(400.0f, 0.0f, 400.0f),
-        glm::vec3(0.0f,   0.0f, 400.0f)
+        glm::vec3(0.0f,     0.0f, 0.0f),
+        glm::vec3(mapWidth, 0.0f, 0.0f),
+        glm::vec3(mapWidth, 0.0f, mapHeight),
+        glm::vec3(0.0f,     0.0f, mapHeight)
     };
 
     std::array<glm::vec2, 4> tex_coords = 

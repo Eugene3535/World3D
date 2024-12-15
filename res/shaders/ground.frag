@@ -1,6 +1,6 @@
 #version 460 core
 
-layout(location = 0) out vec4 outputColor;
+layout(location = 0) out vec4 FragColor;
 
 smooth in vec2 ioVertexTexCoord;
 smooth in vec2 ioPathTexCoord;
@@ -16,6 +16,6 @@ void main()
     vec4 pathTexel     = texture(pathSampler, ioPathTexCoord);
 
     float pathWeight = pathTexel.r;
-    float snowWeight = 1.0 - pathWeight;
-    outputColor = pavementTexel * pathWeight + snowTexel * snowWeight;
+    float snowWeight = 1.0f - pathWeight;
+    FragColor = pavementTexel * pathWeight + snowTexel * snowWeight;
 }
