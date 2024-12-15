@@ -10,6 +10,7 @@
 #include "ShaderProgram.hpp"
 
 void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height);
+void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height);
 
 int main()
 {
@@ -46,7 +47,7 @@ int main()
         return -1;
     }
 
-    heightmap_demo(window, SCR_WIDTH, SCR_HEIGHT);
+    path_demo(window, SCR_WIDTH, SCR_HEIGHT);
 
     glfwDestroyWindow(window);
     glfwTerminate();

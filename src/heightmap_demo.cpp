@@ -14,7 +14,7 @@ static float lastY = 800 / 2.0f;
 static float pitch = 20;
 static float yaw = 180;
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     GLfloat xoffset = xpos - lastX;
     GLfloat yoffset = lastY - ypos; // Обратный порядок вычитания потому что оконные Y-координаты возрастают с верху вниз 
@@ -154,7 +154,7 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
    
     glBindVertexArray(0);
 
-    GLuint shader = ShaderProgram().compile("res/shaders/terrain_shader.vert", "res/shaders/terrain_shader.frag");
+    GLuint shader = ShaderProgram().compile("res/shaders/heightmap.vert", "res/shaders/heightmap.frag");
     glUseProgram(shader);
     int mvpLoc = glGetUniformLocation(shader, "MVP");
 

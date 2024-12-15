@@ -33,6 +33,7 @@ set(_src_files
 	src/Texture.cpp
 	src/ShaderProgram.cpp
 	src/heightmap_demo.cpp
+	src/path_demo.cpp
 	src/main.cpp
 )
 
