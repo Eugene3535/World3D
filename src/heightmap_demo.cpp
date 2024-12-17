@@ -36,6 +36,7 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 {
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
 
     auto is_key_pressed = [window](int32_t key)

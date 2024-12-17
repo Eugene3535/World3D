@@ -39,6 +39,7 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 {
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
 
     auto is_key_pressed = [window](int32_t key)
@@ -62,9 +63,9 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     std::array<Vertex, 4> vertices = 
     {
         Vertex(glm::vec3(0.0f, 0.0f, 0.0f),          glm::vec2(0.0f,  0.0f)),
-        Vertex(glm::vec3(mapWidth, 0.0f, 0.0f),      glm::vec2(20.0f, 0.0f)),
-        Vertex(glm::vec3(mapWidth, 0.0f, mapHeight), glm::vec2(20.0f, 20.0f)),
-        Vertex(glm::vec3(0.0f, 0.0f, mapHeight),     glm::vec2(0.0f,  20.0f))
+        Vertex(glm::vec3(mapWidth, 0.0f, 0.0f),      glm::vec2(10.0f, 0.0f)),
+        Vertex(glm::vec3(mapWidth, 0.0f, mapHeight), glm::vec2(10.0f, 10.0f)),
+        Vertex(glm::vec3(0.0f, 0.0f, mapHeight),     glm::vec2(0.0f,  10.0f))
     };
 
     GLuint VAO, VBO;
@@ -121,7 +122,7 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glm::mat4 model_view = glm::mat4(1.0f);
         model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-        model_view = glm::translate(model_view, glm::vec3(-pos.x, -20.0f, -pos.y));
+        model_view = glm::translate(model_view, glm::vec3(-pos.x, -100.0f, -pos.y));
 
         auto MVP = projection * model_view;
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVP));

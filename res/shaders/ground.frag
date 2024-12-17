@@ -15,7 +15,7 @@ void main()
     vec4 pavementTexel = texture(pavementSampler, ioVertexTexCoord);
     vec4 pathTexel     = texture(pathSampler, ioPathTexCoord);
 
-    float pathWeight = pathTexel.r;
-    float snowWeight = 1.0f - pathWeight;
-    FragColor = pavementTexel * pathWeight + snowTexel * snowWeight;
+    float pathBrightness = pathTexel.r;
+    float snowBrightness = 1.0f - pathBrightness;
+    FragColor = pavementTexel * pathBrightness + snowTexel * snowBrightness;
 }

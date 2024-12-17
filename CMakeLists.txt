@@ -35,6 +35,7 @@ set(_src_files
 	src/Vertex.cpp
 	src/heightmap_demo.cpp
 	src/path_demo.cpp
+	src/dune_demo.cpp
 	src/main.cpp
 )
 

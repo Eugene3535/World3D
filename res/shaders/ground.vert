@@ -10,7 +10,7 @@ smooth out vec2 ioPathTexCoord;
 
 void main()
 {
-    gl_Position = MVP * vec4(vertexPosition, 1.0);
+    gl_Position = MVP * vec4(vertexPosition, 1.0f);
     ioVertexTexCoord = vertexTexCoord;
-    ioPathTexCoord = vertexTexCoord * 0.05f;
+    ioPathTexCoord = vertexTexCoord * 0.1f;
 }
