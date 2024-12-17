@@ -63,8 +63,8 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     textures[0]= Texture().createFromImage(imgMask, GL_CLAMP_TO_BORDER, GL_LINEAR);
     textures[1]= Texture().createFromImage(imgSand, GL_REPEAT, GL_LINEAR);
     textures[2]= Texture().createFromImage(imgSpace, GL_REPEAT, GL_LINEAR);
-    textures[3]= Texture().createFromImage(imgRock, GL_REPEAT, GL_LINEAR);
-    textures[4]= Texture().createFromImage(imgStone, GL_REPEAT, GL_LINEAR);
+    textures[3]= Texture().createFromImage(imgStone, GL_REPEAT, GL_LINEAR);
+    textures[4]= Texture().createFromImage(imgRock, GL_REPEAT, GL_LINEAR);
 
     float mapWidth  = static_cast<float>(imgMask.getWidth());
     float mapHeight = static_cast<float>(imgMask.getHeight());

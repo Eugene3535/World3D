@@ -17,6 +17,8 @@ bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
 {
     m_pixels.clear();
 
+    stbi_set_flip_vertically_on_load(1);
+
     uint8_t* data = stbi_load(fPath.generic_string().c_str(), &m_width, &m_height, &m_bytePerPixel, 0);
 
     if (!data)
