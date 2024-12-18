@@ -55,8 +55,8 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     if(!imgMask.loadFromFile("res/textures/mask.png"))   return;
     if(!imgSand.loadFromFile("res/textures/sand.jpg"))   return;
     if(!imgSpace.loadFromFile("res/textures/spice.jpg")) return;
-    if(!imgRock.loadFromFile("res/textures/rock.jpg"))   return;
-    if(!imgStone.loadFromFile("res/textures/stone.jpg")) return;
+    if(!imgRock.loadFromFile("res/textures/rock01.jpg")) return;
+    if(!imgStone.loadFromFile("res/textures/cracked_earth.jpg")) return;
 
     GLuint textures[5];
 
@@ -126,8 +126,6 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         if (is_key_pressed(GLFW_KEY_D)) { speed =  1.1f; radians += M_PI_2; }
 
         glm::mat4 model_view = glm::identity<glm::mat4>();
-        // model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-        // model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 1.0f, 0.0f));
         //model_view = glm::translate(model_view, glm::vec3(-1, -1, 0));
 
         auto MVP = projection * model_view;
