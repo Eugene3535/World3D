@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25.1)
 
 project(World3D LANGUAGES C CXX)
 
-set(EXTERNAL_DIR $ENV{external})
+set(EXTERNAL_DIR $ENV{External})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -29,7 +29,6 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 set(_src_files
-	src/Image.cpp
 	src/Texture.cpp
 	src/ShaderProgram.cpp
 	src/Vertex.cpp
@@ -40,7 +39,6 @@ set(_src_files
 )
 
 set(_hdr_files
-	src/Image.hpp
 	src/Texture.hpp
 	src/ShaderProgram.hpp
 	src/Vertex.hpp
@@ -52,11 +50,11 @@ set(_all_files
 )
 
 add_executable(${PROJECT_NAME} ${_src_files} ${_hdr_files})
+add_subdirectory(${PROJECT_SOURCE_DIR}/renderlib)
 
 add_subdirectory(${EXTERNAL_DIR}/glfw glfw)
 add_subdirectory(${EXTERNAL_DIR}/glad/core glad)
 add_subdirectory(${EXTERNAL_DIR}/glm glm)
-#add_subdirectory(${EXTERNAL_DIR}/assimp assimp)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -65,12 +63,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	glfw 
 	glad 
 	glm
-#	assimp
+	renderlib
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_SOURCE_DIR}/src
-	${EXTERNAL_DIR}/stb
 )
 
 if(MSVC)

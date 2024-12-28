@@ -1,6 +1,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#include <math.H>
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -50,7 +55,6 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     imageMap.loadFromFile("res/textures/heightmap.png");
 
     const uint8_t* pixels = imageMap.getPixels();
- 
     const GLuint mapDepth = imageMap.getHeight();
     const GLuint mapWidth = imageMap.getWidth();
 

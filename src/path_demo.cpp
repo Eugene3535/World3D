@@ -1,5 +1,10 @@
 #include <array>
 
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#include <math.H>
+#endif
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
