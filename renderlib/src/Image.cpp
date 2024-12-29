@@ -12,7 +12,7 @@ Image::Image() noexcept:
 
 }
 
-Image::~Image() = default;
+Image::~Image() noexcept = default;
 
 bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
 {
@@ -21,15 +21,39 @@ bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
 
     stbi_set_flip_vertically_on_load(1);
 
-    if(uint8_t* data = stbi_load(fPath.generic_string().c_str(), &m_width, &m_height, &m_bytePerPixel, 0); data)
+    if(stbi_uc* data = stbi_load(fPath.generic_string().c_str(), &m_width, &m_height, &m_bytePerPixel, 0); data)
     {
         const std::string& extension = fPath.extension().string();
 
-        //if(extension)
+        if(extension == ".jpeg")
+        {
+            m_format = Format::JPEG;
+        }
+        else if(extension == ".png")
+        {
+            m_format = Format::PNG;
+        }
+        else if(extension == ".bmp")
+        {
+            m_format = Format::BMP;
+        }
+        else if(extension == ".psd")
+        {
+            m_format = Format::PSD;
+        }
+        else if(extension == ".tga")
+        {
+            m_format = Format::TGA;
+        }
+        else // Unsupported format
+        {
+            stbi_image_free(data);
+
+            return false;
+        }
 
         m_pixels.resize(static_cast<size_t>(m_width * m_height * m_bytePerPixel));
         memcpy(m_pixels.data(), data, m_pixels.size());
-        stbi_image_free(data);
 
         return true;
     }

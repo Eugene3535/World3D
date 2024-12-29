@@ -18,15 +18,15 @@ public:
     };
 
     Image() noexcept;
-    ~Image();
+    ~Image() noexcept;
 
     bool loadFromFile(const std::filesystem::path& fPath) noexcept;
 
-    const uint8_t* getPixels() const noexcept;
-    int32_t getWidth()  const noexcept;
-    int32_t getHeight() const noexcept;
-    int32_t getBytePerPixel() const noexcept;
-    Format  getFormat() const noexcept;
+    const uint8_t* getPixels()       const noexcept;
+    int32_t        getWidth()        const noexcept;
+    int32_t        getHeight()       const noexcept;
+    int32_t        getBytePerPixel() const noexcept;
+    Format         getFormat()       const noexcept;
 
 private:
     std::vector<uint8_t> m_pixels;
