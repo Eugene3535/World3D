@@ -25,7 +25,7 @@ bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
     {
         const std::string& extension = fPath.extension().string();
 
-        if(extension == ".jpeg")
+        if(extension == ".jpg")
         {
             m_format = Format::JPEG;
         }

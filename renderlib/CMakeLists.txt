@@ -25,8 +25,10 @@ target_link_libraries(${RENDERLIB_TARGET} PRIVATE
 #	glm
 )
 
-target_include_directories(${RENDERLIB_TARGET} PUBLIC
+target_include_directories(${RENDERLIB_TARGET} 
+PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src
+PRIVATE
 	${EXTERNAL_DIR}/stb
 )
 

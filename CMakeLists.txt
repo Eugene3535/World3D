@@ -28,59 +28,13 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
-set(_src_files
-	src/Texture.cpp
-	src/ShaderProgram.cpp
-	src/Vertex.cpp
-	src/heightmap_demo.cpp
-	src/path_demo.cpp
-	src/dune_demo.cpp
-	src/main.cpp
-)
-
-set(_hdr_files
-	src/Texture.hpp
-	src/ShaderProgram.hpp
-	src/Vertex.hpp
-)
-
-set(_all_files
-	${_src_files}
-	${_hdr_files}
-)
-
-add_executable(${PROJECT_NAME} ${_src_files} ${_hdr_files})
-add_subdirectory(${PROJECT_SOURCE_DIR}/renderlib)
-
 add_subdirectory(${EXTERNAL_DIR}/glfw glfw)
 add_subdirectory(${EXTERNAL_DIR}/glad/core glad)
 add_subdirectory(${EXTERNAL_DIR}/glm glm)
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:DEBUG>)
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE
-	glfw 
-	glad 
-	glm
-	renderlib
-)
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-	${CMAKE_SOURCE_DIR}/src
-)
+add_subdirectory(${PROJECT_SOURCE_DIR}/renderlib)
+add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 
 if(MSVC)
 	set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_all_files})
-endif()
-
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:${PROJECT_NAME}>/res VERBATIM
-)
-
-if(MSVC)
-	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/res VERBATIM
-	)
 endif()
