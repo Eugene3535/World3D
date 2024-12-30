@@ -3,24 +3,36 @@ set(RENDERLIB_TARGET renderlib)
 set(_renderlib_src_files
 	src/Image.cpp
 	src/Shader.cpp
+	src/ShaderProgram.cpp
 )
 
 set(_renderlib_hdr_files
+	src/Export.hpp
 	src/Image.hpp
 	src/Shader.hpp
+	src/ShaderProgram.hpp
 )
 
-set(_all_renderer_files
+set(_all_renderlib_files
 	${_renderlib_src_files}
 	${_renderlib_hdr_files}
 )
 
-add_library(${RENDERLIB_TARGET} SHARED ${_all_renderer_files})
+if(RENDERLIB_BUILD_STATIC)
+	add_library(${RENDERLIB_TARGET} STATIC ${_all_renderlib_files})
+else()
+	add_library(${RENDERLIB_TARGET} SHARED ${_all_renderlib_files})
+endif()
 
-target_compile_definitions(${RENDERLIB_TARGET} PRIVATE $<$<CONFIG:Debug>:DEBUG>)
+if(RENDERLIB_BUILD_STATIC)
+	target_compile_definitions(${RENDERLIB_TARGET} PRIVATE RENDERLIB_STATIC)
+else()
+	target_compile_definitions(${RENDERLIB_TARGET} PRIVATE RENDERLIB_API_EXPORTS)
+endif()
+
 target_compile_features(${RENDERLIB_TARGET} PRIVATE cxx_std_17)
 
-target_link_libraries(${RENDERLIB_TARGET} PRIVATE
+target_link_libraries(${RENDERLIB_TARGET} PUBLIC
 	glad 
 #	glm
 )

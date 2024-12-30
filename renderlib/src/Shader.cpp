@@ -44,9 +44,9 @@ Shader::Shader(const std::filesystem::path& filepath, GLenum shaderType) noexcep
 
             if (success == GL_FALSE)
             {
-                char infoLog[1024]{};
-                glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
-                printf("Error: shader compilation error\n%s\n ------------------------------------------------------- \n", infoLog);
+                char info_log[1024]{};
+                glGetShaderInfoLog(shader, sizeof(info_log), nullptr, info_log);
+                printf("Error: shader compilation error\n%s\n ------------------------------------------------------- \n", info_log);
             }
             else
             {

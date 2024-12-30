@@ -19,6 +19,8 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         return glfwGetKey(window, key) == GLFW_PRESS;
     };
 
+    auto cp = std::filesystem::current_path().string();
+
     Image imgMask;
     Image imgSand;
     Image imgSpace;
@@ -67,15 +69,16 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
    
     glBindVertexArray(0);
 
-    GLuint shader = ShaderProgram().compile("res/shaders/dune.vert", "res/shaders/dune.frag");
-    glUseProgram(shader);
-    int32_t mvpLoc = glGetUniformLocation(shader, "MVP");
+    ShaderProgram program = { Shader("res/shaders/dune.vert", GL_VERTEX_SHADER), Shader("res/shaders/dune.frag", GL_FRAGMENT_SHADER) };
 
-    glUniform1i(glGetUniformLocation(shader, "texMap"), 0);
-    glUniform1i(glGetUniformLocation(shader, "texSand"), 1);
-    glUniform1i(glGetUniformLocation(shader, "texSpice"), 2);
-    glUniform1i(glGetUniformLocation(shader, "texStone"), 3);
-    glUniform1i(glGetUniformLocation(shader, "texRock"), 4);
+    program.bind(true);
+    int32_t mvpLoc = program.getUniformLocation("MVP");
+
+    glUniform1i(program.getUniformLocation("texMap"), 0);
+    glUniform1i(program.getUniformLocation("texSand"), 1);
+    glUniform1i(program.getUniformLocation("texSpice"), 2);
+    glUniform1i(program.getUniformLocation("texStone"), 3);
+    glUniform1i(program.getUniformLocation("texRock"), 4);
 
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(scr_width), 0.0f, static_cast<float>(scr_height), -1.0f, 1.0f);
     glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -118,7 +121,6 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glfwPollEvents();
     }
 
-    glDeleteProgram(shader);
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
     glDeleteTextures(std::size(textures), textures);

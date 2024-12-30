@@ -5,7 +5,9 @@
 
 #include <glad/glad.h>
 
-class Shader
+#include "Export.hpp"
+
+class RL_API Shader
 {
 public:
     Shader(const std::filesystem::path& filepath, GLenum shaderType) noexcept;
@@ -15,9 +17,9 @@ public:
     Shader& operator =(Shader&&) noexcept;
     ~Shader() noexcept;
 
-    GLuint getHandle() const noexcept;
-    GLenum getType()   const noexcept;
-    bool isCompiled()  const noexcept;
+    GLuint getHandle()  const noexcept;
+    GLenum getType()    const noexcept;
+    bool   isCompiled() const noexcept;
 
 private:
     GLuint m_handle;
