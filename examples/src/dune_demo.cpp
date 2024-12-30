@@ -69,7 +69,10 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
    
     glBindVertexArray(0);
 
-    ShaderProgram program = { Shader("res/shaders/dune.vert", GL_VERTEX_SHADER), Shader("res/shaders/dune.frag", GL_FRAGMENT_SHADER) };
+    ShaderProgram program = { { "res/shaders/dune.vert", GL_VERTEX_SHADER }, { "res/shaders/dune.frag", GL_FRAGMENT_SHADER } };
+
+    if (!program.isCompiled())
+        return;
 
     program.bind(true);
     int32_t mvpLoc = program.getUniformLocation("MVP");

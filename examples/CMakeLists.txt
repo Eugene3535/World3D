@@ -3,8 +3,8 @@ set(EXAMPLE_TARGET example)
 set(_example_src_files
 	src/Texture.cpp
 	src/Vertex.cpp
-	#src/heightmap_demo.cpp
-	#src/path_demo.cpp
+	src/heightmap_demo.cpp
+	src/path_demo.cpp
 	src/dune_demo.cpp
 	src/main.cpp
 )

@@ -159,14 +159,18 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
    
     glBindVertexArray(0);
 
-    GLuint shader = ShaderProgram().compile("res/shaders/heightmap.vert", "res/shaders/heightmap.frag");
-    glUseProgram(shader);
-    int mvpLoc = glGetUniformLocation(shader, "MVP");
+    ShaderProgram program = { { "res/shaders/heightmap.vert", GL_VERTEX_SHADER }, { "res/shaders/heightmap.frag", GL_FRAGMENT_SHADER} };
 
-    glUniform1i(glGetUniformLocation(shader, "cracked_earth"), 0);
-    glUniform1i(glGetUniformLocation(shader, "rock"), 1);
-    glUniform1i(glGetUniformLocation(shader, "grass"), 2);
-    glUniform1i(glGetUniformLocation(shader, "clover"), 3);
+    if (!program.isCompiled())
+        return;
+
+    program.bind(true);
+    int32_t mvpLoc = program.getUniformLocation("MVP");
+
+    glUniform1i(program.getUniformLocation("cracked_earth"), 0);
+    glUniform1i(program.getUniformLocation("rock"), 1);
+    glUniform1i(program.getUniformLocation("grass"), 2);
+    glUniform1i(program.getUniformLocation("clover"), 3);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
@@ -236,7 +240,6 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glfwPollEvents();
     }
 
-    glDeleteProgram(shader);
     glDeleteBuffers(2, VBO);
     glDeleteBuffers(1, &EBO);
     glDeleteVertexArrays(1, &VAO);

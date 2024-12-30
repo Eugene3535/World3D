@@ -57,7 +57,7 @@ int main()
     0);
 #endif
 
-    dune_demo(window, SCR_WIDTH, SCR_HEIGHT);
+    path_demo(window, SCR_WIDTH, SCR_HEIGHT);
 
     glfwDestroyWindow(window);
     glfwTerminate();

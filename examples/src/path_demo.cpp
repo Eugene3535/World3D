@@ -90,13 +90,18 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
    
     glBindVertexArray(0);
 
-    GLuint shader = ShaderProgram().compile("res/shaders/ground.vert", "res/shaders/ground.frag");
-    glUseProgram(shader);
-    int mvpLoc = glGetUniformLocation(shader, "MVP");
 
-    glUniform1i(glGetUniformLocation(shader, "snowSampler"), 0);
-    glUniform1i(glGetUniformLocation(shader, "pavementSampler"), 1);
-    glUniform1i(glGetUniformLocation(shader, "pathSampler"), 2);
+    ShaderProgram program = { { "res/shaders/ground.vert", GL_VERTEX_SHADER }, { "res/shaders/ground.frag", GL_FRAGMENT_SHADER} };
+
+    if (!program.isCompiled())
+        return;
+
+    program.bind(true);
+    int32_t mvpLoc = program.getUniformLocation("MVP");
+
+    glUniform1i(program.getUniformLocation("snowSampler"), 0);
+    glUniform1i(program.getUniformLocation("pavementSampler"), 1);
+    glUniform1i(program.getUniformLocation("pathSampler"), 2);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
@@ -153,7 +158,6 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glfwPollEvents();
     }
 
-    glDeleteProgram(shader);
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
 
