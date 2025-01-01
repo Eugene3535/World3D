@@ -3,12 +3,17 @@
 #include <cstdio>
 #endif
 
+#include <glad/glad.h>
+
 #include "Shader.hpp"
 
-Shader::Shader(const std::filesystem::path& filepath, GLenum shaderType) noexcept:
+Shader::Shader(const std::filesystem::path& filepath, uint32_t shaderType) noexcept:
     m_handle(0),
     m_type(0)
 {
+    static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!");
+    static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!");
+
     bool type_is_valid = (shaderType == GL_COMPUTE_SHADER)         || 
                          (shaderType == GL_VERTEX_SHADER)          || 
                          (shaderType == GL_TESS_CONTROL_SHADER)    || 
@@ -33,20 +38,20 @@ Shader::Shader(const std::filesystem::path& filepath, GLenum shaderType) noexcep
 
         if(!source.empty())
         {
-            GLuint shader = glCreateShader(shaderType);
+            uint32_t shader = glCreateShader(shaderType);
             const char* c_str = source.c_str();
 
             glShaderSource(shader, 1, &c_str, 0);
             glCompileShader(shader);
 
-            GLint success = 0;
+            int32_t success = 0;
             glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
             if (success == GL_FALSE)
             {
-                char info_log[1024]{};
-                glGetShaderInfoLog(shader, sizeof(info_log), nullptr, info_log);
-                printf("Error: shader compilation error\n%s\n ------------------------------------------------------- \n", info_log);
+                char infoLog[1024]{};
+                glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
+                printf("Error: shader compilation error\n%s\n ------------------------------------------------------- \n", infoLog);
             }
             else
             {

@@ -13,13 +13,13 @@ public:
     ShaderProgram& operator =(ShaderProgram&&) noexcept;
     ~ShaderProgram() noexcept;
 
-    void   bind(bool value) noexcept;
-    GLuint getHandle() const noexcept;
-    GLint  getUniformLocation(const GLchar* name) noexcept;
-    bool   isCompiled() const noexcept;
+    void     bind(bool value) noexcept;
+    uint32_t getHandle() const noexcept;
+    int32_t  getUniformLocation(const char* name) noexcept;
+    bool     isCompiled() const noexcept;
 
 private:
-    GLuint m_handle;
+    uint32_t m_handle;
 };
 
 #endif // !SHADER_PROGRAM_HPP

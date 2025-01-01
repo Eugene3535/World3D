@@ -4,6 +4,7 @@ set(_renderlib_src_files
 	src/Image.cpp
 	src/Shader.cpp
 	src/ShaderProgram.cpp
+	src/VertexBuffer.cpp
 )
 
 set(_renderlib_hdr_files
@@ -11,6 +12,7 @@ set(_renderlib_hdr_files
 	src/Image.hpp
 	src/Shader.hpp
 	src/ShaderProgram.hpp
+	src/VertexBuffer.hpp
 )
 
 set(_all_renderlib_files

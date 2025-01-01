@@ -2,12 +2,18 @@
 #include <cstdio>
 #endif
 
+#include <glad/glad.h>
+
 #include "ShaderProgram.hpp"
 
 ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
     m_handle(0)
 {
-    GLuint program = glCreateProgram();
+    static_assert(std::is_same_v<GLchar, char>, "GLchar and char are not the same type!");
+    static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!");
+    static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!");
+
+    uint32_t program = glCreateProgram();
 
     for(const auto& shader : shaders)
         glAttachShader(program, shader.getHandle());
@@ -19,9 +25,9 @@ ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
 
     if (success == GL_FALSE)
     {
-        GLchar info_log[1024]{};
-        glGetProgramInfoLog(program, sizeof(info_log), nullptr, info_log);
-        printf("SHADER PROGRAM: Link-time error:\n%s\n", info_log);
+        char infoLog[1024]{};
+        glGetProgramInfoLog(program, sizeof(infoLog), nullptr, infoLog);
+        printf("SHADER PROGRAM: Link-time error:\n%s\n", infoLog);
         glDeleteProgram(program);
     }
     else
@@ -55,16 +61,16 @@ ShaderProgram::~ShaderProgram() noexcept
 
 void ShaderProgram::bind(bool value) noexcept
 {
-    GLuint program = value ? m_handle : 0;
+    uint32_t program = value ? m_handle : 0;
     glUseProgram(program);
 }
 
-GLuint ShaderProgram::getHandle() const noexcept
+uint32_t ShaderProgram::getHandle() const noexcept
 {
     return m_handle;
 }
 
-GLint ShaderProgram::getUniformLocation(const GLchar* name) noexcept
+int32_t ShaderProgram::getUniformLocation(const char* name) noexcept
 {
     if(m_handle)
         return glGetUniformLocation(m_handle, name);
