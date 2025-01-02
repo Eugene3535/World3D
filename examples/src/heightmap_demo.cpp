@@ -153,8 +153,8 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     ShaderProgram program = 
     { 
-        { "res/shaders/heightmap.vert", GL_VERTEX_SHADER }, 
-        { "res/shaders/heightmap.frag", GL_FRAGMENT_SHADER} 
+        { "res/shaders/heightmap.vert", GL_VERTEX_SHADER   }, 
+        { "res/shaders/heightmap.frag", GL_FRAGMENT_SHADER } 
     };
 
     if (!program.isCompiled())
@@ -223,7 +223,6 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         Texture2D::enable(GL_TEXTURE3);
         Texture2D::bind(&texClover);
 
-        //glBindVertexArray(VAO);
         vao->bind(vao.get());
 
         for(GLuint strip = 0; strip < numStrips; ++strip)

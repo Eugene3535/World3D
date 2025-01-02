@@ -8,6 +8,7 @@ set(_renderlib_src_files
 	src/IndexBuffer.cpp
 	src/VertexArray.cpp
 	src/Texture2D.cpp
+	src/OpenGLDebugger.cpp
 )
 
 set(_renderlib_hdr_files
@@ -19,6 +20,7 @@ set(_renderlib_hdr_files
 	src/IndexBuffer.hpp
 	src/VertexArray.hpp
 	src/Texture2D.hpp
+	src/OpenGLDebugger.hpp
 )
 
 set(_all_renderlib_files
