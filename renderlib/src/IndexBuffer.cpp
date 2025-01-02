@@ -1,7 +1,7 @@
 #include "IndexBuffer.hpp"
 #include <glad/glad.h>
 
-IndexBuffer::IndexBuffer(const void* data, uint32_t count, VertexBuffer::Usage usage): 
+IndexBuffer::IndexBuffer(const void* data, size_t count, VertexBuffer::Usage usage):
     m_count(count)
 {
     auto usageToGLenum = [](const VertexBuffer::Usage usage) -> int32_t
@@ -18,6 +18,7 @@ IndexBuffer::IndexBuffer(const void* data, uint32_t count, VertexBuffer::Usage u
     glGenBuffers(1, &m_handle);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_handle);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, usageToGLenum(usage));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 

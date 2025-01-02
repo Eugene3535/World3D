@@ -6,7 +6,7 @@
 class IndexBuffer 
 {
 public:
-    IndexBuffer(const void* data, uint32_t count, VertexBuffer::Usage usage = VertexBuffer::Usage::Static);
+    IndexBuffer(const void* data, size_t count, VertexBuffer::Usage usage = VertexBuffer::Usage::Static);
     IndexBuffer(const IndexBuffer&) = delete;
     IndexBuffer(IndexBuffer&& index_buffer) noexcept;
     IndexBuffer& operator = (const IndexBuffer&) = delete;

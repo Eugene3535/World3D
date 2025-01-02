@@ -59,15 +59,11 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     const GLuint mapDepth = imageMap.getHeight();
     const GLuint mapWidth = imageMap.getWidth();
 
-    std::vector<glm::vec3> vertices(mapDepth * mapWidth);
-    std::vector<glm::vec2> tex_coords(vertices.size());
-
+    std::vector<float> vertices(mapDepth * mapWidth * 5);
     std::vector<GLuint> indices;
-    indices.reserve(vertices.size() * 2);
+    indices.reserve(static_cast<size_t>(mapDepth * mapWidth * 2));
 
-    std::vector<float> heightmap(vertices.size());
-
-    size_t index = 0;
+    std::vector<float> heightmap(mapDepth * mapWidth);
 
     auto is_in_bounds = [](float x, float z, GLuint width, GLuint depth) -> bool
     {
@@ -97,6 +93,9 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         return 0.f;
     };
 
+    size_t index = 0;
+    size_t stride = 0;
+
     for (size_t z = 0; z < mapDepth; ++z)
     {
         for (size_t x = 0; x < mapWidth; ++x)
@@ -105,16 +104,18 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
             int32_t y = static_cast<int32_t>(pixel[0]);
             float Y = y * 0.03f;
 
-            vertices[index].x = x;
-            vertices[index].y = Y;
-            vertices[index].z = z;
-            
-            tex_coords[index].x = x * 0.3f;
-            tex_coords[index].y = z * 0.3f;
+            float* vertex = vertices.data() + stride;
+
+            vertex[0] = x;
+            vertex[1] = Y;
+            vertex[2] = z;
+            vertex[3] = x * 0.3f;
+            vertex[4] = z * 0.3f;
 
             heightmap[index] = Y;
 
             ++index;
+            stride += 5;
         }
     }
 
@@ -137,30 +138,24 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     Texture2D texGrass        = Texture2D(imgGrass, GL_REPEAT, GL_LINEAR);
     Texture2D texClover       = Texture2D(imgClover, GL_REPEAT, GL_LINEAR);
 
-    GLuint VAO, VBO[2], EBO;
+    BufferLayout layout
+    {
+        AttributeInfo::Float3,
+        AttributeInfo::Float2
+    };
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(2, VBO);
-    glGenBuffers(1, &EBO);
+    auto vbo = std::make_unique<VertexBuffer>(vertices.data(), vertices.size() * sizeof(GLfloat), layout);
+    auto ebo = std::make_unique<IndexBuffer>(indices.data(), indices.size());
+    auto vao = std::make_unique<VertexArray>();
 
-    glBindVertexArray(VAO);
+    vao->addVertexBuffer(*vbo);
+    vao->setIndexBuffer(*ebo);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), NULL);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * tex_coords.size(), tex_coords.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), NULL);
-    glEnableVertexAttribArray(1);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), indices.data(), GL_STATIC_DRAW);
-   
-    glBindVertexArray(0);
-
-    ShaderProgram program = { { "res/shaders/heightmap.vert", GL_VERTEX_SHADER }, { "res/shaders/heightmap.frag", GL_FRAGMENT_SHADER} };
+    ShaderProgram program = 
+    { 
+        { "res/shaders/heightmap.vert", GL_VERTEX_SHADER }, 
+        { "res/shaders/heightmap.frag", GL_FRAGMENT_SHADER} 
+    };
 
     if (!program.isCompiled())
         return;
@@ -228,7 +223,8 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         Texture2D::enable(GL_TEXTURE3);
         Texture2D::bind(&texClover);
 
-        glBindVertexArray(VAO);
+        //glBindVertexArray(VAO);
+        vao->bind(vao.get());
 
         for(GLuint strip = 0; strip < numStrips; ++strip)
         {
@@ -238,13 +234,9 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
             reinterpret_cast<const void*>(sizeof(GLuint) * (numTrisPerStrip + 2) * strip)); // offset to starting index
         }
 
-        glBindVertexArray(0);
+        vao->bind(nullptr);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    glDeleteBuffers(2, VBO);
-    glDeleteBuffers(1, &EBO);
-    glDeleteVertexArrays(1, &VAO);
 }

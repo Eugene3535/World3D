@@ -86,7 +86,7 @@ static constexpr GLenum usageToGLenum(const VertexBuffer::Usage usage) noexcept
 AttributeInfo::AttributeInfo(const AttributeInfo::Type attrType) noexcept:
     type(attrType),
     componentType(shaderAttributeTypeToComponentType(attrType)),
-    componentsCount(shaderAttributeTypeToComponentType(attrType)),
+    componentsCount(shaderAttributeTypeToComponentCount(attrType)),
     sizeInBytes(shaderAttributeTypeSizeOf(attrType)),
     offset(0)
 {

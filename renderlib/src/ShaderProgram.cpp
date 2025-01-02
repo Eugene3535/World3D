@@ -20,7 +20,7 @@ ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
 
     glLinkProgram(program);
 
-    GLint success = GL_FALSE;
+    int32_t success = GL_FALSE;
     glGetProgramiv(program, GL_LINK_STATUS, &success);
 
     if (success == GL_FALSE)
