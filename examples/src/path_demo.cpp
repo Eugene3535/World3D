@@ -13,7 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Image.hpp"
-#include "Texture.hpp"
+#include "Texture2D.hpp"
 #include "Vertex.hpp"
 #include "ShaderProgram.hpp"
 
@@ -58,9 +58,9 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     Image imgPavement; imgPavement.loadFromFile("res/textures/pavement.jpg");
     Image imgPath;     imgPath.loadFromFile("res/textures/test.png");
 
-    GLuint texSnow     = Texture().createFromImage(imgSnow, GL_REPEAT, GL_LINEAR);
-    GLuint texPavement = Texture().createFromImage(imgPavement, GL_REPEAT, GL_LINEAR);
-    GLuint texPath     = Texture().createFromImage(imgPath, GL_CLAMP_TO_BORDER, GL_LINEAR);
+    Texture2D texSnow     = Texture2D(imgSnow, GL_REPEAT, GL_LINEAR);
+    Texture2D texPavement = Texture2D(imgPavement, GL_REPEAT, GL_LINEAR);
+    Texture2D texPath     = Texture2D(imgPath, GL_CLAMP_TO_BORDER, GL_LINEAR);
 
     float mapWidth = static_cast<float>(imgPath.getWidth());
     float mapHeight = static_cast<float>(imgPath.getHeight());
@@ -142,11 +142,11 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texSnow);
+        Texture2D::bind(&texSnow);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texPavement);
+        Texture2D::bind(&texPavement);
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, texPath);
+        Texture2D::bind(&texPath);
 
         glBindVertexArray(VAO);
 
@@ -160,8 +160,4 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
-
-    glDeleteTextures(1, &texPath);
-    glDeleteTextures(1, &texPavement);  
-    glDeleteTextures(1, &texPath); 
 }

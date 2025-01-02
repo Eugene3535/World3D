@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Image.hpp"
-#include "Texture.hpp"
+#include "Texture2D.hpp"
 #include "Vertex.hpp"
 #include "ShaderProgram.hpp"
 
@@ -33,13 +33,14 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     if(!imgRock.loadFromFile("res/textures/rock01.jpg")) return;
     if(!imgStone.loadFromFile("res/textures/cracked_earth.jpg")) return;
 
-    GLuint textures[5];
-
-    textures[0]= Texture().createFromImage(imgMask, GL_CLAMP_TO_BORDER, GL_LINEAR);
-    textures[1]= Texture().createFromImage(imgSand, GL_REPEAT, GL_LINEAR);
-    textures[2]= Texture().createFromImage(imgSpace, GL_REPEAT, GL_LINEAR);
-    textures[3]= Texture().createFromImage(imgStone, GL_REPEAT, GL_LINEAR);
-    textures[4]= Texture().createFromImage(imgRock, GL_REPEAT, GL_LINEAR);
+    Texture2D textures[5] = 
+    {
+        Texture2D(imgMask, GL_CLAMP_TO_BORDER, GL_LINEAR),
+        Texture2D(imgSand, GL_REPEAT, GL_LINEAR),
+        Texture2D(imgSpace, GL_REPEAT, GL_LINEAR),
+        Texture2D(imgStone, GL_REPEAT, GL_LINEAR),
+        Texture2D(imgRock, GL_REPEAT, GL_LINEAR)
+    };
 
     float mapWidth  = static_cast<float>(imgMask.getWidth());
     float mapHeight = static_cast<float>(imgMask.getHeight());
@@ -107,7 +108,7 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         for(size_t i = 0; i < std::size(textures); ++i)
         {
             glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, textures[i]);
+            Texture2D::bind(&textures[i]);
         }
         
         glBindVertexArray(VAO);
@@ -126,5 +127,4 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
-    glDeleteTextures(std::size(textures), textures);
 }

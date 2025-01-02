@@ -1,7 +1,6 @@
 set(EXAMPLE_TARGET example)
 
 set(_example_src_files
-	src/Texture.cpp
 	src/Vertex.cpp
 	src/heightmap_demo.cpp
 	src/path_demo.cpp
@@ -10,7 +9,6 @@ set(_example_src_files
 )
 
 set(_example_hdr_files
-	src/Texture.hpp
 	src/Vertex.hpp
 )
 

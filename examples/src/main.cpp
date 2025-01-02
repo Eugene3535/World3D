@@ -6,7 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Image.hpp"
-#include "Texture.hpp"
+#include "Texture2D.hpp"
 #include "ShaderProgram.hpp"
 
 void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height);
@@ -57,7 +57,7 @@ int main()
     0);
 #endif
 
-    path_demo(window, SCR_WIDTH, SCR_HEIGHT);
+    heightmap_demo(window, SCR_WIDTH, SCR_HEIGHT);
 
     glfwDestroyWindow(window);
     glfwTerminate();

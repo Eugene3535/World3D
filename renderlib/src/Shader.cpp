@@ -12,6 +12,7 @@ Shader::Shader(const std::filesystem::path& filepath, uint32_t shaderType) noexc
     m_type(0)
 {
     static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!");
+    static_assert(std::is_same_v<GLenum, uint32_t>, "GLenum and uint32_t are not the same type!");
     static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!");
 
     bool type_is_valid = (shaderType == GL_COMPUTE_SHADER)         || 

@@ -11,7 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Image.hpp"
-#include "Texture.hpp"
+#include "Texture2D.hpp"
 #include "ShaderProgram.hpp"
 
 static float lastX = 1200 / 2.0f;
@@ -131,10 +131,10 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
     Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
 
-    GLuint texCrackedEarth = Texture().createFromImage(imgCrackedEarth, GL_REPEAT, GL_LINEAR);
-    GLuint texRock         = Texture().createFromImage(imgRock, GL_REPEAT, GL_LINEAR);
-    GLuint texGrass        = Texture().createFromImage(imgGrass, GL_REPEAT, GL_LINEAR);
-    GLuint texClover       = Texture().createFromImage(imgClover, GL_REPEAT, GL_LINEAR);
+    Texture2D texCrackedEarth = Texture2D(imgCrackedEarth, GL_REPEAT, GL_LINEAR);
+    Texture2D texRock         = Texture2D(imgRock, GL_REPEAT, GL_LINEAR);
+    Texture2D texGrass        = Texture2D(imgGrass, GL_REPEAT, GL_LINEAR);
+    Texture2D texClover       = Texture2D(imgClover, GL_REPEAT, GL_LINEAR);
 
     GLuint VAO, VBO[2], EBO;
 
@@ -216,13 +216,13 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCrackedEarth);
+        Texture2D::bind(&texCrackedEarth);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texRock);
+        Texture2D::bind(&texRock);
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, texGrass);
+        Texture2D::bind(&texGrass);
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, texClover);
+        Texture2D::bind(&texClover);
 
         glBindVertexArray(VAO);
 
@@ -243,9 +243,4 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     glDeleteBuffers(2, VBO);
     glDeleteBuffers(1, &EBO);
     glDeleteVertexArrays(1, &VAO);
-
-    glDeleteTextures(1, &texCrackedEarth);
-    glDeleteTextures(1, &texRock);  
-    glDeleteTextures(1, &texGrass); 
-    glDeleteTextures(1, &texClover);
 }

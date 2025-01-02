@@ -16,6 +16,8 @@ Image::~Image() noexcept = default;
 
 bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
 {
+    static_assert(std::is_same_v<stbi_uc, uint8_t>, "stbi_uc and uint8_t are not the same type!");
+
     if(!m_pixels.empty())
         m_pixels.clear();
 

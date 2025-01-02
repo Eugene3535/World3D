@@ -5,6 +5,7 @@ set(_renderlib_src_files
 	src/Shader.cpp
 	src/ShaderProgram.cpp
 	src/VertexBuffer.cpp
+	src/Texture2D.cpp
 )
 
 set(_renderlib_hdr_files
@@ -13,6 +14,7 @@ set(_renderlib_hdr_files
 	src/Shader.hpp
 	src/ShaderProgram.hpp
 	src/VertexBuffer.hpp
+	src/Texture2D.hpp
 )
 
 set(_all_renderlib_files
