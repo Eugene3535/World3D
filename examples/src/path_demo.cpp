@@ -141,12 +141,9 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        glActiveTexture(GL_TEXTURE0);
-        Texture2D::bind(&texSnow);
-        glActiveTexture(GL_TEXTURE1);
-        Texture2D::bind(&texPavement);
-        glActiveTexture(GL_TEXTURE2);
-        Texture2D::bind(&texPath);
+        Texture2D::bind(&texSnow, GL_TEXTURE0);
+        Texture2D::bind(&texPavement, GL_TEXTURE1);
+        Texture2D::bind(&texPath, GL_TEXTURE2);
 
         glBindVertexArray(VAO);
 

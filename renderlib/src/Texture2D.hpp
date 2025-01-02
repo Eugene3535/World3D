@@ -25,7 +25,7 @@ public:
 	int32_t  width()     const noexcept;
 	int32_t  height()    const noexcept;
 
-	static void bind(const Texture2D* texture) noexcept;
+	static void bind(const Texture2D* texture, uint32_t unit) noexcept;
 
 private:
 	uint32_t m_handle;
