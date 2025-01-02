@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 
+
 // A vertex attribute is an input variable to a shader that is supplied with per - vertex data.
 // In OpenGL core profile, they are specified as in variables in a vertex shader and are backed by a GL_ARRAY_BUFFER.
 // These variable can contain, for example, positions, normals or texture coordinates.
@@ -30,7 +31,7 @@ public:
     Type type;
     uint32_t componentType;
     size_t componentsCount;
-    size_t size;
+    size_t sizeInBytes;
     size_t offset;
 };
 
@@ -52,14 +53,14 @@ private:
 class VertexBuffer 
 {
 public:
-    enum class Usage
+    enum Usage
     {
         Static,
         Dynamic,
         Stream
     };
 
-    VertexBuffer(const void* data, size_t size, const BufferLayout& layout, Usage usage = VertexBuffer::Usage::Static) noexcept;
+    VertexBuffer(const void* data, size_t size, const BufferLayout& layout, Usage usage = Static) noexcept;
     VertexBuffer(const VertexBuffer&) = delete;
     VertexBuffer& operator=(const VertexBuffer&) = delete;
     VertexBuffer& operator=(VertexBuffer&& vertex_buffer) noexcept;

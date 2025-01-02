@@ -13,10 +13,10 @@ public:
     ShaderProgram& operator =(ShaderProgram&&) noexcept;
     ~ShaderProgram() noexcept;
 
-    void     bind(bool value) noexcept;
-    uint32_t getHandle() const noexcept;
-    int32_t  getUniformLocation(const char* name) noexcept;
-    bool     isCompiled() const noexcept;
+    static void bind(ShaderProgram* program) noexcept;
+    uint32_t    getHandle() const noexcept;
+    int32_t     getUniformLocation(const char* name) const noexcept;
+    bool        isCompiled() const noexcept;
 
 private:
     uint32_t m_handle;

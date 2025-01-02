@@ -5,6 +5,8 @@ set(_renderlib_src_files
 	src/Shader.cpp
 	src/ShaderProgram.cpp
 	src/VertexBuffer.cpp
+	src/IndexBuffer.cpp
+	src/VertexArray.cpp
 	src/Texture2D.cpp
 )
 
@@ -14,6 +16,8 @@ set(_renderlib_hdr_files
 	src/Shader.hpp
 	src/ShaderProgram.hpp
 	src/VertexBuffer.hpp
+	src/IndexBuffer.hpp
+	src/VertexArray.hpp
 	src/Texture2D.hpp
 )
 

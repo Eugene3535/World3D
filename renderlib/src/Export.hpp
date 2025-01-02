@@ -1,5 +1,5 @@
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+#ifndef EXPORT_HPP
+#define EXPORT_HPP
 
 // #define BEGIN_NAMESPACE_RL namespace rl {
 // #define END_NAMESPACE_RL }
@@ -39,4 +39,4 @@
     #define RL_API
 #endif
 
-#endif // !CONFIG_HPP
+#endif // !EXPORT_HPP

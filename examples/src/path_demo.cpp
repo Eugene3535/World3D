@@ -96,7 +96,7 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     if (!program.isCompiled())
         return;
 
-    program.bind(true);
+    ShaderProgram::bind(&program);
     int32_t mvpLoc = program.getUniformLocation("MVP");
 
     glUniform1i(program.getUniformLocation("snowSampler"), 0);

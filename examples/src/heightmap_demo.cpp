@@ -13,6 +13,7 @@
 #include "Image.hpp"
 #include "Texture2D.hpp"
 #include "ShaderProgram.hpp"
+#include "VertexArray.hpp"
 
 static float lastX = 1200 / 2.0f;
 static float lastY = 800 / 2.0f;
@@ -164,7 +165,7 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     if (!program.isCompiled())
         return;
 
-    program.bind(true);
+    ShaderProgram::bind(&program);
     int32_t mvpLoc = program.getUniformLocation("MVP");
 
     glUniform1i(program.getUniformLocation("cracked_earth"), 0);

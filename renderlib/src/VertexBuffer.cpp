@@ -2,6 +2,7 @@
 
 #include "VertexBuffer.hpp"
 
+
 static constexpr uint32_t shaderAttributeTypeToComponentCount(const AttributeInfo::Type type) noexcept
 {
     switch (type)
@@ -86,7 +87,7 @@ AttributeInfo::AttributeInfo(const AttributeInfo::Type attrType) noexcept:
     type(attrType),
     componentType(shaderAttributeTypeToComponentType(attrType)),
     componentsCount(shaderAttributeTypeToComponentType(attrType)),
-    size(shaderAttributeTypeSizeOf(attrType)),
+    sizeInBytes(shaderAttributeTypeSizeOf(attrType)),
     offset(0)
 {
 
@@ -102,8 +103,8 @@ BufferLayout::BufferLayout(std::initializer_list<AttributeInfo> attributes) noex
     for (auto& attribute : m_attributes)
     {
         attribute.offset = offset;
-        offset += attribute.size;
-        m_stride += attribute.size;
+        offset += attribute.sizeInBytes;
+        m_stride += attribute.sizeInBytes;
     }
 }
 
@@ -129,9 +130,11 @@ VertexBuffer::VertexBuffer(const void* data, size_t size, const BufferLayout& la
 }
 
 
-VertexBuffer::~VertexBuffer()
+VertexBuffer::VertexBuffer(VertexBuffer&& vertex_buffer) noexcept :
+    m_handle(vertex_buffer.m_handle),
+    m_layout(vertex_buffer.m_layout)
 {
-    glDeleteBuffers(1, &m_handle);
+    vertex_buffer.m_handle = 0;
 }
 
 
@@ -144,11 +147,9 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& vertex_buffer) noexcept
 }
 
 
-VertexBuffer::VertexBuffer(VertexBuffer&& vertex_buffer) noexcept: 
-    m_handle(vertex_buffer.m_handle),
-    m_layout(vertex_buffer.m_layout)
+VertexBuffer::~VertexBuffer()
 {
-    vertex_buffer.m_handle = 0;
+    glDeleteBuffers(1, &m_handle);
 }
 
 

@@ -59,10 +59,10 @@ ShaderProgram::~ShaderProgram() noexcept
     glDeleteProgram(m_handle);
 }
 
-void ShaderProgram::bind(bool value) noexcept
+void ShaderProgram::bind(ShaderProgram* program) noexcept
 {
-    uint32_t program = value ? m_handle : 0;
-    glUseProgram(program);
+    uint32_t handle = program ? program->m_handle : 0;
+    glUseProgram(handle);
 }
 
 uint32_t ShaderProgram::getHandle() const noexcept
@@ -70,7 +70,7 @@ uint32_t ShaderProgram::getHandle() const noexcept
     return m_handle;
 }
 
-int32_t ShaderProgram::getUniformLocation(const char* name) noexcept
+int32_t ShaderProgram::getUniformLocation(const char* name) const noexcept
 {
     if(m_handle)
         return glGetUniformLocation(m_handle, name);
