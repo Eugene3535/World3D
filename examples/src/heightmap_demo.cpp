@@ -215,10 +215,17 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        Texture2D::bind(&texCrackedEarth, GL_TEXTURE0);
-        Texture2D::bind(&texRock, GL_TEXTURE1);
-        Texture2D::bind(&texGrass, GL_TEXTURE2);
-        Texture2D::bind(&texClover, GL_TEXTURE3);
+        Texture2D::enable(GL_TEXTURE0);
+        Texture2D::bind(&texCrackedEarth);
+
+        Texture2D::enable(GL_TEXTURE1);
+        Texture2D::bind(&texRock);
+
+        Texture2D::enable(GL_TEXTURE2);
+        Texture2D::bind(&texGrass);
+
+        Texture2D::enable(GL_TEXTURE3);
+        Texture2D::bind(&texClover);
 
         glBindVertexArray(VAO);
 

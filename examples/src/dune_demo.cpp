@@ -107,7 +107,8 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
         for(size_t i = 0; i < std::size(textures); ++i)
         {
-            Texture2D::bind(&textures[i], GL_TEXTURE0 + i);
+            Texture2D::enable(GL_TEXTURE0 + i);
+            Texture2D::bind(&textures[i]);
         }
         
         glBindVertexArray(VAO);
@@ -117,8 +118,8 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glBindVertexArray(0);
 
         for (size_t i = 0; i < std::size(textures); ++i)
-            textures[i].bind(nullptr, GL_TEXTURE0);
-        glActiveTexture(GL_TEXTURE0);
+            textures[i].bind(nullptr);
+        Texture2D::enable(GL_TEXTURE0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

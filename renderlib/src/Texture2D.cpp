@@ -105,7 +105,7 @@ void Texture2D::setSmooth(bool smooth) noexcept
     if(m_isSmooth != smooth)
     {
         m_isSmooth = smooth;
-        Texture2D::bind(this, GL_TEXTURE0);
+        Texture2D::bind(this);
 
         if (m_isSmooth)
         {
@@ -118,7 +118,7 @@ void Texture2D::setSmooth(bool smooth) noexcept
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         }
 
-        Texture2D::bind(nullptr, 0);
+        Texture2D::bind(nullptr);
     }
 }
 
@@ -128,7 +128,7 @@ void Texture2D::setRepeated(bool repeate) noexcept
     if(m_isRepeated != repeate)
     {
         m_isRepeated = repeate;
-        Texture2D::bind(this, GL_TEXTURE0);
+        Texture2D::bind(this);
 
         if (m_isRepeated)
         {
@@ -144,7 +144,7 @@ void Texture2D::setRepeated(bool repeate) noexcept
             glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
         }
 
-        Texture2D::bind(nullptr, 0);
+        Texture2D::bind(nullptr);
     }
 }
 
@@ -185,10 +185,13 @@ int32_t Texture2D::height() const noexcept
 }
 
 
-void Texture2D::bind(const Texture2D* texture, uint32_t unit) noexcept
+void Texture2D::bind(const Texture2D* texture) noexcept
 {
-    if(texture)
-        glActiveTexture(unit);
-
     glBindTexture(GL_TEXTURE_2D, (texture != nullptr) ? texture->m_handle : 0);
+}
+
+
+void Texture2D::enable(uint32_t unit) noexcept
+{
+    glActiveTexture(unit);
 }
