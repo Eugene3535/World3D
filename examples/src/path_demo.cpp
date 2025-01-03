@@ -14,8 +14,8 @@
 
 #include "Image.hpp"
 #include "Texture2D.hpp"
-#include "Vertex.hpp"
 #include "ShaderProgram.hpp"
+#include "VertexArray.hpp"
 
 static float lastX = 1200 / 2.0f;
 static float lastY = 800 / 2.0f;
@@ -62,36 +62,33 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     Texture2D texPavement = Texture2D(imgPavement, GL_REPEAT, GL_LINEAR);
     Texture2D texPath     = Texture2D(imgPath, GL_CLAMP_TO_BORDER, GL_LINEAR);
 
-    float mapWidth = static_cast<float>(imgPath.getWidth());
+    float mapWidth  = static_cast<float>(imgPath.getWidth());
     float mapHeight = static_cast<float>(imgPath.getHeight());
 
-    std::array<Vertex, 4> vertices = 
+    std::array<float, 20> vertices = 
     {
-        Vertex(glm::vec3(0.0f, 0.0f, 0.0f),          glm::vec2(0.0f,  0.0f)),
-        Vertex(glm::vec3(mapWidth, 0.0f, 0.0f),      glm::vec2(10.0f, 0.0f)),
-        Vertex(glm::vec3(mapWidth, 0.0f, mapHeight), glm::vec2(10.0f, 10.0f)),
-        Vertex(glm::vec3(0.0f, 0.0f, mapHeight),     glm::vec2(0.0f,  10.0f))
+        0.0f,     0.0f, 0.0f,      0.0f,  0.0f,
+        mapWidth, 0.0f, 0.0f,      10.0f, 0.0f,
+        mapWidth, 0.0f, mapHeight, 10.0f, 10.0f,
+        0.0f,     0.0f, mapHeight, 0.0f,  10.0f
     };
 
-    GLuint VAO, VBO;
+    BufferLayout layout
+    {
+        AttributeInfo::Float3,
+        AttributeInfo::Float2
+    };
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    auto vbo = std::make_unique<VertexBuffer>(vertices.data(), vertices.size() * sizeof(GLfloat), layout);
+    auto vao = std::make_unique<VertexArray>();
 
-    glBindVertexArray(VAO);
+    vao->addVertexBuffer(*vbo);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, uv)));
-    glEnableVertexAttribArray(1);
-   
-    glBindVertexArray(0);
-
-
-    ShaderProgram program = { { "res/shaders/ground.vert", GL_VERTEX_SHADER }, { "res/shaders/ground.frag", GL_FRAGMENT_SHADER} };
+    ShaderProgram program = 
+    { 
+        { "res/shaders/ground.vert", GL_VERTEX_SHADER   }, 
+        { "res/shaders/ground.frag", GL_FRAGMENT_SHADER } 
+    };
 
     if (!program.isCompiled())
         return;
@@ -150,16 +147,13 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         Texture2D::enable(GL_TEXTURE2);
         Texture2D::bind(&texPath);
 
-        glBindVertexArray(VAO);
+        vao->bind(vao.get());
 
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-        glBindVertexArray(0);
+        vao->bind(nullptr);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
 }

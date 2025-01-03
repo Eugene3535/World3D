@@ -1,4 +1,5 @@
 #include <array>
+#include <memory>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -9,7 +10,7 @@
 
 #include "Image.hpp"
 #include "Texture2D.hpp"
-#include "Vertex.hpp"
+#include "VertexArray.hpp"
 #include "ShaderProgram.hpp"
 
 void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
@@ -18,8 +19,6 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     {
         return glfwGetKey(window, key) == GLFW_PRESS;
     };
-
-    auto cp = std::filesystem::current_path().string();
 
     Image imgMask;
     Image imgSand;
@@ -45,32 +44,29 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     float mapWidth  = static_cast<float>(imgMask.getWidth());
     float mapHeight = static_cast<float>(imgMask.getHeight());
 
-    std::array<Vertex, 4> vertices = 
+    std::array<float, 20> vertices = 
     {
-        Vertex(glm::vec3(0.0f, 0.0f, 0.0f),      glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec3(1200.0f, 0.0f, 0.0f),   glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec3(1200.0f, 800.0f, 0.0f), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec3(0.0f,    800.0f, 0.0f), glm::vec2(0.0f, 1.0f))
+        0.0f,    0.0f,   0.0f, 0.0f, 0.0f,
+        1200.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+        1200.0f, 800.0f, 0.0f, 1.0f, 1.0f,
+        0.0f,    800.0f, 0.0f, 0.0f, 1.0f
     };
 
-    GLuint VAO, VBO;
+    BufferLayout layout
+    {
+        AttributeInfo::Float3,
+        AttributeInfo::Float2
+    };
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    auto vbo = std::make_unique<VertexBuffer>(vertices.data(), vertices.size() * sizeof(GLfloat), layout);
+    auto vao = std::make_unique<VertexArray>();
+    vao->addVertexBuffer(*vbo);
 
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<const void*>(offsetof(Vertex, uv)));
-    glEnableVertexAttribArray(1);
-   
-    glBindVertexArray(0);
-
-    ShaderProgram program = { { "res/shaders/dune.vert", GL_VERTEX_SHADER }, { "res/shaders/dune.frag", GL_FRAGMENT_SHADER } };
+    ShaderProgram program = 
+    { 
+        { "res/shaders/dune.vert", GL_VERTEX_SHADER   }, 
+        { "res/shaders/dune.frag", GL_FRAGMENT_SHADER } 
+    };
 
     if (!program.isCompiled())
         return;
@@ -111,11 +107,11 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
             Texture2D::bind(&textures[i]);
         }
         
-        glBindVertexArray(VAO);
+        vao->bind(vao.get());
 
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-        glBindVertexArray(0);
+        vao->bind(nullptr);
 
         for (size_t i = 0; i < std::size(textures); ++i)
             textures[i].bind(nullptr);
@@ -124,7 +120,4 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
 }

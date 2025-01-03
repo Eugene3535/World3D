@@ -58,7 +58,7 @@ int main()
     OpenGLDebugger messager;
 #endif
 
-    heightmap_demo(window, SCR_WIDTH, SCR_HEIGHT);
+    path_demo(window, SCR_WIDTH, SCR_HEIGHT);
 
     glfwDestroyWindow(window);
     glfwTerminate();
