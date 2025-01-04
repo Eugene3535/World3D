@@ -58,9 +58,9 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     Image imgPavement; imgPavement.loadFromFile("res/textures/pavement.jpg");
     Image imgPath;     imgPath.loadFromFile("res/textures/test.png");
 
-    Texture2D texSnow     = Texture2D(imgSnow, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    Texture2D texPavement = Texture2D(imgPavement, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    Texture2D texPath     = Texture2D(imgPath, Texture2D::WrapMode::ClampToBorder, Texture2D::FilterMode::Linear);
+    Texture2D texSnow     = { imgSnow,     Texture2D::WrapMode::Repeat,        Texture2D::FilterMode::Linear };
+    Texture2D texPavement = { imgPavement, Texture2D::WrapMode::Repeat,        Texture2D::FilterMode::Linear };
+    Texture2D texPath     = { imgPath,     Texture2D::WrapMode::ClampToBorder, Texture2D::FilterMode::Linear };
 
     float mapWidth  = static_cast<float>(imgPath.getWidth());
     float mapHeight = static_cast<float>(imgPath.getHeight());
@@ -96,9 +96,9 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     ShaderProgram::bind(&program);
     int32_t mvpLoc = program.getUniformLocation("MVP");
 
-    glUniform1i(program.getUniformLocation("snowSampler"), 0);
-    glUniform1i(program.getUniformLocation("pavementSampler"), 1);
-    glUniform1i(program.getUniformLocation("pathSampler"), 2);
+    ShaderProgram::setUniform1i(program.getUniformLocation("snowSampler"), 0);
+    ShaderProgram::setUniform1i(program.getUniformLocation("pavementSampler"), 1);
+    ShaderProgram::setUniform1i(program.getUniformLocation("pathSampler"), 2);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
@@ -132,7 +132,7 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         model_view = glm::translate(model_view, glm::vec3(-pos.x, -100.0f, -pos.y));
 
         auto MVP = projection * model_view;
-        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVP));
+        ShaderProgram::setUniformMatrix4fv(mvpLoc, 1, 0, glm::value_ptr(MVP));
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

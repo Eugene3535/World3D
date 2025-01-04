@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "ShaderProgram.hpp"
 #include "OpenGLDebugger.hpp"
 #include "RenderWindow.hpp"
 
@@ -14,11 +15,11 @@ const static int SCR_HEIGHT = 800;
 RenderWindow::RenderWindow() noexcept:
 	m_window(nullptr)
 {
-    static_assert(std::is_same_v<GLchar, char>, "GLchar and char are not the same type!");
-    static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!");
-    static_assert(std::is_same_v<GLenum, uint32_t>, "GLenum and uint32_t are not the same type!");
-    static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!");
-    static_assert(std::is_same_v<GLsizei, int32_t>, "GLenum and uint32_t are not the same type!");
+    static_assert(std::is_same_v<GLchar, char>, "GLchar and char are not the same type!\n");
+    static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!\n");
+    static_assert(std::is_same_v<GLenum, uint32_t>, "GLenum and uint32_t are not the same type!\n");
+    static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!\n");
+    static_assert(std::is_same_v<GLsizei, int32_t>, "GLsizei and uint32_t are not the same type!\n");
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -28,9 +29,7 @@ RenderWindow::RenderWindow() noexcept:
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
-    m_window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "World3D", nullptr, nullptr);
-
-    if (m_window)
+    if (m_window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "World3D", nullptr, nullptr))
     {
         glfwMakeContextCurrent(m_window);
         glfwSwapInterval(1);
@@ -40,7 +39,11 @@ RenderWindow::RenderWindow() noexcept:
             glViewport(0, 0, width, height);
         });
 
-        if (!gladLoadGL())
+        if (gladLoadGL())
+        {
+            ShaderProgram::initGlUniformFunctions();
+        }
+        else
         {
             glfwDestroyWindow(m_window);
             glfwTerminate();

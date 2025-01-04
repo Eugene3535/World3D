@@ -34,11 +34,11 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     Texture2D textures[5] = 
     {
-        Texture2D(imgMask, Texture2D::WrapMode::ClampToBorder, Texture2D::FilterMode::Linear),
-        Texture2D(imgSand, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear),
-        Texture2D(imgSpace, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear),
-        Texture2D(imgStone, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear),
-        Texture2D(imgRock, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear)
+        { imgMask,  Texture2D::WrapMode::ClampToBorder, Texture2D::FilterMode::Linear },
+        { imgSand,  Texture2D::WrapMode::Repeat,        Texture2D::FilterMode::Linear },
+        { imgSpace, Texture2D::WrapMode::Repeat,        Texture2D::FilterMode::Linear },
+        { imgStone, Texture2D::WrapMode::Repeat,        Texture2D::FilterMode::Linear },
+        { imgRock,  Texture2D::WrapMode::Repeat,        Texture2D::FilterMode::Linear }
     };
 
     float mapWidth  = static_cast<float>(imgMask.getWidth());
@@ -74,14 +74,14 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     ShaderProgram::bind(&program);
     int32_t mvpLoc = program.getUniformLocation("MVP");
 
-    glUniform1i(program.getUniformLocation("texMap"), 0);
-    glUniform1i(program.getUniformLocation("texSand"), 1);
-    glUniform1i(program.getUniformLocation("texSpice"), 2);
-    glUniform1i(program.getUniformLocation("texStone"), 3);
-    glUniform1i(program.getUniformLocation("texRock"), 4);
+    ShaderProgram::setUniform1i(program.getUniformLocation("texMap"), 0);
+    ShaderProgram::setUniform1i(program.getUniformLocation("texSand"), 1);
+    ShaderProgram::setUniform1i(program.getUniformLocation("texSpice"), 2);
+    ShaderProgram::setUniform1i(program.getUniformLocation("texStone"), 3);
+    ShaderProgram::setUniform1i(program.getUniformLocation("texRock"), 4);
 
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(scr_width), 0.0f, static_cast<float>(scr_height), -1.0f, 1.0f);
-    glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    ShaderProgram::setUniformMatrix4fv(mvpLoc, 1, 0, glm::value_ptr(projection));
 
     glm::vec2 pos = { 3, 5 };
 
@@ -96,7 +96,7 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         glm::mat4 model_view = glm::identity<glm::mat4>();
 
         auto MVP = projection * model_view;
-        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(MVP));
+        ShaderProgram::setUniformMatrix4fv(mvpLoc, 1, 0, glm::value_ptr(MVP));
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
