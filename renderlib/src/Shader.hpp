@@ -8,7 +8,17 @@
 class RL_API Shader
 {
 public:
-    Shader(const std::filesystem::path& filepath, uint32_t shaderType) noexcept;
+    enum Type
+    {
+        Compute,
+        Vertex,
+        TessControl,
+        TessEvaluation,
+        Geometry,
+        Fragment
+    };
+
+    Shader(const std::filesystem::path& filepath, Type shaderType) noexcept;
     Shader(const Shader&) noexcept = delete;
     Shader(Shader&&) noexcept;
     Shader& operator =(const Shader&) noexcept = delete;
@@ -16,12 +26,12 @@ public:
     ~Shader() noexcept;
 
     uint32_t getHandle()  const noexcept;
-    uint32_t getType()    const noexcept;
+    Type     getType()    const noexcept;
     bool     isCompiled() const noexcept;
 
 private:
     uint32_t m_handle;
-    uint32_t m_type;
+    Type     m_type;
 };
 
 #endif // !SHADER_HPP

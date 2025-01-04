@@ -7,20 +7,36 @@
 
 #include "Shader.hpp"
 
-Shader::Shader(const std::filesystem::path& filepath, uint32_t shaderType) noexcept:
+
+Shader::Shader(const std::filesystem::path& filepath, Shader::Type shaderType) noexcept:
     m_handle(0),
-    m_type(0)
+    m_type(Shader::Type::Vertex)
 {
     static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!");
     static_assert(std::is_same_v<GLenum, uint32_t>, "GLenum and uint32_t are not the same type!");
     static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!");
 
-    bool type_is_valid = (shaderType == GL_COMPUTE_SHADER)         || 
-                         (shaderType == GL_VERTEX_SHADER)          || 
-                         (shaderType == GL_TESS_CONTROL_SHADER)    || 
-                         (shaderType == GL_TESS_EVALUATION_SHADER) || 
-                         (shaderType == GL_GEOMETRY_SHADER)        || 
-                         (shaderType == GL_FRAGMENT_SHADER);
+    bool type_is_valid = (shaderType == Shader::Compute)        ||
+                         (shaderType == Shader::Vertex)         ||
+                         (shaderType == Shader::TessControl)    ||
+                         (shaderType == Shader::TessEvaluation) ||
+                         (shaderType == Shader::Geometry)       ||
+                         (shaderType == Shader::Fragment);
+
+    auto ShaderTypeToGlType = [](Shader::Type type)
+    {
+        switch (type)
+        {
+            case Shader::Compute:        return GL_COMPUTE_SHADER;
+            case Shader::Vertex:         return GL_VERTEX_SHADER;
+            case Shader::TessControl:    return GL_TESS_CONTROL_SHADER;
+            case Shader::TessEvaluation: return GL_TESS_EVALUATION_SHADER;
+            case Shader::Geometry:       return GL_GEOMETRY_SHADER;
+            case Shader::Fragment:       return GL_FRAGMENT_SHADER;
+
+            default: return GL_VERTEX_SHADER;
+        }
+    };
 
     if(type_is_valid)
     {
@@ -39,7 +55,7 @@ Shader::Shader(const std::filesystem::path& filepath, uint32_t shaderType) noexc
 
         if(!source.empty())
         {
-            uint32_t shader = glCreateShader(shaderType);
+            uint32_t shader = glCreateShader(ShaderTypeToGlType(shaderType));
             const char* c_str = source.c_str();
 
             glShaderSource(shader, 1, &c_str, 0);
@@ -62,12 +78,14 @@ Shader::Shader(const std::filesystem::path& filepath, uint32_t shaderType) noexc
     }
 }
 
+
 Shader::Shader(Shader&& tmp) noexcept:
     m_handle(tmp.m_handle),
     m_type(tmp.m_type)
 {
     tmp.m_handle = 0;
 }
+
 
 Shader& Shader::operator =(Shader&& tmp) noexcept
 {
@@ -79,20 +97,24 @@ Shader& Shader::operator =(Shader&& tmp) noexcept
     return *this;
 }
 
+
 Shader::~Shader() noexcept
 {
     glDeleteShader(m_handle);
 }
 
-GLuint Shader::getHandle() const noexcept
+
+uint32_t Shader::getHandle() const noexcept
 {
     return m_handle;
 }
 
-GLenum Shader::getType() const noexcept
+
+Shader::Type Shader::getType() const noexcept
 {
     return m_type;
 }
+
 
 bool Shader::isCompiled() const noexcept
 {

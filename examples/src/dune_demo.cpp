@@ -64,8 +64,8 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     ShaderProgram program = 
     { 
-        { "res/shaders/dune.vert", GL_VERTEX_SHADER   }, 
-        { "res/shaders/dune.frag", GL_FRAGMENT_SHADER } 
+        { "res/shaders/dune.vert", Shader::Vertex   }, 
+        { "res/shaders/dune.frag", Shader::Fragment } 
     };
 
     if (!program.isCompiled())

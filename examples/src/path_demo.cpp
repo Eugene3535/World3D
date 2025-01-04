@@ -86,8 +86,8 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     ShaderProgram program = 
     { 
-        { "res/shaders/ground.vert", GL_VERTEX_SHADER   }, 
-        { "res/shaders/ground.frag", GL_FRAGMENT_SHADER } 
+        { "res/shaders/ground.vert", Shader::Vertex   }, 
+        { "res/shaders/ground.frag", Shader::Fragment } 
     };
 
     if (!program.isCompiled())
