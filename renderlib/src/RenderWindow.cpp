@@ -18,6 +18,7 @@ RenderWindow::RenderWindow() noexcept:
     static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!");
     static_assert(std::is_same_v<GLenum, uint32_t>, "GLenum and uint32_t are not the same type!");
     static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!");
+    static_assert(std::is_same_v<GLsizei, int32_t>, "GLenum and uint32_t are not the same type!");
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);

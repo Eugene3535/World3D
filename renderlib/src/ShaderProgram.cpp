@@ -9,10 +9,6 @@
 ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
     m_handle(0)
 {
-    static_assert(std::is_same_v<GLchar, char>, "GLchar and char are not the same type!");
-    static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!");
-    static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!");
-
     uint32_t program = glCreateProgram();
 
     for(const auto& shader : shaders)

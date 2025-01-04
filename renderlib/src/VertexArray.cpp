@@ -7,9 +7,6 @@ VertexArray::VertexArray() noexcept:
 	m_attributeCount(0),
 	m_indexCount(0)
 {
-	static_assert(std::is_same_v<GLint, int32_t>, "GLuint and uint32_t are not the same type!");
-	static_assert(std::is_same_v<GLsizei, int32_t>, "GLenum and uint32_t are not the same type!");
-
 	glGenVertexArrays(1, &m_handle);
 }
 
