@@ -133,10 +133,10 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
     Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
 
-    Texture2D texCrackedEarth = Texture2D(imgCrackedEarth, GL_REPEAT, GL_LINEAR);
-    Texture2D texRock         = Texture2D(imgRock, GL_REPEAT, GL_LINEAR);
-    Texture2D texGrass        = Texture2D(imgGrass, GL_REPEAT, GL_LINEAR);
-    Texture2D texClover       = Texture2D(imgClover, GL_REPEAT, GL_LINEAR);
+    Texture2D texCrackedEarth = Texture2D(imgCrackedEarth, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    Texture2D texRock         = Texture2D(imgRock, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    Texture2D texGrass        = Texture2D(imgGrass, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    Texture2D texClover       = Texture2D(imgClover, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
 
     BufferLayout layout
     {

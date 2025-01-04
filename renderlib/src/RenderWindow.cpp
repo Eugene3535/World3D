@@ -1,3 +1,5 @@
+#include <type_traits>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -12,6 +14,11 @@ const static int SCR_HEIGHT = 800;
 RenderWindow::RenderWindow() noexcept:
 	m_window(nullptr)
 {
+    static_assert(std::is_same_v<GLchar, char>, "GLchar and char are not the same type!");
+    static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!");
+    static_assert(std::is_same_v<GLenum, uint32_t>, "GLenum and uint32_t are not the same type!");
+    static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!");
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);

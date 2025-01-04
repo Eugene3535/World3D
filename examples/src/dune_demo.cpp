@@ -34,11 +34,11 @@ void dune_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     Texture2D textures[5] = 
     {
-        Texture2D(imgMask, GL_CLAMP_TO_BORDER, GL_LINEAR),
-        Texture2D(imgSand, GL_REPEAT, GL_LINEAR),
-        Texture2D(imgSpace, GL_REPEAT, GL_LINEAR),
-        Texture2D(imgStone, GL_REPEAT, GL_LINEAR),
-        Texture2D(imgRock, GL_REPEAT, GL_LINEAR)
+        Texture2D(imgMask, Texture2D::WrapMode::ClampToBorder, Texture2D::FilterMode::Linear),
+        Texture2D(imgSand, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear),
+        Texture2D(imgSpace, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear),
+        Texture2D(imgStone, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear),
+        Texture2D(imgRock, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear)
     };
 
     float mapWidth  = static_cast<float>(imgMask.getWidth());

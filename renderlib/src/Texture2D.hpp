@@ -6,8 +6,20 @@
 class Texture2D
 {
 public:
-	Texture2D(const std::filesystem::path& filePath, int32_t wrap, int32_t filter) noexcept;
-	Texture2D(const class Image& image, int32_t wrap, int32_t filter) noexcept;
+	enum class WrapMode
+	{
+		Repeat,
+		ClampToBorder
+	};
+
+	enum class FilterMode
+	{
+		Nearest,
+		Linear
+	};
+
+	Texture2D(const std::filesystem::path& filePath, WrapMode wrap, FilterMode filter) noexcept;
+	Texture2D(const class Image& image, WrapMode wrap, FilterMode filter) noexcept;
 	Texture2D(const Texture2D&) noexcept = delete;
 	Texture2D(Texture2D&&) noexcept;
 	Texture2D& operator = (const Texture2D&) noexcept = delete;

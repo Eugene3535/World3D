@@ -58,9 +58,9 @@ void path_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
     Image imgPavement; imgPavement.loadFromFile("res/textures/pavement.jpg");
     Image imgPath;     imgPath.loadFromFile("res/textures/test.png");
 
-    Texture2D texSnow     = Texture2D(imgSnow, GL_REPEAT, GL_LINEAR);
-    Texture2D texPavement = Texture2D(imgPavement, GL_REPEAT, GL_LINEAR);
-    Texture2D texPath     = Texture2D(imgPath, GL_CLAMP_TO_BORDER, GL_LINEAR);
+    Texture2D texSnow     = Texture2D(imgSnow, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    Texture2D texPavement = Texture2D(imgPavement, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    Texture2D texPath     = Texture2D(imgPath, Texture2D::WrapMode::ClampToBorder, Texture2D::FilterMode::Linear);
 
     float mapWidth  = static_cast<float>(imgPath.getWidth());
     float mapHeight = static_cast<float>(imgPath.getHeight());
