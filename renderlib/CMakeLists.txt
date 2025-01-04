@@ -9,6 +9,7 @@ set(_renderlib_src_files
 	src/VertexArray.cpp
 	src/Texture2D.cpp
 	src/OpenGLDebugger.cpp
+	src/RenderWindow.cpp
 )
 
 set(_renderlib_hdr_files
@@ -21,6 +22,7 @@ set(_renderlib_hdr_files
 	src/VertexArray.hpp
 	src/Texture2D.hpp
 	src/OpenGLDebugger.hpp
+	src/RenderWindow.hpp
 )
 
 set(_all_renderlib_files
@@ -44,7 +46,7 @@ target_compile_features(${RENDERLIB_TARGET} PRIVATE cxx_std_17)
 
 target_link_libraries(${RENDERLIB_TARGET} PUBLIC
 	glad 
-#	glm
+	glfw
 )
 
 target_include_directories(${RENDERLIB_TARGET} 
