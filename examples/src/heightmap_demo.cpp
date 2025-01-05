@@ -23,7 +23,7 @@ static float yaw = 0;
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     GLfloat xoffset = xpos - lastX;
-    GLfloat yoffset = lastY - ypos; // Обратный порядок вычитания потому что оконные Y-координаты возрастают с верху вниз 
+    GLfloat yoffset = lastY - ypos; // Обратный порядок вычитания потому что оконные Y-координаты возрастают сверху вниз 
     lastX = xpos;
     lastY = ypos;
 
@@ -65,14 +65,9 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     std::vector<float> heightmap(mapDepth * mapWidth);
 
-    auto is_in_bounds = [](float x, float z, GLuint width, GLuint depth) -> bool
+    auto get_height_in_point = [&heightmap, mapWidth, mapDepth](float x, float z) -> float
     {
-        return (x >= 0) && (x < width) && (z >= 0) && (z < depth);
-    };
-
-    auto get_height_in_point = [is_in_bounds, &heightmap, mapWidth, mapDepth](float x, float z) -> float
-    {
-        if(is_in_bounds(x, z, mapWidth, mapDepth))
+        if((x >= 0) && (x < mapWidth) && (z >= 0) && (z < mapDepth))
         {
             int32_t cX = static_cast<int32_t>(x);
             int32_t cZ = static_cast<int32_t>(z);
@@ -183,21 +178,21 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
             continue;
         }
 
-        float radians = glm::radians(yaw);
+        float angleY = glm::radians(yaw);
         float speed = 0.0f;
 
         if (is_key_pressed(GLFW_KEY_W))   speed = -0.1f;
         if (is_key_pressed(GLFW_KEY_S))   speed =  0.1f;
-        if (is_key_pressed(GLFW_KEY_A)) { speed =  0.1f; radians -= M_PI_2; }
-        if (is_key_pressed(GLFW_KEY_D)) { speed =  0.1f; radians += M_PI_2; }
+        if (is_key_pressed(GLFW_KEY_A)) { speed =  0.1f; angleY -= M_PI_2; }
+        if (is_key_pressed(GLFW_KEY_D)) { speed =  0.1f; angleY += M_PI_2; }
 
         if (speed != 0.0f)
         {
-            pos.x += sinf(radians) * speed;
-            pos.z += cosf(radians) * speed;
+            pos.x += sin(angleY) * speed;
+            pos.z += cos(angleY) * speed;
         }
 
-        pos.y = get_height_in_point(pos.x, pos.y);
+        pos.y = get_height_in_point(pos.x, pos.z);
 
         glm::mat4 model_view = glm::mat4(1.0f);
         model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
