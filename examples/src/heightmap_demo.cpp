@@ -17,8 +17,8 @@
 
 static float lastX = 1200 / 2.0f;
 static float lastY = 800 / 2.0f;
-static float pitch = 20;
-static float yaw = 180;
+static float pitch = 0;
+static float yaw = 0;
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -170,7 +170,7 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
-    glm::vec2 pos = { 3, 5 };
+    glm::vec3 pos = { 3, 0, 5 };
 
     const GLuint numStrips = mapWidth - 1;
     const GLuint numTrisPerStrip = mapWidth * 2 - 2;
@@ -194,15 +194,15 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
         if (speed != 0.0f)
         {
             pos.x += sinf(radians) * speed;
-            pos.y += cosf(radians) * speed;
+            pos.z += cosf(radians) * speed;
         }
 
-        float posY = get_height_in_point(pos.x, pos.y);
+        pos.y = get_height_in_point(pos.x, pos.y);
 
         glm::mat4 model_view = glm::mat4(1.0f);
         model_view = glm::rotate(model_view, glm::radians(-pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         model_view = glm::rotate(model_view, glm::radians(-yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-        model_view = glm::translate(model_view, glm::vec3(-pos.x, -(posY + 1.7f), -pos.y));
+        model_view = glm::translate(model_view, glm::vec3(-pos.x, -(pos.y + 1.7f), -pos.z));
 
         auto MVP = projection * model_view;
         ShaderProgram::setUniformMatrix4fv(mvpLoc, 1, 0, glm::value_ptr(MVP));
