@@ -1,13 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#include <math.H>
-#endif
-
-#include <Windows.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

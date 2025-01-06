@@ -6,5 +6,5 @@ void dune_demo(struct GLFWwindow* window, int scr_width, int scr_height);
 
 int main()
 {
-    return RenderWindow().run(heightmap_demo);
+    return RenderWindow().run(path_demo);
 }
