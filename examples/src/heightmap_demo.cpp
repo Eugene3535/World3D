@@ -16,84 +16,11 @@
 #include "Texture2D.hpp"
 #include "ShaderProgram.hpp"
 #include "VertexArray.hpp"
-
-static float lastX = 1200 / 2.0f;
-static float lastY = 800 / 2.0f;
-
-static float pitch;
-static float yaw;
-
-
-class Player
-{
-public:
-    Player(float x0, float y0, float z0)
-    {
-        x = x0; y = y0; z = z0;
-        dx = 0; dy = 0; dz = 0;
-        w = 5; h = 5; d = 5; // да, игрок кубик ;)
-        speed = 50;
-        onGround = true;
-    }
-
-    void update(float dt)
-    {
-        if (!onGround)
-            dy -= 120 * dt;
-
-        onGround = 0;
-
-        x += dx * dt;
-        //y += dy * dt;
-        z += dz * dt;
-        dx = dz = 0;
-    }
-
-
-    void keyboard(GLFWwindow* rw)
-    {
-        if (isKeyPressed(rw, GLFW_KEY_W))
-        {
-            dx = -sin(glm::radians(pitch)) * speed;
-            dz = -cos(glm::radians(pitch)) * speed;
-        }
-
-        if (isKeyPressed(rw, GLFW_KEY_S))
-        {
-            dx = sin(glm::radians(pitch)) * speed;
-            dz = cos(glm::radians(pitch)) * speed;
-        }
-
-        if (isKeyPressed(rw, GLFW_KEY_D))
-        {
-            dx = sin(glm::radians(pitch + 90)) * speed;
-            dz = cos(glm::radians(pitch + 90)) * speed;
-        }
-
-        if (isKeyPressed(rw, GLFW_KEY_A))
-        {
-            dx = sin(glm::radians(pitch - 90)) * speed;
-            dz = cos(glm::radians(pitch - 90)) * speed;
-        }
-    }
-
-    bool isKeyPressed(GLFWwindow* window, int key)
-    {
-        return glfwGetKey(window, key) == GLFW_PRESS;
-    }
-
-    float x, y, z;
-    float dx, dy, dz;
-    float w, h, d; // width, height, depth
-    bool onGround;
-    float speed;
-};
+#include "Camera.hpp"
 
 
 void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 {
-    ShowCursor(FALSE);
-
     auto is_key_pressed = [window](int32_t key)
     {
         return glfwGetKey(window, key) == GLFW_PRESS;
@@ -214,7 +141,7 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
 
     glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)scr_width / (float)scr_height, 0.1f, 1000.0f);
 
-    Player player(20, 10, 20);
+    Camera player(window);
 
     const GLuint numStrips = mapWidth - 1;
     const GLuint numTrisPerStrip = mapWidth * 2 - 2;
@@ -227,49 +154,13 @@ void heightmap_demo(GLFWwindow* window, GLint scr_width, GLint scr_height)
             continue;
         }
 
-        player.y = get_height_in_point(player.x, player.z);
+        auto pos = player.getPosition();
+        pos.y = get_height_in_point(pos.x, pos.z) + 2;
+        player.setPosition(pos);
 
-        static int cnt = 0;
-
-        if(++cnt > 100)
-        {
-            cnt = 0;
-            printf("x = %f, z = %f\n", player.x, player.z);
-        }
-
-        POINT mousexy;
-        GetCursorPos(&mousexy);
-        int xt;
-        int yt;
-        int w;
-        int h;
-
-        glfwGetWindowPos(window, &xt, &yt);
-        glfwGetWindowSize(window, &w, &h);
-
-        xt += w / 2;
-        yt += h / 2;
-
-        pitch += (xt - mousexy.x) * 0.25f; // 4 — чувствительность
-        yaw += (yt - mousexy.y) * 0.25f;
-
-        if (yaw < -89.0)
-            yaw = -89.0;
-
-        if (yaw > 89.0)
-            yaw = 89.0;
-
-        SetCursorPos(xt, yt);
-
-        player.keyboard(window);
         player.update(0.01f);
 
-        glm::mat4 model_view = glm::lookAt(
-            glm::vec3(player.x, player.y + player.h, player.z),
-            glm::vec3(player.x - sin(glm::radians(pitch)),
-                player.y + player.h + (tan(glm::radians(yaw))),
-                player.z - cos(glm::radians(pitch))),
-            glm::vec3(0, 1, 0));
+        glm::mat4 model_view = player.getViewMatrix();
 
         auto MVP = projection * model_view;
         ShaderProgram::setUniformMatrix4fv(mvpLoc, 1, 0, glm::value_ptr(MVP));
