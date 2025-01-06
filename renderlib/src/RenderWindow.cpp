@@ -52,6 +52,7 @@ RenderWindow::RenderWindow() noexcept:
     }
 }
 
+
 RenderWindow::~RenderWindow() noexcept
 {
     if(m_window)
@@ -59,6 +60,7 @@ RenderWindow::~RenderWindow() noexcept
 
     glfwTerminate();
 }
+
 
 int RenderWindow::run(void(*func)(GLFWwindow*, int, int)) noexcept
 {
