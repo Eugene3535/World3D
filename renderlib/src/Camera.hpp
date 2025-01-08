@@ -3,11 +3,12 @@
 
 #include <glm/glm.hpp>
 
+#include "Export.hpp"
 
-class Camera final
+class RL_API Camera final
 {
 public:
-	Camera(struct GLFWwindow* window) noexcept;
+	Camera(void* handle) noexcept;
     Camera(const Camera&) noexcept = delete;
     Camera(const Camera&&) noexcept = delete;
     Camera& operator = (Camera&) noexcept = delete;
@@ -23,7 +24,7 @@ public:
     glm::mat4 getViewMatrix() const noexcept;
 
 private:
-    struct GLFWwindow* m_window;
+    void* m_handle;
 
     glm::vec3 m_eye;
     glm::vec3 m_delta;

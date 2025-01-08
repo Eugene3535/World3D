@@ -3,7 +3,8 @@
 
 #include <filesystem>
 
-class Texture2D
+#include "Export.hpp"
+class RL_API Texture2D
 {
 public:
 	enum class WrapMode

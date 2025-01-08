@@ -11,6 +11,7 @@ set(_renderlib_src_files
 	src/OpenGLDebugger.cpp
 	src/RenderWindow.cpp
 	src/Camera.cpp
+	src/Scene.cpp
 )
 
 set(_renderlib_hdr_files
@@ -25,6 +26,7 @@ set(_renderlib_hdr_files
 	src/OpenGLDebugger.hpp
 	src/RenderWindow.hpp
 	src/Camera.hpp
+	src/Scene.hpp
 )
 
 set(_all_renderlib_files
@@ -32,19 +34,11 @@ set(_all_renderlib_files
 	${_renderlib_hdr_files}
 )
 
-if(RENDERLIB_BUILD_STATIC)
-	add_library(${RENDERLIB_TARGET} STATIC ${_all_renderlib_files})
-else()
-	add_library(${RENDERLIB_TARGET} SHARED ${_all_renderlib_files})
-endif()
+add_library(${RENDERLIB_TARGET} SHARED ${_all_renderlib_files})
 
-if(RENDERLIB_BUILD_STATIC)
-	target_compile_definitions(${RENDERLIB_TARGET} PRIVATE RENDERLIB_STATIC)
-else()
-	target_compile_definitions(${RENDERLIB_TARGET} PRIVATE RENDERLIB_API_EXPORTS)
-endif()
+target_compile_definitions(${RENDERLIB_TARGET} PRIVATE RENDERLIB_API_EXPORTS)
 
-target_compile_features(${RENDERLIB_TARGET} PRIVATE cxx_std_17)
+target_compile_features(${RENDERLIB_TARGET} PRIVATE cxx_std_20)
 
 target_link_libraries(${RENDERLIB_TARGET} PUBLIC
 	glad 

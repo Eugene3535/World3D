@@ -9,8 +9,8 @@
 
 #include "Camera.hpp"
 
-Camera::Camera(GLFWwindow* window) noexcept:
-	m_window(window),
+Camera::Camera(void* handle) noexcept:
+	m_handle(handle),
     m_eye(),
     m_delta(),
 	m_pitch(0.0f),
@@ -44,13 +44,13 @@ void Camera::update(float dt) noexcept
     GetCursorPos(&mousexy);
 
     int xt, yt, w, h;
-    glfwGetWindowPos(m_window, &xt, &yt);
-    glfwGetWindowSize(m_window, &w, &h);
+    glfwGetWindowPos(reinterpret_cast<GLFWwindow*>(m_handle), &xt, &yt);
+    glfwGetWindowSize(reinterpret_cast<GLFWwindow*>(m_handle), &w, &h);
 
     xt += w / 2;
     yt += h / 2;
 
-    m_pitch += (xt - mousexy.x) * 0.125f; // division by 8 — sensitivity
+    m_pitch += (xt - mousexy.x) * 0.125f; // division by 8 ï¿½ sensitivity
     m_yaw += (yt - mousexy.y) * 0.125f;
     m_yaw = std::clamp(m_yaw, -89.0f, 89.0f);
 
@@ -63,7 +63,7 @@ void Camera::update(float dt) noexcept
 
     auto is_key_pressed = [this](int32_t key)
     {
-        return glfwGetKey(m_window, key) == GLFW_PRESS;
+        return glfwGetKey(reinterpret_cast<GLFWwindow*>(m_handle), key) == GLFW_PRESS;
     };
 
     if (is_key_pressed(GLFW_KEY_W))

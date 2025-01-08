@@ -5,8 +5,6 @@ project(World3D LANGUAGES C CXX)
 set(EXTERNAL_DIR $ENV{External})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(RENDERLIB_BUILD_STATIC 1)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -37,7 +35,8 @@ add_subdirectory(${EXTERNAL_DIR}/glad/core glad)
 add_subdirectory(${EXTERNAL_DIR}/glm glm)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/renderlib)
-add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
+add_subdirectory(${PROJECT_SOURCE_DIR}/scenes)
+add_subdirectory(${PROJECT_SOURCE_DIR}/app)
 
 if(MSVC)
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT examples)

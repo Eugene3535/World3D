@@ -210,5 +210,5 @@ void Texture2D::bind(const Texture2D* texture) noexcept
 
 void Texture2D::enable(uint32_t unit) noexcept
 {
-    glActiveTexture(unit);
+    glActiveTexture(GL_TEXTURE0 + unit);
 }
