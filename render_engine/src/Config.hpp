@@ -1,5 +1,5 @@
-#ifndef EXPORT_HPP
-#define EXPORT_HPP
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
 
 #define BEGIN_NAMESPACE_RE namespace re {
 #define END_NAMESPACE_RE }
@@ -10,4 +10,4 @@
     #endif
 #endif
 
-#endif // !EXPORT_HPP
+#endif // !CONFIG_HPP
