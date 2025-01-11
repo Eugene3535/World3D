@@ -1,8 +1,10 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
+#include <cstdint>
+
 #include "Export.hpp"
-#include "glad/glad.h"
+
 
 class RL_API Scene
 {

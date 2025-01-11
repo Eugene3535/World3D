@@ -1,3 +1,5 @@
+#include <glad/glad.h>
+
 #include "Scene.hpp"
 
 
@@ -10,10 +12,12 @@ Scene::Scene(void* handle) noexcept:
 
 Scene::~Scene() noexcept = default;
 
+
 void Scene::draw() noexcept
 {
 
 }
+
 
 void Scene::drawHeightmap(uint32_t numStrips, uint32_t numTrisPerStrip) noexcept
 {

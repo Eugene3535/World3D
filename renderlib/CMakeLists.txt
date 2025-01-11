@@ -40,9 +40,11 @@ target_compile_definitions(${RENDERLIB_TARGET} PRIVATE RENDERLIB_API_EXPORTS)
 
 target_compile_features(${RENDERLIB_TARGET} PRIVATE cxx_std_20)
 
-target_link_libraries(${RENDERLIB_TARGET} PUBLIC
+target_link_libraries(${RENDERLIB_TARGET}
+PRIVATE
 	glad 
 	glfw
+PUBLIC
 	glm
 )
 
