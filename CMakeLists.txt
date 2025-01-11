@@ -34,7 +34,7 @@ add_subdirectory(${EXTERNAL_DIR}/glfw glfw)
 add_subdirectory(${EXTERNAL_DIR}/glad/core glad)
 add_subdirectory(${EXTERNAL_DIR}/glm glm)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/renderlib)
+add_subdirectory(${PROJECT_SOURCE_DIR}/render_engine)
 add_subdirectory(${PROJECT_SOURCE_DIR}/scenes)
 add_subdirectory(${PROJECT_SOURCE_DIR}/app)
 

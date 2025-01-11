@@ -3,7 +3,7 @@
 
 #include "Shader.hpp"
 
-class RL_API ShaderProgram
+class RE_API ShaderProgram
 {
 public:
     ShaderProgram(std::initializer_list<Shader> shaders) noexcept;

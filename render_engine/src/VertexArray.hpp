@@ -3,7 +3,7 @@
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 
-class RL_API VertexArray 
+class RE_API VertexArray 
 {
 public:
     VertexArray() noexcept;

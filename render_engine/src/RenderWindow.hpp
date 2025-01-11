@@ -7,7 +7,7 @@
 
 #include "Export.hpp"
 
-class RL_API RenderWindow final
+class RE_API RenderWindow final
 {
 public:
 	enum class GlOption

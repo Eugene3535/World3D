@@ -3,7 +3,7 @@
 
 #include "VertexBuffer.hpp"
 
-class RL_API IndexBuffer 
+class RE_API IndexBuffer 
 {
 public:
     IndexBuffer(const void* data, size_t count, VertexBuffer::Usage usage = VertexBuffer::Usage::Static);

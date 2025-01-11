@@ -9,7 +9,7 @@ add_library(${HEIGHTMAP_TARGET} SHARED ${_heightmap_src_files})
 target_compile_features(${HEIGHTMAP_TARGET} PUBLIC cxx_std_20)
 
 target_link_libraries(${HEIGHTMAP_TARGET} PRIVATE
-	renderlib
+	render_engine
 )
 
 target_include_directories(${HEIGHTMAP_TARGET} PUBLIC

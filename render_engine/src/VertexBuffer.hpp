@@ -12,7 +12,7 @@
 // A vertex is the combination of all the vertex attributes that belong together.
 
 
-class RL_API AttributeInfo
+class RE_API AttributeInfo
 {
 public:
     enum Type
@@ -37,7 +37,7 @@ public:
 };
 
 
-class RL_API BufferLayout
+class RE_API BufferLayout
 {
 public:
     BufferLayout(std::initializer_list<AttributeInfo> attributes) noexcept;
@@ -51,7 +51,7 @@ private:
 };
 
 
-class RL_API VertexBuffer 
+class RE_API VertexBuffer 
 {
 public:
     enum Usage

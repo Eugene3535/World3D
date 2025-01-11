@@ -5,7 +5,7 @@
 
 #include "Export.hpp"
 
-class RL_API Camera final
+class RE_API Camera final
 {
 public:
 	Camera(void* handle) noexcept;

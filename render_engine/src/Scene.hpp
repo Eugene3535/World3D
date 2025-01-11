@@ -6,7 +6,7 @@
 #include "Export.hpp"
 
 
-class RL_API Scene
+class RE_API Scene
 {
 public:
 	Scene(void* handle) noexcept;

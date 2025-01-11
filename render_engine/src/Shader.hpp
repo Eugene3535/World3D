@@ -5,7 +5,7 @@
 
 #include "Export.hpp"
 
-class RL_API Shader
+class RE_API Shader
 {
 public:
     enum Type

@@ -6,7 +6,7 @@
 
 #include "Export.hpp"
 
-class RL_API Image
+class RE_API Image
 {
 public:
     enum class Format: int32_t

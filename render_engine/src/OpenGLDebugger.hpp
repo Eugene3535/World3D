@@ -1,7 +1,9 @@
 #ifndef OPENGL_DEBUGGER_HPP
 #define OPENGL_DEBUGGER_HPP
 
-class OpenGLDebugger
+#include "Export.hpp"
+
+class RE_API OpenGLDebugger
 {
 public:
 	OpenGLDebugger() noexcept;

@@ -1,6 +1,6 @@
-set(RENDERLIB_TARGET renderlib)
+set(RENDER_ENGINE_TARGET render_engine)
 
-set(_renderlib_src_files
+set(_render_engine_src_files
 	src/Image.cpp
 	src/Shader.cpp
 	src/ShaderProgram.cpp
@@ -14,7 +14,8 @@ set(_renderlib_src_files
 	src/Scene.cpp
 )
 
-set(_renderlib_hdr_files
+set(_render_engine_hdr_files
+	src/Config.hpp
 	src/Export.hpp
 	src/Image.hpp
 	src/Shader.hpp
@@ -29,18 +30,18 @@ set(_renderlib_hdr_files
 	src/Scene.hpp
 )
 
-set(_all_renderlib_files
-	${_renderlib_src_files}
-	${_renderlib_hdr_files}
+set(_all_render_engine_files
+	${_render_engine_src_files}
+	${_render_engine_hdr_files}
 )
 
-add_library(${RENDERLIB_TARGET} SHARED ${_all_renderlib_files})
+add_library(${RENDER_ENGINE_TARGET} SHARED ${_all_render_engine_files})
 
-target_compile_definitions(${RENDERLIB_TARGET} PRIVATE RENDERLIB_API_EXPORTS)
+target_compile_definitions(${RENDER_ENGINE_TARGET} PRIVATE RENDER_ENGINE_API_EXPORTS)
 
-target_compile_features(${RENDERLIB_TARGET} PRIVATE cxx_std_20)
+target_compile_features(${RENDER_ENGINE_TARGET} PRIVATE cxx_std_20)
 
-target_link_libraries(${RENDERLIB_TARGET}
+target_link_libraries(${RENDER_ENGINE_TARGET}
 PRIVATE
 	glad 
 	glfw
@@ -48,7 +49,7 @@ PUBLIC
 	glm
 )
 
-target_include_directories(${RENDERLIB_TARGET} 
+target_include_directories(${RENDER_ENGINE_TARGET} 
 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 PRIVATE
