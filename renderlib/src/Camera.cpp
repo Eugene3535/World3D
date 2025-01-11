@@ -1,13 +1,11 @@
 #include <algorithm>
-#ifdef _WIN32
-#include <Windows.h>
-#endif
 
 #include <GLFW//glfw3.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.hpp"
+
 
 Camera::Camera(void* handle) noexcept:
 	m_handle(handle),
@@ -17,9 +15,7 @@ Camera::Camera(void* handle) noexcept:
 	m_yaw(0.0f),
 	m_velocity(50.0f)
 {
-#ifdef _WIN32
-	ShowCursor(FALSE);
-#endif
+    glfwSetInputMode(reinterpret_cast<GLFWwindow*>(m_handle), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 
@@ -40,30 +36,32 @@ void Camera::setPosition(const glm::vec3& position) noexcept
 
 void Camera::update(float dt) noexcept
 {
-    POINT mousexy;
-    GetCursorPos(&mousexy);
+    auto window = reinterpret_cast<GLFWwindow*>(m_handle);
 
+    double xpos, ypos;
     int xt, yt, w, h;
-    glfwGetWindowPos(reinterpret_cast<GLFWwindow*>(m_handle), &xt, &yt);
-    glfwGetWindowSize(reinterpret_cast<GLFWwindow*>(m_handle), &w, &h);
 
-    xt += w / 2;
-    yt += h / 2;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    glfwGetWindowPos(window, &xt, &yt);
+    glfwGetWindowSize(window, &w, &h);
 
-    m_pitch += (xt - mousexy.x) * 0.125f; // division by 8 � sensitivity
-    m_yaw += (yt - mousexy.y) * 0.125f;
+    xt += w >> 1;
+    yt += h >> 1;
+
+    m_pitch += (xt - xpos) * 0.125f; // division by 8 is sensitivity
+    m_yaw += (yt - ypos) * 0.125f;
     m_yaw = std::clamp(m_yaw, -89.0f, 89.0f);
 
-    SetCursorPos(xt, yt);
+    glfwSetCursorPos(window, xt, yt);
 
     m_eye.x += m_delta.x * dt;
     m_eye.z += m_delta.z * dt;
     m_delta.x = 0.0f;
     m_delta.z = 0.0f;
 
-    auto is_key_pressed = [this](int32_t key)
+    auto is_key_pressed = [window](int32_t key)
     {
-        return glfwGetKey(reinterpret_cast<GLFWwindow*>(m_handle), key) == GLFW_PRESS;
+        return glfwGetKey(window, key) == GLFW_PRESS;
     };
 
     if (is_key_pressed(GLFW_KEY_W))
