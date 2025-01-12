@@ -66,7 +66,7 @@ Heightmap::Heightmap(void* handle) noexcept:
         }
     }
 
-    BufferLayout layout
+    VertexBufferLayout layout
     {
         AttributeInfo::Float3,
         AttributeInfo::Float2
@@ -126,7 +126,7 @@ void Heightmap::draw() noexcept
     };
 
     glm::vec3 pos = m_camera.getPosition();
-    pos.y = get_height_in_point(pos.x, pos.z) + 2;
+    ///pos.y = get_height_in_point(pos.x, pos.z) + 2;
     m_camera.setPosition(pos);
     m_camera.update(0.01f);
 

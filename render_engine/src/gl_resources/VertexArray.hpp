@@ -1,7 +1,7 @@
 #pragma once
 
-#include "VertexBuffer.hpp"
-#include "IndexBuffer.hpp"
+#include "gl_resources/buffers/VertexBuffer.hpp"
+#include "gl_resources/buffers/IndexBuffer.hpp"
 
 class RE_API VertexArray 
 {

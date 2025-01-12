@@ -4,10 +4,10 @@
 #include <memory>
 
 #include "Image.hpp"
-#include "Texture2D.hpp"
-#include "ShaderProgram.hpp"
+#include "gl_resources/Texture2D.hpp"
+#include "gl_resources/ShaderProgram.hpp"
 #include "Camera.hpp"
-#include "VertexArray.hpp"
+#include "gl_resources/VertexArray.hpp"
 #include "Scene.hpp"
 
 class Heightmap:

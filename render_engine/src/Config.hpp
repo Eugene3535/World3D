@@ -10,4 +10,7 @@
     #endif
 #endif
 
+#define GLM_FORCE_SSE42
+#define GLM_FORCE_ALIGNED
+
 #endif // !CONFIG_HPP

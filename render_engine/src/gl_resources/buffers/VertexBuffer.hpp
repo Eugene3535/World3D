@@ -37,10 +37,10 @@ public:
 };
 
 
-class RE_API BufferLayout
+class RE_API VertexBufferLayout
 {
 public:
-    BufferLayout(std::initializer_list<AttributeInfo> attributes) noexcept;
+    VertexBufferLayout(std::initializer_list<AttributeInfo> attributes) noexcept;
 
     const std::vector<AttributeInfo>& getAttributes() const noexcept;
     size_t getStride() const noexcept;
@@ -61,7 +61,7 @@ public:
         Stream
     };
 
-    VertexBuffer(const void* data, size_t size, const BufferLayout& layout, Usage usage = Static) noexcept;
+    VertexBuffer(const void* data, size_t size, const VertexBufferLayout& layout, Usage usage = Static) noexcept;
     VertexBuffer(const VertexBuffer&) = delete;
     VertexBuffer& operator=(const VertexBuffer&) = delete;
     VertexBuffer& operator=(VertexBuffer&& vertex_buffer) noexcept;
@@ -69,11 +69,11 @@ public:
     ~VertexBuffer() noexcept;
 
     uint32_t getHandle() const noexcept;
-    const BufferLayout& getLayout() const noexcept;
+    const VertexBufferLayout& getLayout() const noexcept;
 
 private:
     uint32_t m_handle;
-    BufferLayout m_layout;
+    VertexBufferLayout m_layout;
 };
 
 #endif // !VERTEX_BUFFER_HPP

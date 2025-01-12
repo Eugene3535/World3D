@@ -94,7 +94,7 @@ AttributeInfo::AttributeInfo(const AttributeInfo::Type attrType) noexcept:
 }
 
 
-BufferLayout::BufferLayout(std::initializer_list<AttributeInfo> attributes) noexcept :
+VertexBufferLayout::VertexBufferLayout(std::initializer_list<AttributeInfo> attributes) noexcept :
     m_attributes(attributes),
     m_stride(0)
 {
@@ -109,19 +109,19 @@ BufferLayout::BufferLayout(std::initializer_list<AttributeInfo> attributes) noex
 }
 
 
-const std::vector<AttributeInfo>& BufferLayout::getAttributes() const noexcept
+const std::vector<AttributeInfo>& VertexBufferLayout::getAttributes() const noexcept
 {
     return m_attributes;
 }
 
 
-size_t BufferLayout::getStride() const noexcept
+size_t VertexBufferLayout::getStride() const noexcept
 {
     return m_stride;
 }
 
 
-VertexBuffer::VertexBuffer(const void* data, size_t size, const BufferLayout& layout, Usage usage) noexcept:
+VertexBuffer::VertexBuffer(const void* data, size_t size, const VertexBufferLayout& layout, Usage usage) noexcept:
     m_layout(layout)
 {
     glGenBuffers(1, &m_handle);
@@ -159,7 +159,7 @@ uint32_t VertexBuffer::getHandle() const noexcept
 }
 
 
-const BufferLayout& VertexBuffer::getLayout() const noexcept
+const VertexBufferLayout& VertexBuffer::getLayout() const noexcept
 {
     return m_layout;
 }

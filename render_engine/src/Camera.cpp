@@ -54,11 +54,6 @@ void Camera::update(float dt) noexcept
 
     glfwSetCursorPos(window, xt, yt);
 
-    m_eye.x += m_delta.x * dt;
-    m_eye.z += m_delta.z * dt;
-    m_delta.x = 0.0f;
-    m_delta.z = 0.0f;
-
     auto is_key_pressed = [window](int32_t key)
     {
         return glfwGetKey(window, key) == GLFW_PRESS;
@@ -87,6 +82,22 @@ void Camera::update(float dt) noexcept
         m_delta.x = sin(glm::radians(m_pitch) - glm::half_pi<float>()) * m_velocity;
         m_delta.z = cos(glm::radians(m_pitch) - glm::half_pi<float>()) * m_velocity;
     }
+
+    if (is_key_pressed(GLFW_KEY_Q))
+    {
+        m_delta.y = m_velocity;
+    }
+
+    if (is_key_pressed(GLFW_KEY_E))
+    {
+        m_delta.y = -m_velocity;
+    }
+
+    m_eye.x += m_delta.x * dt;
+    m_eye.y += m_delta.y * dt;
+    m_eye.z += m_delta.z * dt;
+
+    m_delta = { 0.0f, 0.0f, 0.0f };
 }
 
 

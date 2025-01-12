@@ -1,13 +1,21 @@
 set(RENDER_ENGINE_TARGET render_engine)
 
+set(_component_src_files
+	src/ecs/components/camera/Perspective.cpp
+)
+
+set(_component_hdr_files
+	src/ecs/components/camera/Perspective.hpp
+)
+
 set(_render_engine_src_files
 	src/Image.cpp
-	src/Shader.cpp
-	src/ShaderProgram.cpp
-	src/VertexBuffer.cpp
-	src/IndexBuffer.cpp
-	src/VertexArray.cpp
-	src/Texture2D.cpp
+	src/gl_resources/Shader.cpp
+	src/gl_resources/ShaderProgram.cpp
+	src/gl_resources/buffers/VertexBuffer.cpp
+	src/gl_resources/buffers/IndexBuffer.cpp
+	src/gl_resources/VertexArray.cpp
+	src/gl_resources/Texture2D.cpp
 	src/OpenGLDebugger.cpp
 	src/RenderWindow.cpp
 	src/Camera.cpp
@@ -18,12 +26,12 @@ set(_render_engine_hdr_files
 	src/Config.hpp
 	src/Export.hpp
 	src/Image.hpp
-	src/Shader.hpp
-	src/ShaderProgram.hpp
-	src/VertexBuffer.hpp
-	src/IndexBuffer.hpp
-	src/VertexArray.hpp
-	src/Texture2D.hpp
+	src/gl_resources/Shader.hpp
+	src/gl_resources/ShaderProgram.hpp
+	src/gl_resources/buffers/VertexBuffer.hpp
+	src/gl_resources/buffers/IndexBuffer.hpp
+	src/gl_resources/VertexArray.hpp
+	src/gl_resources/Texture2D.hpp
 	src/OpenGLDebugger.hpp
 	src/RenderWindow.hpp
 	src/Camera.hpp
@@ -33,6 +41,8 @@ set(_render_engine_hdr_files
 set(_all_render_engine_files
 	${_render_engine_src_files}
 	${_render_engine_hdr_files}
+	${_component_src_files}
+	${_component_hdr_files}
 )
 
 add_library(${RENDER_ENGINE_TARGET} SHARED ${_all_render_engine_files})
