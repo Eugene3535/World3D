@@ -5,6 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include <glm/glm.hpp>
+
 #include "Export.hpp"
 
 class RE_API RenderWindow final
@@ -38,6 +40,12 @@ public:
 
 	RenderWindow() noexcept;
 	~RenderWindow() noexcept;
+
+	void setCursorPosition(int x, int y) noexcept;
+
+	glm::i32vec2 getCursorPosition() const noexcept;
+    glm::i32vec2 getPosition() const noexcept;
+    glm::i32vec2 getSize() const noexcept;
 
 	void addScene(std::unique_ptr<class Scene>&& scene) noexcept;
 

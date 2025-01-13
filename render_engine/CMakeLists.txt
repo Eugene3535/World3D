@@ -67,5 +67,5 @@ PRIVATE
 )
 
 if(MSVC)
-	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_all_files})
+	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_all_render_engine_files})
 endif()

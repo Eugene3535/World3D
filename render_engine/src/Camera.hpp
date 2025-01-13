@@ -26,6 +26,8 @@ public:
 private:
     void* m_handle;
 
+    uint32_t m_uboMatrix = 0;
+
     glm::vec3 m_eye;
     glm::vec3 m_delta;
 

@@ -77,6 +77,7 @@ void VertexArray::setIndexBuffer(IndexBuffer& indexBuffer) noexcept
 	bind(this);
 	IndexBuffer::bind(&indexBuffer);
 	m_indexCount = indexBuffer.getCount();
+	bind(nullptr);
 }
 
 

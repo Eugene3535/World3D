@@ -7,7 +7,7 @@ int main()
 {
     RenderWindow rw;
     rw.enable(RenderWindow::GlOption::DepthTest);
-    auto heightmap = std::make_unique<Heightmap>(rw.getNativeHandle());
+    auto heightmap = std::make_unique<Heightmap>(&rw);
     rw.addScene(std::move(heightmap));
 
     while (rw.isOpen())

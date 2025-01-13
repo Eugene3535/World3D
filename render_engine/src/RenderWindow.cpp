@@ -77,6 +77,8 @@ RenderWindow::RenderWindow() noexcept:
             {
                 glViewport(0, 0, width, height);
             });
+
+            glfwSetInputMode(reinterpret_cast<GLFWwindow*>(m_handle), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
         else
         {
@@ -94,6 +96,39 @@ RenderWindow::~RenderWindow() noexcept
         glfwDestroyWindow(reinterpret_cast<GLFWwindow*>(m_handle));
 
     glfwTerminate();
+}
+
+
+void RenderWindow::setCursorPosition(int x, int y) noexcept
+{
+    glfwSetCursorPos(reinterpret_cast<GLFWwindow*>(m_handle), x, y);
+}
+
+
+glm::i32vec2 RenderWindow::getCursorPosition() const noexcept
+{
+    double xpos, ypos;
+    glfwGetCursorPos(reinterpret_cast<GLFWwindow*>(m_handle), &xpos, &ypos);
+
+    return { static_cast<uint32_t>(xpos), static_cast<uint32_t>(ypos) };
+}
+
+
+glm::i32vec2 RenderWindow::getPosition() const noexcept
+{
+    int32_t xt, yt;
+    glfwGetWindowPos(reinterpret_cast<GLFWwindow*>(m_handle), &xt, &yt);
+
+    return { static_cast<uint32_t>(xt), static_cast<uint32_t>(yt) };
+}
+
+
+glm::i32vec2 RenderWindow::getSize() const noexcept
+{
+    int32_t width, height;
+    glfwGetWindowSize(reinterpret_cast<GLFWwindow*>(m_handle), &width, &height);
+
+    return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 }
 
 
@@ -141,20 +176,6 @@ int RenderWindow::run(void(*func)(void*, int, int)) noexcept
 
 void RenderWindow::draw() const noexcept
 {
-    if(m_handle)
-    {
-        glClearColor(m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3]);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        auto window = reinterpret_cast<GLFWwindow*>(m_handle);
-
-        for(auto& scene : m_scenes)
-            scene->draw();
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
     auto window = reinterpret_cast<GLFWwindow*>(m_handle);
 
     auto is_key_pressed = [window](int32_t key)
@@ -162,9 +183,22 @@ void RenderWindow::draw() const noexcept
         return glfwGetKey(window, key) == GLFW_PRESS;
     };
 
-    if(is_key_pressed(GLFW_KEY_ESCAPE)) 
+    if(m_handle)
     {
-        glfwSetWindowShouldClose(window, true);
+        glfwPollEvents();
+
+        if(is_key_pressed(GLFW_KEY_ESCAPE)) 
+        {
+            glfwSetWindowShouldClose(window, true);
+        }
+
+        glClearColor(m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3]);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        for(auto& scene : m_scenes)
+            scene->draw();
+
+        glfwSwapBuffers(window);
     }
 }
 

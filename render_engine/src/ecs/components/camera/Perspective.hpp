@@ -30,6 +30,8 @@ public:
     const glm::vec3& getPosition()    const noexcept;
     glm::vec3        getLineOfSight() const noexcept;
 
+    glm::mat4 getNatrix();
+
 private:
     void recalculateModelViewMatrix() noexcept;
 
@@ -41,6 +43,8 @@ private:
 
     float m_pitch;
     float m_yaw;
+
+    uint32_t m_uboMatrix;
 
     bool m_modelViewNeedUpdate;
 };

@@ -7,6 +7,7 @@
 #include "gl_resources/Texture2D.hpp"
 #include "gl_resources/ShaderProgram.hpp"
 #include "Camera.hpp"
+#include "ecs/components/camera/Perspective.hpp"
 #include "gl_resources/VertexArray.hpp"
 #include "Scene.hpp"
 
@@ -32,7 +33,10 @@ private:
     std::unique_ptr<Texture2D> m_texClover;
 
     std::unique_ptr<ShaderProgram> m_program;
-    Camera m_camera;
+    // Camera m_camera;
+    Perspective m_perspective;
+
+    void* m_rw;
 
     std::vector<float> m_heightmap;
     uint32_t m_mapDepth;

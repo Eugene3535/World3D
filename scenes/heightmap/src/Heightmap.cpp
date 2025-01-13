@@ -2,12 +2,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "RenderWindow.hpp"
 #include "Heightmap.hpp"
 
 
 Heightmap::Heightmap(void* handle) noexcept:
     Scene(handle),
-    m_camera(handle),
+    //m_camera(handle),
+    m_rw(handle),
     m_mapWidth(0),
     m_mapDepth(0)
 {
@@ -125,14 +127,34 @@ void Heightmap::draw() noexcept
         return 0.f;
     };
 
-    glm::vec3 pos = m_camera.getPosition();
-    ///pos.y = get_height_in_point(pos.x, pos.z) + 2;
-    m_camera.setPosition(pos);
-    m_camera.update(0.01f);
+    auto rwnd = (RenderWindow*)m_rw;
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)1200 / (float)800, 0.1f, 1000.0f);
-    glm::mat4 model_view = m_camera.getViewMatrix();
-    auto MVP = projection * model_view;
+    auto cur = rwnd->getCursorPosition();
+    auto pos = rwnd->getPosition();
+    auto siz = rwnd->getSize();
+
+    m_perspective.setupProjectionMatrix(45, (float)siz.x / (float)siz.y, 0.1f, 1000.0f);
+
+    pos.x += siz.x >> 1;
+    pos.y += siz.y >> 1;
+
+    m_perspective.rotateX((pos.x - cur.x) * 0.125f);
+    m_perspective.rotateY((pos.y - cur.y) * 0.125f);
+
+    rwnd->setCursorPosition(pos.x, pos.y);
+
+    m_perspective.setPosition(30, 3, 30);
+    m_perspective.apply(0.01f);
+
+    //glm::vec3 pos = m_camera.getPosition();
+    ///pos.y = get_height_in_point(pos.x, pos.z) + 2;
+    //m_camera.setPosition(pos);
+    //m_camera.update(0.01f);
+
+    // glm::mat4 projection = glm::perspective(glm::radians(45.f), (float)1200 / (float)800, 0.1f, 1000.0f);
+    // glm::mat4 model_view = m_camera.getViewMatrix();
+    // auto MVP = projection * model_view;
+    auto MVP = m_perspective.getNatrix();
     int32_t mvpLoc = m_program->getUniformLocation("MVP");
     ShaderProgram::setUniformMatrix4fv(mvpLoc, 1, 0, glm::value_ptr(MVP));
 
