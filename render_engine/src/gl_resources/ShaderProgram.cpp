@@ -37,7 +37,7 @@ ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
     }
     else
     {
-        uint32_t uniformBlockIndex = glGetUniformBlockIndex(program, "Matrix");
+        uint32_t uniformBlockIndex = glGetUniformBlockIndex(program, "Matrices");
         glUniformBlockBinding(program, uniformBlockIndex, 0);
         m_handle = program;
     }

@@ -41,7 +41,7 @@ public:
 	RenderWindow() noexcept;
 	~RenderWindow() noexcept;
 
-	void setCursorPosition(int x, int y) noexcept;
+	void setCursorPosition(int32_t x, int32_t y) noexcept;
 
 	glm::i32vec2 getCursorPosition() const noexcept;
     glm::i32vec2 getPosition() const noexcept;

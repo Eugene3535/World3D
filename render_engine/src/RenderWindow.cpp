@@ -70,7 +70,7 @@ RenderWindow::RenderWindow() noexcept:
 
         if (gladLoadGL())
         {
-            m_handle = reinterpret_cast<GLFWwindow*>(window);
+            m_handle = reinterpret_cast<void*>(window);
             ShaderProgram::initGlUniformFunctions();
 
             glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int32_t width, int32_t height)
@@ -99,7 +99,7 @@ RenderWindow::~RenderWindow() noexcept
 }
 
 
-void RenderWindow::setCursorPosition(int x, int y) noexcept
+void RenderWindow::setCursorPosition(int32_t x, int32_t y) noexcept
 {
     glfwSetCursorPos(reinterpret_cast<GLFWwindow*>(m_handle), x, y);
 }

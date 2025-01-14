@@ -33,7 +33,7 @@ private:
     std::unique_ptr<Texture2D> m_texClover;
 
     std::unique_ptr<ShaderProgram> m_program;
-    // Camera m_camera;
+
     Perspective m_perspective;
 
     void* m_rw;

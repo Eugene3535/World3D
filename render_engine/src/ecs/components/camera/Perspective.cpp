@@ -24,11 +24,6 @@ Perspective::Perspective() noexcept:
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_uboMatrix, 0, sizeof(glm::mat4));
 }
 
-glm::mat4 Perspective::getNatrix()
-{
-    return m_projection * m_modelView;
-}
-
 
 Perspective::~Perspective() noexcept
 {
@@ -53,9 +48,9 @@ void Perspective::apply(float dt) noexcept
     if(m_modelViewNeedUpdate)
         recalculateModelViewMatrix();
 
-    // glBindBuffer(GL_UNIFORM_BUFFER, m_uboMatrix);
-    // glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(m_projection * m_modelView));
-    // glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_uboMatrix);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_projection * m_modelView));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 
@@ -143,7 +138,7 @@ const glm::vec3& Perspective::getPosition() const noexcept
 glm::vec3 Perspective::getLineOfSight() const noexcept
 {
     const float tx = -sin(glm::radians(m_pitch));
-    const float ty = tan(glm::radians(m_yaw));
+    const float ty =  tan(glm::radians(m_yaw));
     const float tz = -cos(glm::radians(m_pitch));
 
     return { tx, ty, tz };

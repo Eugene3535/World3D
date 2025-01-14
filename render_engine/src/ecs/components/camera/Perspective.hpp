@@ -30,8 +30,6 @@ public:
     const glm::vec3& getPosition()    const noexcept;
     glm::vec3        getLineOfSight() const noexcept;
 
-    glm::mat4 getNatrix();
-
 private:
     void recalculateModelViewMatrix() noexcept;
 
