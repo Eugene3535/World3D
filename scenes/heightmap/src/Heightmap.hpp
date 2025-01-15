@@ -6,7 +6,6 @@
 #include "Image.hpp"
 #include "gl_resources/Texture2D.hpp"
 #include "gl_resources/ShaderProgram.hpp"
-#include "Camera.hpp"
 #include "ecs/components/camera/Perspective.hpp"
 #include "gl_resources/VertexArray.hpp"
 #include "Scene.hpp"

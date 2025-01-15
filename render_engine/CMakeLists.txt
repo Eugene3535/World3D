@@ -17,8 +17,8 @@ set(_render_engine_src_files
 	src/gl_resources/VertexArray.cpp
 	src/gl_resources/Texture2D.cpp
 	src/OpenGLDebugger.cpp
+	src/BaseWindow.cpp
 	src/RenderWindow.cpp
-	src/Camera.cpp
 	src/Scene.cpp
 )
 
@@ -33,8 +33,8 @@ set(_render_engine_hdr_files
 	src/gl_resources/VertexArray.hpp
 	src/gl_resources/Texture2D.hpp
 	src/OpenGLDebugger.hpp
+	src/BaseWindow.hpp
 	src/RenderWindow.hpp
-	src/Camera.hpp
 	src/Scene.hpp
 )
 

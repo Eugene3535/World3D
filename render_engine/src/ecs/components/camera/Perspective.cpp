@@ -7,6 +7,7 @@
 
 #include "ecs/components/camera/Perspective.hpp"
 
+
 Perspective::Perspective() noexcept:
     m_projection(glm::identity<glm::mat4>()),
     m_modelView(glm::identity<glm::mat4>()),

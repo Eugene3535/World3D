@@ -1,15 +1,13 @@
 #ifndef RENDER_WINDOW_HPP
 #define RENDER_WINDOW_HPP
 
-#include <cstdint>
 #include <memory>
 #include <vector>
 
-#include <glm/glm.hpp>
+#include "BaseWindow.hpp"
 
-#include "Export.hpp"
-
-class RE_API RenderWindow final
+class RE_API RenderWindow final: 
+	public BaseWindow
 {
 public:
 	enum class GlOption
@@ -38,14 +36,8 @@ public:
 		ProgramPointSize
 	};
 
-	RenderWindow() noexcept;
+	RenderWindow(std::string_view title, int32_t width, int32_t height) noexcept;
 	~RenderWindow() noexcept;
-
-	void setCursorPosition(int32_t x, int32_t y) noexcept;
-
-	glm::i32vec2 getCursorPosition() const noexcept;
-    glm::i32vec2 getPosition() const noexcept;
-    glm::i32vec2 getSize() const noexcept;
 
 	void addScene(std::unique_ptr<class Scene>&& scene) noexcept;
 
@@ -54,21 +46,13 @@ public:
 
 	void setClearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) noexcept;
 
-	int run(void(*)(void*, int, int)) noexcept;
-
 	void draw() const noexcept;
-	void close() noexcept;
 
-	bool isOpen() const noexcept;
-
-	void* getNativeHandle() noexcept;
 
 private:
 	std::vector<std::unique_ptr<class Scene>> m_scenes;
 
 	float m_clearColor[4];
-
-	void* m_handle;
 };
 
 #endif // !RENDER_WINDOW_HPP

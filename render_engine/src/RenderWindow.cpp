@@ -9,10 +9,6 @@
 #include "RenderWindow.hpp"
 
 
-const static int SCR_WIDTH = 1200;
-const static int SCR_HEIGHT = 800;
-
-
 static constexpr uint32_t optionToGlCap(RenderWindow::GlOption option) noexcept
 {
     switch (option)
@@ -45,9 +41,9 @@ static constexpr uint32_t optionToGlCap(RenderWindow::GlOption option) noexcept
 }
 
 
-RenderWindow::RenderWindow() noexcept:
-    m_clearColor(),
-    m_handle(nullptr)
+RenderWindow::RenderWindow(std::string_view title, int32_t width, int32_t height) noexcept:
+    BaseWindow(title, width, height),
+    m_clearColor()
 {
     static_assert(std::is_same_v<GLchar, char>, "GLchar and char are not the same type!\n");
     static_assert(std::is_same_v<GLuint, uint32_t>, "GLuint and uint32_t are not the same type!\n");
@@ -55,81 +51,17 @@ RenderWindow::RenderWindow() noexcept:
     static_assert(std::is_same_v<GLint, int32_t>, "GLint and int32_t are not the same type!\n");
     static_assert(std::is_same_v<GLsizei, int32_t>, "GLsizei and uint32_t are not the same type!\n");
 
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-#endif
-
-    if (GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "World3D", nullptr, nullptr); window != nullptr)
+    if(isOpen())
     {
-        glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);
-
-        if (gladLoadGL())
-        {
-            m_handle = reinterpret_cast<void*>(window);
-            ShaderProgram::initGlUniformFunctions();
-
-            glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int32_t width, int32_t height)
-            {
-                glViewport(0, 0, width, height);
-            });
-
-            glfwSetInputMode(reinterpret_cast<GLFWwindow*>(m_handle), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        }
-        else
-        {
-            glfwDestroyWindow(window);
-            glfwTerminate();
-            m_handle = nullptr;
-        }
-    }
+        ShaderProgram::initGlUniformFunctions();
+#ifdef DEBUG
+        OpenGLDebugger messager;
+#endif
+    }   
 }
 
 
-RenderWindow::~RenderWindow() noexcept
-{
-    if(m_handle)
-        glfwDestroyWindow(reinterpret_cast<GLFWwindow*>(m_handle));
-
-    glfwTerminate();
-}
-
-
-void RenderWindow::setCursorPosition(int32_t x, int32_t y) noexcept
-{
-    glfwSetCursorPos(reinterpret_cast<GLFWwindow*>(m_handle), x, y);
-}
-
-
-glm::i32vec2 RenderWindow::getCursorPosition() const noexcept
-{
-    double xpos, ypos;
-    glfwGetCursorPos(reinterpret_cast<GLFWwindow*>(m_handle), &xpos, &ypos);
-
-    return { static_cast<uint32_t>(xpos), static_cast<uint32_t>(ypos) };
-}
-
-
-glm::i32vec2 RenderWindow::getPosition() const noexcept
-{
-    int32_t xt, yt;
-    glfwGetWindowPos(reinterpret_cast<GLFWwindow*>(m_handle), &xt, &yt);
-
-    return { static_cast<uint32_t>(xt), static_cast<uint32_t>(yt) };
-}
-
-
-glm::i32vec2 RenderWindow::getSize() const noexcept
-{
-    int32_t width, height;
-    glfwGetWindowSize(reinterpret_cast<GLFWwindow*>(m_handle), &width, &height);
-
-    return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
-}
+RenderWindow::~RenderWindow() noexcept = default;
 
 
 void RenderWindow::addScene(std::unique_ptr<Scene>&& scene) noexcept
@@ -159,24 +91,9 @@ void RenderWindow::setClearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) noe
 }
 
 
-int RenderWindow::run(void(*func)(void*, int, int)) noexcept
-{
-    if (!m_handle)
-        return -1;
-
-#ifdef DEBUG
-    OpenGLDebugger messager;
-#endif
-
-    func(m_handle, SCR_WIDTH, SCR_HEIGHT);
-
-	return 0;
-}
-
-
 void RenderWindow::draw() const noexcept
 {
-    auto window = reinterpret_cast<GLFWwindow*>(m_handle);
+    auto window = static_cast<GLFWwindow*>(m_handle);
 
     auto is_key_pressed = [window](int32_t key)
     {
@@ -200,22 +117,4 @@ void RenderWindow::draw() const noexcept
 
         glfwSwapBuffers(window);
     }
-}
-
-
-void RenderWindow::close() noexcept
-{
-    glfwSetWindowShouldClose(reinterpret_cast<GLFWwindow*>(m_handle), true);
-}
-
-
-bool RenderWindow::isOpen() const noexcept
-{
-    return (m_handle != nullptr) && !glfwWindowShouldClose(reinterpret_cast<GLFWwindow*>(m_handle));
-}
-
-
-void* RenderWindow::getNativeHandle() noexcept
-{
-    return m_handle;
 }
