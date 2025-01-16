@@ -14,7 +14,7 @@ VertexArray::VertexArray() noexcept:
 VertexArray::VertexArray(VertexArray&& vertexArray) noexcept :
 	GlResource(std::move(vertexArray)),
 	m_attributeCount(vertexArray.m_attributeCount),
-	m_indexCount(0)
+	m_indexCount(vertexArray.m_indexCount)
 {
 	vertexArray.m_attributeCount = 0;
 }
@@ -23,8 +23,10 @@ VertexArray::VertexArray(VertexArray&& vertexArray) noexcept :
 VertexArray& VertexArray::operator=(VertexArray&& vertexArray) noexcept
 {
 	GlResource::operator = (std::move(vertexArray));
-	m_attributeCount = vertexArray.m_handle;
+	m_attributeCount = vertexArray.m_attributeCount;
+	m_indexCount = vertexArray.m_indexCount;
 	vertexArray.m_attributeCount = 0;
+	vertexArray.m_indexCount = 0;
 
 	return *this;
 }
