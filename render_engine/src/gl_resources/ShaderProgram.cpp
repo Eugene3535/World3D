@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 
-#include "ShaderProgram.hpp"
+#include "gl_resources/ShaderProgram.hpp"
 
 
 void (*ShaderProgram::setUniform1i)(int32_t, int32_t);
@@ -16,7 +16,7 @@ void (*ShaderProgram::setUniformMatrix4fv)(int32_t location, int32_t count, uint
 
 
 ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
-    m_handle(0)
+    GlResource()
 {
     uint32_t program = glCreateProgram();
 
@@ -47,18 +47,16 @@ ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
 }
 
 
-ShaderProgram::ShaderProgram(ShaderProgram&& program) noexcept:
-    m_handle(program.m_handle)
+ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept:
+    GlResource(std::move(other))
 {
-    program.m_handle = 0;
+    
 }
 
 
-ShaderProgram& ShaderProgram::operator =(ShaderProgram&& program) noexcept
+ShaderProgram& ShaderProgram::operator = (ShaderProgram&& other) noexcept
 {
-    glDeleteProgram(m_handle);
-    m_handle = program.m_handle;
-    program.m_handle = 0;
+    GlResource::operator = (std::move(other));
 
     return *this;
 }
@@ -88,22 +86,10 @@ void ShaderProgram::bind(ShaderProgram* program) noexcept
 }
 
 
-uint32_t ShaderProgram::getHandle() const noexcept
-{
-    return m_handle;
-}
-
-
 int32_t ShaderProgram::getUniformLocation(const char* name) const noexcept
 {
     if(m_handle)
         return glGetUniformLocation(m_handle, name);
 
     return -1;
-}
-
-
-bool ShaderProgram::isCompiled() const noexcept
-{
-    return m_handle != 0;
 }

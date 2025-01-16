@@ -3,6 +3,7 @@
 
 #include "Image.hpp"
 
+
 Image::Image() noexcept:
     m_width(0),
     m_height(0),
@@ -12,7 +13,9 @@ Image::Image() noexcept:
 
 }
 
+
 Image::~Image() noexcept = default;
+
 
 bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
 {
@@ -63,25 +66,30 @@ bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
     return false;
 }
 
+
 const uint8_t* Image::getPixels() const noexcept
 {
     return m_pixels.data();
 }
+
 
 int32_t Image::getWidth() const noexcept
 {
     return m_width;
 }
 
+
 int32_t Image::getHeight() const noexcept
 {
     return m_height;
 }
 
+
 int32_t Image::getBytePerPixel() const noexcept
 {
     return m_bytePerPixel;
 }
+
 
 Image::Format Image::getFormat() const noexcept
 {

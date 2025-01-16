@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 VertexArray::VertexArray() noexcept:
-	m_handle(0),
+	GlResource(),
 	m_attributeCount(0),
 	m_indexCount(0)
 {
@@ -12,20 +12,18 @@ VertexArray::VertexArray() noexcept:
 
 
 VertexArray::VertexArray(VertexArray&& vertexArray) noexcept :
-	m_handle(vertexArray.m_handle),
+	GlResource(std::move(vertexArray)),
 	m_attributeCount(vertexArray.m_attributeCount),
 	m_indexCount(0)
 {
-	vertexArray.m_handle = 0;
 	vertexArray.m_attributeCount = 0;
 }
 
 
 VertexArray& VertexArray::operator=(VertexArray&& vertexArray) noexcept
 {
-	m_handle = vertexArray.m_handle;
+	GlResource::operator = (std::move(vertexArray));
 	m_attributeCount = vertexArray.m_handle;
-	vertexArray.m_handle = 0;
 	vertexArray.m_attributeCount = 0;
 
 	return *this;

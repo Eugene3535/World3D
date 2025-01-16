@@ -3,8 +3,10 @@
 
 #include <filesystem>
 
-#include "Export.hpp"
-class RE_API Texture2D
+#include "gl_resources/GlResource.hpp"
+
+class RE_API Texture2D final:
+	public GlResource
 {
 public:
 	enum class WrapMode
@@ -32,9 +34,7 @@ public:
 
 	bool isSmooth()   const noexcept;
 	bool isRepeated() const noexcept;
-	bool isValid()    const noexcept;
 
-	uint32_t getHandle() const noexcept;
 	int32_t  width()     const noexcept;
 	int32_t  height()    const noexcept;
 
@@ -42,9 +42,8 @@ public:
 	static void enable(uint32_t unit) noexcept;
 
 private:
-	uint32_t m_handle;
-	int32_t  m_width;
-    int32_t  m_height;
+	int32_t m_width;
+    int32_t m_height;
 
 	bool m_isSmooth;
 	bool m_isRepeated;

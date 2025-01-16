@@ -10,6 +10,7 @@ set(_component_hdr_files
 
 set(_render_engine_src_files
 	src/Image.cpp
+	src/gl_resources/GlResource.cpp
 	src/gl_resources/Shader.cpp
 	src/gl_resources/ShaderProgram.cpp
 	src/gl_resources/buffers/VertexBuffer.cpp
@@ -26,6 +27,7 @@ set(_render_engine_hdr_files
 	src/Config.hpp
 	src/Export.hpp
 	src/Image.hpp
+	src/gl_resources/GlResource.hpp
 	src/gl_resources/Shader.hpp
 	src/gl_resources/ShaderProgram.hpp
 	src/gl_resources/buffers/VertexBuffer.hpp

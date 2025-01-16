@@ -31,7 +31,7 @@ static constexpr auto filterModeToGlType(Texture2D::FilterMode mode) noexcept
 
 
 Texture2D::Texture2D(const std::filesystem::path& filePath, WrapMode wrap, FilterMode filter) noexcept:
-    m_handle(0u),
+    GlResource(),
     m_width(0),
     m_height(0),
     m_isSmooth(false),
@@ -64,7 +64,7 @@ Texture2D::Texture2D(const std::filesystem::path& filePath, WrapMode wrap, Filte
 
 
 Texture2D::Texture2D(const Image& image, WrapMode wrap, FilterMode filter) noexcept:
-    m_handle(0u),
+    GlResource(),
     m_width(0),
     m_height(0),
     m_isSmooth(false),
@@ -92,7 +92,7 @@ Texture2D::Texture2D(const Image& image, WrapMode wrap, FilterMode filter) noexc
 
 
 Texture2D::Texture2D(Texture2D&& texture) noexcept :
-    m_handle(texture.m_handle),
+    GlResource(std::move(texture)),
     m_width(texture.m_width),
     m_height(texture.m_height),
     m_isSmooth(texture.m_isSmooth),
@@ -175,18 +175,6 @@ bool Texture2D::isSmooth() const noexcept
 bool Texture2D::isRepeated() const noexcept
 {
     return m_isRepeated;
-}
-
-
-bool Texture2D::isValid() const noexcept
-{
-    return m_handle != 0;
-}
-
-
-uint32_t Texture2D::getHandle() const noexcept
-{
-    return m_handle;
 }
 
 

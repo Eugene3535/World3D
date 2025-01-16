@@ -5,11 +5,11 @@
 
 #include <glad/glad.h>
 
-#include "Shader.hpp"
+#include "gl_resources/Shader.hpp"
 
 
 Shader::Shader(const std::filesystem::path& filepath, Shader::Type shaderType) noexcept:
-    m_handle(0),
+    GlResource(),
     m_type(Shader::Type::Vertex)
 {
     bool type_is_valid = (shaderType == Shader::Compute)        ||
@@ -62,9 +62,9 @@ Shader::Shader(const std::filesystem::path& filepath, Shader::Type shaderType) n
 
             if (success == GL_FALSE)
             {
-                char infoLog[1024]{};
-                glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
-                printf("Error: shader compilation error\n%s\n ------------------------------------------------------- \n", infoLog);
+                char info_log[1024]{};
+                glGetShaderInfoLog(shader, sizeof(info_log), nullptr, info_log);
+                printf("Error: shader compilation error\n%s\n ------------------------------------------------------- \n", info_log);
             }
             else
             {
@@ -75,44 +75,13 @@ Shader::Shader(const std::filesystem::path& filepath, Shader::Type shaderType) n
 }
 
 
-Shader::Shader(Shader&& tmp) noexcept:
-    m_handle(tmp.m_handle),
-    m_type(tmp.m_type)
-{
-    tmp.m_handle = 0;
-}
-
-
-Shader& Shader::operator =(Shader&& tmp) noexcept
-{
-    glDeleteShader(m_handle);
-    m_handle = tmp.m_handle;
-    m_type = tmp.m_type;
-    tmp.m_handle = 0;
-
-    return *this;
-}
-
-
 Shader::~Shader() noexcept
 {
     glDeleteShader(m_handle);
 }
 
 
-uint32_t Shader::getHandle() const noexcept
-{
-    return m_handle;
-}
-
-
 Shader::Type Shader::getType() const noexcept
 {
     return m_type;
-}
-
-
-bool Shader::isCompiled() const noexcept
-{
-    return m_handle != 0;
 }

@@ -3,9 +3,10 @@
 
 #include <filesystem>
 
-#include "Export.hpp"
+#include "gl_resources/GlResource.hpp"
 
-class RE_API Shader
+class RE_API Shader final:
+    public GlResource
 {
 public:
     enum Type
@@ -20,18 +21,15 @@ public:
 
     Shader(const std::filesystem::path& filepath, Type shaderType) noexcept;
     Shader(const Shader&) noexcept = delete;
-    Shader(Shader&&) noexcept;
-    Shader& operator =(const Shader&) noexcept = delete;
-    Shader& operator =(Shader&&) noexcept;
+    Shader(Shader&&) noexcept = delete;
+    Shader& operator = (const Shader&) noexcept = delete;
+    Shader& operator = (Shader&&) noexcept = delete;
     ~Shader() noexcept;
 
-    uint32_t getHandle()  const noexcept;
-    Type     getType()    const noexcept;
-    bool     isCompiled() const noexcept;
+    Type getType() const noexcept;
 
 private:
-    uint32_t m_handle;
-    Type     m_type;
+    Type m_type;
 };
 
 #endif // !SHADER_HPP

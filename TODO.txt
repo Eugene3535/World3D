@@ -1,1 +1,3 @@
 1) template GlResource
+2) GlBuffer class for buffer storage
+3) class GlContext (global GL machine state storage)

@@ -5,7 +5,7 @@
 #include "OpenGLDebugger.hpp"
 
 
-static const char* glSourceToString(const GLenum source)
+static const char* glSourceToString(const GLenum source) noexcept
 {
     switch (source)
     {
@@ -21,7 +21,7 @@ static const char* glSourceToString(const GLenum source)
 }
 
 
-static const char* glTypeToString(const GLenum type)
+static const char* glTypeToString(const GLenum type) noexcept
 {
     switch (type)
     {

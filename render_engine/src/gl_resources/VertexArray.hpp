@@ -1,9 +1,11 @@
 #pragma once
 
+#include "gl_resources/GlResource.hpp"
 #include "gl_resources/buffers/VertexBuffer.hpp"
 #include "gl_resources/buffers/IndexBuffer.hpp"
 
-class RE_API VertexArray 
+class RE_API VertexArray final:
+    public GlResource
 {
 public:
     VertexArray() noexcept;
@@ -20,7 +22,6 @@ public:
     uint32_t getIndexCount() const noexcept;
 
 private:
-    uint32_t m_handle;
     uint32_t m_attributeCount;
     uint32_t m_indexCount;
 };
