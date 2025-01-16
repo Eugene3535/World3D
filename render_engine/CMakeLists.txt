@@ -13,6 +13,7 @@ set(_render_engine_src_files
 	src/gl_resources/GlResource.cpp
 	src/gl_resources/Shader.cpp
 	src/gl_resources/ShaderProgram.cpp
+	src/gl_resources/buffers/GlBuffer.cpp
 	src/gl_resources/buffers/VertexBuffer.cpp
 	src/gl_resources/buffers/IndexBuffer.cpp
 	src/gl_resources/VertexArray.cpp
@@ -30,6 +31,7 @@ set(_render_engine_hdr_files
 	src/gl_resources/GlResource.hpp
 	src/gl_resources/Shader.hpp
 	src/gl_resources/ShaderProgram.hpp
+	src/gl_resources/buffers/GlBuffer.hpp
 	src/gl_resources/buffers/VertexBuffer.hpp
 	src/gl_resources/buffers/IndexBuffer.hpp
 	src/gl_resources/VertexArray.hpp
