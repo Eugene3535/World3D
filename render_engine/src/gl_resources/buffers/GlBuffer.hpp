@@ -1,16 +1,14 @@
 #ifndef GL_BUFFER_HPP
 #define GL_BUFFER_HPP
 
-#include <array>
-#include <vector>
+#include <cstdint>
 
 #include "Export.hpp"
 
-
-class RE_API GlBuffer final
+class RE_API GlBuffer
 {
 public:
-    enum Target: uint32_t
+    enum class Target: uint32_t
     {
         Array,
         AtomicCounter,
@@ -28,36 +26,31 @@ public:
         Uniform
     };
 
-    enum Usage: uint32_t
+    enum class Usage: uint32_t
     {
         Static,
         Dynamic,
         Stream
     };
 
-    GlBuffer() noexcept;
-    GlBuffer(const GlBuffer&) noexcept = delete;
-    GlBuffer(GlBuffer&&) noexcept = delete;
-    GlBuffer& operator = (const GlBuffer&) noexcept = delete;
-    GlBuffer& operator = (GlBuffer&&) noexcept = delete;
+    GlBuffer(uint32_t handle, Target target) noexcept;
     ~GlBuffer() noexcept;
 
-    template<size_t N>
-    static void deleteBuffers(const std::array<uint32_t, N>& buffers) noexcept;
+    void create(const void* data, size_t elementCount, size_t elementSize, GlBuffer::Usage usage) noexcept;
+    void update(const void* data, size_t elementCount, size_t elementSize, size_t offset) noexcept;
+    bool write(const void* data, size_t size, size_t offset) noexcept;
 
-    template<size_t N>
-    static std::array<uint32_t, N> generateBuffers() noexcept;
+    uint32_t getHandle() const noexcept;
+    Target   getType()   const noexcept;
+    uint32_t getCount()  const noexcept;
 
-    static void bind(Target target, uint32_t buffer) noexcept;
+    void bind(bool enable) noexcept;
 
-private:
-    std::vector<uint32_t> m_buffers;
-    static GlBuffer* m_instance;
-
-    void(*genBuffers)(int32_t, uint32_t*);
-    void(*delBuffers)(int32_t, const uint32_t*);
+protected:
+    const uint32_t m_handle;
+    const Target   m_type;
+    Usage          m_usage;
+    uint32_t       m_count;
 };
 
-#include "gl_resources/buffers/GlBuffer.inl"
-
-#endif // !GL_BUFFER_HPP
+#endif // !CUSTOM_BUFFER_HPP

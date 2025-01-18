@@ -1,18 +1,21 @@
-#include "IndexBuffer.hpp"
 #include <glad/glad.h>
+
+#include "IndexBuffer.hpp"
+
 
 IndexBuffer::IndexBuffer(const void* data, size_t count, VertexBuffer::Usage usage):
     m_count(count)
 {
-    auto usageToGLenum = [](const VertexBuffer::Usage usage) -> int32_t
+    auto usageToGLenum = [](const VertexBuffer::Usage usage) noexcept -> GLenum
     {
         switch (usage)
         {
             case VertexBuffer::Usage::Static:  return GL_STATIC_DRAW;
             case VertexBuffer::Usage::Dynamic: return GL_DYNAMIC_DRAW;
             case VertexBuffer::Usage::Stream:  return GL_STREAM_DRAW;
+
+            default: return GL_STREAM_DRAW;
         }
-        return GL_STREAM_DRAW;
     };
 
     glGenBuffers(1, &m_handle);
