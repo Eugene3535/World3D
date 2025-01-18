@@ -1,5 +1,5 @@
-#ifndef GL_BUFFER_HPP
-#define GL_BUFFER_HPP
+#ifndef GL_BUFFER_HOLDER_HPP
+#define GL_BUFFER_HOLDER_HPP
 
 #include <array>
 #include <vector>
@@ -33,4 +33,4 @@ private:
 
 #include "gl_resources/buffers/GlBufferHolder.inl"
 
-#endif // !GL_BUFFER_HPP
+#endif // !GL_BUFFER_HOLDER_HPP

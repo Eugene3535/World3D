@@ -7,6 +7,7 @@
 #include "gl_resources/Texture2D.hpp"
 #include "gl_resources/ShaderProgram.hpp"
 #include "ecs/components/camera/Perspective.hpp"
+#include "gl_resources/buffers/GlBufferHolder.hpp"
 #include "gl_resources/VertexArray.hpp"
 #include "Scene.hpp"
 
@@ -44,6 +45,8 @@ private:
     std::unique_ptr<VertexBuffer> m_vbo;
     std::unique_ptr<IndexBuffer> m_ebo;
     std::unique_ptr<VertexArray> m_vao;
+
+    GlBufferHolder m_bufferHolder;
 };
 
 #endif // !HEIGHTMAP_HPP

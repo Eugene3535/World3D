@@ -2,9 +2,8 @@
 #define VERTEX_BUFFER_HPP
 
 #include <vector>
-#include <cstdint>
 
-#include "Export.hpp"
+#include "gl_resources/buffers/GlBuffer.hpp"
 
 // A vertex attribute is an input variable to a shader that is supplied with per - vertex data.
 // In OpenGL core profile, they are specified as in variables in a vertex shader and are backed by a GL_ARRAY_BUFFER.
@@ -51,28 +50,16 @@ private:
 };
 
 
-class RE_API VertexBuffer 
+class RE_API VertexBuffer:
+    public GlBuffer
 {
 public:
-    enum Usage
-    {
-        Static,
-        Dynamic,
-        Stream
-    };
-
-    VertexBuffer(const void* data, size_t size, const VertexBufferLayout& layout, Usage usage = Static) noexcept;
-    VertexBuffer(const VertexBuffer&) = delete;
-    VertexBuffer& operator=(const VertexBuffer&) = delete;
-    VertexBuffer& operator=(VertexBuffer&& vertex_buffer) noexcept;
-    VertexBuffer(VertexBuffer&& vertex_buffer) noexcept;
+    VertexBuffer(uint32_t handle, const VertexBufferLayout& layout) noexcept;
     ~VertexBuffer() noexcept;
 
-    uint32_t getHandle() const noexcept;
     const VertexBufferLayout& getLayout() const noexcept;
 
 private:
-    uint32_t m_handle;
     VertexBufferLayout m_layout;
 };
 

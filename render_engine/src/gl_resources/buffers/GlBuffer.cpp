@@ -73,31 +73,38 @@ void GlBuffer::update(const void* data, size_t elementCount, size_t elementSize,
 {
     if(data)
     {
-        glBindBuffer(targetToGlEnum(m_type), m_handle);
+        auto target = targetToGlEnum(m_type);
+        glBindBuffer(target, m_handle);
 
         if(elementCount >= m_count)
         {
-            glBufferData(targetToGlEnum(m_type), static_cast<GLsizeiptr>(elementCount * elementSize), nullptr, usageToGlEnum(m_usage));
+            glBufferData(target, static_cast<GLsizeiptr>(elementCount * elementSize), nullptr, usageToGlEnum(m_usage));
             m_count = static_cast<uint32_t>(elementCount);
         }
             
-        glBufferSubData(targetToGlEnum(m_type), static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(elementCount * elementSize), data);
-        glBindBuffer(targetToGlEnum(m_type), 0);
+        glBufferSubData(target, static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(elementCount * elementSize), data);
+        glBindBuffer(target, 0);
     }
 }
 
 
 bool GlBuffer::write(const void* data, size_t size, size_t offset) noexcept
 {
-    glBindBuffer(targetToGlEnum(m_type), m_handle);
+    if(data)
+    {
+        auto target = targetToGlEnum(m_type);
+        glBindBuffer(target, m_handle);
 
-    void* ptr = glMapBuffer(targetToGlEnum(m_type), GL_WRITE_ONLY);
-    memcpy(ptr + offset, data, size);
-    GLboolean result = glUnmapBuffer(targetToGlEnum(m_type));
+        void* ptr = glMapBuffer(target, GL_WRITE_ONLY);
+        memcpy(ptr + offset, data, size);
+        GLboolean result = glUnmapBuffer(target);
 
-    glBindBuffer(targetToGlEnum(m_type), 0);
+        glBindBuffer(target, 0);
 
-    return (result == GL_TRUE);
+        return (result == GL_TRUE);
+    }
+
+    return false;
 }
 
 

@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 
-#include "VertexBuffer.hpp"
+#include "gl_resources/buffers/VertexBuffer.hpp"
 
 
 static constexpr uint32_t shaderAttributeTypeToComponentCount(const AttributeInfo::Type type) noexcept
@@ -121,42 +121,15 @@ size_t VertexBufferLayout::getStride() const noexcept
 }
 
 
-VertexBuffer::VertexBuffer(const void* data, size_t size, const VertexBufferLayout& layout, Usage usage) noexcept:
+VertexBuffer::VertexBuffer(uint32_t handle, const VertexBufferLayout& layout) noexcept:
+    GlBuffer(handle, GlBuffer::Target::Array),
     m_layout(layout)
 {
-    glGenBuffers(1, &m_handle);
-    glBindBuffer(GL_ARRAY_BUFFER, m_handle);
-    glBufferData(GL_ARRAY_BUFFER, size, data, usageToGLenum(usage));
+
 }
 
 
-VertexBuffer::VertexBuffer(VertexBuffer&& vertex_buffer) noexcept :
-    m_handle(vertex_buffer.m_handle),
-    m_layout(vertex_buffer.m_layout)
-{
-    vertex_buffer.m_handle = 0;
-}
-
-
-VertexBuffer& VertexBuffer::operator=(VertexBuffer&& vertex_buffer) noexcept
-{
-    m_handle = vertex_buffer.m_handle;
-    vertex_buffer.m_handle = 0;
-
-    return *this;
-}
-
-
-VertexBuffer::~VertexBuffer()
-{
-    glDeleteBuffers(1, &m_handle);
-}
-
-
-uint32_t VertexBuffer::getHandle() const noexcept
-{
-    return m_handle;
-}
+VertexBuffer::~VertexBuffer() = default;
 
 
 const VertexBufferLayout& VertexBuffer::getLayout() const noexcept
