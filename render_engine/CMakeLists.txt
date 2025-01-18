@@ -32,6 +32,7 @@ set(_render_engine_hdr_files
 	src/gl_resources/Shader.hpp
 	src/gl_resources/ShaderProgram.hpp
 	src/gl_resources/buffers/GlBuffer.hpp
+	src/gl_resources/buffers/GlBuffer.inl
 	src/gl_resources/buffers/VertexBuffer.hpp
 	src/gl_resources/buffers/IndexBuffer.hpp
 	src/gl_resources/VertexArray.hpp
