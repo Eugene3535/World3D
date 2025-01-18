@@ -1,3 +1,2 @@
-1) template GlResource
-2) GlBuffer class for buffer storage
-3) class GlContext (global GL machine state storage, as glEnable)
+1) Move draw() implementation to Vertsx Buffer Array 
+2) class GlContext (global GL machine state storage, as glEnable)
