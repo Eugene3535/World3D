@@ -22,6 +22,9 @@ GlResourceHolder::GlResourceHolder() noexcept:
 
     genVertexArrays = glGenVertexArrays;
     delVertexArrays = glDeleteVertexArrays;
+
+    genTextures = glGenTextures;
+    delTextures = glDeleteTextures;
 }
 
 
@@ -32,4 +35,7 @@ GlResourceHolder::~GlResourceHolder() noexcept
 
     if(!m_arrays.empty())
         glDeleteVertexArrays(static_cast<GLsizei>(m_arrays.size()), m_arrays.data());
+
+    if(!m_textures.empty())
+        glDeleteVertexArrays(static_cast<GLsizei>(m_textures.size()), m_textures.data());
 }

@@ -30,45 +30,21 @@ static constexpr auto filterModeToGlType(Texture2D::FilterMode mode) noexcept
 }
 
 
-Texture2D::Texture2D(const std::filesystem::path& filePath, WrapMode wrap, FilterMode filter) noexcept:
+Texture2D::Texture2D(uint32_t handle) noexcept:
     GlResource(),
     m_width(0),
     m_height(0),
     m_isSmooth(false),
     m_isRepeated(false)
 {
-    Image image;
-
-    if (image.loadFromFile(filePath))
-    {
-        if (int32_t internalformat = image.getBytePerPixel(); (internalformat == 3) || (internalformat == 4))
-        {
-            uint32_t format = (internalformat == 4) ? GL_RGBA : GL_RGB;
-            m_width = image.getWidth();
-            m_height = image.getHeight();
-            m_isRepeated = (wrap == WrapMode::Repeat) ? true : false;
-            m_isSmooth = (filter == FilterMode::Linear) ? true : false;
-
-            glGenTextures(1, &m_handle);
-            glBindTexture(GL_TEXTURE_2D, m_handle);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapModeToGlType(wrap));
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapModeToGlType(wrap));
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterModeToGlType(filter));
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterModeToGlType(filter));
-            glTexImage2D(GL_TEXTURE_2D, 0, internalformat, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, reinterpret_cast<const void*>(image.getPixels()));
-            glGenerateMipmap(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-    }
+    m_handle = handle;
 }
 
 
-Texture2D::Texture2D(const Image& image, WrapMode wrap, FilterMode filter) noexcept:
-    GlResource(),
-    m_width(0),
-    m_height(0),
-    m_isSmooth(false),
-    m_isRepeated(false)
+Texture2D::~Texture2D() noexcept = default;
+
+
+bool Texture2D::loadFromImage(const Image& image, WrapMode wrap, FilterMode filter) noexcept
 {
     if (int32_t channels = image.getBytePerPixel(); (channels == 3) || (channels == 4))
     {
@@ -78,7 +54,6 @@ Texture2D::Texture2D(const Image& image, WrapMode wrap, FilterMode filter) noexc
         m_isRepeated = (wrap == WrapMode::Repeat) ? true : false;
         m_isSmooth = (filter == FilterMode::Linear) ? true : false;
 
-        glGenTextures(1, &m_handle);
         glBindTexture(GL_TEXTURE_2D, m_handle);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapModeToGlType(wrap));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapModeToGlType(wrap));
@@ -87,33 +62,22 @@ Texture2D::Texture2D(const Image& image, WrapMode wrap, FilterMode filter) noexc
         glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, reinterpret_cast<const void*>(image.getPixels()));
         glGenerateMipmap(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
+
+        return true;
     }
+
+    return false;
 }
 
 
-Texture2D::Texture2D(Texture2D&& texture) noexcept :
-    GlResource(std::move(texture)),
-    m_width(texture.m_width),
-    m_height(texture.m_height),
-    m_isSmooth(texture.m_isSmooth),
-    m_isRepeated(texture.m_isRepeated)
+bool Texture2D::loadFromFile(const std::filesystem::path& filePath, WrapMode wrap, FilterMode filter) noexcept
 {
-    texture.m_handle = 0;
-}
+    Image image;
 
-
-Texture2D& Texture2D::operator = (Texture2D&& texture) noexcept
-{
-    std::memcpy(this, &texture, sizeof(Texture2D));
-    texture.m_handle = 0;
-
-    return *this;
-}
-
-
-Texture2D::~Texture2D() noexcept
-{
-    glDeleteTextures(1, &m_handle);
+    if (image.loadFromFile(filePath))
+        return loadFromImage(image, wrap, filter);
+    
+    return false;
 }
 
 

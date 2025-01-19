@@ -6,6 +6,7 @@
 
 #include "opengl/buffers/GlBuffer.hpp"
 #include "opengl/VertexArray.hpp"
+#include "opengl/Texture2D.hpp"
 
 class RE_API GlResourceHolder final
 {
@@ -32,6 +33,7 @@ private:
 
     std::vector<uint32_t> m_buffers;
     std::vector<uint32_t> m_arrays;
+    std::vector<uint32_t> m_textures;
 
     static GlResourceHolder* m_instance;
 
@@ -40,6 +42,9 @@ private:
 
     void(*genVertexArrays)(int32_t, uint32_t*);
     void(*delVertexArrays)(int32_t, const uint32_t*);
+
+    void(*genTextures)(int32_t, uint32_t*);
+    void(*delTextures)(int32_t, const uint32_t*);
 };
 
 #include "opengl/resources/GlResourceHolder.inl"

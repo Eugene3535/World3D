@@ -18,10 +18,17 @@ Heightmap::Heightmap(void* handle) noexcept:
     m_imgGrass.loadFromFile("res/textures/grass.jpg");
     m_imgClover.loadFromFile("res/textures/clover.png");
 
-    m_texCrackedEarth = std::make_unique<Texture2D>(m_imgCrackedEarth, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    m_texRock         = std::make_unique<Texture2D>(m_imgRock, Texture2D::WrapMode::Repeat,         Texture2D::FilterMode::Linear);
-    m_texGrass        = std::make_unique<Texture2D>(m_imgGrass, Texture2D::WrapMode::Repeat,        Texture2D::FilterMode::Linear);
-    m_texClover       = std::make_unique<Texture2D>(m_imgClover, Texture2D::WrapMode::Repeat,       Texture2D::FilterMode::Linear);
+    std::array<uint32_t, 4> textures = m_bufferHolder.create<Texture2D, 4>();
+
+    m_texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
+    m_texRock         = std::make_unique<Texture2D>(textures[1]);
+    m_texGrass        = std::make_unique<Texture2D>(textures[2]);
+    m_texClover       = std::make_unique<Texture2D>(textures[3]);
+
+    m_texCrackedEarth->loadFromImage(m_imgCrackedEarth, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    m_texRock->loadFromImage(m_imgRock, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    m_texGrass->loadFromImage(m_imgGrass, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    m_texClover->loadFromImage(m_imgClover, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
 
     const uint8_t* pixels = m_imageMap.getPixels();
     m_mapDepth = m_imageMap.getHeight();

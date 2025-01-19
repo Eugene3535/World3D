@@ -21,13 +21,11 @@ public:
 		Linear
 	};
 
-	Texture2D(const std::filesystem::path& filePath, WrapMode wrap, FilterMode filter) noexcept;
-	Texture2D(const class Image& image, WrapMode wrap, FilterMode filter) noexcept;
-	Texture2D(const Texture2D&) noexcept = delete;
-	Texture2D(Texture2D&&) noexcept;
-	Texture2D& operator = (const Texture2D&) noexcept = delete;
-	Texture2D& operator = (Texture2D&&) noexcept;
+	Texture2D(uint32_t handle) noexcept;
 	~Texture2D() noexcept;
+
+	bool loadFromImage(const class Image& image, WrapMode wrap, FilterMode filter) noexcept;
+	bool loadFromFile(const std::filesystem::path& filePath, WrapMode wrap, FilterMode filter) noexcept;
 
 	void setSmooth(bool smooth)    noexcept;
 	void setRepeated(bool repeate) noexcept;
