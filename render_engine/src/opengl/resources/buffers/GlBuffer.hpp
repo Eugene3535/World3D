@@ -36,8 +36,8 @@ public:
     GlBuffer(uint32_t handle, Target target) noexcept;
     ~GlBuffer() noexcept;
 
-    void create(const void* data, size_t elementCount, size_t elementSize, GlBuffer::Usage usage) noexcept;
-    void update(const void* data, size_t elementCount, size_t elementSize, size_t offset) noexcept;
+    void create(size_t elementSize, size_t elementCount, const void* data, GlBuffer::Usage usage) noexcept;
+    void update(size_t offset, size_t elementSize, size_t elementCount, const void* data) noexcept;
     bool write(const void* data, size_t size, size_t offset) noexcept;
 
     void bindBufferRange(uint32_t index, size_t offset, size_t size) noexcept;

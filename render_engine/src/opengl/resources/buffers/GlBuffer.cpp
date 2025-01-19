@@ -55,7 +55,7 @@ GlBuffer::GlBuffer(uint32_t handle, Target target) noexcept:
 GlBuffer::~GlBuffer() noexcept = default;
 
 
-void GlBuffer::create(const void* data, size_t elementCount, size_t elementSize, GlBuffer::Usage usage) noexcept
+void GlBuffer::create(size_t elementSize, size_t elementCount, const void* data, GlBuffer::Usage usage) noexcept
 {
     glBindBuffer(targetToGlEnum(m_type), m_handle);
     glBufferData(targetToGlEnum(m_type), static_cast<GLsizeiptr>(elementCount * elementSize), data, usageToGlEnum(usage));
@@ -66,7 +66,7 @@ void GlBuffer::create(const void* data, size_t elementCount, size_t elementSize,
 }
 
 
-void GlBuffer::update(const void* data, size_t elementCount, size_t elementSize, size_t offset) noexcept
+void GlBuffer::update(size_t offset, size_t elementSize, size_t elementCount, const void* data) noexcept
 {
     if(data)
     {
@@ -108,10 +108,10 @@ bool GlBuffer::write(const void* data, size_t size, size_t offset) noexcept
 void GlBuffer::bindBufferRange(uint32_t index, size_t offset, size_t size) noexcept
 {
 //  target must be one of GL_ATOMIC_COUNTER_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER, GL_UNIFORM_BUFFER, or GL_SHADER_STORAGE_BUFFER.
-    bool target_is_correct = ((m_type == GlBuffer::Target::AtomicCounter) ||
-                              (m_type == GlBuffer::Target::TransformFeedback) ||
-                              (m_type == GlBuffer::Target::Uniform) ||
-                              (m_type == GlBuffer::Target::ShaderStorage));                   
+    const bool target_is_correct = ((m_type == GlBuffer::Target::AtomicCounter) ||
+                                    (m_type == GlBuffer::Target::TransformFeedback) ||
+                                    (m_type == GlBuffer::Target::Uniform) ||
+                                    (m_type == GlBuffer::Target::ShaderStorage));                   
 
     if(target_is_correct)
         glBindBufferRange(targetToGlEnum(m_type), index, m_handle, static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size));

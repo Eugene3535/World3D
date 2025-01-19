@@ -16,7 +16,7 @@ Perspective::Perspective(uint32_t buffer) noexcept:
     m_uniformBuffer(buffer),
     m_modelViewNeedUpdate(true)
 {
-    m_uniformBuffer.create(nullptr, sizeof(glm::mat4), 1, GlBuffer::Usage::Dynamic);
+    m_uniformBuffer.create(sizeof(glm::mat4), 1,nullptr, GlBuffer::Usage::Dynamic);
     m_uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 }
 
@@ -41,7 +41,7 @@ void Perspective::apply(float dt) noexcept
     if(m_modelViewNeedUpdate)
         recalculateModelViewMatrix();
 
-    m_uniformBuffer.update(glm::value_ptr(m_projection * m_modelView), 1, sizeof(glm::mat4), 0);
+    m_uniformBuffer.update(0, sizeof(glm::mat4), 1, glm::value_ptr(m_projection * m_modelView));
 }
 
 

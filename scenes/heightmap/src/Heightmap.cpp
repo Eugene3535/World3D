@@ -87,9 +87,9 @@ Heightmap::Heightmap(void* handle) noexcept:
     m_ebo = std::make_unique<IndexBuffer>(buffers[1]);
 
 //  Just to give you an example, you can pass a pointer to the data right away, or you can fill the buffer later on
-    m_vbo->create(nullptr, vertices.size(), sizeof(float), GlBuffer::Usage::Static);
-    m_vbo->update(vertices.data(), vertices.size(), sizeof(float), 0);
-    m_ebo->create(indices.data(), indices.size(), sizeof(uint32_t), GlBuffer::Usage::Static);
+    m_vbo->create(sizeof(float), vertices.size(), nullptr, GlBuffer::Usage::Static);
+    m_vbo->update(0, sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()));
+    m_ebo->create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GlBuffer::Usage::Static);
 
     m_vao = std::make_unique<VertexArray>(vertexArrays[0]);
 
