@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-#include "opengl/buffers/GlResourceHolder.hpp"
+#include "opengl/resources/GlResourceHolder.hpp"
 
 
 GlResourceHolder* GlResourceHolder::m_instance;

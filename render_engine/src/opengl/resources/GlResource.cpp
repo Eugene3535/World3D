@@ -1,4 +1,4 @@
-#include "opengl/GlResource.hpp"
+#include "opengl/resources/GlResource.hpp"
 
 
 GlResource::GlResource() noexcept:

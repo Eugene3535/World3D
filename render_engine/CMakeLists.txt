@@ -10,11 +10,11 @@ set(_component_hdr_files
 
 set(_render_engine_src_files
 	src/Image.cpp
-	src/opengl/GlResource.cpp
 	src/opengl/Shader.cpp
 	src/opengl/ShaderProgram.cpp
 	src/opengl/buffers/GlBuffer.cpp
-	src/opengl/buffers/GlResourceHolder.cpp
+	src/opengl/resources/GlResource.cpp
+	src/opengl/resources/GlResourceHolder.cpp
 	src/opengl/buffers/VertexBuffer.cpp
 	src/opengl/buffers/IndexBuffer.cpp
 	src/opengl/VertexArray.cpp
@@ -29,12 +29,12 @@ set(_render_engine_hdr_files
 	src/Config.hpp
 	src/Export.hpp
 	src/Image.hpp
-	src/opengl/GlResource.hpp
 	src/opengl/Shader.hpp
 	src/opengl/ShaderProgram.hpp
 	src/opengl/buffers/GlBuffer.hpp
-	src/opengl/buffers/GlResourceHolder.hpp
-	src/opengl/buffers/GlResourceHolder.inl
+	src/opengl/resources/GlResource.hpp
+	src/opengl/resources/GlResourceHolder.hpp
+	src/opengl/resources/GlResourceHolder.inl
 	src/opengl/buffers/VertexBuffer.hpp
 	src/opengl/buffers/IndexBuffer.hpp
 	src/opengl/VertexArray.hpp

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "opengl/GlResource.hpp"
+#include "opengl/resources/GlResource.hpp"
 #include "opengl/buffers/VertexBuffer.hpp"
 #include "opengl/buffers/IndexBuffer.hpp"
 

@@ -42,6 +42,6 @@ private:
     void(*delVertexArrays)(int32_t, const uint32_t*);
 };
 
-#include "opengl/buffers/GlResourceHolder.inl"
+#include "opengl/resources/GlResourceHolder.inl"
 
 #endif // !GL_RESOURCE_HOLDER_HPP

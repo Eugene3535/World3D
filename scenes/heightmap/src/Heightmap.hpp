@@ -7,7 +7,7 @@
 #include "opengl/Texture2D.hpp"
 #include "opengl/ShaderProgram.hpp"
 #include "ecs/components/camera/Perspective.hpp"
-#include "opengl/buffers/GlResourceHolder.hpp"
+#include "opengl/resources/GlResourceHolder.hpp"
 #include "opengl/VertexArray.hpp"
 #include "Scene.hpp"
 
