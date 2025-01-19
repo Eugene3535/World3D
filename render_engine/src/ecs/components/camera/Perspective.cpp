@@ -1,35 +1,27 @@
 #include <algorithm>
 
-#include <glad/glad.h>
-
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "ecs/components/camera/Perspective.hpp"
 
 
-Perspective::Perspective() noexcept:
+Perspective::Perspective(uint32_t buffer) noexcept:
     m_projection(glm::identity<glm::mat4>()),
     m_modelView(glm::identity<glm::mat4>()),
     m_eye(),
     m_delta(),
 	m_pitch(0.0f),
 	m_yaw(0.0f),
-    m_uboMatrix(0),
+    m_uniformBuffer(buffer),
     m_modelViewNeedUpdate(true)
 {
-    glGenBuffers(1, &m_uboMatrix);
-    glBindBuffer(GL_UNIFORM_BUFFER, m_uboMatrix);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_uboMatrix, 0, sizeof(glm::mat4));
+    m_uniformBuffer.create(nullptr, sizeof(glm::mat4), 1, GlBuffer::Usage::Dynamic);
+    m_uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 }
 
 
-Perspective::~Perspective() noexcept
-{
-    glDeleteBuffers(1, &m_uboMatrix);
-}
+Perspective::~Perspective() noexcept = default;
 
 
 void Perspective::setupProjectionMatrix(float fovy, float aspect, float zNear, float zFar) noexcept
@@ -49,9 +41,7 @@ void Perspective::apply(float dt) noexcept
     if(m_modelViewNeedUpdate)
         recalculateModelViewMatrix();
 
-    glBindBuffer(GL_UNIFORM_BUFFER, m_uboMatrix);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(m_projection * m_modelView));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    m_uniformBuffer.update(glm::value_ptr(m_projection * m_modelView), 1, sizeof(glm::mat4), 0);
 }
 
 

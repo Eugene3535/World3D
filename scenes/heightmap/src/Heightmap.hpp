@@ -34,7 +34,7 @@ private:
 
     std::unique_ptr<ShaderProgram> m_program;
 
-    Perspective m_perspective;
+    std::unique_ptr<Perspective> m_perspective;
 
     void* m_rw;
 

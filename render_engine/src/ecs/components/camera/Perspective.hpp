@@ -3,12 +3,12 @@
 
 #include <glm/glm.hpp>
 
-#include "Export.hpp"
+#include "opengl/resources/buffers/UniformBuffer.hpp"
 
 class RE_API Perspective final
 {
 public:
-	Perspective() noexcept;
+	Perspective(uint32_t biffer) noexcept;
 	~Perspective() noexcept;
 
     void setupProjectionMatrix(float fovy, float aspect, float zNear, float zFar) noexcept;
@@ -42,7 +42,7 @@ private:
     float m_pitch;
     float m_yaw;
 
-    uint32_t m_uboMatrix;
+    UniformBuffer m_uniformBuffer;
 
     bool m_modelViewNeedUpdate;
 };

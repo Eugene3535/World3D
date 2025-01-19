@@ -40,6 +40,8 @@ public:
     void update(const void* data, size_t elementCount, size_t elementSize, size_t offset) noexcept;
     bool write(const void* data, size_t size, size_t offset) noexcept;
 
+    void bindBufferRange(uint32_t index, size_t offset, size_t size) noexcept;
+
     uint32_t getHandle() const noexcept;
     Target   getType()   const noexcept;
     uint32_t getCount()  const noexcept;

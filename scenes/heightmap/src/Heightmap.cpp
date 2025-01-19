@@ -74,7 +74,7 @@ Heightmap::Heightmap(void* handle) noexcept:
         }
     }
 
-    std::array<uint32_t, 2> buffers = m_bufferHolder.create<GlBuffer, 2>();
+    std::array<uint32_t, 3> buffers = m_bufferHolder.create<GlBuffer, 3>();
     std::array<uint32_t, 1> vertexArrays = m_bufferHolder.create<VertexArray, 1>();
 
     VertexBufferLayout layout
@@ -86,7 +86,9 @@ Heightmap::Heightmap(void* handle) noexcept:
     m_vbo = std::make_unique<VertexBuffer>(buffers[0], layout);
     m_ebo = std::make_unique<IndexBuffer>(buffers[1]);
 
-    m_vbo->create(vertices.data(), vertices.size(), sizeof(float), GlBuffer::Usage::Static);
+//  Just to give you an example, you can pass a pointer to the data right away, or you can fill the buffer later on
+    m_vbo->create(nullptr, vertices.size(), sizeof(float), GlBuffer::Usage::Static);
+    m_vbo->update(vertices.data(), vertices.size(), sizeof(float), 0);
     m_ebo->create(indices.data(), indices.size(), sizeof(uint32_t), GlBuffer::Usage::Static);
 
     m_vao = std::make_unique<VertexArray>(vertexArrays[0]);
@@ -109,7 +111,8 @@ Heightmap::Heightmap(void* handle) noexcept:
 
     auto rwnd = (RenderWindow*)handle;
     auto size = rwnd->getSize();
-    m_perspective.setupProjectionMatrix(45, static_cast<float>(size.x) / static_cast<float>(size.y), 0.1f, 1000.0f);
+    m_perspective = std::make_unique<Perspective>(buffers[2]);
+    m_perspective->setupProjectionMatrix(45, static_cast<float>(size.x) / static_cast<float>(size.y), 0.1f, 1000.0f);
 }
 
 
@@ -153,13 +156,13 @@ void Heightmap::draw() noexcept
     pos.x += siz.x >> 1;
     pos.y += siz.y >> 1;
 
-    m_perspective.rotateX((pos.x - cur.x) * 0.125f);
-    m_perspective.rotateY((pos.y - cur.y) * 0.125f);
+    m_perspective->rotateX((pos.x - cur.x) * 0.125f);
+    m_perspective->rotateY((pos.y - cur.y) * 0.125f);
 
     rwnd->setCursorPosition(pos.x, pos.y);
 
-    m_perspective.setPosition(30, 3, 30);
-    m_perspective.apply(0.01f);
+    m_perspective->setPosition(30, 3, 30);
+    m_perspective->apply(0.01f);
 
     Texture2D::enable(0);
     Texture2D::bind(m_texCrackedEarth.get());
