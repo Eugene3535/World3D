@@ -5,7 +5,7 @@
 
 #include <glad/glad.h>
 
-#include "gl_resources/Shader.hpp"
+#include "opengl/Shader.hpp"
 
 
 Shader::Shader(const std::filesystem::path& filepath, Shader::Type shaderType) noexcept:

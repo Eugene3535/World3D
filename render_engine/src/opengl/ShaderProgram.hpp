@@ -1,7 +1,7 @@
 #ifndef SHADER_PROGRAM_HPP
 #define SHADER_PROGRAM_HPP
 
-#include "Shader.hpp"
+#include "opengl/Shader.hpp"
 
 class RE_API ShaderProgram final:
     public GlResource

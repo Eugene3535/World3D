@@ -1,4 +1,4 @@
-#include "gl_resources/buffers/IndexBuffer.hpp"
+#include "opengl/buffers/IndexBuffer.hpp"
 
 
 IndexBuffer::IndexBuffer(uint32_t handle) noexcept:

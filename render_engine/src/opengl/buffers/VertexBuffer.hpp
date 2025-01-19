@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "gl_resources/buffers/GlBuffer.hpp"
+#include "opengl/buffers/GlBuffer.hpp"
 
 // A vertex attribute is an input variable to a shader that is supplied with per - vertex data.
 // In OpenGL core profile, they are specified as in variables in a vertex shader and are backed by a GL_ARRAY_BUFFER.

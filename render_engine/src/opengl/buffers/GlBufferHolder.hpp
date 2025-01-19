@@ -31,6 +31,6 @@ private:
     void(*delBuffers)(int32_t, const uint32_t*);
 };
 
-#include "gl_resources/buffers/GlBufferHolder.inl"
+#include "opengl/buffers/GlBufferHolder.inl"
 
 #endif // !GL_BUFFER_HOLDER_HPP

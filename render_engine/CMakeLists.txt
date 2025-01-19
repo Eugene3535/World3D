@@ -10,15 +10,15 @@ set(_component_hdr_files
 
 set(_render_engine_src_files
 	src/Image.cpp
-	src/gl_resources/GlResource.cpp
-	src/gl_resources/Shader.cpp
-	src/gl_resources/ShaderProgram.cpp
-	src/gl_resources/buffers/GlBuffer.cpp
-	src/gl_resources/buffers/GlBufferHolder.cpp
-	src/gl_resources/buffers/VertexBuffer.cpp
-	src/gl_resources/buffers/IndexBuffer.cpp
-	src/gl_resources/VertexArray.cpp
-	src/gl_resources/Texture2D.cpp
+	src/opengl/GlResource.cpp
+	src/opengl/Shader.cpp
+	src/opengl/ShaderProgram.cpp
+	src/opengl/buffers/GlBuffer.cpp
+	src/opengl/buffers/GlBufferHolder.cpp
+	src/opengl/buffers/VertexBuffer.cpp
+	src/opengl/buffers/IndexBuffer.cpp
+	src/opengl/VertexArray.cpp
+	src/opengl/Texture2D.cpp
 	src/OpenGLDebugger.cpp
 	src/window/BaseWindow.cpp
 	src/window/RenderWindow.cpp
@@ -29,16 +29,16 @@ set(_render_engine_hdr_files
 	src/Config.hpp
 	src/Export.hpp
 	src/Image.hpp
-	src/gl_resources/GlResource.hpp
-	src/gl_resources/Shader.hpp
-	src/gl_resources/ShaderProgram.hpp
-	src/gl_resources/buffers/GlBuffer.hpp
-	src/gl_resources/buffers/GlBufferHolder.hpp
-	src/gl_resources/buffers/GlBufferHolder.inl
-	src/gl_resources/buffers/VertexBuffer.hpp
-	src/gl_resources/buffers/IndexBuffer.hpp
-	src/gl_resources/VertexArray.hpp
-	src/gl_resources/Texture2D.hpp
+	src/opengl/GlResource.hpp
+	src/opengl/Shader.hpp
+	src/opengl/ShaderProgram.hpp
+	src/opengl/buffers/GlBuffer.hpp
+	src/opengl/buffers/GlBufferHolder.hpp
+	src/opengl/buffers/GlBufferHolder.inl
+	src/opengl/buffers/VertexBuffer.hpp
+	src/opengl/buffers/IndexBuffer.hpp
+	src/opengl/VertexArray.hpp
+	src/opengl/Texture2D.hpp
 	src/OpenGLDebugger.hpp
 	src/window/BaseWindow.hpp
 	src/window/RenderWindow.hpp

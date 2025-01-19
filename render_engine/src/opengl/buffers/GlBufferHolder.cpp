@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-#include "gl_resources/buffers/GlBufferHolder.hpp"
+#include "opengl/buffers/GlBufferHolder.hpp"
 
 
 GlBufferHolder* GlBufferHolder::m_instance;

@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 
-#include "gl_resources/buffers/VertexBuffer.hpp"
+#include "opengl/buffers/VertexBuffer.hpp"
 
 
 static constexpr uint32_t shaderAttributeTypeToComponentCount(const AttributeInfo::Type type) noexcept

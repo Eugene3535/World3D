@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "gl_resources/ShaderProgram.hpp"
+#include "opengl/ShaderProgram.hpp"
 #include "OpenGLDebugger.hpp"
 #include "Scene.hpp"
 #include "window/RenderWindow.hpp"

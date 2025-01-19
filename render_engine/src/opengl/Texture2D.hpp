@@ -3,7 +3,7 @@
 
 #include <filesystem>
 
-#include "gl_resources/GlResource.hpp"
+#include "opengl/GlResource.hpp"
 
 class RE_API Texture2D final:
 	public GlResource
