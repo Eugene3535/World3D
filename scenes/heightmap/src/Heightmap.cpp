@@ -68,6 +68,7 @@ Heightmap::Heightmap(void* handle) noexcept:
     }
 
     std::array<uint32_t, 2> buffers = m_bufferHolder.create<GlBuffer, 2>();
+    std::array<uint32_t, 1> vertexArrays = m_bufferHolder.create<VertexArray, 1>();
 
     VertexBufferLayout layout
     {
@@ -81,7 +82,7 @@ Heightmap::Heightmap(void* handle) noexcept:
     m_vbo->create(vertices.data(), vertices.size(), sizeof(float), GlBuffer::Usage::Static);
     m_ebo->create(indices.data(), indices.size(), sizeof(uint32_t), GlBuffer::Usage::Static);
 
-    m_vao = std::make_unique<VertexArray>();
+    m_vao = std::make_unique<VertexArray>(vertexArrays[0]);
 
     m_vao->addVertexBuffer(*m_vbo);
     m_vao->setIndexBuffer(*m_ebo);

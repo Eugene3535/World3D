@@ -8,11 +8,7 @@ class RE_API VertexArray final:
     public GlResource
 {
 public:
-    VertexArray() noexcept;
-    VertexArray(const VertexArray&) noexcept = delete;
-    VertexArray(VertexArray&& vertexBuffer) noexcept;
-    VertexArray& operator=(const VertexArray&) noexcept = delete;
-    VertexArray& operator=(VertexArray&& vertexBuffer) noexcept;
+    VertexArray(uint32_t handle) noexcept;
     ~VertexArray() noexcept;
 
     void addVertexBuffer(const VertexBuffer& vertexBuffer) noexcept;

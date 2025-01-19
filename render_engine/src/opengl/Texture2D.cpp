@@ -178,13 +178,13 @@ bool Texture2D::isRepeated() const noexcept
 }
 
 
-int32_t Texture2D::width() const noexcept
+int32_t Texture2D::getWidth() const noexcept
 {
     return m_width;
 }
 
 
-int32_t Texture2D::height() const noexcept
+int32_t Texture2D::getHeight() const noexcept
 {
     return m_height;
 }

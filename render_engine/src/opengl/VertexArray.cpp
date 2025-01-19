@@ -2,40 +2,16 @@
 
 #include <glad/glad.h>
 
-VertexArray::VertexArray() noexcept:
+VertexArray::VertexArray(uint32_t handle) noexcept:
 	GlResource(),
 	m_attributeCount(0),
 	m_indexCount(0)
 {
-	glGenVertexArrays(1, &m_handle);
+	m_handle = handle;
 }
 
 
-VertexArray::VertexArray(VertexArray&& vertexArray) noexcept :
-	GlResource(std::move(vertexArray)),
-	m_attributeCount(vertexArray.m_attributeCount),
-	m_indexCount(vertexArray.m_indexCount)
-{
-	vertexArray.m_attributeCount = 0;
-}
-
-
-VertexArray& VertexArray::operator=(VertexArray&& vertexArray) noexcept
-{
-	GlResource::operator = (std::move(vertexArray));
-	m_attributeCount = vertexArray.m_attributeCount;
-	m_indexCount = vertexArray.m_indexCount;
-	vertexArray.m_attributeCount = 0;
-	vertexArray.m_indexCount = 0;
-
-	return *this;
-}
-
-
-VertexArray::~VertexArray() noexcept
-{
-	glDeleteVertexArrays(1, &m_handle);
-}
+VertexArray::~VertexArray() noexcept = default;
 
 
 void VertexArray::bind(VertexArray* vao) noexcept

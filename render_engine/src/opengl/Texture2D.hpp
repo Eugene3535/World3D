@@ -35,8 +35,8 @@ public:
 	bool isSmooth()   const noexcept;
 	bool isRepeated() const noexcept;
 
-	int32_t  width()     const noexcept;
-	int32_t  height()    const noexcept;
+	int32_t getWidth()  const noexcept;
+	int32_t getHeight() const noexcept;
 
 	static void bind(const Texture2D* texture) noexcept;
 	static void enable(uint32_t unit) noexcept;
