@@ -31,13 +31,13 @@ static constexpr auto filterModeToGlType(Texture2D::FilterMode mode) noexcept
 
 
 Texture2D::Texture2D(uint32_t handle) noexcept:
-    GlResource(),
+    GlResource(handle),
     m_width(0),
     m_height(0),
     m_isSmooth(false),
     m_isRepeated(false)
 {
-    m_handle = handle;
+    
 }
 
 

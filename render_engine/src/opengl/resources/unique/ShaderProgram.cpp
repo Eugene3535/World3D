@@ -16,7 +16,7 @@ void (*ShaderProgram::setUniformMatrix4fv)(int32_t location, int32_t count, uint
 
 
 ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
-    GlResource()
+    GlResource(0)
 {
     uint32_t program = glCreateProgram();
 

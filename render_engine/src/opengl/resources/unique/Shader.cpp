@@ -9,7 +9,7 @@
 
 
 Shader::Shader(const std::filesystem::path& filepath, Shader::Type shaderType) noexcept:
-    GlResource(),
+    GlResource(0),
     m_type(Shader::Type::Vertex)
 {
     bool type_is_valid = (shaderType == Shader::Compute)        ||

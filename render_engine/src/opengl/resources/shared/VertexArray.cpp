@@ -3,11 +3,11 @@
 #include <glad/glad.h>
 
 VertexArray::VertexArray(uint32_t handle) noexcept:
-	GlResource(),
+	GlResource(handle),
 	m_attributeCount(0),
 	m_indexCount(0)
 {
-	m_handle = handle;
+	
 }
 
 

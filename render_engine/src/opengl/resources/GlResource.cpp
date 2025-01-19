@@ -1,26 +1,10 @@
 #include "opengl/resources/GlResource.hpp"
 
 
-GlResource::GlResource() noexcept:
-    m_handle(0)
+GlResource::GlResource(uint32_t handle) noexcept:
+    m_handle(handle)
 {
 
-}
-
-
-GlResource::GlResource(GlResource&& other) noexcept:
-    m_handle(other.m_handle)
-{
-    other.m_handle = 0;
-}
-
-
-GlResource& GlResource::operator = (GlResource&& other) noexcept
-{
-    m_handle = other.m_handle;
-    other.m_handle = 0;
-
-    return *this;
 }
 
 

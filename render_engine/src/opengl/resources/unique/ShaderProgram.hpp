@@ -8,7 +8,9 @@ class RE_API ShaderProgram final:
 {
 public:
     ShaderProgram(std::initializer_list<Shader> shaders) noexcept;
+    ShaderProgram(const ShaderProgram&) noexcept = delete;
     ShaderProgram(ShaderProgram&&) noexcept;
+    ShaderProgram& operator = (const ShaderProgram&) noexcept = delete;
     ShaderProgram& operator = (ShaderProgram&&) noexcept;
     ~ShaderProgram() noexcept;
 
