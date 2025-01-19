@@ -14,7 +14,7 @@ set(_render_engine_src_files
 	src/opengl/Shader.cpp
 	src/opengl/ShaderProgram.cpp
 	src/opengl/buffers/GlBuffer.cpp
-	src/opengl/buffers/GlBufferHolder.cpp
+	src/opengl/buffers/GlResourceHolder.cpp
 	src/opengl/buffers/VertexBuffer.cpp
 	src/opengl/buffers/IndexBuffer.cpp
 	src/opengl/VertexArray.cpp
@@ -33,8 +33,8 @@ set(_render_engine_hdr_files
 	src/opengl/Shader.hpp
 	src/opengl/ShaderProgram.hpp
 	src/opengl/buffers/GlBuffer.hpp
-	src/opengl/buffers/GlBufferHolder.hpp
-	src/opengl/buffers/GlBufferHolder.inl
+	src/opengl/buffers/GlResourceHolder.hpp
+	src/opengl/buffers/GlResourceHolder.inl
 	src/opengl/buffers/VertexBuffer.hpp
 	src/opengl/buffers/IndexBuffer.hpp
 	src/opengl/VertexArray.hpp

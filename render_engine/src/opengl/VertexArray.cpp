@@ -74,11 +74,14 @@ void VertexArray::addVertexBuffer(const VertexBuffer& vertexBuffer) noexcept
 
 void VertexArray::setIndexBuffer(IndexBuffer& indexBuffer) noexcept
 {
-	bind(this);
-	indexBuffer.bind(true);
-	m_indexCount = indexBuffer.getCount();
-	bind(nullptr);
-	indexBuffer.bind(false);
+	if(indexBuffer.getCount() > 0)
+	{
+		bind(this);
+		indexBuffer.bind(true);
+		m_indexCount = indexBuffer.getCount();
+		bind(nullptr);
+		indexBuffer.bind(false);
+	}
 }
 
 

@@ -67,7 +67,7 @@ Heightmap::Heightmap(void* handle) noexcept:
         }
     }
 
-    std::array<uint32_t, 2> buffers = m_bufferHolder.generateBuffers<2>();
+    std::array<uint32_t, 2> buffers = m_bufferHolder.create<GlBuffer, 2>();
 
     VertexBufferLayout layout
     {
