@@ -4,9 +4,9 @@
 #include <array>
 #include <vector>
 
-#include "opengl/buffers/GlBuffer.hpp"
-#include "opengl/VertexArray.hpp"
-#include "opengl/Texture2D.hpp"
+#include "opengl/resources/buffers/GlBuffer.hpp"
+#include "opengl/resources/shared/VertexArray.hpp"
+#include "opengl/resources/shared/Texture2D.hpp"
 
 class RE_API GlResourceHolder final
 {

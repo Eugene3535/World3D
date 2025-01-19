@@ -1,8 +1,8 @@
 #pragma once
 
 #include "opengl/resources/GlResource.hpp"
-#include "opengl/buffers/VertexBuffer.hpp"
-#include "opengl/buffers/IndexBuffer.hpp"
+#include "opengl/resources/buffers/VertexBuffer.hpp"
+#include "opengl/resources/buffers/IndexBuffer.hpp"
 
 class RE_API VertexArray final:
     public GlResource

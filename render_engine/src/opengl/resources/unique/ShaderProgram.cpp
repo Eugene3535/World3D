@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 
-#include "opengl/ShaderProgram.hpp"
+#include "opengl/resources/unique/ShaderProgram.hpp"
 
 
 void (*ShaderProgram::setUniform1i)(int32_t, int32_t);

@@ -4,11 +4,11 @@
 #include <memory>
 
 #include "Image.hpp"
-#include "opengl/Texture2D.hpp"
-#include "opengl/ShaderProgram.hpp"
+#include "opengl/resources/shared/Texture2D.hpp"
+#include "opengl/resources/unique/ShaderProgram.hpp"
 #include "ecs/components/camera/Perspective.hpp"
 #include "opengl/resources/GlResourceHolder.hpp"
-#include "opengl/VertexArray.hpp"
+#include "opengl/resources/shared/VertexArray.hpp"
 #include "Scene.hpp"
 
 class Heightmap:

@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-#include "opengl/buffers/GlBuffer.hpp"
+#include "opengl/resources/buffers/GlBuffer.hpp"
 
 
 constexpr static GLenum targetToGlEnum(const GlBuffer::Target target) noexcept

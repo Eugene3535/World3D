@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 #include "Image.hpp"
-#include "opengl/Texture2D.hpp"
+#include "opengl/resources/shared/Texture2D.hpp"
 
 
 static constexpr auto wrapModeToGlType(Texture2D::WrapMode mode) noexcept
