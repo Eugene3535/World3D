@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "RenderWindow.hpp"
+#include "window/RenderWindow.hpp"
 #include "Heightmap.hpp"
 
 int main()

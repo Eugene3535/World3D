@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "BaseWindow.hpp"
+#include "window/BaseWindow.hpp"
 
 
 BaseWindow::BaseWindow(std::string_view title, int32_t width, int32_t height) noexcept:

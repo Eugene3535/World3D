@@ -20,8 +20,8 @@ set(_render_engine_src_files
 	src/gl_resources/VertexArray.cpp
 	src/gl_resources/Texture2D.cpp
 	src/OpenGLDebugger.cpp
-	src/BaseWindow.cpp
-	src/RenderWindow.cpp
+	src/window/BaseWindow.cpp
+	src/window/RenderWindow.cpp
 	src/Scene.cpp
 )
 
@@ -40,8 +40,8 @@ set(_render_engine_hdr_files
 	src/gl_resources/VertexArray.hpp
 	src/gl_resources/Texture2D.hpp
 	src/OpenGLDebugger.hpp
-	src/BaseWindow.hpp
-	src/RenderWindow.hpp
+	src/window/BaseWindow.hpp
+	src/window/RenderWindow.hpp
 	src/Scene.hpp
 )
 

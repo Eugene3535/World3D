@@ -1,2 +1,4 @@
-1) Move draw() implementation to Vertsx Buffer Array 
+1) Move draw() implementation to Vertex Buffer Array 
 2) class GlContext (global GL machine state storage, as glEnable)
+3) Unifor buffer (move from Camera class)
+4) Input handler class

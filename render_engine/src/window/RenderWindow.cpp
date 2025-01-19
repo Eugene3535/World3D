@@ -6,7 +6,7 @@
 #include "gl_resources/ShaderProgram.hpp"
 #include "OpenGLDebugger.hpp"
 #include "Scene.hpp"
-#include "RenderWindow.hpp"
+#include "window/RenderWindow.hpp"
 
 
 static constexpr uint32_t optionToGlCap(RenderWindow::GlOption option) noexcept
