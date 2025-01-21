@@ -9,6 +9,7 @@ set(_component_hdr_files
 )
 
 set(_render_engine_src_files
+	src/utils/Transform2D.cpp
 	src/Image.cpp
 	src/opengl/resources/unique/Shader.cpp
 	src/opengl/resources/unique/ShaderProgram.cpp
@@ -29,6 +30,7 @@ set(_render_engine_src_files
 set(_render_engine_hdr_files
 	src/Config.hpp
 	src/Export.hpp
+	src/utils/Transform2D.hpp
 	src/Image.hpp
 	src/opengl/resources/unique/Shader.hpp
 	src/opengl/resources/unique/ShaderProgram.hpp

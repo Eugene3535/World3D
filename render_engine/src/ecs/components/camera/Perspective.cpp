@@ -41,7 +41,7 @@ void Perspective::apply(float dt) noexcept
     if(m_modelViewNeedUpdate)
         recalculateModelViewMatrix();
 
-    m_uniformBuffer.update(0, sizeof(glm::mat4), 1, glm::value_ptr(m_projection * m_modelView));
+    m_uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_projection * m_modelView)));
 }
 
 

@@ -8,7 +8,7 @@ class RE_API UniformBuffer:
     public GlBuffer
 {
 public:
-    UniformBuffer(uint32_t handle) noexcept;
+    explicit UniformBuffer(uint32_t handle) noexcept;
     ~UniformBuffer() noexcept;
 };
 

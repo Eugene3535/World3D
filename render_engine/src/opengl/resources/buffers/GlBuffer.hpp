@@ -38,7 +38,7 @@ public:
 
     void create(size_t elementSize, size_t elementCount, const void* data, GlBuffer::Usage usage) noexcept;
     void update(size_t offset, size_t elementSize, size_t elementCount, const void* data) noexcept;
-    bool write(const void* data, size_t size, size_t offset) noexcept;
+    bool write(const void* data, size_t size) noexcept;
 
     void bindBufferRange(uint32_t index, size_t offset, size_t size) noexcept;
 

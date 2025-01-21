@@ -85,7 +85,7 @@ void GlBuffer::update(size_t offset, size_t elementSize, size_t elementCount, co
 }
 
 
-bool GlBuffer::write(const void* data, size_t size, size_t offset) noexcept
+bool GlBuffer::write(const void* data, size_t size) noexcept
 {
     if(data)
     {
@@ -93,7 +93,7 @@ bool GlBuffer::write(const void* data, size_t size, size_t offset) noexcept
         glBindBuffer(target, m_handle);
 
         void* ptr = glMapBuffer(target, GL_WRITE_ONLY);
-        memcpy(ptr + offset, data, size);
+        memcpy(ptr, data, size);
         GLboolean result = glUnmapBuffer(target);
 
         glBindBuffer(target, 0);
