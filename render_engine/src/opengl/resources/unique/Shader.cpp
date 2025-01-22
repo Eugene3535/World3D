@@ -8,10 +8,25 @@
 #include "opengl/resources/unique/Shader.hpp"
 
 
-Shader::Shader(const std::filesystem::path& filepath, Shader::Type shaderType) noexcept:
+Shader::Shader() noexcept:
     GlResource(0),
     m_type(Shader::Type::Vertex)
 {
+    
+}
+
+
+Shader::~Shader() noexcept
+{
+    glDeleteShader(m_handle);
+}
+
+
+void Shader::loadFromFile(const std::filesystem::path& filepath, Shader::Type shaderType) noexcept
+{
+    glDeleteShader(m_handle);
+    m_handle = 0;
+
     bool type_is_valid = (shaderType == Shader::Compute)        ||
                          (shaderType == Shader::Vertex)         ||
                          (shaderType == Shader::TessControl)    ||
@@ -72,12 +87,6 @@ Shader::Shader(const std::filesystem::path& filepath, Shader::Type shaderType) n
             }
         }
     }
-}
-
-
-Shader::~Shader() noexcept
-{
-    glDeleteShader(m_handle);
 }
 
 

@@ -19,12 +19,14 @@ public:
         Fragment
     };
 
-    Shader(const std::filesystem::path& filepath, Type shaderType) noexcept;
+    Shader() noexcept;
     Shader(const Shader&) noexcept = delete;
     Shader(Shader&&) noexcept = delete;
     Shader& operator = (const Shader&) noexcept = delete;
     Shader& operator = (Shader&&) noexcept = delete;
     ~Shader() noexcept;
+
+    void loadFromFile(const std::filesystem::path& filepath, Type shaderType) noexcept;
 
     Type getType() const noexcept;
 

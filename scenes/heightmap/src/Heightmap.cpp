@@ -96,13 +96,13 @@ Heightmap::Heightmap(void* handle) noexcept:
     m_vao->addVertexBuffer(*m_vbo);
     m_vao->setIndexBuffer(*m_ebo);
 
-    std::initializer_list<Shader> shaders = 
-    {
-        { "res/shaders/heightmap.vert", Shader::Vertex   }, 
-        { "res/shaders/heightmap.frag", Shader::Fragment } 
-    };
+    std::array<Shader, 2> shaders;
+    shaders[0].loadFromFile("res/shaders/heightmap.vert", Shader::Vertex);
+    shaders[1].loadFromFile("res/shaders/heightmap.frag", Shader::Fragment);
 
-    m_program = std::make_unique<ShaderProgram>(shaders);
+    m_program = std::make_unique<ShaderProgram>();
+    m_program->link(shaders);
+
     ShaderProgram::bind(m_program.get());
     ShaderProgram::setUniform1i(m_program->getUniformLocation("cracked_earth"), 0);
     ShaderProgram::setUniform1i(m_program->getUniformLocation("rock"), 1);

@@ -15,9 +15,38 @@ void (*ShaderProgram::setUniform4i)(int32_t, int32_t, int32_t, int32_t, int32_t)
 void (*ShaderProgram::setUniformMatrix4fv)(int32_t location, int32_t count, uint8_t transpose, const float* value);
 
 
-ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
+ShaderProgram::ShaderProgram() noexcept:
     GlResource(0)
 {
+ 
+}
+
+
+ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept:
+    GlResource(std::move(other))
+{
+    
+}
+
+
+ShaderProgram& ShaderProgram::operator = (ShaderProgram&& other) noexcept
+{
+    GlResource::operator = (std::move(other));
+
+    return *this;
+}
+
+
+ShaderProgram::~ShaderProgram() noexcept
+{
+    glDeleteProgram(m_handle);
+}
+
+
+void ShaderProgram::link(std::span<Shader> shaders) noexcept
+{
+    glDeleteProgram(m_handle);
+    m_handle = 0;
     uint32_t program = glCreateProgram();
 
     for(const auto& shader : shaders)
@@ -44,27 +73,6 @@ ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders) noexcept:
 
     for(const auto& shader : shaders)
         glDetachShader(program, shader.getHandle());
-}
-
-
-ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept:
-    GlResource(std::move(other))
-{
-    
-}
-
-
-ShaderProgram& ShaderProgram::operator = (ShaderProgram&& other) noexcept
-{
-    GlResource::operator = (std::move(other));
-
-    return *this;
-}
-
-
-ShaderProgram::~ShaderProgram() noexcept
-{
-    glDeleteProgram(m_handle);
 }
 
 

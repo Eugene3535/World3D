@@ -1,18 +1,22 @@
 #ifndef SHADER_PROGRAM_HPP
 #define SHADER_PROGRAM_HPP
 
+#include <span>
+
 #include "opengl/resources/unique/Shader.hpp"
 
 class RE_API ShaderProgram final:
     public GlResource
 {
 public:
-    ShaderProgram(std::initializer_list<Shader> shaders) noexcept;
+    ShaderProgram() noexcept;
     ShaderProgram(const ShaderProgram&) noexcept = delete;
     ShaderProgram(ShaderProgram&&) noexcept;
     ShaderProgram& operator = (const ShaderProgram&) noexcept = delete;
     ShaderProgram& operator = (ShaderProgram&&) noexcept;
     ~ShaderProgram() noexcept;
+
+    void link(std::span<Shader> shaders) noexcept;
 
     static void initGlUniformFunctions() noexcept;
     static void bind(ShaderProgram* program) noexcept;
