@@ -6,11 +6,11 @@
 
 
 // Class for optimized use of orthographic matrix
-class Transform2D final
+class Transform2D
 {
 public:
     Transform2D() noexcept;
-    ~Transform2D() noexcept;
+    virtual ~Transform2D() noexcept;
 
     Transform2D* setPosition(float x, float y) noexcept;
     Transform2D* setPosition(const glm::vec2& position) noexcept;
@@ -40,14 +40,11 @@ public:
 
 private:
     mutable glm::mat4 m_matrix;
-
-    glm::vec2 m_origin;
-    glm::vec2 m_position;         
-    glm::vec2 m_scale;
-
-    float m_rotation;       
-
-    mutable bool m_transformNeedUpdate;       
+    glm::vec2         m_origin;
+    glm::vec2         m_position;         
+    glm::vec2         m_scale;
+    float             m_rotation;       
+    mutable bool      m_transformNeedUpdate;       
 };
 
 #endif 

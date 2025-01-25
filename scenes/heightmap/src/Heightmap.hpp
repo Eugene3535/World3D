@@ -6,7 +6,7 @@
 #include "Image.hpp"
 #include "opengl/resources/shared/Texture2D.hpp"
 #include "opengl/resources/unique/ShaderProgram.hpp"
-#include "ecs/components/camera/Perspective.hpp"
+#include "camera/perspective/Perspective.hpp"
 #include "opengl/resources/GlResourceHolder.hpp"
 #include "opengl/resources/shared/VertexArray.hpp"
 #include "Scene.hpp"
@@ -34,7 +34,8 @@ private:
 
     std::unique_ptr<ShaderProgram> m_program;
 
-    std::unique_ptr<Perspective> m_perspective;
+    std::unique_ptr<Perspective> m_camera;
+    std::unique_ptr<UniformBuffer> m_uniformBuffer;
 
     void* m_rw;
 

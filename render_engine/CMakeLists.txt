@@ -1,16 +1,10 @@
 set(RENDER_ENGINE_TARGET render_engine)
 
-set(_component_src_files
-	src/ecs/components/camera/Perspective.cpp
-)
-
-set(_component_hdr_files
-	src/ecs/components/camera/Perspective.hpp
-)
-
 set(_render_engine_src_files
 	src/utils/Transform2D.cpp
 	src/Image.cpp
+	src/camera/perspective/Perspective.cpp
+	src/camera/orthogonal/Orthogonal.cpp
 	src/opengl/context/GlContext.cpp
 	src/opengl/resources/unique/Shader.cpp
 	src/opengl/resources/unique/ShaderProgram.cpp
@@ -33,6 +27,8 @@ set(_render_engine_hdr_files
 	src/Export.hpp
 	src/utils/Transform2D.hpp
 	src/Image.hpp
+	src/camera/perspective/Perspective.hpp
+	src/camera/orthogonal/Orthogonal.hpp
 	src/opengl/context/GlContext.hpp
 	src/opengl/resources/unique/Shader.hpp
 	src/opengl/resources/unique/ShaderProgram.hpp
@@ -54,8 +50,6 @@ set(_render_engine_hdr_files
 set(_all_render_engine_files
 	${_render_engine_src_files}
 	${_render_engine_hdr_files}
-	${_component_src_files}
-	${_component_hdr_files}
 )
 
 add_library(${RENDER_ENGINE_TARGET} SHARED ${_all_render_engine_files})

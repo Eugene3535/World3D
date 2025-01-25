@@ -111,8 +111,13 @@ Heightmap::Heightmap(void* handle) noexcept:
 
     auto rwnd = (RenderWindow*)handle;
     auto size = rwnd->getSize();
-    m_perspective = std::make_unique<Perspective>(buffers[2]);
-    m_perspective->setupProjectionMatrix(45, static_cast<float>(size.x) / static_cast<float>(size.y), 0.1f, 1000.0f);
+
+    m_uniformBuffer = std::make_unique<UniformBuffer>(buffers[2]);
+    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GlBuffer::Usage::Dynamic);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
+
+    m_camera = std::make_unique<Perspective>(*m_uniformBuffer);
+    m_camera->setupProjectionMatrix(45, static_cast<float>(size.x) / static_cast<float>(size.y), 0.1f, 1000.0f);
 }
 
 
@@ -156,13 +161,13 @@ void Heightmap::draw() noexcept
     pos.x += siz.x >> 1;
     pos.y += siz.y >> 1;
 
-    m_perspective->rotateX((pos.x - cur.x) * 0.125f);
-    m_perspective->rotateY((pos.y - cur.y) * 0.125f);
+    m_camera->rotateX((pos.x - cur.x) * 0.125f);
+    m_camera->rotateY((pos.y - cur.y) * 0.125f);
 
     rwnd->setCursorPosition(pos.x, pos.y);
 
-    m_perspective->setPosition(30, 3, 30);
-    m_perspective->apply(0.01f);
+    m_camera->setPosition(30, 3, 30);
+    m_camera->apply(0.01f);
 
     Texture2D::enable(0);
     Texture2D::bind(m_texCrackedEarth.get());
