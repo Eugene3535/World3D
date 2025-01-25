@@ -8,7 +8,7 @@
 #include "opengl/resources/unique/ShaderProgram.hpp"
 #include "camera/perspective/Perspective.hpp"
 #include "opengl/resources/GlResourceHolder.hpp"
-#include "opengl/resources/shared/VertexArray.hpp"
+#include "opengl/resources/shared/VertexArrayObject.hpp"
 #include "Scene.hpp"
 
 class Heightmap:
@@ -45,7 +45,7 @@ private:
 
     std::unique_ptr<VertexBuffer> m_vbo;
     std::unique_ptr<IndexBuffer> m_ebo;
-    std::unique_ptr<VertexArray> m_vao;
+    std::unique_ptr<VertexArrayObject> m_vao;
 
     GlResourceHolder m_bufferHolder;
 };

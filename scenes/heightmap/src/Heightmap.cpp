@@ -75,7 +75,7 @@ Heightmap::Heightmap(void* handle) noexcept:
     }
 
     std::array<uint32_t, 3> buffers = m_bufferHolder.create<GlBuffer, 3>();
-    std::array<uint32_t, 1> vertexArrays = m_bufferHolder.create<VertexArray, 1>();
+    std::array<uint32_t, 1> vertexArrays = m_bufferHolder.create<VertexArrayObject, 1>();
 
     VertexBufferLayout layout
     {
@@ -91,7 +91,7 @@ Heightmap::Heightmap(void* handle) noexcept:
     m_vbo->update(0, sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()));
     m_ebo->create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GlBuffer::Usage::Static);
 
-    m_vao = std::make_unique<VertexArray>(vertexArrays[0]);
+    m_vao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
 
     m_vao->addVertexBuffer(*m_vbo);
     m_vao->setIndexBuffer(*m_ebo);
@@ -181,12 +181,13 @@ void Heightmap::draw() noexcept
     Texture2D::enable(3);
     Texture2D::bind(m_texClover.get());
 
-    m_vao->bind(m_vao.get());
-
     const uint32_t numStrips = m_mapWidth - 1;
     const uint32_t numTrisPerStrip = m_mapWidth * 2 - 2;
 
-    drawHeightmap(numStrips, numTrisPerStrip);
+    m_vao->bind(m_vao.get());
+
+    for (uint32_t strip = 0; strip < numStrips; ++strip)
+        m_vao->drawElements(PrimitiveType::TriangleStrip, numTrisPerStrip + 2, reinterpret_cast<const void*>(sizeof(uint32_t) * (numTrisPerStrip + 2) * strip));
 
     m_vao->bind(nullptr);
 }

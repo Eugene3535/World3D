@@ -14,8 +14,6 @@ public:
 
 	virtual void draw() noexcept;
 
-	void drawHeightmap(uint32_t numStrips, uint32_t numTrisPerStrip) noexcept;
-
 protected:
 	void* m_handle;
 };

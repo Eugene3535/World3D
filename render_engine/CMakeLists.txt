@@ -14,7 +14,7 @@ set(_render_engine_src_files
 	src/opengl/resources/buffers/VertexBuffer.cpp
 	src/opengl/resources/buffers/IndexBuffer.cpp
 	src/opengl/resources/buffers/UniformBuffer.cpp
-	src/opengl/resources/shared/VertexArray.cpp
+	src/opengl/resources/shared/VertexArrayObject.cpp
 	src/opengl/resources/shared/Texture2D.cpp
 	src/opengl/debug/OpenGLDebugger.cpp
 	src/window/BaseWindow.cpp
@@ -39,7 +39,7 @@ set(_render_engine_hdr_files
 	src/opengl/resources/buffers/VertexBuffer.hpp
 	src/opengl/resources/buffers/IndexBuffer.hpp
 	src/opengl/resources/buffers/UniformBuffer.hpp
-	src/opengl/resources/shared/VertexArray.hpp
+	src/opengl/resources/shared/VertexArrayObject.hpp
 	src/opengl/resources/shared/Texture2D.hpp
 	src/opengl/debug/OpenGLDebugger.hpp
 	src/window/BaseWindow.hpp

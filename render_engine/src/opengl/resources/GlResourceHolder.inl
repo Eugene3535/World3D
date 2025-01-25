@@ -7,7 +7,7 @@ std::array<uint32_t, N> GlResourceHolder::create() noexcept
     {
         return createResources<N>(m_buffers, genBuffers);
     }
-    else if constexpr(std::is_same_v<T, VertexArray>)
+    else if constexpr(std::is_same_v<T, VertexArrayObject>)
     {
         return createResources<N>(m_arrays, genVertexArrays);
     }
@@ -29,11 +29,11 @@ void GlResourceHolder::destroy(const std::array<uint32_t, N>& objects) noexcept
     {
         destroyResources<N>(objects, m_buffers, delBuffers);
     }
-    else if constexpr(std::is_same_v<T, VertexArray>)
+    else if constexpr(std::is_same_v<T, VertexArrayObject>)
     {
         destroyResources<N>(objects, m_arrays, delVertexArrays);
     }
-    else if constexpr(std::is_same_v<T, VertexArray>)
+    else if constexpr(std::is_same_v<T, Texture2D>)
     {
         destroyResources<N>(objects, m_textures, delTextures);
     }

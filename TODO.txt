@@ -1,3 +1,2 @@
-1) Move draw() implementation to Vertex Buffer Array 
-2) Input handler class
-3) Make an orthogonal camera
+
+1) Input handler class
