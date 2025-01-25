@@ -11,6 +11,7 @@ set(_component_hdr_files
 set(_render_engine_src_files
 	src/utils/Transform2D.cpp
 	src/Image.cpp
+	src/opengl/context/GlContext.cpp
 	src/opengl/resources/unique/Shader.cpp
 	src/opengl/resources/unique/ShaderProgram.cpp
 	src/opengl/resources/GlResource.cpp
@@ -21,7 +22,7 @@ set(_render_engine_src_files
 	src/opengl/resources/buffers/UniformBuffer.cpp
 	src/opengl/resources/shared/VertexArray.cpp
 	src/opengl/resources/shared/Texture2D.cpp
-	src/OpenGLDebugger.cpp
+	src/opengl/debug/OpenGLDebugger.cpp
 	src/window/BaseWindow.cpp
 	src/window/RenderWindow.cpp
 	src/Scene.cpp
@@ -32,6 +33,7 @@ set(_render_engine_hdr_files
 	src/Export.hpp
 	src/utils/Transform2D.hpp
 	src/Image.hpp
+	src/opengl/context/GlContext.hpp
 	src/opengl/resources/unique/Shader.hpp
 	src/opengl/resources/unique/ShaderProgram.hpp
 	src/opengl/resources/GlResource.hpp
@@ -43,7 +45,7 @@ set(_render_engine_hdr_files
 	src/opengl/resources/buffers/UniformBuffer.hpp
 	src/opengl/resources/shared/VertexArray.hpp
 	src/opengl/resources/shared/Texture2D.hpp
-	src/OpenGLDebugger.hpp
+	src/opengl/debug/OpenGLDebugger.hpp
 	src/window/BaseWindow.hpp
 	src/window/RenderWindow.hpp
 	src/Scene.hpp

@@ -16,7 +16,7 @@ public:
     ShaderProgram& operator = (ShaderProgram&&) noexcept;
     ~ShaderProgram() noexcept;
 
-    void link(std::span<Shader> shaders) noexcept;
+    void link(std::span<const Shader> shaders) noexcept;
 
     static void initGlUniformFunctions() noexcept;
     static void bind(ShaderProgram* program) noexcept;

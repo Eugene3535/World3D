@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-#include "OpenGLDebugger.hpp"
+#include "opengl/debug/OpenGLDebugger.hpp"
 
 
 static const char* glSourceToString(const GLenum source) noexcept

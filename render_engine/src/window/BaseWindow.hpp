@@ -5,8 +5,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Export.hpp"
-
+#include "opengl/context/GlContext.hpp"
 
 class RE_API BaseWindow
 {
@@ -34,6 +33,8 @@ public:
 
 protected:
     void* m_handle;
+
+    GlContext m_context;
 };
 
 #endif // !BASE_WINDOW_HPP

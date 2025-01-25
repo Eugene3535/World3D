@@ -33,8 +33,8 @@ public:
         Stream
     };
 
-    GlBuffer(uint32_t handle, Target target) noexcept;
-    ~GlBuffer() noexcept;
+    explicit GlBuffer(uint32_t handle, Target target) noexcept;
+    virtual ~GlBuffer() noexcept;
 
     void create(size_t elementSize, size_t elementCount, const void* data, GlBuffer::Usage usage) noexcept;
     void update(size_t offset, size_t elementSize, size_t elementCount, const void* data) noexcept;

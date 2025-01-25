@@ -7,7 +7,7 @@ class RE_API IndexBuffer:
     public GlBuffer
 {
 public:
-    IndexBuffer(uint32_t handle) noexcept;
+    explicit IndexBuffer(uint32_t handle) noexcept;
     ~IndexBuffer() noexcept;
 };
 

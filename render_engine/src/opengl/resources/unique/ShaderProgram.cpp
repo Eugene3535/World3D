@@ -43,7 +43,7 @@ ShaderProgram::~ShaderProgram() noexcept
 }
 
 
-void ShaderProgram::link(std::span<Shader> shaders) noexcept
+void ShaderProgram::link(std::span<const Shader> shaders) noexcept
 {
     glDeleteProgram(m_handle);
     m_handle = 0;
@@ -51,7 +51,7 @@ void ShaderProgram::link(std::span<Shader> shaders) noexcept
 
     for(const auto& shader : shaders)
         glAttachShader(program, shader.getHandle());
-
+    
     glLinkProgram(program);
 
     int32_t success = GL_FALSE;

@@ -41,7 +41,7 @@ void Perspective::apply(float dt) noexcept
     if(m_modelViewNeedUpdate)
         recalculateModelViewMatrix();
 
-    m_uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_projection * m_modelView)));
+    m_uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(getModelViewProjectionMatrix())));
 }
 
 
@@ -133,6 +133,12 @@ glm::vec3 Perspective::getLineOfSight() const noexcept
     const float tz = -cos(glm::radians(m_pitch));
 
     return { tx, ty, tz };
+}
+
+
+glm::mat4 Perspective::getModelViewProjectionMatrix() const noexcept
+{
+    return m_projection * m_modelView;
 }
 
 

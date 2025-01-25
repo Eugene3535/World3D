@@ -29,6 +29,7 @@ public:
 
     const glm::vec3& getPosition()    const noexcept;
     glm::vec3        getLineOfSight() const noexcept;
+    glm::mat4 getModelViewProjectionMatrix() const noexcept;
 
 private:
     void recalculateModelViewMatrix() noexcept;

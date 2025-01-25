@@ -19,7 +19,7 @@ BaseWindow::BaseWindow(std::string_view title, int32_t width, int32_t height) no
     {
         glfwMakeContextCurrent(window);
 
-        if (gladLoadGL())
+        if (m_context.isLoaded())
         {
             m_handle = static_cast<void*>(window);
             glfwSetWindowUserPointer(window, static_cast<void*>(this));

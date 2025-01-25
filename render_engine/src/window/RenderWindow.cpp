@@ -4,41 +4,9 @@
 #include <GLFW/glfw3.h>
 
 #include "opengl/resources/unique/ShaderProgram.hpp"
-#include "OpenGLDebugger.hpp"
+#include "opengl/debug/OpenGLDebugger.hpp"
 #include "Scene.hpp"
 #include "window/RenderWindow.hpp"
-
-
-static constexpr uint32_t optionToGlCap(RenderWindow::GlOption option) noexcept
-{
-    switch (option)
-    {
-        case RenderWindow::GlOption::Blend:                  return GL_BLEND;
-        case RenderWindow::GlOption::ClipDistancei:          return GL_CLIP_DISTANCE0;
-        case RenderWindow::GlOption::ColorLogicOp:           return GL_COLOR_LOGIC_OP;
-        case RenderWindow::GlOption::CullFace:               return GL_CULL_FACE;
-        case RenderWindow::GlOption::DepthClamp:             return GL_DEPTH_CLAMP;
-        case RenderWindow::GlOption::DepthTest:              return GL_DEPTH_TEST;
-        case RenderWindow::GlOption::Dither:                 return GL_DITHER;
-        case RenderWindow::GlOption::FramebufferSrgb:        return GL_FRAMEBUFFER_SRGB;
-        case RenderWindow::GlOption::LineSmooth:             return GL_LINE_SMOOTH;
-        case RenderWindow::GlOption::Multisample:            return GL_MULTISAMPLE;
-        case RenderWindow::GlOption::PolygonOffsetFill:      return GL_POLYGON_OFFSET_FILL;
-        case RenderWindow::GlOption::PolygonOffsetLine:      return GL_POLYGON_OFFSET_LINE;
-        case RenderWindow::GlOption::PolygonOffsetPoint:     return GL_POLYGON_OFFSET_POINT;
-        case RenderWindow::GlOption::PolygonSmooth:          return GL_POLYGON_SMOOTH;
-        case RenderWindow::GlOption::PrimitiveRestart:       return GL_PRIMITIVE_RESTART;
-        case RenderWindow::GlOption::SampleAlphaToCoverage:  return GL_SAMPLE_ALPHA_TO_COVERAGE;
-        case RenderWindow::GlOption::SampleAlphaToOne:       return GL_SAMPLE_ALPHA_TO_ONE;
-        case RenderWindow::GlOption::SampleCoverage:         return GL_SAMPLE_COVERAGE;
-        case RenderWindow::GlOption::ScissorTest:            return GL_SCISSOR_TEST;
-        case RenderWindow::GlOption::StencilTest:            return GL_STENCIL_TEST;
-        case RenderWindow::GlOption::TextureCubeMapSeamless: return GL_TEXTURE_CUBE_MAP_SEAMLESS;
-        case RenderWindow::GlOption::ProgramPointSize:       return GL_PROGRAM_POINT_SIZE;
-
-        default: return 0;
-    }
-}
 
 
 RenderWindow::RenderWindow(std::string_view title, int32_t width, int32_t height) noexcept:
@@ -67,18 +35,6 @@ RenderWindow::~RenderWindow() noexcept = default;
 void RenderWindow::addScene(std::unique_ptr<Scene>&& scene) noexcept
 {
     m_scenes.push_back(std::move(scene));
-}
-
-
-void RenderWindow::enable(GlOption option) noexcept
-{
-    glEnable(optionToGlCap(option));
-}
-
-
-void RenderWindow::disable(GlOption option) noexcept
-{
-    glDisable(optionToGlCap(option));
 }
 
 
