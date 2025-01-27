@@ -4,6 +4,8 @@
 #include "camera/perspective/Perspective.hpp"
 #include "Heightmap.hpp"
 
+#include <cstdio>
+
 int main()
 {
     RenderWindow rw("World3D", 1200, 800);
@@ -26,6 +28,14 @@ int main()
 
     while (rw.isOpen())
     {
+        Event event;
+
+        while (rw.popEvent(event))
+        {
+            printf("key pressed\n");
+        }
+        
+
         auto cur = rw.getCursorPosition();
         auto pos = rw.getPosition();
         auto siz = rw.getSize();

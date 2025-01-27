@@ -19,8 +19,6 @@ public:
     void draw() noexcept override;
 
 private:
-    Image m_imageMap;
-
     std::unique_ptr<Texture2D> m_texCrackedEarth;
     std::unique_ptr<Texture2D> m_texRock;
     std::unique_ptr<Texture2D> m_texGrass;

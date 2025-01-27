@@ -1,3 +1,2 @@
 
 1) Input handler class
-2) Move GlResourceHolder to GlContext

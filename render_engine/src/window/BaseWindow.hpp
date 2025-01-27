@@ -1,9 +1,12 @@
 #ifndef BASE_WINDOW_HPP
 #define BASE_WINDOW_HPP
 
+#include <queue>
+
 #include <glm/glm.hpp>
 
 #include "opengl/context/GlContext.hpp"
+#include "window/Event.hpp"
 
 class RE_API BaseWindow
 {
@@ -29,13 +32,18 @@ public:
 
     void* getGLFWHandle() noexcept;
 
+    bool popEvent(Event& event) noexcept;
+
     bool isOpen() const noexcept;
 
 protected:
     void* m_handle;
 
 private:
+    void pushEvent(const Event& event) noexcept;
+
     GlContext m_context;
+    std::queue<Event> m_events;
 };
 
 #endif // !BASE_WINDOW_HPP

@@ -40,6 +40,7 @@ set(_render_engine_hdr_files
 	src/opengl/resources/shared/VertexArrayObject.hpp
 	src/opengl/resources/shared/Texture2D.hpp
 	src/opengl/debug/OpenGLDebugger.hpp
+	src/window/Event.hpp
 	src/window/BaseWindow.hpp
 	src/window/RenderWindow.hpp
 	src/Scene.hpp

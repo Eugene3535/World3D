@@ -12,8 +12,7 @@ Heightmap::Heightmap() noexcept:
     m_mapWidth(0),
     m_mapDepth(0)
 {
-    m_imageMap.loadFromFile("res/textures/heightmap.png");
-
+    Image imageMap;        imageMap.loadFromFile("res/textures/heightmap.png");
     Image imgCrackedEarth; imgCrackedEarth.loadFromFile("res/textures/cracked_earth.jpg");
     Image imgRock;         imgRock.loadFromFile("res/textures/rock.jpg");
     Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
@@ -31,9 +30,9 @@ Heightmap::Heightmap() noexcept:
     m_texGrass->loadFromImage(imgGrass, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
     m_texClover->loadFromImage(imgClover, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
 
-    const uint8_t* pixels = m_imageMap.getPixels();
-    m_mapDepth = m_imageMap.getHeight();
-    m_mapWidth = m_imageMap.getWidth();
+    const uint8_t* pixels = imageMap.getPixels();
+    m_mapDepth = imageMap.getHeight();
+    m_mapWidth = imageMap.getWidth();
 
     m_heightmap.resize(m_mapDepth * m_mapWidth);
     std::vector<float> vertices(m_mapDepth * m_mapWidth * 5);
@@ -47,7 +46,7 @@ Heightmap::Heightmap() noexcept:
     {
         for (size_t x = 0; x < m_mapWidth; ++x)
         {
-            const uint8_t* pixel = pixels + ((z * m_mapWidth + x) * m_imageMap.getBytePerPixel());
+            const uint8_t* pixel = pixels + ((z * m_mapWidth + x) * imageMap.getBytePerPixel());
             int32_t y = static_cast<int32_t>(pixel[0]);
             float Y = y * 0.03f;
 
