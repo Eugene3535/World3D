@@ -6,8 +6,6 @@
 #include "Image.hpp"
 #include "opengl/resources/shared/Texture2D.hpp"
 #include "opengl/resources/unique/ShaderProgram.hpp"
-#include "camera/perspective/Perspective.hpp"
-#include "opengl/resources/GlResourceHolder.hpp"
 #include "opengl/resources/shared/VertexArrayObject.hpp"
 #include "Scene.hpp"
 
@@ -15,7 +13,7 @@ class Heightmap:
     public Scene
 {
 public:
-    Heightmap(void* handle) noexcept;
+    Heightmap() noexcept;
     ~Heightmap() noexcept;
 
     void draw() noexcept override;
@@ -30,11 +28,6 @@ private:
 
     std::unique_ptr<ShaderProgram> m_program;
 
-    std::unique_ptr<Perspective> m_camera;
-    std::unique_ptr<UniformBuffer> m_uniformBuffer;
-
-    void* m_rw;
-
     std::vector<float> m_heightmap;
     uint32_t m_mapDepth;
     uint32_t m_mapWidth;
@@ -42,8 +35,6 @@ private:
     std::unique_ptr<VertexBuffer> m_vbo;
     std::unique_ptr<IndexBuffer> m_ebo;
     std::unique_ptr<VertexArrayObject> m_vao;
-
-    GlResourceHolder m_bufferHolder;
 };
 
 #endif // !HEIGHTMAP_HPP

@@ -2,13 +2,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "opengl/context/GlContext.hpp"
 #include "window/RenderWindow.hpp"
 #include "Heightmap.hpp"
 
 
-Heightmap::Heightmap(void* handle) noexcept:
-    Scene(handle),
-    m_rw(handle),
+Heightmap::Heightmap() noexcept:
+    Scene(),
     m_mapWidth(0),
     m_mapDepth(0)
 {
@@ -19,7 +19,7 @@ Heightmap::Heightmap(void* handle) noexcept:
     Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
     Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
 
-    std::array<uint32_t, 4> textures = m_bufferHolder.create<Texture2D, 4>();
+    std::array<uint32_t, 4> textures = Context->getGlResourceHolder()->create<Texture2D, 4>();
 
     m_texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
     m_texRock         = std::make_unique<Texture2D>(textures[1]);
@@ -75,8 +75,8 @@ Heightmap::Heightmap(void* handle) noexcept:
         }
     }
 
-    std::array<uint32_t, 3> buffers = m_bufferHolder.create<GlBuffer, 3>();
-    std::array<uint32_t, 1> vertexArrays = m_bufferHolder.create<VertexArrayObject, 1>();
+    std::array<uint32_t, 2> buffers = Context->getGlResourceHolder()->create<GlBuffer, 2>();
+    std::array<uint32_t, 1> vertexArrays = Context->getGlResourceHolder()->create<VertexArrayObject, 1>();
 
     VertexBufferLayout layout
     {
@@ -109,20 +109,7 @@ Heightmap::Heightmap(void* handle) noexcept:
     ShaderProgram::setUniform1i(m_program->getUniformLocation("rock"), 1);
     ShaderProgram::setUniform1i(m_program->getUniformLocation("grass"), 2);
     ShaderProgram::setUniform1i(m_program->getUniformLocation("clover"), 3);
-
     ShaderProgram::bind(nullptr);
-
-    auto rwnd = (RenderWindow*)handle;
-    rwnd->hideCursor();
-
-    auto size = rwnd->getSize();
-
-    m_uniformBuffer = std::make_unique<UniformBuffer>(buffers[2]);
-    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GlBuffer::Usage::Dynamic);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
-
-    m_camera = std::make_unique<Perspective>(*m_uniformBuffer);
-    m_camera->setupProjectionMatrix(45, static_cast<float>(size.x) / static_cast<float>(size.y), 0.1f, 1000.0f);
 }
 
 
@@ -156,23 +143,6 @@ void Heightmap::draw() noexcept
 
         return 0.f;
     };
-
-    auto rwnd = (RenderWindow*)m_rw;
-
-    auto cur = rwnd->getCursorPosition();
-    auto pos = rwnd->getPosition();
-    auto siz = rwnd->getSize();
-
-    pos.x += siz.x >> 1;
-    pos.y += siz.y >> 1;
-
-    m_camera->rotateX((pos.x - cur.x) * 0.125f);
-    m_camera->rotateY((pos.y - cur.y) * 0.125f);
-
-    rwnd->setCursorPosition(pos.x, pos.y);
-
-    m_camera->setPosition(30, 3, 30);
-    m_camera->apply(0.01f);
 
     ShaderProgram::bind(m_program.get());
 

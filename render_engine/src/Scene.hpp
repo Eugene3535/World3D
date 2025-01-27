@@ -9,13 +9,13 @@
 class RE_API Scene
 {
 public:
-	Scene(void* handle) noexcept;
+	Scene() noexcept;
 	virtual ~Scene() noexcept;
 
 	virtual void draw() noexcept;
 
 protected:
-	void* m_handle;
+
 };
 
 #endif // !SCENE_HPP

@@ -18,6 +18,8 @@ public:
     GlResourceHolder& operator = (GlResourceHolder&&) noexcept = delete;
     ~GlResourceHolder() noexcept;
 
+    bool initialize() noexcept;
+
     template<class T, size_t N>
     std::array<uint32_t, N> create() noexcept;
     

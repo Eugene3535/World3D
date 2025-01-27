@@ -60,10 +60,21 @@ GlContext* GlContext::getContext() noexcept
 }
 
 
+GlResourceHolder* GlContext::getGlResourceHolder() noexcept
+{
+    return &m_bufferHolder;
+}
+
+
 bool GlContext::isLoaded() noexcept
 {
     if(!m_isLoaded)
+    {
         m_isLoaded = (gladLoadGL() != 0);
+
+        if(m_isLoaded)
+            m_isLoaded = m_bufferHolder.initialize();
+    }
 
     return m_isLoaded;
 }

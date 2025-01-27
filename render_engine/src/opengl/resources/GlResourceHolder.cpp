@@ -17,14 +17,7 @@ GlResourceHolder::GlResourceHolder() noexcept:
     assert(m_instance == nullptr);
     m_instance = this;
 
-    genBuffers = glGenBuffers;
-    delBuffers = glDeleteBuffers;
 
-    genVertexArrays = glGenVertexArrays;
-    delVertexArrays = glDeleteVertexArrays;
-
-    genTextures = glGenTextures;
-    delTextures = glDeleteTextures;
 }
 
 
@@ -38,4 +31,21 @@ GlResourceHolder::~GlResourceHolder() noexcept
 
     if(!m_textures.empty())
         glDeleteVertexArrays(static_cast<GLsizei>(m_textures.size()), m_textures.data());
+}
+
+
+bool GlResourceHolder::initialize() noexcept
+{
+    genBuffers = glGenBuffers;
+    delBuffers = glDeleteBuffers;
+
+    genVertexArrays = glGenVertexArrays;
+    delVertexArrays = glDeleteVertexArrays;
+
+    genTextures = glGenTextures;
+    delTextures = glDeleteTextures;
+
+    bool sucsess = (genBuffers && delBuffers && genVertexArrays && delVertexArrays && genTextures && delTextures);
+
+    return sucsess;
 }

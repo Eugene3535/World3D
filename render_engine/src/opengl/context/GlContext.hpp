@@ -1,7 +1,7 @@
 #ifndef GLCONTEXT_HPP
 #define GLCONTEXT_HPP
 
-#include "Export.hpp"
+#include "opengl/resources/GlResourceHolder.hpp"
 
 class RE_API GlContext final
 {
@@ -36,6 +36,7 @@ public:
     ~GlContext() noexcept;
 
     static GlContext* getContext() noexcept;
+	GlResourceHolder* getGlResourceHolder() noexcept;
 
     bool isLoaded() noexcept;
 
@@ -44,6 +45,8 @@ public:
 
 private:
     static GlContext* m_instance;
+
+	GlResourceHolder m_bufferHolder;
 
     bool m_isLoaded;
 };
