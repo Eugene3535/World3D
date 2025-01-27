@@ -8,7 +8,7 @@ class RE_API Orthogonal final:
     public Transform2D
 {
 public:
-	Orthogonal(UniformBuffer biffer) noexcept;
+	Orthogonal(UniformBuffer buffer) noexcept;
 	~Orthogonal() noexcept;
 
     void setupProjectionMatrix(int32_t width, int32_t height) noexcept;

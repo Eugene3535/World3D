@@ -8,7 +8,7 @@
 class RE_API Perspective final
 {
 public:
-	Perspective(UniformBuffer biffer) noexcept;
+	Perspective(UniformBuffer buffer) noexcept;
 	~Perspective() noexcept;
 
     void setupProjectionMatrix(float fovy, float aspect, float zNear, float zFar) noexcept;

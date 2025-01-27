@@ -10,7 +10,7 @@ class RE_API RenderWindow final:
 	public BaseWindow
 {
 public:
-	RenderWindow(std::string_view title, int32_t width, int32_t height) noexcept;
+	RenderWindow(const char* title, int32_t width, int32_t height) noexcept;
 	~RenderWindow() noexcept;
 
 	void addScene(std::unique_ptr<class Scene>&& scene) noexcept;

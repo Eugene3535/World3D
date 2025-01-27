@@ -13,10 +13,11 @@ Heightmap::Heightmap(void* handle) noexcept:
     m_mapDepth(0)
 {
     m_imageMap.loadFromFile("res/textures/heightmap.png");
-    m_imgCrackedEarth.loadFromFile("res/textures/cracked_earth.jpg");
-    m_imgRock.loadFromFile("res/textures/rock.jpg");
-    m_imgGrass.loadFromFile("res/textures/grass.jpg");
-    m_imgClover.loadFromFile("res/textures/clover.png");
+
+    Image imgCrackedEarth; imgCrackedEarth.loadFromFile("res/textures/cracked_earth.jpg");
+    Image imgRock;         imgRock.loadFromFile("res/textures/rock.jpg");
+    Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
+    Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
 
     std::array<uint32_t, 4> textures = m_bufferHolder.create<Texture2D, 4>();
 
@@ -25,10 +26,10 @@ Heightmap::Heightmap(void* handle) noexcept:
     m_texGrass        = std::make_unique<Texture2D>(textures[2]);
     m_texClover       = std::make_unique<Texture2D>(textures[3]);
 
-    m_texCrackedEarth->loadFromImage(m_imgCrackedEarth, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    m_texRock->loadFromImage(m_imgRock, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    m_texGrass->loadFromImage(m_imgGrass, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    m_texClover->loadFromImage(m_imgClover, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    m_texCrackedEarth->loadFromImage(imgCrackedEarth, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    m_texRock->loadFromImage(imgRock, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    m_texGrass->loadFromImage(imgGrass, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    m_texClover->loadFromImage(imgClover, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
 
     const uint8_t* pixels = m_imageMap.getPixels();
     m_mapDepth = m_imageMap.getHeight();
@@ -109,7 +110,11 @@ Heightmap::Heightmap(void* handle) noexcept:
     ShaderProgram::setUniform1i(m_program->getUniformLocation("grass"), 2);
     ShaderProgram::setUniform1i(m_program->getUniformLocation("clover"), 3);
 
+    ShaderProgram::bind(nullptr);
+
     auto rwnd = (RenderWindow*)handle;
+    rwnd->hideCursor();
+
     auto size = rwnd->getSize();
 
     m_uniformBuffer = std::make_unique<UniformBuffer>(buffers[2]);
@@ -169,6 +174,8 @@ void Heightmap::draw() noexcept
     m_camera->setPosition(30, 3, 30);
     m_camera->apply(0.01f);
 
+    ShaderProgram::bind(m_program.get());
+
     Texture2D::enable(0);
     Texture2D::bind(m_texCrackedEarth.get());
 
@@ -190,4 +197,6 @@ void Heightmap::draw() noexcept
         m_vao->drawElements(PrimitiveType::TriangleStrip, numTrisPerStrip + 2, reinterpret_cast<const void*>(sizeof(uint32_t) * (numTrisPerStrip + 2) * strip));
 
     m_vao->bind(nullptr);
+
+    ShaderProgram::bind(nullptr);
 }

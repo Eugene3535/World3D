@@ -4,7 +4,7 @@
 #include "window/BaseWindow.hpp"
 
 
-BaseWindow::BaseWindow(std::string_view title, int32_t width, int32_t height) noexcept:
+BaseWindow::BaseWindow(const char* title, int32_t width, int32_t height) noexcept:
     m_handle(nullptr)
 {
     glfwInit();
@@ -15,11 +15,11 @@ BaseWindow::BaseWindow(std::string_view title, int32_t width, int32_t height) no
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
-    if (GLFWwindow* window = glfwCreateWindow(width, height, title.data(), nullptr, nullptr); window != nullptr)
+    if (GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr); window != nullptr)
     {
         glfwMakeContextCurrent(window);
 
-        if (m_context.isLoaded())
+        if (Context->isLoaded())
         {
             m_handle = static_cast<void*>(window);
             glfwSetWindowUserPointer(window, static_cast<void*>(this));
@@ -29,7 +29,15 @@ BaseWindow::BaseWindow(std::string_view title, int32_t width, int32_t height) no
                 glViewport(0, 0, width, height);
             });
 
-            glfwSetInputMode(static_cast<GLFWwindow*>(m_handle), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+            {
+                if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+                {
+                    if (key == GLFW_KEY_ESCAPE)
+                        glfwSetWindowShouldClose(window, GLFW_TRUE);                
+                }
+                    
+            });
         }
         else
         {
@@ -45,14 +53,13 @@ BaseWindow::~BaseWindow() noexcept
 {
     if(m_handle)
         glfwDestroyWindow(static_cast<GLFWwindow*>(m_handle));
-
     glfwTerminate();
 }
 
 
 void BaseWindow::close() noexcept
 {
-    glfwSetWindowShouldClose(static_cast<GLFWwindow*>(m_handle), true);
+    glfwSetWindowShouldClose(static_cast<GLFWwindow*>(m_handle), GLFW_TRUE);
 }
 
 
@@ -74,6 +81,18 @@ glm::i32vec2 BaseWindow::getCursorPosition() const noexcept
     glfwGetCursorPos(static_cast<GLFWwindow*>(m_handle), &xpos, &ypos);
 
     return { static_cast<int32_t>(xpos), static_cast<int32_t>(ypos) };
+}
+
+
+void BaseWindow::hideCursor() noexcept
+{
+    glfwSetInputMode(static_cast<GLFWwindow*>(m_handle), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+
+void BaseWindow::showCursor() noexcept
+{
+    glfwSetInputMode(static_cast<GLFWwindow*>(m_handle), GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
 }
 
 

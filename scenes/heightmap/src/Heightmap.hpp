@@ -22,10 +22,6 @@ public:
 
 private:
     Image m_imageMap;
-    Image m_imgCrackedEarth;
-    Image m_imgRock;
-    Image m_imgGrass;
-    Image m_imgClover;
 
     std::unique_ptr<Texture2D> m_texCrackedEarth;
     std::unique_ptr<Texture2D> m_texRock;

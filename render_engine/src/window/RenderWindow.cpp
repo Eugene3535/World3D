@@ -9,7 +9,7 @@
 #include "window/RenderWindow.hpp"
 
 
-RenderWindow::RenderWindow(std::string_view title, int32_t width, int32_t height) noexcept:
+RenderWindow::RenderWindow(const char* title, int32_t width, int32_t height) noexcept:
     BaseWindow(title, width, height),
     m_clearColor()
 {
