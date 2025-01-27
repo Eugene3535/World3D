@@ -1,7 +1,7 @@
 
 
 template<class T, size_t N>
-std::array<uint32_t, N> GlResourceHolder::create() noexcept
+std::array<uint32_t, N> GlContext::create() noexcept
 {
     if constexpr(std::is_same_v<T, GlBuffer>)
     {
@@ -23,7 +23,7 @@ std::array<uint32_t, N> GlResourceHolder::create() noexcept
 
 
 template<class T, size_t N>
-void GlResourceHolder::destroy(const std::array<uint32_t, N>& objects) noexcept
+void GlContext::destroy(const std::array<uint32_t, N>& objects) noexcept
 {
     if constexpr(std::is_same_v<T, GlBuffer>)
     {
@@ -45,7 +45,7 @@ void GlResourceHolder::destroy(const std::array<uint32_t, N>& objects) noexcept
 
 
 template<size_t N>
-std::array<uint32_t, N> GlResourceHolder::createResources(std::vector<uint32_t>& handles, void(*func)(int32_t, uint32_t*)) noexcept
+std::array<uint32_t, N> GlContext::createResources(std::vector<uint32_t>& handles, void(*func)(int32_t, uint32_t*)) noexcept
 {
     std::array<uint32_t, N> objects;
 
@@ -60,7 +60,7 @@ std::array<uint32_t, N> GlResourceHolder::createResources(std::vector<uint32_t>&
 
 
 template<size_t N>
-void GlResourceHolder::destroyResources(const std::array<uint32_t, N>& objects, std::vector<uint32_t>& handles, void(*func)(int32_t, const uint32_t*)) noexcept
+void GlContext::destroyResources(const std::array<uint32_t, N>& objects, std::vector<uint32_t>& handles, void(*func)(int32_t, const uint32_t*)) noexcept
 {
     if(m_instance && func)
     {

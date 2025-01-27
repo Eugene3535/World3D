@@ -60,12 +60,6 @@ GlContext* GlContext::getContext() noexcept
 }
 
 
-GlResourceHolder* GlContext::getGlResourceHolder() noexcept
-{
-    return &m_bufferHolder;
-}
-
-
 bool GlContext::isLoaded() noexcept
 {
     if(!m_isLoaded)
@@ -73,7 +67,18 @@ bool GlContext::isLoaded() noexcept
         m_isLoaded = (gladLoadGL() != 0);
 
         if(m_isLoaded)
-            m_isLoaded = m_bufferHolder.initialize();
+        {
+            genBuffers = glGenBuffers;
+            delBuffers = glDeleteBuffers;
+
+            genVertexArrays = glGenVertexArrays;
+            delVertexArrays = glDeleteVertexArrays;
+
+            genTextures = glGenTextures;
+            delTextures = glDeleteTextures;
+
+            m_isLoaded = (genBuffers && delBuffers && genVertexArrays && delVertexArrays && genTextures && delTextures);
+        }
     }
 
     return m_isLoaded;

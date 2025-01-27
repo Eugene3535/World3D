@@ -10,7 +10,7 @@ int main()
     rw.hideCursor();
 
     Context->enable(GlContext::Option::DepthTest);
-    std::array<uint32_t, 1> buffer = Context->getGlResourceHolder()->create<GlBuffer, 1>();
+    std::array<uint32_t, 1> buffer = Context->create<GlBuffer, 1>();
 
     auto wndSize = rw.getSize();
 
