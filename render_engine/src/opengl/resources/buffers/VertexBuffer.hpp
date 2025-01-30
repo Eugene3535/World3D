@@ -1,6 +1,7 @@
 #ifndef VERTEX_BUFFER_HPP
 #define VERTEX_BUFFER_HPP
 
+#include <span>
 #include <vector>
 
 #include "opengl/resources/buffers/GlBuffer.hpp"
@@ -39,7 +40,7 @@ public:
 class RE_API VertexBufferLayout
 {
 public:
-    VertexBufferLayout(std::initializer_list<AttributeInfo> attributes) noexcept;
+    VertexBufferLayout(std::span<AttributeInfo> attributes) noexcept;
 
     const std::vector<AttributeInfo>& getAttributes() const noexcept;
     size_t getStride() const noexcept;

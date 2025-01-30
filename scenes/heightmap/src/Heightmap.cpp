@@ -77,11 +77,12 @@ Heightmap::Heightmap() noexcept:
     std::array<uint32_t, 2> buffers = Context->create<GlBuffer, 2>();
     std::array<uint32_t, 1> vertexArrays = Context->create<VertexArrayObject, 1>();
 
-    VertexBufferLayout layout
+    std::array<AttributeInfo, 2> attributes
     {
         AttributeInfo::Float3,
         AttributeInfo::Float2
     };
+    VertexBufferLayout layout(attributes);
 
     m_vbo = std::make_unique<VertexBuffer>(buffers[0], layout);
     m_ebo = std::make_unique<IndexBuffer>(buffers[1]);

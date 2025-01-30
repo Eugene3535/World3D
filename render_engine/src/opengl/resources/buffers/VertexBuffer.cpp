@@ -94,8 +94,8 @@ AttributeInfo::AttributeInfo(const AttributeInfo::Type attrType) noexcept:
 }
 
 
-VertexBufferLayout::VertexBufferLayout(std::initializer_list<AttributeInfo> attributes) noexcept :
-    m_attributes(attributes),
+VertexBufferLayout::VertexBufferLayout(std::span<AttributeInfo> attributes) noexcept :
+    m_attributes(attributes.begin(), attributes.end()),
     m_stride(0)
 {
     size_t offset = 0;
