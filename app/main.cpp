@@ -22,20 +22,25 @@ int main()
 
     std::unique_ptr<Perspective> camera = std::make_unique<Perspective>(uniformBuffer);
     camera->setupProjectionMatrix(45, static_cast<float>(wndSize.x) / static_cast<float>(wndSize.y), 0.1f, 1000.0f);
+    camera->setPosition(30, 3, 30);
     
     auto heightmap = std::make_unique<Heightmap>();
     rw.addScene(std::move(heightmap));
 
     while (rw.isOpen())
     {
-        Event event;
+        if(rw.isKeyPressed(Keyboard::W))
+            camera->moveForward(10);
 
-        while (rw.popEvent(event))
-        {
-            printf("key pressed\n");
-        }
+        if(rw.isKeyPressed(Keyboard::A))
+            camera->moveLeft(10);
+
+        if(rw.isKeyPressed(Keyboard::S))
+            camera->moveBackward(10);
+
+        if(rw.isKeyPressed(Keyboard::D))
+            camera->moveRight(10);
         
-
         auto cur = rw.getCursorPosition();
         auto pos = rw.getPosition();
         auto siz = rw.getSize();
@@ -47,8 +52,6 @@ int main()
         camera->rotateY((pos.y - cur.y) * 0.125f);
 
         rw.setCursorPosition(pos.x, pos.y);
-
-        camera->setPosition(30, 3, 30);
         camera->apply(0.01f);
 
         rw.draw();

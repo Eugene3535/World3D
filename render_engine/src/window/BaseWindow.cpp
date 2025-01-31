@@ -31,148 +31,6 @@ BaseWindow::BaseWindow(const char* title, int32_t width, int32_t height) noexcep
             {
                 glViewport(0, 0, width, height);
             });
-
-
-            glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-            {
-                auto base_window = static_cast<BaseWindow*>(glfwGetWindowUserPointer(window));
-                Event event;
-                 
-                if (action == GLFW_PRESS)
-                {
-                    event.type = Event::EventType::KeyPressed;
-
-                    switch (key)
-                    {
-                        case GLFW_KEY_SPACE:         break;          
-                        case GLFW_KEY_APOSTROPHE:    break; /* ' */
-                        case GLFW_KEY_COMMA:         break; /* , */
-                        case GLFW_KEY_MINUS:         break; /* - */
-                        case GLFW_KEY_PERIOD:        break; /* . */
-                        case GLFW_KEY_SLASH:         break; /* / */
-                        case GLFW_KEY_0:             break;              
-                        case GLFW_KEY_1:             break;              
-                        case GLFW_KEY_2:             break;              
-                        case GLFW_KEY_3:             break;              
-                        case GLFW_KEY_4:             break;              
-                        case GLFW_KEY_5:             break;              
-                        case GLFW_KEY_6:             break;              
-                        case GLFW_KEY_7:             break;              
-                        case GLFW_KEY_8:             break;              
-                        case GLFW_KEY_9:             break;              
-                        case GLFW_KEY_SEMICOLON:     break; /* ; */
-                        case GLFW_KEY_EQUAL:         break; /* = */
-                        case GLFW_KEY_A:             event.key.code = Keyboard::A; break;              
-                        case GLFW_KEY_B:             break;              
-                        case GLFW_KEY_C:             break;              
-                        case GLFW_KEY_D:             event.key.code = Keyboard::D; break;              
-                        case GLFW_KEY_E:             break;              
-                        case GLFW_KEY_F:             break;              
-                        case GLFW_KEY_G:             break;              
-                        case GLFW_KEY_H:             break;              
-                        case GLFW_KEY_I:             break;              
-                        case GLFW_KEY_J:             break;              
-                        case GLFW_KEY_K:             break;              
-                        case GLFW_KEY_L:             break;              
-                        case GLFW_KEY_M:             break;              
-                        case GLFW_KEY_N:             break;              
-                        case GLFW_KEY_O:             break;              
-                        case GLFW_KEY_P:             break;              
-                        case GLFW_KEY_Q:             break;              
-                        case GLFW_KEY_R:             break;              
-                        case GLFW_KEY_S:             event.key.code = Keyboard::S; break;              
-                        case GLFW_KEY_T:             break;              
-                        case GLFW_KEY_U:             break;              
-                        case GLFW_KEY_V:             break;              
-                        case GLFW_KEY_W:             event.key.code = Keyboard::W; break;              
-                        case GLFW_KEY_X:             break;              
-                        case GLFW_KEY_Y:             break;              
-                        case GLFW_KEY_Z:             break;              
-                        case GLFW_KEY_LEFT_BRACKET:  break;  /* [ */
-                        case GLFW_KEY_BACKSLASH:     break; /* \ */
-                        case GLFW_KEY_RIGHT_BRACKET: break; /* ] */
-                        case GLFW_KEY_GRAVE_ACCENT:  break; /* ` */
-                        case GLFW_KEY_WORLD_1:       break; /* non-US #1 */
-                        case GLFW_KEY_WORLD_2:       break; /* non-US #2 */
-
-                        /* Function keys */
-                        case GLFW_KEY_ESCAPE:        event.key.code = Keyboard::Escape; break;       
-                        case GLFW_KEY_ENTER:         break;        
-                        case GLFW_KEY_TAB:           break;          
-                        case GLFW_KEY_BACKSPACE:     break;    
-                        case GLFW_KEY_INSERT:        break;       
-                        case GLFW_KEY_DELETE:        break;       
-                        case GLFW_KEY_RIGHT:         break;        
-                        case GLFW_KEY_LEFT:          break;         
-                        case GLFW_KEY_DOWN:          break;         
-                        case GLFW_KEY_UP:            break;           
-                        case GLFW_KEY_PAGE_UP:       break;      
-                        case GLFW_KEY_PAGE_DOWN:     break;    
-                        case GLFW_KEY_HOME:          break;         
-                        case GLFW_KEY_END:           break;          
-                        case GLFW_KEY_CAPS_LOCK:     break;    
-                        case GLFW_KEY_SCROLL_LOCK:   break;  
-                        case GLFW_KEY_NUM_LOCK:      break;     
-                        case GLFW_KEY_PRINT_SCREEN:  break; 
-                        case GLFW_KEY_PAUSE:         break;        
-                        case GLFW_KEY_F1:            break;           
-                        case GLFW_KEY_F2:            break;           
-                        case GLFW_KEY_F3:            break;           
-                        case GLFW_KEY_F4:            break;           
-                        case GLFW_KEY_F5:            break;           
-                        case GLFW_KEY_F6:            break;           
-                        case GLFW_KEY_F7:            break;           
-                        case GLFW_KEY_F8:            break;           
-                        case GLFW_KEY_F9:            break;           
-                        case GLFW_KEY_F10:           break;          
-                        case GLFW_KEY_F11:           break;          
-                        case GLFW_KEY_F12:           break;          
-                        case GLFW_KEY_F13:           break;          
-                        case GLFW_KEY_F14:           break;          
-                        case GLFW_KEY_F15:           break;          
-                        case GLFW_KEY_F16:           break;          
-                        case GLFW_KEY_F17:           break;          
-                        case GLFW_KEY_F18:           break;          
-                        case GLFW_KEY_F19:           break;          
-                        case GLFW_KEY_F20:           break;          
-                        case GLFW_KEY_F21:           break;          
-                        case GLFW_KEY_F22:           break;          
-                        case GLFW_KEY_F23:           break;          
-                        case GLFW_KEY_F24:           break;          
-                        case GLFW_KEY_F25:           break;          
-                        case GLFW_KEY_KP_0:          break;         
-                        case GLFW_KEY_KP_1:          break;         
-                        case GLFW_KEY_KP_2:          break;         
-                        case GLFW_KEY_KP_3:          break;         
-                        case GLFW_KEY_KP_4:          break;         
-                        case GLFW_KEY_KP_5:          break;         
-                        case GLFW_KEY_KP_6:          break;         
-                        case GLFW_KEY_KP_7:          break;         
-                        case GLFW_KEY_KP_8:          break;         
-                        case GLFW_KEY_KP_9:          break;         
-                        case GLFW_KEY_KP_DECIMAL:    break;   
-                        case GLFW_KEY_KP_DIVIDE:     break;    
-                        case GLFW_KEY_KP_MULTIPLY:   break;  
-                        case GLFW_KEY_KP_SUBTRACT:   break;  
-                        case GLFW_KEY_KP_ADD:        break;       
-                        case GLFW_KEY_KP_ENTER:      break;     
-                        case GLFW_KEY_KP_EQUAL:      break;     
-                        case GLFW_KEY_LEFT_SHIFT:    break;   
-                        case GLFW_KEY_LEFT_CONTROL:  break; 
-                        case GLFW_KEY_LEFT_ALT:      break;     
-                        case GLFW_KEY_LEFT_SUPER:    break;   
-                        case GLFW_KEY_RIGHT_SHIFT:   break;  
-                        case GLFW_KEY_RIGHT_CONTROL: break;
-                        case GLFW_KEY_RIGHT_ALT:     break;    
-                        case GLFW_KEY_RIGHT_SUPER:   break;  
-                        case GLFW_KEY_MENU:          break;
-
-                        default: event.key.code = Keyboard::Unknown;
-                    }
-                }
-
-                base_window->pushEvent(event);
-            });
         }
         else
         {
@@ -191,9 +49,131 @@ BaseWindow::~BaseWindow() noexcept
 }
 
 
+bool BaseWindow::isOpen() const noexcept
+{
+    return (m_handle != nullptr) && !glfwWindowShouldClose(static_cast<GLFWwindow*>(m_handle));
+}
+
+
 void BaseWindow::close() noexcept
 {
     glfwSetWindowShouldClose(static_cast<GLFWwindow*>(m_handle), GLFW_TRUE);
+}
+
+
+bool BaseWindow::isKeyPressed(Keyboard::Key key) const noexcept
+{
+    auto keyToGLFWenum = [](Keyboard::Key key) -> int
+    {
+        switch (key)
+        {
+            case Keyboard::A:          return GLFW_KEY_A; 
+            case Keyboard::B:          return 0; 
+            case Keyboard::C:          return 0; 
+            case Keyboard::D:          return GLFW_KEY_D; 
+            case Keyboard::E:          return 0; 
+            case Keyboard::F:          return 0; 
+            case Keyboard::G:          return 0; 
+            case Keyboard::H:          return 0; 
+            case Keyboard::I:          return 0; 
+            case Keyboard::J:          return 0; 
+            case Keyboard::K:          return 0; 
+            case Keyboard::L:          return 0; 
+            case Keyboard::M:          return 0; 
+            case Keyboard::N:          return 0; 
+            case Keyboard::O:          return 0; 
+            case Keyboard::P:          return 0; 
+            case Keyboard::Q:          return 0; 
+            case Keyboard::R:          return 0; 
+            case Keyboard::S:          return GLFW_KEY_S; 
+            case Keyboard::T:          return 0; 
+            case Keyboard::U:          return 0; 
+            case Keyboard::V:          return 0; 
+            case Keyboard::W:          return GLFW_KEY_W; 
+            case Keyboard::X:          return 0; 
+            case Keyboard::Y:          return 0; 
+            case Keyboard::Z:          return 0;  
+            case Keyboard::Num0:       return 0;
+            case Keyboard::Num1:       return 0;
+            case Keyboard::Num2:       return 0;
+            case Keyboard::Num3:       return 0;
+            case Keyboard::Num4:       return 0;
+            case Keyboard::Num5:       return 0;
+            case Keyboard::Num6:       return 0;
+            case Keyboard::Num7:       return 0;
+            case Keyboard::Num8:       return 0;
+            case Keyboard::Num9:       return 0;
+            case Keyboard::Escape:     return 0;
+            case Keyboard::LControl:   return 0;
+            case Keyboard::LShift:     return 0;
+            case Keyboard::LAlt:       return 0;
+            case Keyboard::LSystem:    return 0; 
+            case Keyboard::RControl:   return 0;
+            case Keyboard::RShift:     return 0;  
+            case Keyboard::RAlt:       return 0;  
+            case Keyboard::RSystem:    return 0;
+            case Keyboard::Menu:       return 0;
+            case Keyboard::LBracket:   return 0;
+            case Keyboard::RBracket:   return 0;
+            case Keyboard::Semicolon:  return 0;
+            case Keyboard::Comma:      return 0;
+            case Keyboard::Period:     return 0;
+            case Keyboard::Apostrophe: return 0;   
+            case Keyboard::Slash:      return 0;        
+            case Keyboard::Backslash:  return 0;    
+            case Keyboard::Grave:      return 0;        
+            case Keyboard::Equal:      return 0;        
+            case Keyboard::Hyphen:     return 0;       
+            case Keyboard::Space:      return 0;        
+            case Keyboard::Enter:      return 0;      
+            case Keyboard::Backspace:  return 0;    
+            case Keyboard::Tab:        return 0;          
+            case Keyboard::PageUp:     return 0;       
+            case Keyboard::PageDown:   return 0;     
+            case Keyboard::End:        return 0;          
+            case Keyboard::Home:       return 0;         
+            case Keyboard::Insert:     return 0;       
+            case Keyboard::Delete:     return 0;       
+            case Keyboard::Add:        return 0;          
+            case Keyboard::Subtract:   return 0;
+            case Keyboard::Multiply:   return 0;     
+            case Keyboard::Divide:     return 0;    
+            case Keyboard::Left:       return 0;    
+            case Keyboard::Right:      return 0;    
+            case Keyboard::Up:         return 0;    
+            case Keyboard::Down:       return 0;   
+            case Keyboard::Numpad0:    return 0;
+            case Keyboard::Numpad1:    return 0;
+            case Keyboard::Numpad2:    return 0;
+            case Keyboard::Numpad3:    return 0;
+            case Keyboard::Numpad4:    return 0;
+            case Keyboard::Numpad5:    return 0;
+            case Keyboard::Numpad6:    return 0;
+            case Keyboard::Numpad7:    return 0;
+            case Keyboard::Numpad8:    return 0;
+            case Keyboard::Numpad9:    return 0;
+            case Keyboard::F1:         return 0;
+            case Keyboard::F2:         return 0;
+            case Keyboard::F3:         return 0;
+            case Keyboard::F4:         return 0;
+            case Keyboard::F5:         return 0;
+            case Keyboard::F6:         return 0;
+            case Keyboard::F7:         return 0;
+            case Keyboard::F8:         return 0;
+            case Keyboard::F9:         return 0;
+            case Keyboard::F10:        return 0;
+            case Keyboard::F11:        return 0;
+            case Keyboard::F12:        return 0;
+            case Keyboard::F13:        return 0;
+            case Keyboard::F14:        return 0;
+            case Keyboard::F15:        return 0;
+            case Keyboard::Pause:      return 0;
+        
+            default: return 0;
+        }
+    };
+
+    return glfwGetKey(static_cast<GLFWwindow*>(m_handle), keyToGLFWenum(key)) == GLFW_PRESS;
 }
 
 
@@ -245,36 +225,4 @@ glm::i32vec2 BaseWindow::getSize() const noexcept
     glfwGetWindowSize(static_cast<GLFWwindow*>(m_handle), &width, &height);
 
     return { static_cast<int32_t>(width), static_cast<int32_t>(height) };
-}
-
-
-void* BaseWindow::getGLFWHandle() noexcept
-{
-    return m_handle;
-}
-
-
-bool BaseWindow::popEvent(Event& event) noexcept
-{
-    if(!m_events.empty())
-    {
-        event = m_events.front();
-        m_events.pop();
-
-        return true;
-    }
-
-    return false;
-}
-
-
-bool BaseWindow::isOpen() const noexcept
-{
-    return (m_handle != nullptr) && !glfwWindowShouldClose(static_cast<GLFWwindow*>(m_handle));
-}
-
-
-void BaseWindow::pushEvent(const Event& event) noexcept
-{
-    m_events.push(event);
 }

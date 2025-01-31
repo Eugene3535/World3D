@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "opengl/context/GlContext.hpp"
-#include "window/Event.hpp"
+#include "window/Input.hpp"
 
 class RE_API BaseWindow
 {
@@ -18,32 +18,26 @@ public:
     BaseWindow& operator = (BaseWindow&&) noexcept = delete;
     virtual ~BaseWindow() noexcept;
 
+    bool isOpen() const noexcept;
     void close() noexcept;
+
+    bool isKeyPressed(Keyboard::Key key) const noexcept;
 
     void setVerticalSyncEnabled(bool enabled) noexcept;
 
-    void setCursorPosition(int32_t x, int32_t y) noexcept;
+    void         setCursorPosition(int32_t x, int32_t y) noexcept;
 	glm::i32vec2 getCursorPosition() const noexcept;
+
     void hideCursor() noexcept;
     void showCursor() noexcept;
 
     glm::i32vec2 getPosition() const noexcept;
     glm::i32vec2 getSize() const noexcept;
 
-    void* getGLFWHandle() noexcept;
-
-    bool popEvent(Event& event) noexcept;
-
-    bool isOpen() const noexcept;
-
 protected:
     void* m_handle;
 
-private:
-    void pushEvent(const Event& event) noexcept;
-
     GlContext m_context;
-    std::queue<Event> m_events;
 };
 
 #endif // !BASE_WINDOW_HPP
