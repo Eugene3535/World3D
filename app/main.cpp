@@ -24,8 +24,9 @@ int main()
     camera->setupProjectionMatrix(45, static_cast<float>(wndSize.x) / static_cast<float>(wndSize.y), 0.1f, 1000.0f);
     camera->setPosition(30, 3, 30);
     
-    auto heightmap = std::make_unique<Heightmap>();
-    rw.addScene(std::move(heightmap));
+    auto scene = std::make_unique<Heightmap>();
+    auto heightmap = scene.get();
+    rw.addScene(std::move(scene));
 
     while (rw.isOpen())
     {
@@ -40,6 +41,10 @@ int main()
 
         if(rw.isKeyPressed(Keyboard::D))
             camera->moveRight(10);
+
+        auto playerPos = camera->getPosition();
+        playerPos.y = heightmap->getHeightInPoint(playerPos.x, playerPos.z) + 1.7f;
+        camera->setPosition(playerPos);
         
         auto cur = rw.getCursorPosition();
         auto pos = rw.getPosition();

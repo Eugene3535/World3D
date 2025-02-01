@@ -18,6 +18,8 @@ public:
 
     void draw() noexcept override;
 
+    float getHeightInPoint(float x, float z) const noexcept;
+
 private:
     std::unique_ptr<Texture2D> m_texCrackedEarth;
     std::unique_ptr<Texture2D> m_texRock;

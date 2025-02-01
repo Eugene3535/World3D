@@ -121,29 +121,6 @@ Heightmap::~Heightmap() noexcept
 
 void Heightmap::draw() noexcept
 {
-    auto get_height_in_point = [this](float x, float z) -> float
-    {
-        if((x >= 0) && (x < m_mapWidth) && (z >= 0) && (z < m_mapDepth))
-        {
-            int32_t cX = static_cast<int32_t>(x);
-            int32_t cZ = static_cast<int32_t>(z);
-
-            float* h = m_heightmap.data() + (static_cast<int32_t>(z) * m_mapWidth + static_cast<int32_t>(x));
-
-            float h0 = *h;
-            float h1 = *(h + 1);
-            float h2 = *(h + m_mapWidth);
-            float h3 = *(h + m_mapWidth + 1);
-
-            float h5 = ((1 - (x - cX)) * h0 + (x - cX) * h1);
-            float h6 = ((1 - (x - cX)) * h2 + (x - cX) * h3);
-
-            return (1 - (z - cZ)) * h5 + (z - cZ) * h6;
-        }
-
-        return 0.f;
-    };
-
     ShaderProgram::bind(m_program.get());
 
     Texture2D::enable(0);
@@ -169,4 +146,28 @@ void Heightmap::draw() noexcept
     m_vao->bind(nullptr);
 
     ShaderProgram::bind(nullptr);
+}
+
+
+float Heightmap::getHeightInPoint(float x, float z) const noexcept
+{
+    if((x >= 0) && (x < m_mapWidth) && (z >= 0) && (z < m_mapDepth))
+    {
+        int32_t cX = static_cast<int32_t>(x);
+        int32_t cZ = static_cast<int32_t>(z);
+
+        const float* h = m_heightmap.data() + (static_cast<int32_t>(z) * m_mapWidth + static_cast<int32_t>(x));
+
+        float h0 = *h;
+        float h1 = *(h + 1);
+        float h2 = *(h + m_mapWidth);
+        float h3 = *(h + m_mapWidth + 1);
+
+        float h5 = ((1 - (x - cX)) * h0 + (x - cX) * h1);
+        float h6 = ((1 - (x - cX)) * h2 + (x - cX) * h3);
+
+        return (1 - (z - cZ)) * h5 + (z - cZ) * h6;
+    }
+
+    return 0.f;
 }
