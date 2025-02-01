@@ -1,5 +1,7 @@
 #include <memory>
 
+#include <glad/glad.h>
+
 #include "window/RenderWindow.hpp"
 #include "camera/perspective/Perspective.hpp"
 #include "Heightmap.hpp"
@@ -11,7 +13,7 @@ int main()
     RenderWindow rw("World3D", 1200, 800);
     rw.hideCursor();
 
-    Context->enable(GlContext::Option::DepthTest);
+    glEnable(GL_DEPTH_TEST);
     std::array<uint32_t, 1> buffer = Context->create<GlBuffer, 1>();
 
     auto wndSize = rw.getSize();

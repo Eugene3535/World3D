@@ -7,6 +7,7 @@ target_compile_features(${APP_TARGET} PUBLIC cxx_std_20)
 target_link_libraries(${APP_TARGET} PRIVATE
 	render_engine
 	heightmap
+	glad
 )
 
 add_custom_command(TARGET ${APP_TARGET} POST_BUILD

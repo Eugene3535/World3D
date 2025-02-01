@@ -5,6 +5,8 @@ project(World3D LANGUAGES C CXX)
 set(EXTERNAL_DIR $ENV{External})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+set(BUILD_SHARED_LIBS ON)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -26,7 +28,6 @@ endif()
 add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
 
 if(MINGW)
-    add_definitions(-Wno-error)
 	add_compile_options(-Wno-error=dangling-reference)
 endif()
 
