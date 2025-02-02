@@ -30,7 +30,7 @@ add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glfw glfw)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glad/core glad)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/render_engine)
+add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
 add_subdirectory(${PROJECT_SOURCE_DIR}/scenes)
 add_subdirectory(${PROJECT_SOURCE_DIR}/app)
 

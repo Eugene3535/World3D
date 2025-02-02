@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "Image.hpp"
+#include "files/Image.hpp"
 #include "opengl/resources/shared/Texture2D.hpp"
 #include "opengl/resources/unique/ShaderProgram.hpp"
 #include "opengl/resources/shared/VertexArrayObject.hpp"

@@ -5,7 +5,7 @@ add_executable(${APP_TARGET} main.cpp)
 target_compile_features(${APP_TARGET} PUBLIC cxx_std_20)
 
 target_link_libraries(${APP_TARGET} PRIVATE
-	render_engine
+	opengl_utils
 	heightmap
 	glad
 )
