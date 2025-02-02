@@ -57,19 +57,17 @@ target_compile_definitions(${RENDER_ENGINE_TARGET} PRIVATE RENDER_ENGINE_API_EXP
 
 target_compile_features(${RENDER_ENGINE_TARGET} PRIVATE cxx_std_20)
 
-target_link_libraries(${RENDER_ENGINE_TARGET}
-PRIVATE
+target_link_libraries(${RENDER_ENGINE_TARGET} PRIVATE
 	glad 
 	glfw
-PUBLIC
-	glm
 )
 
 target_include_directories(${RENDER_ENGINE_TARGET} 
 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${EXTERNAL_SOURCE_DIR}/glm
 PRIVATE
-	${EXTERNAL_DIR}/stb
+	${EXTERNAL_SOURCE_DIR}/stb
 )
 
 if(MSVC)
