@@ -6,8 +6,8 @@ set(_opengl_utils_src_files
 	src/camera/perspective/Perspective.cpp
 	src/camera/orthogonal/Orthogonal.cpp
 	src/opengl/context/GlContext.cpp
-	src/opengl/resources/unique/Shader.cpp
-	src/opengl/resources/unique/ShaderProgram.cpp
+	src/opengl/resources/shaders/Shader.cpp
+	src/opengl/resources/shaders/ShaderProgram.cpp
 	src/opengl/resources/GlResource.cpp
 	src/opengl/resources/buffers/GlBuffer.cpp
 	src/opengl/resources/buffers/VertexBuffer.cpp
@@ -30,8 +30,8 @@ set(_opengl_utils_hdr_files
 	src/camera/orthogonal/Orthogonal.hpp
 	src/opengl/context/GlContext.hpp
 	src/opengl/context/GlContext.inl
-	src/opengl/resources/unique/Shader.hpp
-	src/opengl/resources/unique/ShaderProgram.hpp
+	src/opengl/resources/shaders/Shader.hpp
+	src/opengl/resources/shaders/ShaderProgram.hpp
 	src/opengl/resources/GlResource.hpp
 	src/opengl/resources/buffers/GlBuffer.hpp
 	src/opengl/resources/buffers/VertexBuffer.hpp

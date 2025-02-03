@@ -3,7 +3,7 @@
 
 #include <span>
 
-#include "opengl/resources/unique/Shader.hpp"
+#include "opengl/resources/shaders/Shader.hpp"
 
 class OGL_API ShaderProgram final:
     public GlResource
