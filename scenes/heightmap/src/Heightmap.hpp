@@ -9,7 +9,7 @@
 #include "opengl/resources/shared/VertexArrayObject.hpp"
 #include "Scene.hpp"
 
-class __declspec(dllexport) Heightmap:
+class Heightmap:
     public Scene
 {
 public:

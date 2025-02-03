@@ -1,7 +1,7 @@
 #ifndef ORTHOGONAL_HPP
 #define ORTHOGONAL_HPP
 
-#include "utils/Transform2D.hpp"
+#include "graphics/Transform2D.hpp"
 #include "opengl/resources/buffers/UniformBuffer.hpp"
 
 class OGL_API Orthogonal final:

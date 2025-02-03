@@ -3,14 +3,12 @@
 #include <cstdio>
 #endif
 
-#include <glad/glad.h>
-
 #include "opengl/resources/shaders/Shader.hpp"
 
 
 Shader::Shader() noexcept:
-    GlResource(0),
-    m_type(Shader::Type::Vertex)
+    m_handle(0),
+    m_type(GL_VERTEX_SHADER)
 {
     
 }
@@ -22,32 +20,17 @@ Shader::~Shader() noexcept
 }
 
 
-void Shader::loadFromFile(const std::filesystem::path& filepath, Shader::Type shaderType) noexcept
+std::optional<GLuint> Shader::loadFromFile(const std::filesystem::path& filepath, GLenum shaderType) noexcept
 {
     glDeleteShader(m_handle);
     m_handle = 0;
 
-    bool type_is_valid = (shaderType == Shader::Compute)        ||
-                         (shaderType == Shader::Vertex)         ||
-                         (shaderType == Shader::TessControl)    ||
-                         (shaderType == Shader::TessEvaluation) ||
-                         (shaderType == Shader::Geometry)       ||
-                         (shaderType == Shader::Fragment);
-
-    auto ShaderTypeToGlType = [](Shader::Type type)
-    {
-        switch (type)
-        {
-            case Shader::Compute:        return GL_COMPUTE_SHADER;
-            case Shader::Vertex:         return GL_VERTEX_SHADER;
-            case Shader::TessControl:    return GL_TESS_CONTROL_SHADER;
-            case Shader::TessEvaluation: return GL_TESS_EVALUATION_SHADER;
-            case Shader::Geometry:       return GL_GEOMETRY_SHADER;
-            case Shader::Fragment:       return GL_FRAGMENT_SHADER;
-
-            default: return GL_VERTEX_SHADER;
-        }
-    };
+    bool type_is_valid = (shaderType == GL_COMPUTE_SHADER)         ||
+                         (shaderType == GL_VERTEX_SHADER)          ||
+                         (shaderType == GL_TESS_CONTROL_SHADER)    ||
+                         (shaderType == GL_TESS_EVALUATION_SHADER) ||
+                         (shaderType == GL_GEOMETRY_SHADER)        ||
+                         (shaderType == GL_FRAGMENT_SHADER);
 
     if(type_is_valid)
     {
@@ -66,7 +49,7 @@ void Shader::loadFromFile(const std::filesystem::path& filepath, Shader::Type sh
 
         if(!source.empty())
         {
-            uint32_t shader = glCreateShader(ShaderTypeToGlType(shaderType));
+            uint32_t shader = glCreateShader(shaderType);
             const char* c_str = source.c_str();
 
             glShaderSource(shader, 1, &c_str, 0);
@@ -87,10 +70,21 @@ void Shader::loadFromFile(const std::filesystem::path& filepath, Shader::Type sh
             }
         }
     }
+
+    return getHandle();
 }
 
 
-Shader::Type Shader::getType() const noexcept
+std::optional<GLuint> Shader::getHandle() const noexcept
+{
+    if(m_handle)
+        return m_handle;
+
+    return std::nullopt;
+}
+
+
+GLenum Shader::getType() const noexcept
 {
     return m_type;
 }

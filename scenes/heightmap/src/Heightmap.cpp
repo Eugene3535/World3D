@@ -1,5 +1,7 @@
 #include <array>
 
+#include <glad/glad.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -100,18 +102,18 @@ Heightmap::Heightmap() noexcept:
     m_vao->setIndexBuffer(*m_ebo);
 
     std::array<Shader, 2> shaders;
-    shaders[0].loadFromFile("res/shaders/heightmap.vert", Shader::Vertex);
-    shaders[1].loadFromFile("res/shaders/heightmap.frag", Shader::Fragment);
+    shaders[0].loadFromFile("res/shaders/heightmap.vert", GL_VERTEX_SHADER);
+    shaders[1].loadFromFile("res/shaders/heightmap.frag", GL_FRAGMENT_SHADER);
 
     m_program = std::make_unique<ShaderProgram>();
     m_program->link(shaders);
 
-    ShaderProgram::bind(m_program.get());
-    ShaderProgram::setUniform1i(m_program->getUniformLocation("cracked_earth"), 0);
-    ShaderProgram::setUniform1i(m_program->getUniformLocation("rock"), 1);
-    ShaderProgram::setUniform1i(m_program->getUniformLocation("grass"), 2);
-    ShaderProgram::setUniform1i(m_program->getUniformLocation("clover"), 3);
-    ShaderProgram::bind(nullptr);
+    glUseProgram(m_program->getHandle().value());
+    glUniform1i(m_program->getUniformLocation("cracked_earth").value(), 0);
+    glUniform1i(m_program->getUniformLocation("rock").value(), 1);
+    glUniform1i(m_program->getUniformLocation("grass").value(), 2);
+    glUniform1i(m_program->getUniformLocation("clover").value(), 3);
+    glUseProgram(0);
 }
 
 
@@ -123,7 +125,7 @@ Heightmap::~Heightmap() noexcept
 
 void Heightmap::draw() noexcept
 {
-    ShaderProgram::bind(m_program.get());
+    glUseProgram(m_program->getHandle().value());
 
     Texture2D::enable(0);
     Texture2D::bind(m_texCrackedEarth.get());
@@ -147,7 +149,7 @@ void Heightmap::draw() noexcept
 
     m_vao->bind(nullptr);
 
-    ShaderProgram::bind(nullptr);
+    glUseProgram(0);
 }
 
 

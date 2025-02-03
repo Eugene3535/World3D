@@ -2,23 +2,15 @@
 #define SHADER_HPP
 
 #include <filesystem>
+#include <optional>
 
-#include "opengl/resources/GlResource.hpp"
+#include <glad/glad.h>
 
-class OGL_API Shader final:
-    public GlResource
+#include "Export.hpp"
+
+class OGL_API Shader final
 {
 public:
-    enum Type
-    {
-        Compute,
-        Vertex,
-        TessControl,
-        TessEvaluation,
-        Geometry,
-        Fragment
-    };
-
     Shader() noexcept;
     Shader(const Shader&) noexcept = delete;
     Shader(Shader&&) noexcept = delete;
@@ -26,12 +18,13 @@ public:
     Shader& operator = (Shader&&) noexcept = delete;
     ~Shader() noexcept;
 
-    void loadFromFile(const std::filesystem::path& filepath, Type shaderType) noexcept;
-
-    Type getType() const noexcept;
+    std::optional<GLuint> loadFromFile(const std::filesystem::path& filepath, GLenum shaderType) noexcept;
+    std::optional<GLuint> getHandle() const noexcept;
+    GLenum                getType()   const noexcept;
 
 private:
-    Type m_type;
+    GLuint m_handle;
+    GLenum m_type;
 };
 
 #endif // !SHADER_HPP

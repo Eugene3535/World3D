@@ -21,7 +21,6 @@ RenderWindow::RenderWindow(const char* title, int32_t width, int32_t height) noe
 
     if(isOpen())
     {
-        ShaderProgram::initGlUniformFunctions();
 #ifdef DEBUG
         OpenGLDebugger messager;
 #endif
