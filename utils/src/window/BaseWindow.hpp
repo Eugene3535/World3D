@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 
-#include "opengl/context/GlContext.hpp"
+#include "opengl/holder/GlResourceHolder.hpp"
 #include "window/Input.hpp"
 
 class OGL_API BaseWindow
@@ -34,10 +34,12 @@ public:
     glm::i32vec2 getPosition() const noexcept;
     glm::i32vec2 getSize() const noexcept;
 
+    GlResourceHolder* getResourceHolder() noexcept;
+
 protected:
     void* m_handle;
 
-    GlContext m_context;
+    GlResourceHolder m_resourceHolder;
 };
 
 #endif // !BASE_WINDOW_HPP

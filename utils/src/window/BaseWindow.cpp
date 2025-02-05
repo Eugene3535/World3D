@@ -19,7 +19,7 @@ BaseWindow::BaseWindow(const char* title, int32_t width, int32_t height) noexcep
     {
         glfwMakeContextCurrent(window);
 
-        if (Context->isLoaded())
+        if (m_resourceHolder.isLoaded())
         {
             m_handle = static_cast<void*>(window);
 
@@ -225,4 +225,10 @@ glm::i32vec2 BaseWindow::getSize() const noexcept
     glfwGetWindowSize(static_cast<GLFWwindow*>(m_handle), &width, &height);
 
     return { static_cast<int32_t>(width), static_cast<int32_t>(height) };
+}
+
+
+GlResourceHolder* BaseWindow::getResourceHolder() noexcept
+{
+    return &m_resourceHolder;
 }

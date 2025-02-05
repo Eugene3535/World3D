@@ -14,7 +14,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    std::array<uint32_t, 1> buffer = Context->create<GlBuffer, 1>();
+    std::array<uint32_t, 1> buffer = rw.getResourceHolder()->create<GlBuffer, 1>();
 
     auto wndSize = rw.getSize();
 
@@ -26,7 +26,7 @@ int main()
     camera->setupProjectionMatrix(45, static_cast<float>(wndSize.x) / static_cast<float>(wndSize.y), 0.1f, 1000.0f);
     camera->setPosition(30, 3, 30);
     
-    auto scene = std::make_unique<Heightmap>();
+    auto scene = std::make_unique<Heightmap>(rw.getResourceHolder());
     auto heightmap = scene.get();
     rw.addScene(std::move(scene));
 

@@ -1,5 +1,5 @@
-#ifndef GLCONTEXT_HPP
-#define GLCONTEXT_HPP
+#ifndef GL_RESOURCE_HOLDER_HPP
+#define GL_RESOURCE_HOLDER_HPP
 
 #include <glad/glad.h>
 
@@ -7,44 +7,13 @@
 #include "opengl/resources/graphics/VertexArrayObject.hpp"
 #include "opengl/resources/graphics/Texture2D.hpp"
 
-class OGL_API GlContext final
+class OGL_API GlResourceHolder final
 {
 public:
-	enum class Option
-	{
-		Blend,
-		ClipDistancei,
-		ColorLogicOp,
-		CullFace,
-		DepthClamp,
-		DepthTest,
-		Dither,
-		FramebufferSrgb,
-		LineSmooth,
-		Multisample,
-		PolygonOffsetFill,
-		PolygonOffsetLine,
-		PolygonOffsetPoint,
-		PolygonSmooth,
-		PrimitiveRestart,
-		SampleAlphaToCoverage,
-		SampleAlphaToOne,
-		SampleCoverage,
-		ScissorTest,
-		StencilTest,
-		TextureCubeMapSeamless,
-		ProgramPointSize
-	};
-
-    GlContext() noexcept;
-    ~GlContext() noexcept;
-
-    static GlContext* getContext() noexcept;
+    GlResourceHolder() noexcept;
+    ~GlResourceHolder() noexcept;
 
     bool isLoaded() noexcept;
-
-    void enable(Option option) noexcept;
-    void disable(Option option) noexcept;
 
 	template<class T, size_t N>
     std::array<uint32_t, N> create() noexcept;
@@ -59,8 +28,6 @@ private:
     template<size_t N>
     void destroyResources(const std::array<uint32_t, N>& objects, std::vector<uint32_t>& handles, void(*)(int32_t, const uint32_t*)) noexcept;
 
-    static GlContext* m_instance;
-
     std::vector<uint32_t> m_buffers;
     std::vector<uint32_t> m_arrays;
     std::vector<uint32_t> m_textures;
@@ -68,8 +35,6 @@ private:
     bool m_isLoaded;
 };
 
-#include "opengl/context/GlContext.inl"
+#include "opengl/holder/GlResourceHolder.inl"
 
-#define Context GlContext::getContext()
-
-#endif
+#endif //  !GL_RESOURCE_HOLDER_HPP

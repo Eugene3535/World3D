@@ -13,7 +13,7 @@ class Heightmap:
     public Scene
 {
 public:
-    Heightmap() noexcept;
+    Heightmap(class GlResourceHolder* resourceHolder) noexcept;
     ~Heightmap() noexcept;
 
     void draw() noexcept override;

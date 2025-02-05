@@ -6,12 +6,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "opengl/context/GlContext.hpp"
+#include "opengl/holder/GlResourceHolder.hpp"
 #include "window/RenderWindow.hpp"
 #include "Heightmap.hpp"
 
 
-Heightmap::Heightmap() noexcept:
+Heightmap::Heightmap(class GlResourceHolder* resourceHolder) noexcept:
     Scene(),
     m_mapWidth(0),
     m_mapDepth(0)
@@ -22,7 +22,7 @@ Heightmap::Heightmap() noexcept:
     Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
     Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
 
-    std::array<uint32_t, 4> textures = Context->create<Texture2D, 4>();
+    std::array<uint32_t, 4> textures = resourceHolder->create<Texture2D, 4>();
 
     m_texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
     m_texRock         = std::make_unique<Texture2D>(textures[1]);
@@ -78,8 +78,8 @@ Heightmap::Heightmap() noexcept:
         }
     }
 
-    std::array<uint32_t, 2> buffers = Context->create<GlBuffer, 2>();
-    std::array<uint32_t, 1> vertexArrays = Context->create<VertexArrayObject, 1>();
+    std::array<uint32_t, 2> buffers = resourceHolder->create<GlBuffer, 2>();
+    std::array<uint32_t, 1> vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
 
     std::array<AttributeInfo, 2> attributes
     {
