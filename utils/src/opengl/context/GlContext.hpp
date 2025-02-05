@@ -1,9 +1,11 @@
 #ifndef GLCONTEXT_HPP
 #define GLCONTEXT_HPP
 
+#include <glad/glad.h>
+
 #include "opengl/resources/buffers/GlBuffer.hpp"
-#include "opengl/resources/shared/VertexArrayObject.hpp"
-#include "opengl/resources/shared/Texture2D.hpp"
+#include "opengl/resources/graphics/VertexArrayObject.hpp"
+#include "opengl/resources/graphics/Texture2D.hpp"
 
 class OGL_API GlContext final
 {
@@ -62,15 +64,6 @@ private:
     std::vector<uint32_t> m_buffers;
     std::vector<uint32_t> m_arrays;
     std::vector<uint32_t> m_textures;
-
-    void(*genBuffers)(int32_t, uint32_t*);
-    void(*delBuffers)(int32_t, const uint32_t*);
-
-    void(*genVertexArrays)(int32_t, uint32_t*);
-    void(*delVertexArrays)(int32_t, const uint32_t*);
-
-    void(*genTextures)(int32_t, uint32_t*);
-    void(*delTextures)(int32_t, const uint32_t*);
 
     bool m_isLoaded;
 };

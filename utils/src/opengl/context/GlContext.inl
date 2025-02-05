@@ -5,15 +5,15 @@ std::array<uint32_t, N> GlContext::create() noexcept
 {
     if constexpr(std::is_same_v<T, GlBuffer>)
     {
-        return createResources<N>(m_buffers, genBuffers);
+        return createResources<N>(m_buffers, glGenBuffers);
     }
     else if constexpr(std::is_same_v<T, VertexArrayObject>)
     {
-        return createResources<N>(m_arrays, genVertexArrays);
+        return createResources<N>(m_arrays, glGenVertexArrays);
     }
     else if constexpr(std::is_same_v<T, Texture2D>)
     {
-        return createResources<N>(m_textures, genTextures);
+        return createResources<N>(m_textures, glGenTextures);
     }
     else
     {
@@ -27,15 +27,15 @@ void GlContext::destroy(const std::array<uint32_t, N>& objects) noexcept
 {
     if constexpr(std::is_same_v<T, GlBuffer>)
     {
-        destroyResources<N>(objects, m_buffers, delBuffers);
+        destroyResources<N>(objects, m_buffers, glDeleteBuffers);
     }
     else if constexpr(std::is_same_v<T, VertexArrayObject>)
     {
-        destroyResources<N>(objects, m_arrays, delVertexArrays);
+        destroyResources<N>(objects, m_arrays, glDeleteVertexArrays);
     }
     else if constexpr(std::is_same_v<T, Texture2D>)
     {
-        destroyResources<N>(objects, m_textures, delTextures);
+        destroyResources<N>(objects, m_textures, glDeleteTextures);
     }
     else
     {

@@ -1,7 +1,5 @@
 #include <cassert>
 
-#include <glad/glad.h>
-
 #include "opengl/context/GlContext.hpp"
 
 
@@ -63,23 +61,7 @@ GlContext* GlContext::getContext() noexcept
 bool GlContext::isLoaded() noexcept
 {
     if(!m_isLoaded)
-    {
         m_isLoaded = (gladLoadGL() != 0);
-
-        if(m_isLoaded)
-        {
-            genBuffers = glGenBuffers;
-            delBuffers = glDeleteBuffers;
-
-            genVertexArrays = glGenVertexArrays;
-            delVertexArrays = glDeleteVertexArrays;
-
-            genTextures = glGenTextures;
-            delTextures = glDeleteTextures;
-
-            m_isLoaded = (genBuffers && delBuffers && genVertexArrays && delVertexArrays && genTextures && delTextures);
-        }
-    }
 
     return m_isLoaded;
 }

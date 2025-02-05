@@ -1,4 +1,4 @@
-#include "opengl/resources/shared/VertexArrayObject.hpp"
+#include "opengl/resources/graphics/VertexArrayObject.hpp"
 
 #include <glad/glad.h>
 
