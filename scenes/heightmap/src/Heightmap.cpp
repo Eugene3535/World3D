@@ -29,10 +29,10 @@ Heightmap::Heightmap() noexcept:
     m_texGrass        = std::make_unique<Texture2D>(textures[2]);
     m_texClover       = std::make_unique<Texture2D>(textures[3]);
 
-    m_texCrackedEarth->loadFromImage(imgCrackedEarth, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    m_texRock->loadFromImage(imgRock, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    m_texGrass->loadFromImage(imgGrass, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
-    m_texClover->loadFromImage(imgClover, Texture2D::WrapMode::Repeat, Texture2D::FilterMode::Linear);
+    m_texCrackedEarth->loadFromImage(imgCrackedEarth, true, true);
+    m_texRock->loadFromImage(imgRock, true, true);
+    m_texGrass->loadFromImage(imgGrass, true, true);
+    m_texClover->loadFromImage(imgClover, true, true);
 
     const uint8_t* pixels = imageMap.getPixels();
     m_mapDepth = imageMap.getHeight();
@@ -127,17 +127,17 @@ void Heightmap::draw() noexcept
 {
     glUseProgram(m_program->getHandle().value());
 
-    Texture2D::enable(0);
-    Texture2D::bind(m_texCrackedEarth.get());
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_texCrackedEarth->getHandle());
 
-    Texture2D::enable(1);
-    Texture2D::bind(m_texRock.get());
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_texRock->getHandle());
 
-    Texture2D::enable(2);
-    Texture2D::bind(m_texGrass.get());
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, m_texGrass->getHandle());
 
-    Texture2D::enable(3);
-    Texture2D::bind(m_texClover.get());
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, m_texClover->getHandle());
 
     const uint32_t numStrips = m_mapWidth - 1;
     const uint32_t numTrisPerStrip = m_mapWidth * 2 - 2;
