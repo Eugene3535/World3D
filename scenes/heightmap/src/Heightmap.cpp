@@ -81,25 +81,24 @@ Heightmap::Heightmap(class GlResourceHolder* resourceHolder) noexcept:
     std::array<uint32_t, 2> buffers = resourceHolder->create<GlBuffer, 2>();
     std::array<uint32_t, 1> vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
 
-    std::array<AttributeInfo, 2> attributes
+    std::array<VertexBufferLayout::Attribute, 2> attributes
     {
-        AttributeInfo::Float3,
-        AttributeInfo::Float2
+        VertexBufferLayout::Attribute::Float3,
+        VertexBufferLayout::Attribute::Float2
     };
     VertexBufferLayout layout(attributes);
 
-    m_vbo = std::make_unique<VertexBuffer>(buffers[0], layout);
-    m_ebo = std::make_unique<IndexBuffer>(buffers[1]);
+    GlBuffer vbo(buffers[0], GL_ARRAY_BUFFER);
+    GlBuffer ebo(buffers[1], GL_ELEMENT_ARRAY_BUFFER);
 
 //  Just to give you an example, you can pass a pointer to the data right away, or you can fill the buffer later on
-    m_vbo->create(sizeof(float), vertices.size(), nullptr, GlBuffer::Usage::Static);
-    m_vbo->update(0, sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()));
-    m_ebo->create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GlBuffer::Usage::Static);
+    vbo.create(sizeof(float), vertices.size(), nullptr, GL_STATIC_DRAW);
+    vbo.update(0, sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()));
+    ebo.create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
 
     m_vao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
-
-    m_vao->addVertexBuffer(*m_vbo);
-    m_vao->setIndexBuffer(*m_ebo);
+    m_vao->addVertexBuffer(vbo, layout);
+    m_vao->setElementBuffer(ebo);
 
     std::array<Shader, 2> shaders;
     shaders[0].loadFromFile("res/shaders/heightmap.vert", GL_VERTEX_SHADER);
@@ -142,13 +141,12 @@ void Heightmap::draw() noexcept
     const uint32_t numStrips = m_mapWidth - 1;
     const uint32_t numTrisPerStrip = m_mapWidth * 2 - 2;
 
-    m_vao->bind(m_vao.get());
+    glBindVertexArray(m_vao->getHandle());
 
     for (uint32_t strip = 0; strip < numStrips; ++strip)
-        m_vao->drawElements(PrimitiveType::TriangleStrip, numTrisPerStrip + 2, reinterpret_cast<const void*>(sizeof(uint32_t) * (numTrisPerStrip + 2) * strip));
+        glDrawElements(GL_TRIANGLE_STRIP, numTrisPerStrip + 2, GL_UNSIGNED_INT, reinterpret_cast<const void*>(sizeof(GLuint) * (numTrisPerStrip + 2) * strip));
 
-    m_vao->bind(nullptr);
-
+    glBindVertexArray(0);
     glUseProgram(0);
 }
 

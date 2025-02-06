@@ -8,11 +8,8 @@ set(_opengl_utils_src_files
 	src/opengl/holder/GlResourceHolder.cpp
 	src/opengl/resources/shaders/Shader.cpp
 	src/opengl/resources/shaders/ShaderProgram.cpp
-	src/opengl/resources/GlResource.cpp
 	src/opengl/resources/buffers/GlBuffer.cpp
-	src/opengl/resources/buffers/VertexBuffer.cpp
-	src/opengl/resources/buffers/IndexBuffer.cpp
-	src/opengl/resources/buffers/UniformBuffer.cpp
+	src/opengl/resources/buffers/VertexBufferLayout.cpp
 	src/opengl/resources/graphics/VertexArrayObject.cpp
 	src/opengl/resources/graphics/Texture2D.cpp
 	src/opengl/debug/OpenGLDebugger.cpp
@@ -32,11 +29,8 @@ set(_opengl_utils_hdr_files
 	src/opengl/holder/GlResourceHolder.inl
 	src/opengl/resources/shaders/Shader.hpp
 	src/opengl/resources/shaders/ShaderProgram.hpp
-	src/opengl/resources/GlResource.hpp
 	src/opengl/resources/buffers/GlBuffer.hpp
-	src/opengl/resources/buffers/VertexBuffer.hpp
-	src/opengl/resources/buffers/IndexBuffer.hpp
-	src/opengl/resources/buffers/UniformBuffer.hpp
+	src/opengl/resources/buffers/VertexBufferLayout.hpp
 	src/opengl/resources/graphics/VertexArrayObject.hpp
 	src/opengl/resources/graphics/Texture2D.hpp
 	src/opengl/debug/OpenGLDebugger.hpp

@@ -1,44 +1,25 @@
-#pragma once
+#ifndef VERTEX_ARRAY_OBJECT_HPP
+#define VERTEX_ARRAY_OBJECT_HPP
 
-#include "opengl/resources/GlResource.hpp"
-#include "opengl/resources/buffers/VertexBuffer.hpp"
-#include "opengl/resources/buffers/IndexBuffer.hpp"
-
-
-enum class PrimitiveType
-{
-    Points, 
-    LineStrip,
-    LineLoop, 
-    Lines, 
-    LineStripAdjacency, 
-    LinesAdjacency, 
-    TriangleStrip, 
-    TriangleFan, 
-    Triangles, 
-    TriangleStripAdjacency, 
-    TrianglesAdjacency, 
-    Patches
-};
+#include "opengl/resources/buffers/GlBuffer.hpp"
+#include "opengl/resources/buffers/VertexBufferLayout.hpp"
 
 
-class OGL_API VertexArrayObject final:
-    public GlResource
+class OGL_API VertexArrayObject final
 {
 public:
-    VertexArrayObject(uint32_t handle) noexcept;
-    ~VertexArrayObject() noexcept;
+    explicit VertexArrayObject(GLuint handle) noexcept;
 
-    void addVertexBuffer(const VertexBuffer& vertexBuffer) noexcept;
-    void setIndexBuffer(IndexBuffer& indexBuffer) noexcept;
+    void addVertexBuffer(const GlBuffer& buffer, const VertexBufferLayout& layout) noexcept;
+    void setElementBuffer(const GlBuffer& buffer) noexcept;
 
-    static void bind(VertexArrayObject* vao) noexcept;
-    uint32_t getIndexCount() const noexcept;
-
-    void drawArrays(PrimitiveType mode, int32_t first, int32_t count) noexcept;
-    void drawElements(PrimitiveType mode, int32_t count, const void* indices = nullptr) noexcept;
+    GLuint getHandle()     const noexcept;
+    GLuint getIndexCount() const noexcept;
 
 private:
-    uint32_t m_attributeCount;
-    uint32_t m_indexCount;
+    const GLuint m_handle;
+    GLuint m_attributeCount;
+    GLuint m_indexCount;
 };
+
+#endif // !VERTEX_ARRAY_OBJECT_HPP

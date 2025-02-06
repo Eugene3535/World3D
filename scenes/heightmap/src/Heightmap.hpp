@@ -32,8 +32,6 @@ private:
     uint32_t m_mapDepth;
     uint32_t m_mapWidth;
 
-    std::unique_ptr<VertexBuffer> m_vbo;
-    std::unique_ptr<IndexBuffer> m_ebo;
     std::unique_ptr<VertexArrayObject> m_vao;
 };
 

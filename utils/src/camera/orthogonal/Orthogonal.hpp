@@ -2,26 +2,20 @@
 #define ORTHOGONAL_HPP
 
 #include "graphics/Transform2D.hpp"
-#include "opengl/resources/buffers/UniformBuffer.hpp"
 
 class OGL_API Orthogonal final:
     public Transform2D
 {
 public:
-	Orthogonal(UniformBuffer buffer) noexcept;
+	Orthogonal() noexcept;
 	~Orthogonal() noexcept;
 
-    void setupProjectionMatrix(int32_t width, int32_t height) noexcept;
-    void apply() noexcept;
-
+    void      setupProjectionMatrix(int32_t width, int32_t height) noexcept;
     glm::mat4 getModelViewProjectionMatrix() const noexcept;
 
 private:
     glm::mat4 m_projection;
-
-    UniformBuffer m_uniformBuffer;
-
-    bool m_modelViewNeedUpdate;
+    bool      m_modelViewNeedUpdate;
 };
 
 #endif // !ORTHOGONAL_HPP

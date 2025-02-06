@@ -2,57 +2,51 @@
 #define GL_BUFFER_HPP
 
 #include <cstdint>
+#include <concepts>
+
+#include <glad/glad.h>
 
 #include "Export.hpp"
 
-class OGL_API GlBuffer
+// Class - buffer interface. 
+// Targets:
+
+// GL_ARRAY_BUFFER
+// GL_ATOMIC_COUNTER_BUFFER
+// GL_COPY_READ_BUFFER
+// GL_COPY_WRITE_BUFFER
+// GL_DISPATCH_INDIRECT_BUFFER
+// GL_DRAW_INDIRECT_BUFFER
+// GL_ELEMENT_ARRAY_BUFFER
+// GL_PIXEL_PACK_BUFFER
+// GL_PIXEL_UNPACK_BUFFER
+// GL_QUERY_BUFFER
+// GL_TEXTURE_BUFFER
+// GL_SHADER_STORAGE_BUFFER
+// GL_TRANSFORM_FEEDBACK_BUFFER
+// GL_UNIFORM_BUFFER
+
+// Usages: GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW
+
+class OGL_API GlBuffer final
 {
 public:
-    enum class Target: uint32_t
-    {
-        Array,
-        AtomicCounter,
-        CopyRead,
-        CopyWrite,
-        DispatchIndirect,
-        DrawIndirect,
-        ElementArray,
-        PixelPack,
-        PixelUnpack,
-        Query,
-        ShaderStorage,
-        Texture,
-        TransformFeedback,
-        Uniform
-    };
+    GlBuffer(GLuint handle, GLenum target) noexcept;
 
-    enum class Usage: uint32_t
-    {
-        Static,
-        Dynamic,
-        Stream
-    };
-
-    explicit GlBuffer(uint32_t handle, Target target) noexcept;
-    virtual ~GlBuffer() noexcept;
-
-    void create(size_t elementSize, size_t elementCount, const void* data, GlBuffer::Usage usage) noexcept;
+    void create(size_t elementSize, size_t elementCount, const void* data, GLenum usage) noexcept;
     void update(size_t offset, size_t elementSize, size_t elementCount, const void* data) noexcept;
-    bool write(const void* data, size_t size) noexcept;
 
-    void bindBufferRange(uint32_t index, size_t offset, size_t size) noexcept;
+    void bindBufferRange(GLuint index, size_t offset, size_t size) noexcept;
 
-    uint32_t getHandle() const noexcept;
-    Target   getType()   const noexcept;
-    uint32_t getCount()  const noexcept;
+    GLuint getHandle() const noexcept;
+    GLenum getTarget() const noexcept;
+    GLuint getCount()  const noexcept;
 
-    void bind(bool enable) noexcept;
-
-protected:
-    const uint32_t m_handle;
-    const Target   m_type;
-    Usage          m_usage;
-    uint32_t       m_count;
+private:
+    const GLuint m_handle;
+    const GLenum m_target;
+    GLenum       m_usage;
+    GLuint       m_count;
 };
 
-#endif // !CUSTOM_BUFFER_HPP
+#endif // !GL_BUFFER_HPP

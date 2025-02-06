@@ -3,6 +3,8 @@
 
 #include <glad/glad.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "window/RenderWindow.hpp"
 #include "camera/perspective/Perspective.hpp"
 #include "Heightmap.hpp"
@@ -18,11 +20,11 @@ int main()
 
     auto wndSize = rw.getSize();
 
-    UniformBuffer uniformBuffer(buffer[0]);
-    uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GlBuffer::Usage::Dynamic);
+    GlBuffer uniformBuffer(buffer[0], GL_UNIFORM_BUFFER);
+    uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_STATIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    std::unique_ptr<Perspective> camera = std::make_unique<Perspective>(uniformBuffer);
+    std::unique_ptr<Perspective> camera = std::make_unique<Perspective>();
     camera->setupProjectionMatrix(45, static_cast<float>(wndSize.x) / static_cast<float>(wndSize.y), 0.1f, 1000.0f);
     camera->setPosition(30, 3, 30);
     
@@ -60,6 +62,7 @@ int main()
 
         rw.setCursorPosition(pos.x, pos.y);
         camera->apply(0.01f);
+        uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         rw.draw();
     }

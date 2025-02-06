@@ -6,14 +6,13 @@
 #include "camera/perspective/Perspective.hpp"
 
 
-Perspective::Perspective(UniformBuffer buffer) noexcept:
+Perspective::Perspective() noexcept:
     m_projection(glm::identity<glm::mat4>()),
     m_modelView(glm::identity<glm::mat4>()),
     m_eye(),
     m_delta(),
 	m_pitch(0.0f),
 	m_yaw(0.0f),
-    m_uniformBuffer(buffer),
     m_modelViewNeedUpdate(true)
 {
     
@@ -39,8 +38,6 @@ void Perspective::apply(float dt) noexcept
 
     if(m_modelViewNeedUpdate)
         recalculateModelViewMatrix();
-
-    m_uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(getModelViewProjectionMatrix())));
 }
 
 
