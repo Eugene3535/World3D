@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "opengl/holder/GlResourceHolder.hpp"
+#include "data/AppData.hpp"
 #include "opengl/debug/OpenGLDebugger.hpp"
 
 void heightmap_demo(GLFWwindow* window) noexcept;
@@ -22,7 +22,7 @@ int main()
     GLint width = 1200;
     GLint height = 800;
     GLFWwindow* window = nullptr;
-    GlResourceHolder resourceHolder;
+    AppData appData;
     
     if (window = glfwCreateWindow(width, height, "World3D", nullptr, nullptr); window != nullptr)
     {
@@ -30,12 +30,18 @@ int main()
 
         if (gladLoadGL())
         {
-            glfwSetWindowUserPointer(window, static_cast<void*>(&resourceHolder));
+            glfwSetWindowUserPointer(window, static_cast<void*>(&appData));
             glfwSwapInterval(1);
 
             glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int32_t width, int32_t height)
             {
                 glViewport(0, 0, width, height);
+
+                if (auto appData = static_cast<AppData*>(glfwGetWindowUserPointer(window)); appData)
+                {
+                    appData->camera.orthogonal.setupProjectionMatrix(width, height);
+                    appData->camera.perspective.setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+                }
             });
         }
         else

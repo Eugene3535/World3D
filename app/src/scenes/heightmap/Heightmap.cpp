@@ -11,8 +11,7 @@
 
 #include "files/Image.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "opengl/holder/GlResourceHolder.hpp"
-#include "camera/perspective/Perspective.hpp"
+#include "data/AppData.hpp"
 
 
 void heightmap_demo(GLFWwindow* window) noexcept
@@ -29,15 +28,15 @@ void heightmap_demo(GLFWwindow* window) noexcept
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    GlResourceHolder* resourceHolder = static_cast<GlResourceHolder*>(glfwGetWindowUserPointer(window));
+    AppData* appData = static_cast<AppData*>(glfwGetWindowUserPointer(window));
 
-    std::array<uint32_t, 1> buffer = resourceHolder->create<GlBuffer, 1>();
+    std::array<uint32_t, 1> buffer = appData->resourceHolder.create<GlBuffer, 1>();
 
     GlBuffer uniformBuffer(buffer[0], GL_UNIFORM_BUFFER);
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = std::make_unique<Perspective>();
+    auto camera = &appData->camera.perspective;
     camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
     camera->setPosition(30, 3, 30);
 
@@ -51,7 +50,7 @@ void heightmap_demo(GLFWwindow* window) noexcept
     Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
     Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
 
-    std::array<uint32_t, 4> textures = resourceHolder->create<Texture2D, 4>();
+    std::array<uint32_t, 4> textures = appData->resourceHolder.create<Texture2D, 4>();
     
     auto texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
     auto texRock         = std::make_unique<Texture2D>(textures[1]);
@@ -107,8 +106,8 @@ void heightmap_demo(GLFWwindow* window) noexcept
         }
     }
 
-    std::array<uint32_t, 2> buffers = resourceHolder->create<GlBuffer, 2>();
-    std::array<uint32_t, 1> vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
+    std::array<uint32_t, 2> buffers = appData->resourceHolder.create<GlBuffer, 2>();
+    std::array<uint32_t, 1> vertexArrays = appData->resourceHolder.create<VertexArrayObject, 1>();
 
     std::array<VertexBufferLayout::Attribute, 2> attributes
     {

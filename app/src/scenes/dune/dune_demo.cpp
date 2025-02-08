@@ -12,8 +12,7 @@
 
 #include "files/Image.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "opengl/holder/GlResourceHolder.hpp"
-#include "camera/orthogonal/Orthogonal.hpp"
+#include "data/AppData.hpp"
 
 void dune_demo(GLFWwindow* window)
 {
@@ -31,16 +30,14 @@ void dune_demo(GLFWwindow* window)
     Image imgRock;
     Image imgStone;
 
-    std::cout << std::filesystem::current_path() << '\n';
-
     if(!imgMask.loadFromFile("res/textures/mask.png"))   return;
     if(!imgSand.loadFromFile("res/textures/sand.jpg"))   return;
     if(!imgSpace.loadFromFile("res/textures/spice.jpg")) return;
     if(!imgRock.loadFromFile("res/textures/rock01.jpg")) return;
     if(!imgStone.loadFromFile("res/textures/cracked_earth.jpg")) return;
 
-    GlResourceHolder* resourceHolder = static_cast<GlResourceHolder*>(glfwGetWindowUserPointer(window));
-    std::array<uint32_t, 5> textures = resourceHolder->create<Texture2D, 5>();
+    AppData* appData = static_cast<AppData*>(glfwGetWindowUserPointer(window));
+    std::array<uint32_t, 5> textures = appData->resourceHolder.create<Texture2D, 5>();
 
     auto texture0 = std::make_unique<Texture2D>(textures[0]);
     auto texture1 = std::make_unique<Texture2D>(textures[1]);
@@ -69,8 +66,8 @@ void dune_demo(GLFWwindow* window)
     };
     VertexBufferLayout layout(attributes);
 
-    std::array<uint32_t, 2> buffers = resourceHolder->create<GlBuffer, 2>();
-    std::array<uint32_t, 1> vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
+    std::array<uint32_t, 2> buffers = appData->resourceHolder.create<GlBuffer, 2>();
+    std::array<uint32_t, 1> vertexArrays = appData->resourceHolder.create<VertexArrayObject, 1>();
 
     GlBuffer vbo(buffers[0], GL_ARRAY_BUFFER);
     vbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
@@ -97,7 +94,7 @@ void dune_demo(GLFWwindow* window)
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = std::make_unique<Orthogonal>();
+    auto camera = &appData->camera.orthogonal;
     camera->setupProjectionMatrix(width, height);
 
     while (!glfwWindowShouldClose(window))
