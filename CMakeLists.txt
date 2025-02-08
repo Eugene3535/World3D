@@ -5,7 +5,7 @@ project(World3D LANGUAGES C CXX)
 set(EXTERNAL_SOURCE_DIR $ENV{External})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(BUILD_SHARED_LIBS ON)
+set(BUILD_SHARED_LIBS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -29,9 +29,9 @@ add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
 
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glfw glfw)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glad/core glad)
+add_subdirectory(${EXTERNAL_SOURCE_DIR}/glm glm)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
-add_subdirectory(${PROJECT_SOURCE_DIR}/scenes)
 add_subdirectory(${PROJECT_SOURCE_DIR}/app)
 
 if(MSVC)

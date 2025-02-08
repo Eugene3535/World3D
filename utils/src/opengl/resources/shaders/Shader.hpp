@@ -6,9 +6,7 @@
 
 #include <glad/glad.h>
 
-#include "Export.hpp"
-
-class OGL_API Shader final
+class Shader final
 {
 public:
     Shader() noexcept;

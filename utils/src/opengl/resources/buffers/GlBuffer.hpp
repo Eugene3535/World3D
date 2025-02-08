@@ -2,11 +2,8 @@
 #define GL_BUFFER_HPP
 
 #include <cstdint>
-#include <concepts>
 
 #include <glad/glad.h>
-
-#include "Export.hpp"
 
 // Class - buffer interface. 
 // Targets:
@@ -28,7 +25,7 @@
 
 // Usages: GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW
 
-class OGL_API GlBuffer final
+class GlBuffer final
 {
 public:
     GlBuffer(GLuint handle, GLenum target) noexcept;

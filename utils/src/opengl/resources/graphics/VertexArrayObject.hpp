@@ -5,7 +5,7 @@
 #include "opengl/resources/buffers/VertexBufferLayout.hpp"
 
 
-class OGL_API VertexArrayObject final
+class VertexArrayObject final
 {
 public:
     explicit VertexArrayObject(GLuint handle) noexcept;

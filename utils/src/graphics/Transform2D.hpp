@@ -5,10 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
-#include "Export.hpp"
-
 // Class for optimized use of orthographic matrix
-class OGL_API Transform2D
+class Transform2D
 {
 public:
     Transform2D() noexcept;

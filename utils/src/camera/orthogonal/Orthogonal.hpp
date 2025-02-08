@@ -3,7 +3,7 @@
 
 #include "graphics/Transform2D.hpp"
 
-class OGL_API Orthogonal final:
+class Orthogonal final:
     public Transform2D
 {
 public:

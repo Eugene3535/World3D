@@ -4,9 +4,7 @@
 #include <filesystem>
 #include <vector>
 
-#include "Export.hpp"
-
-class OGL_API Image
+class Image
 {
 public:
     enum class Format: int32_t

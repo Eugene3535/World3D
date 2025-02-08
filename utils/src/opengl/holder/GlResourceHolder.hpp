@@ -7,32 +7,28 @@
 #include "opengl/resources/graphics/VertexArrayObject.hpp"
 #include "opengl/resources/graphics/Texture2D.hpp"
 
-class OGL_API GlResourceHolder final
+class GlResourceHolder final
 {
 public:
     GlResourceHolder() noexcept;
     ~GlResourceHolder() noexcept;
 
-    bool isLoaded() noexcept;
-
 	template<class T, size_t N>
-    std::array<uint32_t, N> create() noexcept;
+    std::array<GLuint, N> create() noexcept;
     
     template<class T, size_t N>
-    void destroy(const std::array<uint32_t, N>& buffers) noexcept;
+    void destroy(const std::array<GLuint, N>& buffers) noexcept;
 
 private:
     template<size_t N>
-    std::array<uint32_t, N> createResources(std::vector<uint32_t>& handles, void(*)(int32_t, uint32_t*)) noexcept;
+    std::array<GLuint, N> createResources(std::vector<GLuint>& handles, void(*)(int32_t, GLuint*)) noexcept;
     
     template<size_t N>
-    void destroyResources(const std::array<uint32_t, N>& objects, std::vector<uint32_t>& handles, void(*)(int32_t, const uint32_t*)) noexcept;
+    void destroyResources(const std::array<GLuint, N>& objects, std::vector<GLuint>& handles, void(*)(int32_t, const GLuint*)) noexcept;
 
-    std::vector<uint32_t> m_buffers;
-    std::vector<uint32_t> m_arrays;
-    std::vector<uint32_t> m_textures;
-
-    bool m_isLoaded;
+    std::vector<GLuint> m_buffers;
+    std::vector<GLuint> m_arrays;
+    std::vector<GLuint> m_textures;
 };
 
 #include "opengl/holder/GlResourceHolder.inl"

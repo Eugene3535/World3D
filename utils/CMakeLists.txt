@@ -13,14 +13,10 @@ set(_opengl_utils_src_files
 	src/opengl/resources/graphics/VertexArrayObject.cpp
 	src/opengl/resources/graphics/Texture2D.cpp
 	src/opengl/debug/OpenGLDebugger.cpp
-	src/window/BaseWindow.cpp
-	src/window/RenderWindow.cpp
-	src/Scene.cpp
 )
 
 set(_opengl_utils_hdr_files
 	src/Config.hpp
-	src/Export.hpp
 	src/graphics/Transform2D.hpp
 	src/files/Image.hpp
 	src/camera/perspective/Perspective.hpp
@@ -34,10 +30,6 @@ set(_opengl_utils_hdr_files
 	src/opengl/resources/graphics/VertexArrayObject.hpp
 	src/opengl/resources/graphics/Texture2D.hpp
 	src/opengl/debug/OpenGLDebugger.hpp
-	src/window/Input.hpp
-	src/window/BaseWindow.hpp
-	src/window/RenderWindow.hpp
-	src/Scene.hpp
 )
 
 set(_all_opengl_utils_files
@@ -45,15 +37,16 @@ set(_all_opengl_utils_files
 	${_opengl_utils_hdr_files}
 )
 
-add_library(${OPENGL_UTILS_TARGET} SHARED ${_all_opengl_utils_files})
+add_library(${OPENGL_UTILS_TARGET} STATIC ${_all_opengl_utils_files})
 
 target_compile_definitions(${OPENGL_UTILS_TARGET} PRIVATE OPENGL_UTILS_API_EXPORTS)
 
 target_compile_features(${OPENGL_UTILS_TARGET} PRIVATE cxx_std_20)
 
-target_link_libraries(${OPENGL_UTILS_TARGET} PRIVATE
+target_link_libraries(${OPENGL_UTILS_TARGET} PUBLIC
 	glad 
 	glfw
+	glm
 )
 
 target_include_directories(${OPENGL_UTILS_TARGET} 

@@ -5,9 +5,7 @@
 
 #include <glad/glad.h>
 
-#include "Export.hpp"
-
-class OGL_API Texture2D final
+class Texture2D final
 {
 public:
 	Texture2D(GLuint handle) noexcept;

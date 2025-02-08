@@ -1,13 +1,16 @@
 set(APP_TARGET app)
 
-add_executable(${APP_TARGET} main.cpp)
+add_executable(${APP_TARGET}
+	src/scenes/heightmap/Heightmap.cpp
+	src/scenes/paths/path_demo.cpp
+	src/scenes/dune/dune_demo.cpp
+	src/main.cpp
+)
 
 target_compile_features(${APP_TARGET} PUBLIC cxx_std_20)
 
 target_link_libraries(${APP_TARGET} PRIVATE
 	opengl_utils
-	heightmap
-	glad
 )
 
 add_custom_command(TARGET ${APP_TARGET} POST_BUILD

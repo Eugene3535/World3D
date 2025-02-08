@@ -3,9 +3,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Export.hpp"
-
-class OGL_API Perspective final
+class Perspective final
 {
 public:
 	Perspective() noexcept;
