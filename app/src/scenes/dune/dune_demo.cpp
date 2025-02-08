@@ -1,5 +1,6 @@
 #include <array>
 #include <memory>
+#include <iostream>
 
 #include <glad/glad.h>
 
@@ -29,6 +30,8 @@ void dune_demo(GLFWwindow* window)
     Image imgSpace;
     Image imgRock;
     Image imgStone;
+
+    std::cout << std::filesystem::current_path() << '\n';
 
     if(!imgMask.loadFromFile("res/textures/mask.png"))   return;
     if(!imgSand.loadFromFile("res/textures/sand.jpg"))   return;

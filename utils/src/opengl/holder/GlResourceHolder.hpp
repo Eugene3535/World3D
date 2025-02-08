@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 
+#include "Config.hpp"
 #include "opengl/resources/buffers/GlBuffer.hpp"
 #include "opengl/resources/graphics/VertexArrayObject.hpp"
 #include "opengl/resources/graphics/Texture2D.hpp"
@@ -33,4 +34,4 @@ private:
 
 #include "opengl/holder/GlResourceHolder.inl"
 
-#endif //  !GL_RESOURCE_HOLDER_HPP
+#endif // !GL_RESOURCE_HOLDER_HPP
