@@ -1,2 +1,6 @@
 
 1) Perspective camera add extenal methods(fov, zNear, zFar)
+2) Sprite renderer
+3) Move examples to OOP style (scene class)
+4) check return value in examples
+5) Ortho camera: update method names to more appropriate ones, add matrix resetting 

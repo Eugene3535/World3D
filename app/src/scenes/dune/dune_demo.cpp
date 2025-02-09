@@ -14,7 +14,7 @@
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "data/AppData.hpp"
 
-void dune_demo(GLFWwindow* window)
+int dune_demo(GLFWwindow* window)
 {
     auto isKeyPressed = [window](int32_t key)
     {
@@ -30,11 +30,11 @@ void dune_demo(GLFWwindow* window)
     Image imgRock;
     Image imgStone;
 
-    if(!imgMask.loadFromFile("res/textures/mask.png"))   return;
-    if(!imgSand.loadFromFile("res/textures/sand.jpg"))   return;
-    if(!imgSpace.loadFromFile("res/textures/spice.jpg")) return;
-    if(!imgRock.loadFromFile("res/textures/rock01.jpg")) return;
-    if(!imgStone.loadFromFile("res/textures/cracked_earth.jpg")) return;
+    if(!imgMask.loadFromFile("res/textures/mask.png"))   return -1;
+    if(!imgSand.loadFromFile("res/textures/sand.jpg"))   return -1;
+    if(!imgSpace.loadFromFile("res/textures/spice.jpg")) return -1;
+    if(!imgRock.loadFromFile("res/textures/rock01.jpg")) return -1;
+    if(!imgStone.loadFromFile("res/textures/cracked_earth.jpg")) return -1;
 
     AppData* appData = static_cast<AppData*>(glfwGetWindowUserPointer(window));
     std::array<uint32_t, 5> textures = appData->resourceHolder.create<Texture2D, 5>();
@@ -76,11 +76,11 @@ void dune_demo(GLFWwindow* window)
     vao->addVertexBuffer(vbo, layout);
 
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile("res/shaders/dune.vert", GL_VERTEX_SHADER)) return;
-    if(!shaders[1].loadFromFile("res/shaders/dune.frag", GL_FRAGMENT_SHADER)) return;
+    if(!shaders[0].loadFromFile("res/shaders/dune.vert", GL_VERTEX_SHADER)) return -1;
+    if(!shaders[1].loadFromFile("res/shaders/dune.frag", GL_FRAGMENT_SHADER)) return -1;
 
     auto program = std::make_unique<ShaderProgram>();
-    if(!program->link(shaders)) return;
+    if(!program->link(shaders)) return -1;
 
     glUseProgram(program->getHandle().value());
     glUniform1i(program->getUniformLocation("texMap").value(), 0);
@@ -146,4 +146,6 @@ void dune_demo(GLFWwindow* window)
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    return 0;
 }

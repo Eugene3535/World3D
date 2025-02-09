@@ -14,7 +14,7 @@
 #include "data/AppData.hpp"
 
 
-void path_demo(GLFWwindow* window)
+int path_demo(GLFWwindow* window)
 {
     glEnable(GL_DEPTH_TEST);
 
@@ -72,11 +72,11 @@ void path_demo(GLFWwindow* window)
     vao->addVertexBuffer(vbo, layout);
 
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile("res/shaders/ground.vert", GL_VERTEX_SHADER)) return;
-    if(!shaders[1].loadFromFile("res/shaders/ground.frag", GL_FRAGMENT_SHADER)) return;
+    if(!shaders[0].loadFromFile("res/shaders/ground.vert", GL_VERTEX_SHADER)) return -1;
+    if(!shaders[1].loadFromFile("res/shaders/ground.frag", GL_FRAGMENT_SHADER)) return -1;
 
     auto program = std::make_unique<ShaderProgram>();
-    if(!program->link(shaders)) return;
+    if(!program->link(shaders)) return -1;
 
     glUseProgram(program->getHandle().value());
     glUniform1i(program->getUniformLocation("snowSampler").value(), 0);
@@ -159,4 +159,6 @@ void path_demo(GLFWwindow* window)
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    return 0;
 }

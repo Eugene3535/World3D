@@ -35,11 +35,13 @@ set(_opengl_utils_hdr_files
 
 set(SHADER_FILES
 	${PROJECT_SOURCE_DIR}/res/shaders/dune.vert
-	${PROJECT_SOURCE_DIR}/res/shaders/ground.vert   
-	${PROJECT_SOURCE_DIR}/res/shaders/heightmap.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/dune.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/ground.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/ground.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/heightmap.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/heightmap.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/circle.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/circle.frag
 )
 
 source_group("shaders" FILES 
@@ -74,5 +76,5 @@ PRIVATE
 )
 
 if(MSVC)
-	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_all_opengl_utils_files})
+	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${_all_opengl_utils_files})
 endif()

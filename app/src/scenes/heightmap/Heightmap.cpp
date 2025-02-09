@@ -14,7 +14,7 @@
 #include "data/AppData.hpp"
 
 
-void heightmap_demo(GLFWwindow* window) noexcept
+int heightmap_demo(GLFWwindow* window) noexcept
 {
     glEnable(GL_DEPTH_TEST);
 
@@ -36,36 +36,42 @@ void heightmap_demo(GLFWwindow* window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = &appData->camera.perspective;
-    camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
-    camera->setPosition(30, 3, 30);
+    auto perspectiveCamera = &appData->camera.perspective;
+    perspectiveCamera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+    perspectiveCamera->setPosition(30, 3, 30);
 
-    std::vector<float> heightmap;
-    uint32_t mapDepth;
-    uint32_t mapWidth;
+    auto orthoCamera = &appData->camera.orthogonal;
+    orthoCamera->setupProjectionMatrix(width, height);
 
-    Image imageMap;        imageMap.loadFromFile("res/textures/heightmap.png");
-    Image imgCrackedEarth; imgCrackedEarth.loadFromFile("res/textures/cracked_earth.jpg");
-    Image imgRock;         imgRock.loadFromFile("res/textures/rock.jpg");
-    Image imgGrass;        imgGrass.loadFromFile("res/textures/grass.jpg");
-    Image imgClover;       imgClover.loadFromFile("res/textures/clover.png");
+    Image imageMap;        if(!imageMap.loadFromFile("res/textures/heightmap.png"))            return -1;
+    Image imgCrackedEarth; if(!imgCrackedEarth.loadFromFile("res/textures/cracked_earth.jpg")) return -1;
+    Image imgRock;         if(!imgRock.loadFromFile("res/textures/rock.jpg"))                  return -1;
+    Image imgGrass;        if(!imgGrass.loadFromFile("res/textures/grass.jpg"))                return -1;
+    Image imgClover;       if(!imgClover.loadFromFile("res/textures/clover.png"))              return -1;
+    Image imageCircleOff;  if(!imageCircleOff.loadFromFile("res/textures/circle_off.png"))     return -1;
+    Image imageCircleOn;   if(!imageCircleOn.loadFromFile("res/textures/circle_on.png"))       return -1;
 
-    std::array<uint32_t, 4> textures = appData->resourceHolder.create<Texture2D, 4>();
+    std::array<uint32_t, 6> textures = appData->resourceHolder.create<Texture2D, 6>();
     
     auto texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
     auto texRock         = std::make_unique<Texture2D>(textures[1]);
     auto texGrass        = std::make_unique<Texture2D>(textures[2]);
     auto texClover       = std::make_unique<Texture2D>(textures[3]);
+    auto texCircleOff    = std::make_unique<Texture2D>(textures[4]);
+    auto texCircleOn     = std::make_unique<Texture2D>(textures[5]);
 
-    texCrackedEarth->loadFromImage(imgCrackedEarth, true, true);
-    texRock->loadFromImage(imgRock, true, true);
-    texGrass->loadFromImage(imgGrass, true, true);
-    texClover->loadFromImage(imgClover, true, true);
+    if(!texCrackedEarth->loadFromImage(imgCrackedEarth, true, true)) return -1;
+    if(!texRock->loadFromImage(imgRock, true, true)) return -1;
+    if(!texGrass->loadFromImage(imgGrass, true, true)) return -1;
+    if(!texClover->loadFromImage(imgClover, true, true)) return -1;
+    if(!texCircleOff->loadFromImage(imageCircleOff, false, false)) return -1;
+    if(!texCircleOn->loadFromImage(imageCircleOn, false, false)) return -1;
 
     const uint8_t* pixels = imageMap.getPixels();
-    mapDepth = imageMap.getHeight();
-    mapWidth = imageMap.getWidth();
+    const uint32_t mapDepth = imageMap.getHeight();
+    const uint32_t mapWidth = imageMap.getWidth();
 
+    std::vector<float> heightmap;
     heightmap.resize(mapDepth * mapWidth);
     std::vector<float> vertices(mapDepth * mapWidth * 5);
     std::vector<uint32_t> indices;
@@ -106,40 +112,77 @@ void heightmap_demo(GLFWwindow* window) noexcept
         }
     }
 
-    std::array<uint32_t, 2> buffers = appData->resourceHolder.create<GlBuffer, 2>();
-    std::array<uint32_t, 1> vertexArrays = appData->resourceHolder.create<VertexArrayObject, 1>();
+//  Allocate buffers
+    const auto buffers = appData->resourceHolder.create<GlBuffer, 3>();
+    const auto vertexArrays = appData->resourceHolder.create<VertexArrayObject, 2>();
 
-    std::array<VertexBufferLayout::Attribute, 2> attributes
+//  Heightmap
+    const std::array<VertexBufferLayout::Attribute, 2> heightmapAttributes
     {
         VertexBufferLayout::Attribute::Float3,
         VertexBufferLayout::Attribute::Float2
     };
-    VertexBufferLayout layout(attributes);
+    const VertexBufferLayout heightmapLayout(heightmapAttributes);
 
-    GlBuffer vbo(buffers[0], GL_ARRAY_BUFFER);
-    GlBuffer ebo(buffers[1], GL_ELEMENT_ARRAY_BUFFER);
+    GlBuffer heightmapVbo(buffers[0], GL_ARRAY_BUFFER);
+    GlBuffer heightmapEbo(buffers[1], GL_ELEMENT_ARRAY_BUFFER);
 
 //  Just to give you an example, you can pass a pointer to the data right away, or you can fill the buffer later on
-    vbo.create(sizeof(float), vertices.size(), nullptr, GL_STATIC_DRAW);
-    vbo.update(0, sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()));
-    ebo.create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
+    heightmapVbo.create(sizeof(float), vertices.size(), nullptr, GL_STATIC_DRAW);
+    heightmapVbo.update(0, sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()));
+    heightmapEbo.create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
 
-    auto vao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
-    vao->addVertexBuffer(vbo, layout);
-    vao->setElementBuffer(ebo);
+    auto heightmapVao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
+    heightmapVao->addVertexBuffer(heightmapVbo, heightmapLayout);
+    heightmapVao->setElementBuffer(heightmapEbo);
 
+//  Circle
+    vertices.clear();
+    vertices =
+    {
+        0.0f,   0.0f,   0.0f, 0.0f,
+        256.0f, 0.0f,   1.0f, 0.0f,
+        256.0f, 256.0f, 1.0f, 1.0f,
+        0.0f,   256.0f, 0.0f, 1.0f
+    };
+
+    const std::array<VertexBufferLayout::Attribute, 1> circleAttributes
+    {
+        VertexBufferLayout::Attribute::Float4
+    };
+    const VertexBufferLayout circleLayout(circleAttributes);
+
+    GlBuffer circleVbo(buffers[2], GL_ARRAY_BUFFER);
+    circleVbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
+
+    auto circleVao = std::make_unique<VertexArrayObject>(vertexArrays[1]);
+    circleVao->addVertexBuffer(circleVbo, circleLayout);
+
+//  Shaders
+//  Heightmap
     std::array<Shader, 2> shaders;
-    shaders[0].loadFromFile("res/shaders/heightmap.vert", GL_VERTEX_SHADER);
-    shaders[1].loadFromFile("res/shaders/heightmap.frag", GL_FRAGMENT_SHADER);
+    if(!shaders[0].loadFromFile("res/shaders/heightmap.vert", GL_VERTEX_SHADER)) return -1;
+    if(!shaders[1].loadFromFile("res/shaders/heightmap.frag", GL_FRAGMENT_SHADER)) return -1;
 
-    auto program = std::make_unique<ShaderProgram>();
-    program->link(shaders);
+    auto heightmapProgram = std::make_unique<ShaderProgram>();
+    if(!heightmapProgram->link(shaders)) return -1;
 
-    glUseProgram(program->getHandle().value());
-    glUniform1i(program->getUniformLocation("cracked_earth").value(), 0);
-    glUniform1i(program->getUniformLocation("rock").value(), 1);
-    glUniform1i(program->getUniformLocation("grass").value(), 2);
-    glUniform1i(program->getUniformLocation("clover").value(), 3);
+    glUseProgram(heightmapProgram->getHandle().value());
+    glUniform1i(heightmapProgram->getUniformLocation("cracked_earth").value(), 0);
+    glUniform1i(heightmapProgram->getUniformLocation("rock").value(), 1);
+    glUniform1i(heightmapProgram->getUniformLocation("grass").value(), 2);
+    glUniform1i(heightmapProgram->getUniformLocation("clover").value(), 3);
+    glUseProgram(0);
+
+//  Circle
+    if(!shaders[0].loadFromFile("res/shaders/circle.vert", GL_VERTEX_SHADER)) return -1;
+    if(!shaders[1].loadFromFile("res/shaders/circle.frag", GL_FRAGMENT_SHADER)) return -1;
+
+    auto circleProgram = std::make_unique<ShaderProgram>();
+    if(!circleProgram->link(shaders)) return -1;
+
+    glUseProgram(circleProgram->getHandle().value());
+    glUniform1i(circleProgram->getUniformLocation("circleSampler").value(), 0);
     glUseProgram(0);
 
     auto getHeightInPoint = [mapWidth, mapDepth, &heightmap](float x, float z) -> float
@@ -173,61 +216,65 @@ void heightmap_demo(GLFWwindow* window) noexcept
             continue;
         }
 
-        if(isKeyPressed(GLFW_KEY_W))
-            camera->moveForward(10);
+//  Heightmap
+		if (isKeyPressed(GLFW_KEY_W))
+			perspectiveCamera->moveForward(10);
 
-        if(isKeyPressed(GLFW_KEY_A))
-            camera->moveLeft(10);
+		if (isKeyPressed(GLFW_KEY_A))
+			perspectiveCamera->moveLeft(10);
 
-        if(isKeyPressed(GLFW_KEY_S))
-            camera->moveBackward(10);
+		if (isKeyPressed(GLFW_KEY_S))
+			perspectiveCamera->moveBackward(10);
 
-        if(isKeyPressed(GLFW_KEY_D))
-            camera->moveRight(10);
+		if (isKeyPressed(GLFW_KEY_D))
+			perspectiveCamera->moveRight(10);
 
-        auto playerPos = camera->getPosition();
-        playerPos.y = getHeightInPoint(playerPos.x, playerPos.z) + 1.7f;
-        camera->setPosition(playerPos);
+		auto playerPos = perspectiveCamera->getPosition();
+		playerPos.y = getHeightInPoint(playerPos.x, playerPos.z) + 1.7f;
+		perspectiveCamera->setPosition(playerPos);
 
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
 
-        int xt, yt;
-        glfwGetWindowPos(window, &xt, &yt);
+		int xt, yt;
+		glfwGetWindowPos(window, &xt, &yt);
 
-        glfwGetWindowSize(window, &width, &height);
+		glfwGetWindowSize(window, &width, &height);
 
-        xt += width >> 1;
-        yt += height >> 1;
+		xt += width >> 1;
+		yt += height >> 1;
 
-        camera->rotateX((xt - xpos) * 0.125f);
-        camera->rotateY((yt - ypos) * 0.125f);
+		perspectiveCamera->rotateX((xt - xpos) * 0.125f);
+		perspectiveCamera->rotateY((yt - ypos) * 0.125f);
 
-        glfwSetCursorPos(window, xt, yt);
-        camera->apply(0.01f);
-        uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
+		glfwSetCursorPos(window, xt, yt);
+		perspectiveCamera->apply(0.01f);
+		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(perspectiveCamera->getModelViewProjectionMatrix())));
 
-        glClearColor(0, 0, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(1);
 
-        glUseProgram(program->getHandle().value());
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCrackedEarth->getHandle());
-    
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texRock->getHandle());
-    
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, texGrass->getHandle());
-    
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, texClover->getHandle());
-    
-        const uint32_t numStrips = mapWidth - 1;
-        const uint32_t numTrisPerStrip = mapWidth * 2 - 2;
-    
-        glBindVertexArray(vao->getHandle());
+		glUseProgram(heightmapProgram->getHandle().value());
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texCrackedEarth->getHandle());
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texRock->getHandle());
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, texGrass->getHandle());
+
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, texClover->getHandle());
+
+		const uint32_t numStrips = mapWidth - 1;
+		const uint32_t numTrisPerStrip = mapWidth * 2 - 2;
+
+		glBindVertexArray(heightmapVao->getHandle());
     
         for (uint32_t strip = 0; strip < numStrips; ++strip)
             glDrawElements(GL_TRIANGLE_STRIP, numTrisPerStrip + 2, GL_UNSIGNED_INT, reinterpret_cast<const void*>(sizeof(GLuint) * (numTrisPerStrip + 2) * strip));
@@ -235,7 +282,43 @@ void heightmap_demo(GLFWwindow* window) noexcept
         glBindVertexArray(0);
         glUseProgram(0);
 
+//  Circles
+        glDisable(GL_DEPTH_TEST);
+        glDepthMask(0);
+
+        glUseProgram(circleProgram->getHandle().value());
+        glBindVertexArray(circleVao->getHandle());
+
+        int halfW = imageCircleOff.getWidth() / 2;
+        int halfH = imageCircleOff.getHeight() / 2;
+        static float rotation = 0;
+
+        orthoCamera->setOrigin(halfW, halfH);
+        orthoCamera->setPosition(halfW, halfH);
+        orthoCamera->setRotation(-rotation);
+        uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orthoCamera->getModelViewProjectionMatrix())));
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texCircleOff->getHandle());
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        orthoCamera->setPosition(width - imageCircleOff.getWidth() + halfW, halfH);
+        orthoCamera->setRotation(rotation);
+        uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orthoCamera->getModelViewProjectionMatrix())));
+
+        rotation += 0.3f;
+
+        glBindTexture(GL_TEXTURE_2D, texCircleOn->getHandle());
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    return 0;
 }

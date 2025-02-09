@@ -5,9 +5,9 @@
 #include "data/AppData.hpp"
 #include "opengl/debug/OpenGLDebugger.hpp"
 
-void heightmap_demo(GLFWwindow* window) noexcept;
-void path_demo(GLFWwindow* window) noexcept;
-void dune_demo(GLFWwindow* window) noexcept;
+int heightmap_demo(GLFWwindow* window) noexcept;
+int path_demo(GLFWwindow* window) noexcept;
+int dune_demo(GLFWwindow* window) noexcept;
 
 int main()
 {
@@ -56,10 +56,10 @@ int main()
     OpenGLDebugger messager;
 #endif
 
-    dune_demo(window);
+    int returnValue = heightmap_demo(window);
 
     glfwDestroyWindow(window);
     glfwTerminate();
 
-    return 0;
+    return returnValue;
 }
