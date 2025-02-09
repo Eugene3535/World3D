@@ -1,2 +1,2 @@
 
-1) Input handler class
+1) Perspective camera add extenal methods(fov, zNear, zFar)

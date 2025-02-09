@@ -33,12 +33,27 @@ set(_opengl_utils_hdr_files
 	src/opengl/debug/OpenGLDebugger.hpp
 )
 
+set(SHADER_FILES
+	${PROJECT_SOURCE_DIR}/res/shaders/dune.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/ground.vert   
+	${PROJECT_SOURCE_DIR}/res/shaders/heightmap.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/dune.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/ground.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/heightmap.frag
+)
+
+source_group("shaders" FILES 
+	${SHADER_FILES}
+)
+
 set(_all_opengl_utils_files
 	${_opengl_utils_src_files}
 	${_opengl_utils_hdr_files}
 )
 
 add_library(${OPENGL_UTILS_TARGET} STATIC ${_all_opengl_utils_files})
+
+target_sources(${OPENGL_UTILS_TARGET} PRIVATE ${SHADER_FILES})
 
 target_compile_definitions(${OPENGL_UTILS_TARGET} PRIVATE OPENGL_UTILS_API_EXPORTS)
 
