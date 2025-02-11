@@ -1,28 +1,20 @@
 #include <array>
 #include <memory>
-#include <iostream>
 
 #include <glad/glad.h>
 
-#include <GLFW/glfw3.h>
+#include <SFML/Window.hpp>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "files/Image.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "data/AppData.hpp"
 
-int dune_demo(GLFWwindow* window)
+int dune_demo(sf::Window& window, AppData& appData) noexcept
 {
-    auto isKeyPressed = [window](int32_t key)
-    {
-        return glfwGetKey(window, key) == GLFW_PRESS;
-    };
-
-    int width, height;
-    glfwGetWindowSize(window, &width, &height);
+    auto [width, height] = window.getSize();
 
     Image imgMask;
     Image imgSand;
@@ -36,8 +28,7 @@ int dune_demo(GLFWwindow* window)
     if(!imgRock.loadFromFile("res/textures/rock01.jpg")) return -1;
     if(!imgStone.loadFromFile("res/textures/cracked_earth.jpg")) return -1;
 
-    AppData* appData = static_cast<AppData*>(glfwGetWindowUserPointer(window));
-    std::array<uint32_t, 5> textures = appData->resourceHolder.create<Texture2D, 5>();
+    std::array<uint32_t, 5> textures = appData.resourceHolder.create<Texture2D, 5>();
 
     auto texture0 = std::make_unique<Texture2D>(textures[0]);
     auto texture1 = std::make_unique<Texture2D>(textures[1]);
@@ -53,10 +44,10 @@ int dune_demo(GLFWwindow* window)
 
     std::array<float, 20> vertices =
     {
-        0.0f,  0.0f,   0.0f, 0.0f, 0.0f,
-        width, 0.0f,   0.0f, 1.0f, 0.0f,
-        width, height, 0.0f, 1.0f, 1.0f,
-        0.0f,  height, 0.0f, 0.0f, 1.0f
+        0.0f,                      0.0f,                       0.0f, 0.0f, 0.0f,
+        static_cast<float>(width), 0.0f,                       0.0f, 1.0f, 0.0f,
+        static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f, 1.0f,
+        0.0f,                      static_cast<float>(height), 0.0f, 0.0f, 1.0f
     };
 
     std::array<VertexBufferLayout::Attribute, 2> attributes
@@ -66,8 +57,8 @@ int dune_demo(GLFWwindow* window)
     };
     VertexBufferLayout layout(attributes);
 
-    std::array<uint32_t, 2> buffers = appData->resourceHolder.create<GlBuffer, 2>();
-    std::array<uint32_t, 1> vertexArrays = appData->resourceHolder.create<VertexArrayObject, 1>();
+    std::array<uint32_t, 2> buffers = appData.resourceHolder.create<GlBuffer, 2>();
+    std::array<uint32_t, 1> vertexArrays = appData.resourceHolder.create<VertexArrayObject, 1>();
 
     GlBuffer vbo(buffers[0], GL_ARRAY_BUFFER);
     vbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
@@ -94,27 +85,40 @@ int dune_demo(GLFWwindow* window)
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = &appData->camera.orthogonal;
+    auto camera = &appData.camera.orthogonal;
     camera->setupProjectionMatrix(width, height);
 
-    while (!glfwWindowShouldClose(window))
+    while (window.isOpen())
     {
-        if(isKeyPressed(GLFW_KEY_ESCAPE))
+        sf::Event event;
+
+        while (window.pollEvent(event))
         {
-            glfwSetWindowShouldClose(window, true);
-            continue;
+            if (event.type == sf::Event::Closed)
+                window.close();
+
+            if(event.type == sf::Event::Resized)
+            {
+                width = event.size.width;
+                height = event.size.height;
+                camera->setupProjectionMatrix(width, height);
+                glViewport(0, 0, width, height);
+            }
         }
 
-        if(isKeyPressed(GLFW_KEY_W))
-            camera->move(0.0f, 3.0f);
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+            window.close();
 
-        if(isKeyPressed(GLFW_KEY_A))
-            camera->move(3.0f, 0.0f);
-
-        if(isKeyPressed(GLFW_KEY_S))
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
             camera->move(0.0f, -3.0f);
 
-        if(isKeyPressed(GLFW_KEY_D))
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+            camera->move(3.0f, 0.0f);
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+            camera->move(0.0f, 3.0f);
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
             camera->move(-3.0f, 0.0f);
 
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
@@ -143,8 +147,7 @@ int dune_demo(GLFWwindow* window)
         glBindVertexArray(0);
         glUseProgram(0);
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        window.display();
     }
 
     return 0;

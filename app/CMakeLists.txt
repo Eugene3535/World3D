@@ -16,10 +16,13 @@ add_executable(${APP_TARGET}
 	${_src_files}
 )
 
+target_compile_definitions(${APP_TARGET} PUBLIC "SFML_STATIC")
+
 target_compile_features(${APP_TARGET} PUBLIC cxx_std_20)
 
 target_link_libraries(${APP_TARGET} PRIVATE
 	opengl_utils
+	sfml-window
 )
 
 add_custom_command(TARGET ${APP_TARGET} POST_BUILD

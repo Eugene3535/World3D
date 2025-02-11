@@ -1,65 +1,50 @@
+#include <cstdio>
+
 #include <glad/glad.h>
 
-#include <GLFW/glfw3.h>
+#include <SFML/Window.hpp>
 
 #include "data/AppData.hpp"
 #include "opengl/debug/OpenGLDebugger.hpp"
 
-int heightmap_demo(GLFWwindow* window) noexcept;
-int path_demo(GLFWwindow* window) noexcept;
-int dune_demo(GLFWwindow* window) noexcept;
+int heightmap_demo(sf::Window& window, AppData& data) noexcept;
+int path_demo(sf::Window& window, AppData& data) noexcept;
+int dune_demo(sf::Window& window, AppData& data) noexcept;
 
 int main()
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-#endif
+    sf::ContextSettings settings;
+    settings.majorVersion = 4;
+    settings.minorVersion = 6;
+    settings.depthBits = 24;
+    settings.stencilBits = 8;
+    settings.antialiasingLevel = 4;
+    settings.attributeFlags = sf::ContextSettings::Core;
 
-    GLint width = 1200;
-    GLint height = 800;
-    GLFWwindow* window = nullptr;
+    const uint32_t width = 1200;
+    const uint32_t height = 800;
     AppData appData;
-    
-    if (window = glfwCreateWindow(width, height, "World3D", nullptr, nullptr); window != nullptr)
+
+    sf::Window window(sf::VideoMode(width, height), "World3D", sf::Style::Default, settings);
+    window.setVerticalSyncEnabled(true);
+
+    if (!gladLoadGL()) 
     {
-        glfwMakeContextCurrent(window);
+        printf("Failed to initialize GLAD\n");
 
-        if (gladLoadGL())
-        {
-            glfwSetWindowUserPointer(window, static_cast<void*>(&appData));
-            glfwSwapInterval(1);
-
-            glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int32_t width, int32_t height)
-            {
-                glViewport(0, 0, width, height);
-
-                if (auto appData = static_cast<AppData*>(glfwGetWindowUserPointer(window)); appData)
-                {
-                    appData->camera.orthogonal.setupProjectionMatrix(width, height);
-                    appData->camera.perspective.setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
-                }
-            });
-        }
-        else
-        {
-            glfwDestroyWindow(window);
-            glfwTerminate();
-
-            return -1;
-        }
+        return -1;
     }
+
+    printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+    printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    printf("Vendor: %s\n", glGetString(GL_VENDOR));
+    printf("Renderer: %s\n", glGetString(GL_RENDERER));
+    
 #ifdef DEBUG
     OpenGLDebugger messager;
 #endif
 
-    int returnValue = heightmap_demo(window);
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    int returnValue = dune_demo(window, appData);
 
     return returnValue;
 }

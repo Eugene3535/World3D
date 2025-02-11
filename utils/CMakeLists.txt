@@ -62,15 +62,13 @@ target_compile_definitions(${OPENGL_UTILS_TARGET} PRIVATE OPENGL_UTILS_API_EXPOR
 target_compile_features(${OPENGL_UTILS_TARGET} PRIVATE cxx_std_20)
 
 target_link_libraries(${OPENGL_UTILS_TARGET} PUBLIC
-	glad 
-	glfw
+	glad
 	glm
 )
 
 target_include_directories(${OPENGL_UTILS_TARGET} 
 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src
-	${EXTERNAL_SOURCE_DIR}/glm
 PRIVATE
 	${EXTERNAL_SOURCE_DIR}/stb
 )

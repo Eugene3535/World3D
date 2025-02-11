@@ -3,10 +3,10 @@
 
 #include <glad/glad.h>
 
-#include <GLFW/glfw3.h>
+#include <SFML/Window.hpp>
+#include <SFML/Window/Mouse.hpp>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "files/Image.hpp"
@@ -14,33 +14,25 @@
 #include "data/AppData.hpp"
 
 
-int heightmap_demo(GLFWwindow* window) noexcept
+int heightmap_demo(sf::Window& window, AppData& appData) noexcept
 {
     glEnable(GL_DEPTH_TEST);
 
-    auto isKeyPressed = [window](int32_t key)
-    {
-        return glfwGetKey(window, key) == GLFW_PRESS;
-    };
+    auto [width, height] = window.getSize();
 
-    int width, height;
-    glfwGetWindowSize(window, &width, &height);
+    window.setMouseCursorVisible(false);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    AppData* appData = static_cast<AppData*>(glfwGetWindowUserPointer(window));
-
-    std::array<uint32_t, 1> buffer = appData->resourceHolder.create<GlBuffer, 1>();
+    std::array<uint32_t, 1> buffer = appData.resourceHolder.create<GlBuffer, 1>();
 
     GlBuffer uniformBuffer(buffer[0], GL_UNIFORM_BUFFER);
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto perspectiveCamera = &appData->camera.perspective;
+    auto perspectiveCamera = &appData.camera.perspective;
     perspectiveCamera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
     perspectiveCamera->setPosition(30, 3, 30);
 
-    auto orthoCamera = &appData->camera.orthogonal;
+    auto orthoCamera = &appData.camera.orthogonal;
     orthoCamera->setupProjectionMatrix(width, height);
 
     Image imageMap;        if(!imageMap.loadFromFile("res/textures/heightmap.png"))            return -1;
@@ -51,7 +43,7 @@ int heightmap_demo(GLFWwindow* window) noexcept
     Image imageCircleOff;  if(!imageCircleOff.loadFromFile("res/textures/circle_off.png"))     return -1;
     Image imageCircleOn;   if(!imageCircleOn.loadFromFile("res/textures/circle_on.png"))       return -1;
 
-    std::array<uint32_t, 6> textures = appData->resourceHolder.create<Texture2D, 6>();
+    std::array<uint32_t, 6> textures = appData.resourceHolder.create<Texture2D, 6>();
     
     auto texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
     auto texRock         = std::make_unique<Texture2D>(textures[1]);
@@ -113,8 +105,8 @@ int heightmap_demo(GLFWwindow* window) noexcept
     }
 
 //  Allocate buffers
-    const auto buffers = appData->resourceHolder.create<GlBuffer, 3>();
-    const auto vertexArrays = appData->resourceHolder.create<VertexArrayObject, 2>();
+    const auto buffers = appData.resourceHolder.create<GlBuffer, 3>();
+    const auto vertexArrays = appData.resourceHolder.create<VertexArrayObject, 2>();
 
 //  Heightmap
     const std::array<VertexBufferLayout::Attribute, 2> heightmapAttributes
@@ -208,38 +200,47 @@ int heightmap_demo(GLFWwindow* window) noexcept
         return 0.f;
     };
 
-    while (!glfwWindowShouldClose(window))
+    while (window.isOpen())
     {
-        if(isKeyPressed(GLFW_KEY_ESCAPE)) 
+        sf::Event event;
+
+        while (window.pollEvent(event))
         {
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-            continue;
+            if (event.type == sf::Event::Closed)
+                window.close();
+
+            if(event.type == sf::Event::Resized)
+            {
+                width = event.size.width;
+                height = event.size.height;
+                appData.camera.orthogonal.setupProjectionMatrix(width, height);
+                appData.camera.perspective.setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+                glViewport(0, 0, width, height);
+            }
         }
 
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+            window.close();
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+            perspectiveCamera->moveForward(10);
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+            perspectiveCamera->moveLeft(10);
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+            perspectiveCamera->moveBackward(10);
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+            perspectiveCamera->moveRight(10);
+
 //  Heightmap
-		if (isKeyPressed(GLFW_KEY_W))
-			perspectiveCamera->moveForward(10);
-
-		if (isKeyPressed(GLFW_KEY_A))
-			perspectiveCamera->moveLeft(10);
-
-		if (isKeyPressed(GLFW_KEY_S))
-			perspectiveCamera->moveBackward(10);
-
-		if (isKeyPressed(GLFW_KEY_D))
-			perspectiveCamera->moveRight(10);
-
 		auto playerPos = perspectiveCamera->getPosition();
 		playerPos.y = getHeightInPoint(playerPos.x, playerPos.z) + 1.7f;
 		perspectiveCamera->setPosition(playerPos);
 
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-
-		int xt, yt;
-		glfwGetWindowPos(window, &xt, &yt);
-
-		glfwGetWindowSize(window, &width, &height);
+        const auto [xpos, ypos] = sf::Mouse::getPosition();
+		auto [xt, yt] = window.getPosition();
 
 		xt += width >> 1;
 		yt += height >> 1;
@@ -247,7 +248,8 @@ int heightmap_demo(GLFWwindow* window) noexcept
 		perspectiveCamera->rotateX((xt - xpos) * 0.125f);
 		perspectiveCamera->rotateY((yt - ypos) * 0.125f);
 
-		glfwSetCursorPos(window, xt, yt);
+        sf::Mouse::setPosition({xt, yt});
+
 		perspectiveCamera->apply(0.01f);
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(perspectiveCamera->getModelViewProjectionMatrix())));
 
@@ -316,8 +318,7 @@ int heightmap_demo(GLFWwindow* window) noexcept
         glBindVertexArray(0);
         glUseProgram(0);
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        window.display();
     }
 
     return 0;
