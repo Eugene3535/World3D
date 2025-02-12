@@ -20,23 +20,21 @@ Transform2D::Transform2D() noexcept:
 Transform2D::~Transform2D() noexcept = default;
 
 
-Transform2D* Transform2D::setPosition(float x, float y) noexcept
+void Transform2D::setPosition(float x, float y) noexcept
 {
     m_position.x = x;
     m_position.y = y;
     m_transformNeedUpdate = true;
-
-    return this;
 }
 
 
-Transform2D* Transform2D::setPosition(const glm::vec2& position) noexcept
+void Transform2D::setPosition(const glm::vec2& position) noexcept
 {
-    return setPosition(position.x, position.y);
+    setPosition(position.x, position.y);
 }
 
 
-Transform2D* Transform2D::setRotation(float angle) noexcept
+void Transform2D::setRotation(float angle) noexcept
 {
     m_rotation = static_cast<float>(fmod(angle, 360));
 
@@ -44,46 +42,40 @@ Transform2D* Transform2D::setRotation(float angle) noexcept
         m_rotation += 360.f;
 
     m_transformNeedUpdate = true;
-
-    return this;
 }
 
 
-Transform2D* Transform2D::setScale(float factorX, float factorY) noexcept
+void Transform2D::setScale(float factorX, float factorY) noexcept
 {
     m_scale.x = factorX;
     m_scale.y = factorY;
     m_transformNeedUpdate = true;
-
-    return this;
 }
 
 
-Transform2D* Transform2D::setScale(const glm::vec2& factors) noexcept
+void Transform2D::setScale(const glm::vec2& factors) noexcept
 {
-    return setScale(factors.x, factors.y);
+    setScale(factors.x, factors.y);
 }
 
 
-Transform2D* Transform2D::setScale(float factor) noexcept
+void Transform2D::setScale(float factor) noexcept
 {
-    return setScale(factor, factor);
+    setScale(factor, factor);
 }
 
 
-Transform2D* Transform2D::setOrigin(float x, float y) noexcept
+void Transform2D::setOrigin(float x, float y) noexcept
 {
     m_origin.x = x;
     m_origin.y = y;
     m_transformNeedUpdate = true;
-
-    return this;
 }
 
 
-Transform2D* Transform2D::setOrigin(const glm::vec2& origin) noexcept
+void Transform2D::setOrigin(const glm::vec2& origin) noexcept
 {
-    return setOrigin(origin.x, origin.y);
+    setOrigin(origin.x, origin.y);
 }
 
 
@@ -111,33 +103,33 @@ const glm::vec2& Transform2D::getOrigin() const noexcept
 }
 
 
-Transform2D* Transform2D::move(float offsetX, float offsetY) noexcept
+void Transform2D::move(float offsetX, float offsetY) noexcept
 {
-    return setPosition(m_position.x + offsetX, m_position.y + offsetY);
+    setPosition(m_position.x + offsetX, m_position.y + offsetY);
 }
 
 
-Transform2D* Transform2D::move(const glm::vec2& offset) noexcept
+void Transform2D::move(const glm::vec2& offset) noexcept
 {
-    return setPosition(m_position.x + offset.x, m_position.y + offset.y);
+    setPosition(m_position.x + offset.x, m_position.y + offset.y);
 }
 
 
-Transform2D* Transform2D::rotate(float angle) noexcept
+void Transform2D::rotate(float angle) noexcept
 {
-    return setRotation(m_rotation + angle);
+    setRotation(m_rotation + angle);
 }
 
 
-Transform2D* Transform2D::scale(float factorX, float factorY) noexcept
+void Transform2D::scale(float factorX, float factorY) noexcept
 {
-    return setScale(m_scale.x * factorX, m_scale.y * factorY);
+    setScale(m_scale.x * factorX, m_scale.y * factorY);
 }
 
 
-Transform2D* Transform2D::scale(const glm::vec2& factor) noexcept
+void Transform2D::scale(const glm::vec2& factor) noexcept
 {
-    return setScale(m_scale.x * factor.x, m_scale.y * factor.y);
+    setScale(m_scale.x * factor.x, m_scale.y * factor.y);
 }
 
 
@@ -167,4 +159,10 @@ const glm::mat4& Transform2D::getMatrix() const noexcept
     }
 
     return m_matrix;
+}
+
+
+void Transform2D::loadIdentity() noexcept
+{
+    *this = Transform2D();
 }
