@@ -22,7 +22,7 @@ bool Texture2D::loadFromImage(const Image& image, bool repeat, bool smooth) noex
         if (int32_t channels = image.getBytePerPixel(); (channels == 3) || (channels == 4))
         {
             int32_t format = (channels == 4) ? GL_RGBA : GL_RGB;
-            m_width = image.getWidth();
+            m_width  = image.getWidth();
             m_height = image.getHeight();
 
             GLint wrapMode = repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER;
@@ -64,13 +64,13 @@ GLuint Texture2D::getHandle() const noexcept
 }
 
 
-int32_t Texture2D::getWidth() const noexcept
+GLuint Texture2D::getWidth() const noexcept
 {
     return m_width;
 }
 
 
-int32_t Texture2D::getHeight() const noexcept
+GLuint Texture2D::getHeight() const noexcept
 {
     return m_height;
 }

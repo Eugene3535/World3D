@@ -10,6 +10,7 @@
 int heightmap_demo(sf::Window& window, AppData& data) noexcept;
 int path_demo(sf::Window& window, AppData& data) noexcept;
 int dune_demo(sf::Window& window, AppData& data) noexcept;
+int platformer_demo(sf::Window& window, AppData& data) noexcept;
 
 int main()
 {
@@ -44,7 +45,7 @@ int main()
     OpenGLDebugger messager;
 #endif
 
-    int returnValue = dune_demo(window, appData);
+    int returnValue = heightmap_demo(window, appData);
 
     return returnValue;
 }

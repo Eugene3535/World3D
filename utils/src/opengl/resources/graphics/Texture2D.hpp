@@ -14,8 +14,8 @@ public:
 	bool loadFromFile(const std::filesystem::path& filePath, bool repeat, bool smooth) noexcept;
 
 	GLuint getHandle() const noexcept;
-	GLint  getWidth()  const noexcept;
-	GLint  getHeight() const noexcept;
+	GLuint getWidth()  const noexcept;
+	GLuint getHeight() const noexcept;
 
 	void setSmooth(bool smooth)    noexcept;
 	void setRepeated(bool repeate) noexcept;
@@ -25,8 +25,8 @@ public:
 
 private:
 	const GLuint m_handle;
-	GLint  m_width;
-    GLint  m_height;
+	GLuint m_width;
+    GLuint m_height;
 	bool   m_isSmooth;
 	bool   m_isRepeated;
 };

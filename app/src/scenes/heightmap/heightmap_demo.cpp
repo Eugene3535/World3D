@@ -120,7 +120,7 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
     GlBuffer heightmapEbo(buffers[1], GL_ELEMENT_ARRAY_BUFFER);
 
 //  Just to give you an example, you can pass a pointer to the data right away, or you can fill the buffer later on
-    heightmapVbo.create(sizeof(float), vertices.size(), nullptr, GL_STATIC_DRAW);
+    heightmapVbo.create(sizeof(float), 0, nullptr, GL_STATIC_DRAW);
     heightmapVbo.update(0, sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()));
     heightmapEbo.create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
 
