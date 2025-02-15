@@ -9,8 +9,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "files/Image.hpp"
+#include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "data/AppData.hpp"
+#include "tilemap/TileMap.hpp"
 
 
 int platformer_demo(sf::Window& window, AppData& appData)
@@ -25,6 +27,11 @@ int platformer_demo(sf::Window& window, AppData& appData)
 
     auto camera = &appData.camera.orthogonal;
     camera->setupProjectionMatrix(width, height);
+
+    TileMap tilemap(appData.resourceHolder);
+
+    if(!tilemap.loadFromFile(FileProvider::findPathToFile("Level-1.tmx"))) 
+        return -1;
 
     while (window.isOpen())
     {

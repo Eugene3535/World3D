@@ -3,6 +3,7 @@ set(OPENGL_UTILS_TARGET opengl_utils)
 set(_opengl_utils_src_files
 	src/graphics/Transform2D.cpp
 	src/files/Image.cpp
+	src/files/FileProvider.cpp
 	src/camera/perspective/Perspective.cpp
 	src/camera/orthogonal/Orthogonal.cpp
 	src/opengl/holder/GlResourceHolder.cpp
@@ -20,6 +21,7 @@ set(_opengl_utils_hdr_files
 	src/data/AppData.hpp
 	src/graphics/Transform2D.hpp
 	src/files/Image.hpp
+	src/files/FileProvider.hpp
 	src/camera/perspective/Perspective.hpp
 	src/camera/orthogonal/Orthogonal.hpp
 	src/opengl/holder/GlResourceHolder.hpp

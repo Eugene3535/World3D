@@ -8,6 +8,8 @@ set(_app_src_files
 	src/scenes/platformer/sprites/Sprite2D.hpp
 	src/scenes/platformer/sprites/SpriteHolder.cpp
 	src/scenes/platformer/sprites/SpriteHolder.hpp
+	src/scenes/platformer/tilemap/TileMap.cpp
+	src/scenes/platformer/tilemap/TileMap.hpp
 	src/main.cpp
 )
 
