@@ -8,7 +8,8 @@
 #include <unordered_map>
 #include <filesystem>
 
-#include <glm/glm.hpp>
+#include "glm/vec2.hpp"
+#include "glm/vec4.hpp"
 
 #include "opengl/resources/buffers/GlBuffer.hpp"
 #include "scenes/platformer/sprites/Sprite2D.hpp"

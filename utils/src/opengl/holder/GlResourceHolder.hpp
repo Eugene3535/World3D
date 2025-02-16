@@ -8,6 +8,7 @@
 #include "opengl/resources/graphics/VertexArrayObject.hpp"
 #include "opengl/resources/graphics/Texture2D.hpp"
 
+
 class GlResourceHolder final
 {
 public:

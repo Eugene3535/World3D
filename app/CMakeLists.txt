@@ -8,16 +8,12 @@ set(_app_src_files
 	src/scenes/platformer/sprites/Sprite2D.hpp
 	src/scenes/platformer/sprites/SpriteHolder.cpp
 	src/scenes/platformer/sprites/SpriteHolder.hpp
+	src/scenes/platformer/animation/Animator.cpp
+	src/scenes/platformer/animation/Animator.hpp
 	src/scenes/platformer/tilemap/TileMap.cpp
 	src/scenes/platformer/tilemap/TileMap.hpp
 	src/main.cpp
 )
-
-# source_group("" FILES ${_app_src_files})
-# source_group("heightmap" FILES src/scenes/heightmap/heightmap_demo.cpp)
-# source_group("paths" FILES src/scenes/paths/path_demo.cpp)
-# source_group("dune" FILES src/scenes/dune/dune_demo.cpp)
-# source_group("platformer" FILES src/scenes/platformer/platformer_demo.cpp)
 
 add_executable(${APP_TARGET}
 	${_app_src_files}
