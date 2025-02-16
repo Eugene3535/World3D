@@ -296,7 +296,7 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
         static float rotation = 0;
 
         orthoCamera->setOrigin(halfW, halfH);
-        orthoCamera->setPosition(halfW, halfH);
+        orthoCamera->setPosition(halfW, height - halfH);
         orthoCamera->setRotation(-rotation);
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orthoCamera->getModelViewProjectionMatrix())));
 
@@ -305,7 +305,7 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        orthoCamera->setPosition(width - imageCircleOff.getWidth() + halfW, halfH);
+        orthoCamera->setPosition(width - imageCircleOff.getWidth() + halfW, height - halfH);
         orthoCamera->setRotation(rotation);
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orthoCamera->getModelViewProjectionMatrix())));
 

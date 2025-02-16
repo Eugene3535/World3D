@@ -29,8 +29,6 @@ int platformer_demo(sf::Window& window, AppData& appData)
 
     auto camera = &appData.camera.orthogonal;
     camera->setupProjectionMatrix(width, height);
-    camera->setScale(1, -1);
-    camera->setPosition(0, height);
 
     std::array<Shader, 2> shaders;
     if (!shaders[0].loadFromFile("res/shaders/tilemap.vert", GL_VERTEX_SHADER)) return -1;
@@ -70,16 +68,16 @@ int platformer_demo(sf::Window& window, AppData& appData)
             window.close();
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-            camera->move(0.0f, -3.0f);
+            camera->move(0.0f, 10.0f);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-            camera->move(3.0f, 0.0f);
+            camera->move(10.0f, 0.0f);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-            camera->move(0.0f, 3.0f);
+            camera->move(0.0f, -10.0f);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-            camera->move(-3.0f, 0.0f);
+            camera->move(-10.0f, 0.0f);
 
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
