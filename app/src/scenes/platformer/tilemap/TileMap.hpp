@@ -57,6 +57,7 @@ public:
 	~TileMap() noexcept;
 
 	bool loadFromFile(const std::filesystem::path& filepath) noexcept;
+	void draw(class ShaderProgram* shader) noexcept;
 
 private:
 	bool loadTilePlanes(const void* node) noexcept;

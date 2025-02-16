@@ -6,6 +6,7 @@
 
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
+#include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "scenes/platformer/tilemap/TileMap.hpp"
 
 
@@ -64,10 +65,30 @@ bool TileMap::loadFromFile(const std::filesystem::path& filepath) noexcept
     const auto mapNode = document->first_node("map");
 
     if (loadTilePlanes(static_cast<const void*>(mapNode)))
-        //if (loadObjects(static_cast<const void*>(mapNode)))
+        if (loadObjects(static_cast<const void*>(mapNode)))
             return true;
 
     return false;
+}
+
+
+void TileMap::draw(ShaderProgram* shader) noexcept
+{
+    glUseProgram(shader->getHandle().value());
+
+    glBindTexture(GL_TEXTURE_2D, m_background->texture.getHandle());
+    glBindVertexArray(m_background->vao.getHandle());
+    glDrawElements(GL_TRIANGLES, m_background->ebo.getCount(), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindTexture(GL_TEXTURE_2D, m_foreground->texture.getHandle());
+    glBindVertexArray(m_foreground->vao.getHandle());
+    glDrawElements(GL_TRIANGLES, m_foreground->ebo.getCount(), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glUseProgram(0);
 }
 
 
@@ -77,7 +98,7 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
 
 	auto tilesets = loadTilesets(mapNode);
 
-	if (tilesets.empty() || tilesets.size() != 2)
+	if (tilesets.empty())
 		return false;
 
 	auto mapW  = mapNode->first_attribute("width");
@@ -103,7 +124,11 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
 		auto parsed_layer = parseCSVstring(dataNode);
 
 		Plane* plane = isBackground ? m_background.get() : m_foreground.get();
-        Tileset* tileset = isBackground ? &tilesets[0] : &tilesets[1];
+        const Tileset* tileset = tilesets.data();
+
+        if (!isBackground)
+            if (tilesets.size() > 1)
+                tileset++;
 
 		std::vector<GLfloat> vertices;
 		std::vector<GLuint>  indices;
@@ -139,7 +164,7 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
                     glm::vec2 rightTop    = { x * tile_width + tile_width, y * tile_height };
                     glm::vec2 leftTop     = { x * tile_width,              y * tile_height };
 
-                    GLuint cell = static_cast<GLuint>(vertices.size());
+                    const GLuint cell = static_cast<GLuint>(vertices.size());
 
                     vertices.push_back(leftBottom.x);
                     vertices.push_back(leftBottom.y);
@@ -172,8 +197,8 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
             }
         }
 
-        plane->vbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
-        plane->ebo.create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
+        plane->vbo.create(sizeof(GLfloat), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
+        plane->ebo.create(sizeof(GLuint), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
 
         const std::array<VertexBufferLayout::Attribute, 2> attributes =
         {
@@ -192,7 +217,48 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
 
 bool TileMap::loadObjects(const void* node) noexcept
 {
-    return false;
+    const auto mapNode = static_cast<const rapidxml::xml_node<char>*>(node);
+
+    for (auto objectGroupNode = mapNode->first_node("objectgroup");
+              objectGroupNode != nullptr;
+              objectGroupNode = objectGroupNode->next_sibling("objectgroup"))
+    {
+        for (auto objectNode = objectGroupNode->first_node("object");
+                  objectNode != nullptr;
+                  objectNode = objectNode->next_sibling("object"))
+        {
+            auto& object = m_objects.emplace_back();
+
+            for (auto attr = objectNode->first_attribute(); attr != nullptr; attr = attr->next_attribute())
+            {
+                if (strcmp(attr->name(), "x") == 0)      object.position.x = std::atoi(attr->value());
+                if (strcmp(attr->name(), "y") == 0)      object.position.y = std::atoi(attr->value());
+                if (strcmp(attr->name(), "width") == 0)  object.size.x = std::atoi(attr->value());
+                if (strcmp(attr->name(), "height") == 0) object.size.y = std::atoi(attr->value());
+                if (strcmp(attr->name(), "name") == 0)   object.name = attr->value();
+                if (strcmp(attr->name(), "class") == 0)  object.type = attr->value();
+            }
+
+            if (const auto propertiesNode = objectNode->first_node("properties"); propertiesNode != nullptr)
+            {
+                for (auto propertyNode = propertiesNode->first_node("property");
+                    propertyNode != nullptr;
+                    propertyNode = propertyNode->next_sibling("property"))
+                {
+                    auto& prop = object.properties.emplace_back();
+
+                    for (auto attr = propertyNode->first_attribute(); attr != nullptr; attr = attr->next_attribute())
+                    {
+                        if (strcmp(attr->name(), "name") == 0) { prop.name = attr->value(); continue; }
+                        if (strcmp(attr->name(), "type") == 0) { prop.type = attr->value(); continue; }
+                        if (strcmp(attr->name(), "value") == 0)   prop.value = attr->value();
+                    }
+                }
+            }
+        }
+    }
+
+    return !m_objects.empty();
 }
 
 

@@ -28,6 +28,17 @@ int platformer_demo(sf::Window& window, AppData& appData)
     auto camera = &appData.camera.orthogonal;
     camera->setupProjectionMatrix(width, height);
 
+    std::array<Shader, 2> shaders;
+    if (!shaders[0].loadFromFile("res/shaders/tilemap.vert", GL_VERTEX_SHADER)) return -1;
+    if (!shaders[1].loadFromFile("res/shaders/tilemap.frag", GL_FRAGMENT_SHADER)) return -1;
+
+    auto tilemapProgram = std::make_unique<ShaderProgram>();
+    if (!tilemapProgram->link(shaders)) return -1;
+
+    glUseProgram(tilemapProgram->getHandle().value());
+    glUniform1i(tilemapProgram->getUniformLocation("texture0").value(), 0);
+    glUseProgram(0);
+
     TileMap tilemap(appData.resourceHolder);
 
     if(!tilemap.loadFromFile(FileProvider::findPathToFile("Level-1.tmx"))) 
@@ -55,6 +66,8 @@ int platformer_demo(sf::Window& window, AppData& appData)
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        tilemap.draw(tilemapProgram.get());
 
         window.display();
     }
