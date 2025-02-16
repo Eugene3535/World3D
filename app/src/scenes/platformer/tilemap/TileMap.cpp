@@ -133,7 +133,7 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
 		std::vector<GLfloat> vertices;
 		std::vector<GLuint>  indices;
 
-		auto ratio = 1.0f / glm::vec2(plane->texture.getWidth() / 2, plane->texture.getHeight() / 2);
+		auto ratio = 1.0f / glm::vec2(plane->texture.getWidth(), plane->texture.getHeight());
         size_t index = 0;
         isBackground = false;
 
@@ -146,33 +146,35 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
 
                 if (tileId)
                 {
+//                  positions
+                    glm::vec2 leftBottom  = { x * tile_width,              y * tile_height + tile_height };
+                    glm::vec2 rightBottom = { x * tile_width + tile_width, y * tile_height + tile_height };
+                    glm::vec2 rightTop    = { x * tile_width + tile_width, y * tile_height };
+                    glm::vec2 leftTop     = { x * tile_width,              y * tile_height };
+
+//                  tex coords
                     int32_t tileNum = tileId - tileset->firstGID;
 
-                    int32_t Y = (tileNum >= tileset->columns) ? tileNum / tileset->columns : 0u;
-                    int32_t X = tileNum % tileset->columns;
+                    int32_t vY = (tileNum >= tileset->columns) ? tileNum / tileset->columns : 0;
+                    int32_t vX = tileNum % tileset->columns;
 
-                    int32_t offsetX = X * tile_width;
-                    int32_t offsetY = Y * tile_height;
-//                  tex coords
+                    int32_t offsetX = vX * tile_width;
+                    int32_t offsetY = vY * tile_height;
+
                     float left   = offsetX * ratio.x;
                     float top    = offsetY * ratio.y;
                     float right  = (offsetX + tile_width) * ratio.x;
                     float bottom = (offsetY + tile_height) * ratio.y;
-//                  positions
-                    glm::vec2 leftBottom  = { x * tile_width,              y * tile_height + tile_height };
-                    glm::vec2 rightBootom = { x * tile_width + tile_width, y * tile_height + tile_height };
-                    glm::vec2 rightTop    = { x * tile_width + tile_width, y * tile_height };
-                    glm::vec2 leftTop     = { x * tile_width,              y * tile_height };
 
-                    const GLuint cell = static_cast<GLuint>(vertices.size());
+                    const GLuint cell = static_cast<GLuint>(vertices.size() / 4);
 
                     vertices.push_back(leftBottom.x);
                     vertices.push_back(leftBottom.y);
                     vertices.push_back(left);
                     vertices.push_back(bottom);
 
-                    vertices.push_back(rightBootom.x);
-                    vertices.push_back(rightBootom.y);
+                    vertices.push_back(rightBottom.x);
+                    vertices.push_back(rightBottom.y);
                     vertices.push_back(right);
                     vertices.push_back(bottom);
 

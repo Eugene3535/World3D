@@ -24,7 +24,7 @@ bool Image::loadFromFile(const std::filesystem::path& fPath) noexcept
     if(!m_pixels.empty())
         m_pixels.clear();
 
-    stbi_set_flip_vertically_on_load(1);
+    // stbi_set_flip_vertically_on_load(1);
 
     if(stbi_uc* data = stbi_load(fPath.generic_string().c_str(), &m_width, &m_height, &m_bytePerPixel, 0); data)
     {

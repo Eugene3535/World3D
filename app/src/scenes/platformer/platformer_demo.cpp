@@ -17,6 +17,8 @@
 
 int platformer_demo(sf::Window& window, AppData& appData)
 {
+    glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
+
     auto [width, height] = window.getSize();
 
     std::array<uint32_t, 1> buffer = appData.resourceHolder.create<GlBuffer, 1>();
@@ -27,6 +29,8 @@ int platformer_demo(sf::Window& window, AppData& appData)
 
     auto camera = &appData.camera.orthogonal;
     camera->setupProjectionMatrix(width, height);
+    camera->setScale(1, -1);
+    camera->setPosition(0, height);
 
     std::array<Shader, 2> shaders;
     if (!shaders[0].loadFromFile("res/shaders/tilemap.vert", GL_VERTEX_SHADER)) return -1;
@@ -62,13 +66,25 @@ int platformer_demo(sf::Window& window, AppData& appData)
             }
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+            window.close();
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+            camera->move(0.0f, -3.0f);
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+            camera->move(3.0f, 0.0f);
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+            camera->move(0.0f, 3.0f);
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+            camera->move(-3.0f, 0.0f);
+
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
         tilemap.draw(tilemapProgram.get());
-
         window.display();
     }
 
