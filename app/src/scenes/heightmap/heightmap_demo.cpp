@@ -46,7 +46,7 @@ int heightmap_demo(sf::Window& window) noexcept
     Image imageCircleOff;  if(!imageCircleOff.loadFromFile("res/textures/circle_off.png"))     return -1;
     Image imageCircleOn;   if(!imageCircleOn.loadFromFile("res/textures/circle_on.png"))       return -1;
 
-    std::array<uint32_t, 6> textures = resourceHolder.create<Texture2D, 6>();
+    const auto textures = resourceHolder.create<Texture2D, 6>();
     
     auto texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
     auto texRock         = std::make_unique<Texture2D>(textures[1]);
