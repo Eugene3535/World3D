@@ -10,15 +10,6 @@
 class Animator
 {
 public:
-	struct Status
-	{
-		bool isPlaying    = false;
-		bool isLooped     = false;
-		bool isOver       = false;
-		bool isReversed   = false;
-	};
-
-public:
 	Animator() noexcept;
 
 	bool addAnimation(const std::string& name, std::span<const Sprite2D> animation) noexcept;

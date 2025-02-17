@@ -1,5 +1,6 @@
 #include <array>
 #include <algorithm>
+#include <cstring>
 
 #include "RapidXML/rapidxml.hpp"
 #include "RapidXML/rapidxml_utils.hpp"
@@ -202,10 +203,9 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
         plane->vbo.create(sizeof(GLfloat), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
         plane->ebo.create(sizeof(GLuint), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
 
-        const std::array<VertexBufferLayout::Attribute, 2> attributes =
+        const std::array<VertexBufferLayout::Attribute, 1> attributes =
         {
-            VertexBufferLayout::Attribute::Float2,
-            VertexBufferLayout::Attribute::Float2
+            VertexBufferLayout::Attribute::Float4
         };
         const VertexBufferLayout layout(attributes);
 

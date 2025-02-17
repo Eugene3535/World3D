@@ -13,6 +13,8 @@
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "data/AppData.hpp"
 #include "tilemap/TileMap.hpp"
+#include "sprites/SpriteHolder.hpp"
+#include "animation/Animator.hpp"
 
 
 int platformer_demo(sf::Window& window, AppData& appData)
@@ -21,9 +23,9 @@ int platformer_demo(sf::Window& window, AppData& appData)
 
     auto [width, height] = window.getSize();
 
-    std::array<uint32_t, 1> buffer = appData.resourceHolder.create<GlBuffer, 1>();
+    const auto buffers = appData.resourceHolder.create<GlBuffer, 2>();
 
-    GlBuffer uniformBuffer(buffer[0], GL_UNIFORM_BUFFER);
+    GlBuffer uniformBuffer(buffers[0], GL_UNIFORM_BUFFER);
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
@@ -31,8 +33,8 @@ int platformer_demo(sf::Window& window, AppData& appData)
     camera->setupProjectionMatrix(width, height);
 
     std::array<Shader, 2> shaders;
-    if (!shaders[0].loadFromFile("res/shaders/tilemap.vert", GL_VERTEX_SHADER)) return -1;
-    if (!shaders[1].loadFromFile("res/shaders/tilemap.frag", GL_FRAGMENT_SHADER)) return -1;
+    if (!shaders[0].loadFromFile(FileProvider::findPathToFile("tilemap.vert"), GL_VERTEX_SHADER)) return -1;
+    if (!shaders[1].loadFromFile(FileProvider::findPathToFile("tilemap.frag"), GL_FRAGMENT_SHADER)) return -1;
 
     auto tilemapProgram = std::make_unique<ShaderProgram>();
     if (!tilemapProgram->link(shaders)) return -1;
@@ -45,6 +47,10 @@ int platformer_demo(sf::Window& window, AppData& appData)
 
     if(!tilemap.loadFromFile(FileProvider::findPathToFile("Level-1.tmx"))) 
         return -1;
+
+    SpriteHolder spriteHolder(buffers[1]);
+    const auto vertexArrays = appData.resourceHolder.create<VertexArrayObject, 1>();
+    
 
     while (window.isOpen())
     {

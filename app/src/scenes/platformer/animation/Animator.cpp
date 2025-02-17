@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <glad/glad.h>
 
 #include "scenes/platformer/animation/Animator.hpp"
