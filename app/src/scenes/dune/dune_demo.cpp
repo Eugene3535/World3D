@@ -10,9 +10,10 @@
 
 #include "files/Image.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "data/AppData.hpp"
+#include "camera/orthogonal/Orthogonal.hpp"
+#include "opengl/holder/GlResourceHolder.hpp"
 
-int dune_demo(sf::Window& window, AppData& appData) noexcept
+int dune_demo(sf::Window& window) noexcept
 {
     auto [width, height] = window.getSize();
 
@@ -28,7 +29,8 @@ int dune_demo(sf::Window& window, AppData& appData) noexcept
     if(!imgRock.loadFromFile("res/textures/rock01.jpg")) return -1;
     if(!imgStone.loadFromFile("res/textures/cracked_earth.jpg")) return -1;
 
-    std::array<uint32_t, 5> textures = appData.resourceHolder.create<Texture2D, 5>();
+    auto resourceHolder = std::make_unique<GlResourceHolder>();
+    std::array<uint32_t, 5> textures = resourceHolder->create<Texture2D, 5>();
 
     auto texture0 = std::make_unique<Texture2D>(textures[0]);
     auto texture1 = std::make_unique<Texture2D>(textures[1]);
@@ -57,8 +59,8 @@ int dune_demo(sf::Window& window, AppData& appData) noexcept
     };
     VertexBufferLayout layout(attributes);
 
-    std::array<uint32_t, 2> buffers = appData.resourceHolder.create<GlBuffer, 2>();
-    std::array<uint32_t, 1> vertexArrays = appData.resourceHolder.create<VertexArrayObject, 1>();
+    std::array<uint32_t, 2> buffers = resourceHolder->create<GlBuffer, 2>();
+    std::array<uint32_t, 1> vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
 
     GlBuffer vbo(buffers[0], GL_ARRAY_BUFFER);
     vbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
@@ -85,7 +87,7 @@ int dune_demo(sf::Window& window, AppData& appData) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = &appData.camera.orthogonal;
+    auto camera = std::make_unique<Orthogonal>();
     camera->setupProjectionMatrix(width, height);
 
     while (window.isOpen())
@@ -110,13 +112,13 @@ int dune_demo(sf::Window& window, AppData& appData) noexcept
             window.close();
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-            camera->move(0.0f, -3.0f);
+            camera->move(0.0f, 3.0f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
             camera->move(3.0f, 0.0f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-            camera->move(0.0f, 3.0f);
+            camera->move(0.0f, -3.0f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
             camera->move(-3.0f, 0.0f);

@@ -4,13 +4,12 @@
 
 #include <SFML/Window.hpp>
 
-#include "data/AppData.hpp"
 #include "opengl/debug/OpenGLDebugger.hpp"
 
-int heightmap_demo(sf::Window& window, AppData& data) noexcept;
-int path_demo(sf::Window& window, AppData& data) noexcept;
-int dune_demo(sf::Window& window, AppData& data) noexcept;
-int platformer_demo(sf::Window& window, AppData& data) noexcept;
+int heightmap_demo(sf::Window& window) noexcept;
+int path_demo(sf::Window& window) noexcept;
+int dune_demo(sf::Window& window) noexcept;
+int platformer_demo(sf::Window& window) noexcept;
 
 int main()
 {
@@ -24,7 +23,6 @@ int main()
 
     const uint32_t width = 1200;
     const uint32_t height = 800;
-    AppData appData;
 
     sf::Window window(sf::VideoMode(width, height), "World3D", sf::Style::Default, settings);
     window.setVerticalSyncEnabled(true);
@@ -45,7 +43,7 @@ int main()
     OpenGLDebugger messager;
 #endif
 
-    int returnValue = platformer_demo(window, appData);
+    int returnValue = platformer_demo(window);
 
     return returnValue;
 }

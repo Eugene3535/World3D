@@ -10,10 +10,11 @@
 
 #include "files/Image.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "data/AppData.hpp"
+#include "camera/perspective/Perspective.hpp"
+#include "opengl/holder/GlResourceHolder.hpp"
 
 
-int path_demo(sf::Window& window, AppData& appData)
+int path_demo(sf::Window& window)
 {
     window.setMouseCursorVisible(false);
     glEnable(GL_DEPTH_TEST);
@@ -22,7 +23,8 @@ int path_demo(sf::Window& window, AppData& appData)
     Image imgPavement; imgPavement.loadFromFile("res/textures/pavement.jpg");
     Image imgPath;     imgPath.loadFromFile("res/textures/test.png");
 
-    std::array<uint32_t, 3> textures = appData.resourceHolder.create<Texture2D, 3>();
+    auto resourceHolder = std::make_unique<GlResourceHolder>();
+    std::array<uint32_t, 3> textures = resourceHolder->create<Texture2D, 3>();
 
     auto texSnow = std::make_unique<Texture2D>(textures[0]);
     auto texPavement = std::make_unique<Texture2D>(textures[1]);
@@ -49,8 +51,8 @@ int path_demo(sf::Window& window, AppData& appData)
         VertexBufferLayout::Attribute::Float2
     };
     VertexBufferLayout layout(attributes);
-    std::array<uint32_t, 2> buffers = appData.resourceHolder.create<GlBuffer, 2>();
-    std::array<uint32_t, 1> vertexArrays = appData.resourceHolder.create<VertexArrayObject, 1>();
+    std::array<uint32_t, 2> buffers = resourceHolder->create<GlBuffer, 2>();
+    std::array<uint32_t, 1> vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
 
     GlBuffer vbo(buffers[0], GL_ARRAY_BUFFER);
     vbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
@@ -76,7 +78,7 @@ int path_demo(sf::Window& window, AppData& appData)
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
     auto [width, height] = window.getSize();
-    auto camera = &appData.camera.perspective;
+    auto camera = std::make_unique<Perspective>();
     camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
     camera->setPosition(3, 3, 3);
 

@@ -11,25 +11,28 @@
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "data/AppData.hpp"
+#include "camera/orthogonal/Orthogonal.hpp"
+#include "camera/perspective/Perspective.hpp"
+#include "opengl/holder/GlResourceHolder.hpp"
 #include "tilemap/TileMap.hpp"
 #include "sprites/SpriteHolder.hpp"
 #include "animation/Animator.hpp"
 
 
-int platformer_demo(sf::Window& window, AppData& appData)
+int platformer_demo(sf::Window& window)
 {
     glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
 
     auto [width, height] = window.getSize();
 
-    const auto buffers = appData.resourceHolder.create<GlBuffer, 2>();
+    auto resourceHolder = std::make_unique<GlResourceHolder>();
+    const auto buffers = resourceHolder->create<GlBuffer, 2>();
 
     GlBuffer uniformBuffer(buffers[0], GL_UNIFORM_BUFFER);
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = &appData.camera.orthogonal;
+    auto camera = std::make_unique<Orthogonal>(); 
     camera->setupProjectionMatrix(width, height);
 
     std::array<Shader, 2> shaders;
@@ -43,13 +46,13 @@ int platformer_demo(sf::Window& window, AppData& appData)
     glUniform1i(tilemapProgram->getUniformLocation("texture0").value(), 0);
     glUseProgram(0);
 
-    TileMap tilemap(appData.resourceHolder);
+    TileMap tilemap(*resourceHolder);
 
     if(!tilemap.loadFromFile(FileProvider::findPathToFile("Level-1.tmx"))) 
         return -1;
 
     SpriteHolder spriteHolder(buffers[1]);
-    const auto vertexArrays = appData.resourceHolder.create<VertexArrayObject, 1>();
+    const auto vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
     
 
     while (window.isOpen())

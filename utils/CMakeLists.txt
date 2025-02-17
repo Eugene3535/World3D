@@ -18,7 +18,6 @@ set(_opengl_utils_src_files
 
 set(_opengl_utils_hdr_files
 	src/Config.hpp
-	src/data/AppData.hpp
 	src/graphics/Transform2D.hpp
 	src/files/Image.hpp
 	src/files/FileProvider.hpp

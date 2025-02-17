@@ -11,10 +11,12 @@
 
 #include "files/Image.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "data/AppData.hpp"
+#include "camera/orthogonal/Orthogonal.hpp"
+#include "camera/perspective/Perspective.hpp"
+#include "opengl/holder/GlResourceHolder.hpp"
 
 
-int heightmap_demo(sf::Window& window, AppData& appData) noexcept
+int heightmap_demo(sf::Window& window) noexcept
 {
     glEnable(GL_DEPTH_TEST);
 
@@ -22,17 +24,18 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
 
     window.setMouseCursorVisible(false);
 
-    std::array<uint32_t, 1> buffer = appData.resourceHolder.create<GlBuffer, 1>();
+    GlResourceHolder resourceHolder;
+    std::array<uint32_t, 1> buffer = resourceHolder.create<GlBuffer, 1>();
 
     GlBuffer uniformBuffer(buffer[0], GL_UNIFORM_BUFFER);
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto perspectiveCamera = &appData.camera.perspective;
+    auto perspectiveCamera = std::make_unique<Perspective>();
     perspectiveCamera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
     perspectiveCamera->setPosition(30, 3, 30);
 
-    auto orthoCamera = &appData.camera.orthogonal;
+    auto orthoCamera = std::make_unique<Orthogonal>();
     orthoCamera->setupProjectionMatrix(width, height);
 
     Image imageMap;        if(!imageMap.loadFromFile("res/textures/heightmap.png"))            return -1;
@@ -43,7 +46,7 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
     Image imageCircleOff;  if(!imageCircleOff.loadFromFile("res/textures/circle_off.png"))     return -1;
     Image imageCircleOn;   if(!imageCircleOn.loadFromFile("res/textures/circle_on.png"))       return -1;
 
-    std::array<uint32_t, 6> textures = appData.resourceHolder.create<Texture2D, 6>();
+    std::array<uint32_t, 6> textures = resourceHolder.create<Texture2D, 6>();
     
     auto texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
     auto texRock         = std::make_unique<Texture2D>(textures[1]);
@@ -105,8 +108,8 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
     }
 
 //  Allocate buffers
-    const auto buffers = appData.resourceHolder.create<GlBuffer, 3>();
-    const auto vertexArrays = appData.resourceHolder.create<VertexArrayObject, 2>();
+    const auto buffers = resourceHolder.create<GlBuffer, 3>();
+    const auto vertexArrays = resourceHolder.create<VertexArrayObject, 2>();
 
 //  Heightmap
     const std::array<VertexBufferLayout::Attribute, 2> heightmapAttributes
@@ -213,8 +216,8 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
             {
                 width = event.size.width;
                 height = event.size.height;
-                appData.camera.orthogonal.setupProjectionMatrix(width, height);
-                appData.camera.perspective.setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+                orthoCamera->setupProjectionMatrix(width, height);
+                perspectiveCamera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
                 glViewport(0, 0, width, height);
             }
         }
@@ -254,7 +257,7 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(perspectiveCamera->getModelViewProjectionMatrix())));
 
 		glEnable(GL_DEPTH_TEST);
-		glDepthMask(1);
+		glDepthMask(GL_TRUE);
 
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -286,7 +289,7 @@ int heightmap_demo(sf::Window& window, AppData& appData) noexcept
 
 //  Circles
         glDisable(GL_DEPTH_TEST);
-        glDepthMask(0);
+        glDepthMask(GL_FALSE);
 
         glUseProgram(circleProgram->getHandle().value());
         glBindVertexArray(circleVao->getHandle());
