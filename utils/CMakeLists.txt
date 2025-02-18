@@ -43,8 +43,6 @@ set(SHADER_FILES
 	${PROJECT_SOURCE_DIR}/res/shaders/heightmap.frag
 	${PROJECT_SOURCE_DIR}/res/shaders/circle.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/circle.frag
-	${PROJECT_SOURCE_DIR}/res/shaders/sprite.vert
-	${PROJECT_SOURCE_DIR}/res/shaders/sprite.frag
 	${PROJECT_SOURCE_DIR}/res/shaders/tilemap.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/tilemap.frag
 )

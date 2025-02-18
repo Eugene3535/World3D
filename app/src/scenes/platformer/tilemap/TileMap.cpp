@@ -7,7 +7,6 @@
 
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
-#include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "scenes/platformer/tilemap/TileMap.hpp"
 
 
@@ -73,10 +72,8 @@ bool TileMap::loadFromFile(const std::filesystem::path& filepath) noexcept
 }
 
 
-void TileMap::draw(ShaderProgram* shader) noexcept
+void TileMap::draw() noexcept
 {
-    glUseProgram(shader->getHandle().value());
-
     glBindTexture(GL_TEXTURE_2D, m_background->texture.getHandle());
     glBindVertexArray(m_background->vao.getHandle());
     glDrawElements(GL_TRIANGLES, m_background->ebo.getCount(), GL_UNSIGNED_INT, nullptr);
@@ -88,8 +85,6 @@ void TileMap::draw(ShaderProgram* shader) noexcept
     glDrawElements(GL_TRIANGLES, m_foreground->ebo.getCount(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    glUseProgram(0);
 }
 
 

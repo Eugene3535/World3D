@@ -118,12 +118,12 @@ int platformer_demo(sf::Window& window)
 
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        tilemap.draw(tilemapProgram.get());
-
         glUseProgram(tilemapProgram->getHandle().value());
-        glBindVertexArray(vao->getHandle());
 
+        glClear(GL_COLOR_BUFFER_BIT);
+        tilemap.draw();
+
+        glBindVertexArray(vao->getHandle());
         animator.draw();
 
         glBindVertexArray(0);
