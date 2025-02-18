@@ -18,7 +18,14 @@ Animator::Animator() noexcept:
 
 bool Animator::addAnimation(const std::string& name, std::span<const Sprite2D> animation) noexcept
 {
-    return m_animations.try_emplace(name, animation).second;
+    if(auto it = m_animations.try_emplace(name, animation); it.second)
+    {
+        m_current = it.first->second;
+
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -98,6 +105,12 @@ void Animator::setRate(float rate) noexcept
 }
 
 
+float Animator::getRate() const noexcept
+{
+    return m_rate;
+}
+
+
 bool Animator::isLooped() const noexcept
 {
     return m_isLooped;
@@ -106,7 +119,9 @@ bool Animator::isLooped() const noexcept
 
 bool Animator::isOver() const noexcept
 {
-    float limit = static_cast<float>(m_current.size());
+//  In C and C++, we all know that converting a floating point value into an integer performs a truncation. 
+//  That means, a fix towards zero, both for static_cast and for C style casts.
+    float limit = static_cast<float>(m_current.size()) + 0.9f;
 
     return (m_timer + m_rate) > limit;
 }

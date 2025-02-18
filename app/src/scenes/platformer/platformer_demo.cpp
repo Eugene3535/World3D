@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include <SFML/Window.hpp>
+#include <SFML/System/Clock.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -53,11 +54,10 @@ int platformer_demo(sf::Window& window)
     const auto textureHandles = resourceHolder->create<Texture2D, 1>();
     auto texture = std::make_unique<Texture2D>(textureHandles[0]);
 
-    if(!texture->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false)) 
+    if(!texture->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false)) 
         return -1;
 
     SpriteHolder spriteHolder(buffers[1]);
-    spriteHolder.createSprite("bullet", texture.get(), glm::ivec4(0, 0, 113, 26));
 
     const auto vaoHandles = resourceHolder->create<VertexArrayObject, 1>();
     auto vao = std::make_unique<VertexArrayObject>(vaoHandles[0]);
@@ -67,12 +67,18 @@ int platformer_demo(sf::Window& window)
         VertexBufferLayout::Attribute::Float4
     };
     const VertexBufferLayout spriteLayout(spriteAttributes);
-
     vao->addVertexBuffer(spriteHolder.getVertexBuffer(), spriteLayout);
 
-    auto sprites = spriteHolder.getSprites("bullet");
-    auto sprite = sprites.data();
-    
+    spriteHolder.createLinearAnimaton("move", texture.get(), 4);
+    auto sprites = spriteHolder.getSprites("move");
+
+    Animator animator;
+    animator.addAnimation("move", sprites);
+    animator.setLoop(true);
+    animator.setRate(1);
+    animator.play();
+
+    sf::Clock clock;
 
     while (window.isOpen())
     {
@@ -91,6 +97,9 @@ int platformer_demo(sf::Window& window)
                 glViewport(0, 0, width, height);
             }
         }
+
+        auto dt = clock.restart().asSeconds();
+        animator.update(dt);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             window.close();
@@ -113,11 +122,11 @@ int platformer_demo(sf::Window& window)
         tilemap.draw(tilemapProgram.get());
 
         glUseProgram(tilemapProgram->getHandle().value());
-        glBindTexture(GL_TEXTURE_2D, sprite->texture);
         glBindVertexArray(vao->getHandle());
-        glDrawArrays(GL_TRIANGLE_FAN, sprite->frame, 4);
+
+        animator.draw();
+
         glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
 
         window.display();

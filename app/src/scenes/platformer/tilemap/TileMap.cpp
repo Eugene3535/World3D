@@ -167,7 +167,7 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
                     float right  = (offsetX + tile_width) * ratio.x;
                     float bottom = (offsetY + tile_height) * ratio.y;
 
-                    const GLuint cell = static_cast<GLuint>(vertices.size() / 4);
+                    const GLuint cell = static_cast<GLuint>(vertices.size() >> 2);
 
                     vertices.push_back(leftBottom.x);
                     vertices.push_back(leftBottom.y);

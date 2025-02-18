@@ -150,16 +150,13 @@ std::span<const Sprite2D> SpriteHolder::getSprites(const std::string& name) cons
 
 void SpriteHolder::addSprite(GLuint texture, const glm::ivec4& frame, const glm::vec2& ratio) noexcept
 {
-	GLuint id  = m_sprites.size();
-	auto& sprite = m_sprites.emplace_back();
-
-	sprite.frame   = id;
+	auto& sprite   = m_sprites.emplace_back();
+	sprite.frame   = m_vertices.size() >> 2;
 	sprite.texture = texture;
 	sprite.width   = frame.z;
 	sprite.height  = frame.w;
 
-	std::array<float, 16> spriteVertices = {};
-	float* quad = spriteVertices.data();
+	std::array<float, 16> quad = {};
 
 	quad[4]  = static_cast<float>(frame.z);
 	quad[8]  = static_cast<float>(frame.z);
@@ -183,5 +180,5 @@ void SpriteHolder::addSprite(GLuint texture, const glm::ivec4& frame, const glm:
 	quad[14] = left;
 	quad[15] = bottom;
 
-	m_vertices.insert(m_vertices.end(), spriteVertices.begin(), spriteVertices.end());
+	m_vertices.insert(m_vertices.end(), quad.begin(), quad.end());
 }

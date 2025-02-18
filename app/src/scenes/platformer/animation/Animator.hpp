@@ -20,11 +20,12 @@ public:
 	void update(float dt) noexcept;
 	void draw() const noexcept;
 
-	void setLoop(bool loop) noexcept;
+	void setLoop(bool loop)  noexcept;
 	void setRate(float rate) noexcept;
 
+	float getRate() const noexcept;
 	bool isLooped() const noexcept;
-	bool isOver() const noexcept;
+	bool isOver()   const noexcept;
 
 private:
 	std::unordered_map<std::string, std::span<const Sprite2D>> m_animations;
