@@ -68,7 +68,6 @@ void Animator::update(float dt) noexcept
         {
             if(m_isLooped)
             {
-                m_frame = 0;
                 m_timer = 0;
             }
             else
@@ -121,9 +120,9 @@ bool Animator::isOver() const noexcept
 {
 //  In C and C++, we all know that converting a floating point value into an integer performs a truncation. 
 //  That means, a fix towards zero, both for static_cast and for C style casts.
-    float limit = static_cast<float>(m_current.size());
+    float limit = static_cast<float>(m_current.size()) - 0.1f;
 
-    return (m_timer + m_rate) > limit;
+    return m_timer > limit;
 }
 
 

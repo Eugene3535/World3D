@@ -87,7 +87,7 @@ int platformer_demo(sf::Window& window)
         goomba.addAnimation(GOOMBA_WALK, goombaWalkAnim);
         goomba.addAnimation(GOOMBA_DEAD, goombaDeadAnim);
         goomba.setLoop(true);
-        goomba.setRate(0.75f);
+        goomba.setRate(4);
         goomba.play();
     }
 
