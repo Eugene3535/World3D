@@ -16,7 +16,7 @@ public:
 	void setAnimation(const std::string& name) noexcept;
 
 	void play() noexcept;
-	void stop() noexcept;
+	void pause() noexcept;
 	void update(float dt) noexcept;
 	void draw() const noexcept;
 

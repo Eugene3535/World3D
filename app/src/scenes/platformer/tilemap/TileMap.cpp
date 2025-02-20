@@ -169,7 +169,7 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
 		std::vector<GLfloat> vertices;
 		std::vector<GLuint>  indices;
 
-		auto ratio = 1.0f / glm::vec2(plane->texture.getWidth(), plane->texture.getHeight());
+		sf::Vector2f ratio = sf::Vector2f(1.0f / (float)plane->texture.getWidth(), 1.0f / (float)plane->texture.getHeight());
         size_t index = 0;
         isBackground = false;
 
@@ -183,10 +183,10 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
                 if (tileId)
                 {
 //                  positions
-                    glm::vec2 leftBottom  = { x * tile_width,              y * tile_height + tile_height };
-                    glm::vec2 rightBottom = { x * tile_width + tile_width, y * tile_height + tile_height };
-                    glm::vec2 rightTop    = { x * tile_width + tile_width, y * tile_height };
-                    glm::vec2 leftTop     = { x * tile_width,              y * tile_height };
+                    sf::Vector2f leftBottom  = { x * tile_width,              y * tile_height + tile_height };
+                    sf::Vector2f rightBottom = { x * tile_width + tile_width, y * tile_height + tile_height };
+                    sf::Vector2f rightTop    = { x * tile_width + tile_width, y * tile_height };
+                    sf::Vector2f leftTop     = { x * tile_width,              y * tile_height };
 
 //                  tex coords
                     int32_t tileNum = tileId - tileset->firstGID;
@@ -268,10 +268,10 @@ bool TileMap::loadObjects(const void* node) noexcept
 
             for (auto attr = objectNode->first_attribute(); attr != nullptr; attr = attr->next_attribute())
             {
-                if (strcmp(attr->name(), "x") == 0)      object.position.x = std::atoi(attr->value());
-                if (strcmp(attr->name(), "y") == 0)      object.position.y = std::atoi(attr->value());
-                if (strcmp(attr->name(), "width") == 0)  object.size.x = std::atoi(attr->value());
-                if (strcmp(attr->name(), "height") == 0) object.size.y = std::atoi(attr->value());
+                if (strcmp(attr->name(), "x") == 0)      object.bounds.left   = atof(attr->value());
+                if (strcmp(attr->name(), "y") == 0)      object.bounds.top    = atof(attr->value());
+                if (strcmp(attr->name(), "width") == 0)  object.bounds.width  = atof(attr->value());
+                if (strcmp(attr->name(), "height") == 0) object.bounds.height = atof(attr->value());
                 if (strcmp(attr->name(), "name") == 0)   object.name = attr->value();
                 if (strcmp(attr->name(), "class") == 0)  object.type = attr->value();
             }

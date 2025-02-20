@@ -48,7 +48,7 @@ void Animator::play() noexcept
 }
 
 
-void Animator::stop() noexcept
+void Animator::pause() noexcept
 {
     m_isPlaying = false;
 }

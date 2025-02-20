@@ -26,7 +26,7 @@ Goomba(const Animator& a, int x, int y) noexcept:
 			timer = 0;
 		}
 
-		if (Health <= 0)
+		if (Health < 1)
 		{
 			anim.setAnimation(GOOMBA_DEAD);
 			dx = 0;

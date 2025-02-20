@@ -17,6 +17,7 @@
 #include "scenes/platformer/tilemap/TileMap.hpp"
 #include "scenes/platformer/sprites/SpriteHolder.hpp"
 #include "scenes/platformer/entities/Goomba.hpp"
+#include "scenes/platformer/entities/Player.hpp"
 
 
 int platformer_demo(sf::Window& window)
@@ -51,13 +52,16 @@ int platformer_demo(sf::Window& window)
     if(!tilemap.loadFromFile(FileProvider::findPathToFile("Level-1.tmx"))) 
         return -1;
 
-    const auto textureHandles = resourceHolder->create<Texture2D, 1>();
+//  Textures
+    const auto textureHandles = resourceHolder->create<Texture2D, 2>();
 
     auto texGoomba = std::make_unique<Texture2D>(textureHandles[0]);
+    auto texMegaman = std::make_unique<Texture2D>(textureHandles[1]);
 
-    if(!texGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false)) 
-        return -1;
+    if(!texGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false)) return -1;
+    if(!texMegaman->loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false)) return -1;
 
+//  Sprite animation
     SpriteHolder spriteHolder(buffers[1]);
 
     const auto vaoHandles = resourceHolder->create<VertexArrayObject, 1>();
@@ -70,6 +74,7 @@ int platformer_demo(sf::Window& window)
     const VertexBufferLayout spriteLayout(spriteAttributes);
     vao->addVertexBuffer(spriteHolder.getVertexBuffer(), spriteLayout);
 
+//  Goomba
     {
         std::array<glm::ivec4, 2> goombaWalkFrames = 
         {
@@ -91,12 +96,15 @@ int platformer_demo(sf::Window& window)
         goomba.play();
     }
 
+//  Megaman
+    //spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
+
     auto enemyObjects = tilemap.getObjectsByName("enemy");
 
     std::vector<std::unique_ptr<Entity>> entities;
 
-    for (const auto enemy : enemyObjects)
-        auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, enemy->position.x, enemy->position.y)).get();
+    for (const auto object : enemyObjects)
+        auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, object->bounds.left, object->bounds.top)).get();
         
     sf::Clock clock;
 

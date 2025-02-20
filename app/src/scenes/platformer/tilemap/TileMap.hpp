@@ -6,7 +6,7 @@
 #include <memory>
 #include <filesystem>
 
-#include <glm/glm.hpp>
+#include <SFML/Graphics/Rect.hpp>
 
 #include "opengl/holder/GlResourceHolder.hpp"
 
@@ -49,8 +49,7 @@ public:
 
 		std::vector<Property> properties;
 
-		glm::ivec2 position;
-		glm::ivec2 size;
+		sf::FloatRect bounds;
 	};
 
 	TileMap(GlResourceHolder& rh) noexcept;
@@ -76,8 +75,8 @@ private:
 	std::unique_ptr<Plane> m_foreground;
 
     std::vector<Object> m_objects;
-    glm::uvec2          m_mapSize;
-    glm::uvec2          m_tileSize;
+    sf::Vector2i        m_mapSize;
+    sf::Vector2i        m_tileSize;
 };
 
 #endif // !TILEMAP_HPP
