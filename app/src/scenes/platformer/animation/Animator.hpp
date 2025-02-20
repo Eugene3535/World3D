@@ -21,7 +21,7 @@ public:
 	void draw() const noexcept;
 
 	void setLoop(bool loop)  noexcept;
-	void setRate(float rate) noexcept;
+	void setRate(float rate) noexcept; // frames per second
 
 	float getRate() const noexcept;
 	bool isLooped() const noexcept;

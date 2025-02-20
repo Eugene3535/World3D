@@ -121,7 +121,7 @@ bool Animator::isOver() const noexcept
 {
 //  In C and C++, we all know that converting a floating point value into an integer performs a truncation. 
 //  That means, a fix towards zero, both for static_cast and for C style casts.
-    float limit = static_cast<float>(m_current.size()) + 0.9f;
+    float limit = static_cast<float>(m_current.size());
 
     return (m_timer + m_rate) > limit;
 }

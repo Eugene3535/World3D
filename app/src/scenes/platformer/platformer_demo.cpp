@@ -70,27 +70,33 @@ int platformer_demo(sf::Window& window)
     const VertexBufferLayout spriteLayout(spriteAttributes);
     vao->addVertexBuffer(spriteHolder.getVertexBuffer(), spriteLayout);
 
-    spriteHolder.createLinearAnimaton(GOOMBA_WALK, texGoomba.get(), 2);
-    spriteHolder.createLinearAnimaton(GOOMBA_DEAD, texGoomba.get(), 4); // Добавить дополнительный расчёт анимации
-
-    auto goombaWalkAnim = spriteHolder.getSprites(GOOMBA_WALK);
-    auto goombaDeadAnim = spriteHolder.getSprites(GOOMBA_DEAD);
+    {
+        std::array<glm::ivec4, 2> goombaWalkFrames = 
+        {
+            glm::ivec4(0, 0, 16, 16),
+            glm::ivec4(16, 0, 16, 16)
+        };
+        spriteHolder.createCustomAnimaton(GOOMBA_WALK, texGoomba.get(), goombaWalkFrames);
+        spriteHolder.createSingleAnimation(GOOMBA_DEAD, texGoomba.get(), glm::ivec4(48, 0, 16, 16));
+    }
 
     Animator goomba;
-    goomba.addAnimation(GOOMBA_WALK, goombaWalkAnim);
-    goomba.addAnimation(GOOMBA_DEAD, goombaDeadAnim);
+    {
+        auto goombaWalkAnim = spriteHolder.getSprites(GOOMBA_WALK);
+        auto goombaDeadAnim = spriteHolder.getSprites(GOOMBA_DEAD);
+        goomba.addAnimation(GOOMBA_WALK, goombaWalkAnim);
+        goomba.addAnimation(GOOMBA_DEAD, goombaDeadAnim);
+        goomba.setLoop(true);
+        goomba.setRate(0.75f);
+        goomba.play();
+    }
 
     auto enemyObjects = tilemap.getObjectsByName("enemy");
 
     std::vector<std::unique_ptr<Entity>> entities;
 
     for (const auto enemy : enemyObjects)
-    {
         auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, enemy->position.x, enemy->position.y)).get();
-        entity->anim.setLoop(true);
-        entity->anim.setRate(1);
-        entity->anim.play();
-    }
         
     sf::Clock clock;
 
