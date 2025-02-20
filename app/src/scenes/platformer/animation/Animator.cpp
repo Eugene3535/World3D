@@ -125,3 +125,21 @@ bool Animator::isOver() const noexcept
 
     return (m_timer + m_rate) > limit;
 }
+
+
+int32_t Animator::getWidth() const noexcept
+{
+    if(!m_current.empty())
+        return m_current[m_frame].width;
+
+    return 0;
+}
+
+
+int32_t Animator::getHeight() const noexcept
+{
+    if(!m_current.empty())
+        return m_current[m_frame].height;
+
+    return 0;
+}

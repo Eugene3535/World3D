@@ -59,6 +59,11 @@ public:
 	bool loadFromFile(const std::filesystem::path& filepath) noexcept;
 	void draw() noexcept;
 
+	const Object*              getObject(const std::string& name) const noexcept;
+	std::vector<const Object*> getObjectsByName(const std::string& name) const noexcept;
+	std::vector<const Object*> getObjectsByType(const std::string& type) const noexcept;
+	std::span<const Object>    getAllObjects() const noexcept;
+
 private:
 	bool loadTilePlanes(const void* node) noexcept;
 	bool loadObjects(const void* node)    noexcept;

@@ -88,6 +88,46 @@ void TileMap::draw() noexcept
 }
 
 
+const TileMap::Object* TileMap::getObject(const std::string& name) const noexcept
+{
+    for (const auto& object : m_objects)
+        if(object.name == name)
+            return &object;
+    
+    return nullptr;
+}
+
+
+std::vector<const TileMap::Object*> TileMap::getObjectsByName(const std::string& name) const noexcept
+{
+    std::vector<const TileMap::Object*> objectsByName;
+
+    for (const auto& object : m_objects)
+        if(object.name == name)
+            objectsByName.push_back(&object);
+
+    return objectsByName;
+}
+
+
+std::vector<const TileMap::Object*> TileMap::getObjectsByType(const std::string& type) const noexcept
+{
+    std::vector<const TileMap::Object*> objectsByType;
+
+    for (const auto& object : m_objects)
+        if(object.type == type)
+            objectsByType.push_back(&object);
+
+    return objectsByType;
+}
+
+
+std::span<const TileMap::Object> TileMap::getAllObjects() const noexcept
+{
+    return m_objects;
+}
+
+
 bool TileMap::loadTilePlanes(const void* node) noexcept
 {
 	const auto mapNode = static_cast<const rapidxml::xml_node<char>*>(node);

@@ -12,6 +12,8 @@ set(_app_src_files
 	src/scenes/platformer/animation/Animator.hpp
 	src/scenes/platformer/tilemap/TileMap.cpp
 	src/scenes/platformer/tilemap/TileMap.hpp
+	src/scenes/platformer/entities/Entity.hpp
+	src/scenes/platformer/entities/Goomba.hpp
 	src/main.cpp
 )
 

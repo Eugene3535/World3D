@@ -14,9 +14,9 @@
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/Orthogonal.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
-#include "tilemap/TileMap.hpp"
-#include "sprites/SpriteHolder.hpp"
-#include "animation/Animator.hpp"
+#include "scenes/platformer/tilemap/TileMap.hpp"
+#include "scenes/platformer/sprites/SpriteHolder.hpp"
+#include "scenes/platformer/entities/Goomba.hpp"
 
 
 int platformer_demo(sf::Window& window)
@@ -52,9 +52,10 @@ int platformer_demo(sf::Window& window)
         return -1;
 
     const auto textureHandles = resourceHolder->create<Texture2D, 1>();
-    auto texture = std::make_unique<Texture2D>(textureHandles[0]);
 
-    if(!texture->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false)) 
+    auto texGoomba = std::make_unique<Texture2D>(textureHandles[0]);
+
+    if(!texGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false)) 
         return -1;
 
     SpriteHolder spriteHolder(buffers[1]);
@@ -69,15 +70,28 @@ int platformer_demo(sf::Window& window)
     const VertexBufferLayout spriteLayout(spriteAttributes);
     vao->addVertexBuffer(spriteHolder.getVertexBuffer(), spriteLayout);
 
-    spriteHolder.createLinearAnimaton("move", texture.get(), 4);
-    auto sprites = spriteHolder.getSprites("move");
+    spriteHolder.createLinearAnimaton(GOOMBA_WALK, texGoomba.get(), 2);
+    spriteHolder.createLinearAnimaton(GOOMBA_DEAD, texGoomba.get(), 4); // Добавить дополнительный расчёт анимации
 
-    Animator animator;
-    animator.addAnimation("move", sprites);
-    animator.setLoop(true);
-    animator.setRate(1);
-    animator.play();
+    auto goombaWalkAnim = spriteHolder.getSprites(GOOMBA_WALK);
+    auto goombaDeadAnim = spriteHolder.getSprites(GOOMBA_DEAD);
 
+    Animator goomba;
+    goomba.addAnimation(GOOMBA_WALK, goombaWalkAnim);
+    goomba.addAnimation(GOOMBA_DEAD, goombaDeadAnim);
+
+    auto enemyObjects = tilemap.getObjectsByName("enemy");
+
+    std::vector<std::unique_ptr<Entity>> entities;
+
+    for (const auto enemy : enemyObjects)
+    {
+        auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, enemy->position.x, enemy->position.y)).get();
+        entity->anim.setLoop(true);
+        entity->anim.setRate(1);
+        entity->anim.play();
+    }
+        
     sf::Clock clock;
 
     while (window.isOpen())
@@ -99,7 +113,6 @@ int platformer_demo(sf::Window& window)
         }
 
         auto dt = clock.restart().asSeconds();
-        animator.update(dt);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             window.close();
@@ -116,6 +129,9 @@ int platformer_demo(sf::Window& window)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
             camera->move(-10.0f, 0.0f);
 
+        for(auto& entity : entities)
+            entity->update(dt);
+
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         glUseProgram(tilemapProgram->getHandle().value());
@@ -124,9 +140,15 @@ int platformer_demo(sf::Window& window)
         tilemap.draw();
 
         glBindVertexArray(vao->getHandle());
-        animator.draw();
 
+        for(auto& entity : entities)
+        {
+            uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix() * entity->getMatrix())));
+            entity->anim.draw();
+        }
+            
         glBindVertexArray(0);
+
         glUseProgram(0);
 
         window.display();
