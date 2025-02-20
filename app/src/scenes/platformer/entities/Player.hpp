@@ -22,7 +22,7 @@ public:
 
 	struct
 	{
-		bool L, R, Up, Down, Space;
+		bool Left, Right, Up, Down, Space;
 	} key;
 
 
@@ -32,19 +32,19 @@ public:
 		setOptions(0, 100, "stay");
 		state = stay; hit = false;
 		objects = lev;
-		key.R = key.L = key.Up = key.Down = key.Space = false;
+		key.Left = key.Right = key.Up = key.Down = key.Space = false;
 	}
 
 	void Keyboard() noexcept
 	{
-		if (key.L)
+		if (key.Left)
 		{
 			looksToTheRight = true;
 			if (state != duck) dx = -150;
 			if (state == stay) state = walk;
 		}
 
-		if (key.R)
+		if (key.Right)
 		{
 			looksToTheRight = false;
 			if (state != duck) dx = 150;
@@ -56,7 +56,7 @@ public:
 			if (onLadder) state = climb;
 			if (state == stay || state == walk) { dy = -360; state = jump; anim.setAnimation("jump"); }
 			if (state == climb) dy = -100;
-			if (state == climb) if (key.L || key.R) state = stay;
+			if (state == climb) if (key.Left || key.Right) state = stay;
 		}
 
 		if (key.Down)
@@ -71,7 +71,7 @@ public:
 		}
 
 		/////////////////////если клавиша отпущена///////////////////////////
-		if (!(key.R || key.L))
+		if (!(key.Left || key.Right))
 		{
 			dx = 0;
 			if (state == walk) state = stay;
@@ -92,7 +92,7 @@ public:
 			shoot = false;
 		}
 
-		key.R = key.L = key.Up = key.Down = key.Space = false;
+		key.Left = key.Right = key.Up = key.Down = key.Space = false;
 	}
 
 	void Animation(float dt) noexcept

@@ -35,6 +35,7 @@ int platformer_demo(sf::Window& window)
 
     auto camera = std::make_unique<Orthogonal>(); 
     camera->setupProjectionMatrix(width, height);
+    //camera->setOrigin(width >> 1, height >> 1);
 
     std::array<Shader, 2> shaders;
     if (!shaders[0].loadFromFile(FileProvider::findPathToFile("tilemap.vert"), GL_VERTEX_SHADER)) return -1;
@@ -150,6 +151,7 @@ int platformer_demo(sf::Window& window)
                 width = event.size.width;
                 height = event.size.height;
                 camera->setupProjectionMatrix(width, height);
+                //camera->setOrigin(width >> 1, height >> 1);
                 glViewport(0, 0, width, height);
             }
         }
@@ -160,34 +162,23 @@ int platformer_demo(sf::Window& window)
             window.close();
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        {
-            camera->move(0.0f, 10.0f);
             Mario.key.Up = true;
-        }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-        {
-            camera->move(10.0f, 0.0f);
-            Mario.key.L = true;
-        }
+            Mario.key.Left = true;
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            camera->move(0.0f, -10.0f);
-            Mario.key.Down = true;
-        }    
+            Mario.key.Down = true;  
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-        {
-            camera->move(-10.0f, 0.0f);
-            Mario.key.R = true;
-        }
-
+            Mario.key.Right = true;
+        
         for(auto& entity : entities)
             entity->update(dt);
 
         Mario.update(dt);
 
+        camera->setPosition(-(Mario.getPosition().x - (width >> 1)), -(Mario.getPosition().y - (height >> 1)));
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         glUseProgram(tilemapProgram->getHandle().value());
