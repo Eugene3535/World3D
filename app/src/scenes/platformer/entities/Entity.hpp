@@ -50,7 +50,7 @@ public:
 	}
 
 	Animator anim;
-	std::span<TileMap::Object> objects;
+	std::span<const TileMap::Object> objects;
 	float timer, timer_end;
 	sf::FloatRect hitbox;
 	float dx, dy;

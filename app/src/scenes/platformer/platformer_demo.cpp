@@ -85,6 +85,8 @@ int platformer_demo(sf::Window& window)
         spriteHolder.createSingleAnimation(GOOMBA_DEAD, texGoomba.get(), glm::ivec4(48, 0, 16, 16));
     }
 
+    spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
+
     Animator goomba;
     {
         auto goombaWalkAnim = spriteHolder.getSprites(GOOMBA_WALK);
@@ -96,15 +98,41 @@ int platformer_demo(sf::Window& window)
         goomba.play();
     }
 
-//  Megaman
-    // spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
+    Animator megaman;
+    {
+        auto megaman_jump         = spriteHolder.getSprites(MEGAMAN_JUMP);
+        auto megaman_hit          = spriteHolder.getSprites(MEGAMAN_HIT);
+        auto megaman_duck         = spriteHolder.getSprites(MEGAMAN_DUCK);
+        auto megaman_shoot        = spriteHolder.getSprites(MEGAMAN_SHOOT);
+        auto megaman_shootAndWalk = spriteHolder.getSprites(MEGAMAN_SHOOTANDWALK);
+        auto megaman_climb        = spriteHolder.getSprites(MEGAMAN_CLIMB);
+        auto megaman_stay         = spriteHolder.getSprites(MEGAMAN_STAY);
+        auto megaman_walk         = spriteHolder.getSprites(MEGAMAN_WALK);
+
+        megaman.addAnimation(MEGAMAN_JUMP, megaman_jump);
+        megaman.addAnimation(MEGAMAN_HIT, megaman_hit);
+        megaman.addAnimation(MEGAMAN_DUCK, megaman_duck);
+        megaman.addAnimation(MEGAMAN_SHOOT, megaman_shoot);
+        megaman.addAnimation(MEGAMAN_SHOOTANDWALK, megaman_shootAndWalk);
+        megaman.addAnimation(MEGAMAN_CLIMB, megaman_climb);
+        megaman.addAnimation(MEGAMAN_STAY, megaman_stay);
+        megaman.addAnimation(MEGAMAN_WALK, megaman_walk);
+
+        megaman.setLoop(true);
+        megaman.setRate(12);
+        megaman.play();
+    }
 
     auto enemyObjects = tilemap.getObjectsByName("enemy");
+    auto allObjects = tilemap.getAllObjects();
 
     std::vector<std::unique_ptr<Entity>> entities;
 
     for (const auto object : enemyObjects)
-        auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, object->bounds.left, object->bounds.top)).get();
+        auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, (int)object->bounds.left, (int)object->bounds.top)).get();
+
+    auto playerObject = tilemap.getObject("player");
+    Player Mario(megaman, allObjects, playerObject->bounds.left, playerObject->bounds.top);
         
     sf::Clock clock;
 
@@ -132,19 +160,33 @@ int platformer_demo(sf::Window& window)
             window.close();
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        {
             camera->move(0.0f, 10.0f);
+            Mario.key.Up = true;
+        }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+        {
             camera->move(10.0f, 0.0f);
+            Mario.key.L = true;
+        }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        {
             camera->move(0.0f, -10.0f);
+            Mario.key.Down = true;
+        }    
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+        {
             camera->move(-10.0f, 0.0f);
+            Mario.key.R = true;
+        }
 
         for(auto& entity : entities)
             entity->update(dt);
+
+        Mario.update(dt);
 
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
@@ -160,9 +202,11 @@ int platformer_demo(sf::Window& window)
             uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix() * entity->getMatrix())));
             entity->anim.draw();
         }
+
+        uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix() * Mario.getMatrix())));
+        Mario.anim.draw();
             
         glBindVertexArray(0);
-
         glUseProgram(0);
 
         window.display();

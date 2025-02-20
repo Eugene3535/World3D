@@ -4,6 +4,16 @@
 #include "scenes/platformer/entities/Entity.hpp"
 
 
+#define MEGAMAN_JUMP "megaman_jump"
+#define MEGAMAN_HIT "megaman_hit"
+#define MEGAMAN_DUCK "megaman_duck"
+#define MEGAMAN_SHOOT "megaman_shoot"
+#define MEGAMAN_SHOOTANDWALK "megaman_shootAndWalk"
+#define MEGAMAN_CLIMB "megaman_climb"
+#define MEGAMAN_STAY "megaman_stay"
+#define MEGAMAN_WALK "megaman_walk"
+
+
 class Player : public Entity
 {
 public:
@@ -16,7 +26,7 @@ public:
 	} key;
 
 
-	Player(const Animator& a, std::span<TileMap::Object> lev, int x, int y) noexcept:
+	Player(const Animator& a, std::span<const TileMap::Object> lev, int x, int y) noexcept:
 		Entity(a, x, y)
 	{
 		setOptions(0, 100, "stay");
@@ -115,6 +125,7 @@ public:
 	void update(float dt) noexcept
 	{
 		Keyboard();
+		setPosition(hitbox.left, hitbox.top);
 
 		Animation(dt);
 
