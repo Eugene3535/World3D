@@ -183,10 +183,10 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
                 if (tileId)
                 {
 //                  positions
-                    sf::Vector2f leftBottom  = { x * tile_width,              y * tile_height + tile_height };
-                    sf::Vector2f rightBottom = { x * tile_width + tile_width, y * tile_height + tile_height };
-                    sf::Vector2f rightTop    = { x * tile_width + tile_width, y * tile_height };
-                    sf::Vector2f leftTop     = { x * tile_width,              y * tile_height };
+                    sf::Vector2f leftBottom  = sf::Vector2f(x * tile_width,              y * tile_height + tile_height);
+                    sf::Vector2f rightBottom = sf::Vector2f(x * tile_width + tile_width, y * tile_height + tile_height);
+                    sf::Vector2f rightTop    = sf::Vector2f(x * tile_width + tile_width, y * tile_height);
+                    sf::Vector2f leftTop     = sf::Vector2f(x * tile_width,              y * tile_height);
 
 //                  tex coords
                     int32_t tileNum = tileId - tileset->firstGID;

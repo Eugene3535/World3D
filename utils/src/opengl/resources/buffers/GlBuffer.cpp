@@ -34,7 +34,7 @@ void GlBuffer::update(size_t offset, size_t elementSize, size_t elementCount, co
         m_count = static_cast<GLuint>(elementCount);
     }
         
-    glBufferSubData(m_target, static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(elementCount * elementSize), data);
+    glBufferSubData(m_target, static_cast<GLintptr>(elementSize * offset), static_cast<GLsizeiptr>(elementCount * elementSize), data);
     glBindBuffer(m_target, 0);
 }
 

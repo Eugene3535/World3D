@@ -97,7 +97,7 @@ int platformer_demo(sf::Window& window)
     }
 
 //  Megaman
-    //spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
+    // spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
 
     auto enemyObjects = tilemap.getObjectsByName("enemy");
 
