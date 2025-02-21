@@ -22,6 +22,8 @@
 #include "scenes/platformer/entities/Player.hpp"
 
 
+#define HEALTH_BAR "health_bar"
+
 int platformer_demo(sf::Window& window)
 {
     glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
@@ -55,17 +57,19 @@ int platformer_demo(sf::Window& window)
         return -1;
 
 //  Textures
-    const auto textureHandles = resourceHolder->create<Texture2D, 4>();
+    const auto textureHandles = resourceHolder->create<Texture2D, 5>();
 
-    auto texGoomba = std::make_unique<Texture2D>(textureHandles[0]);
-    auto texMegaman = std::make_unique<Texture2D>(textureHandles[1]);
-    auto texBullet = std::make_unique<Texture2D>(textureHandles[2]);
+    auto texGoomba     = std::make_unique<Texture2D>(textureHandles[0]);
+    auto texMegaman    = std::make_unique<Texture2D>(textureHandles[1]);
+    auto texBullet     = std::make_unique<Texture2D>(textureHandles[2]);
     auto texMovingPlat = std::make_unique<Texture2D>(textureHandles[3]);
+    auto texHealthBar  = std::make_unique<Texture2D>(textureHandles[4]);
 
-    if(!texGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false)) return -1;
-    if(!texMegaman->loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false)) return -1;
-    if(!texBullet->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false)) return -1;
+    if(!texGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false))              return -1;
+    if(!texMegaman->loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false))           return -1;
+    if(!texBullet->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false))             return -1;
     if(!texMovingPlat->loadFromFile(FileProvider::findPathToFile("movingPlatform.png"), false, false)) return -1;
+    if(!texHealthBar->loadFromFile(FileProvider::findPathToFile("HealthBar.png"), false, false))       return -1;
 
 //  Sprite animation
     SpriteHolder spriteHolder(buffers[1]);
@@ -106,6 +110,9 @@ int platformer_demo(sf::Window& window)
 // Moving platform
     spriteHolder.createSingleAnimation(PLATFORM_MOVE, texMovingPlat.get(), glm::ivec4(0, 0, 95, 22));
 
+//  Health bar
+    spriteHolder.createSingleAnimation(HEALTH_BAR, texHealthBar.get(), glm::ivec4(0, 0, texHealthBar->getWidth(), texHealthBar->getHeight()));
+    
 //  Megaman
     spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
 
@@ -163,6 +170,9 @@ int platformer_demo(sf::Window& window)
         megaman.setRate(12);
         megaman.play();
     }
+
+    auto healthBarFrame = spriteHolder.getSprites(HEALTH_BAR);
+    const auto healthbar = healthBarFrame.data();
 
     auto enemyObjects = tilemap.getObjectsByName("enemy");
     auto solidObjects = tilemap.getObjectsByName("solid");
@@ -222,6 +232,8 @@ int platformer_demo(sf::Window& window)
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
         {
+            Mario.key.Space = true;
+
             if (cooldown > 10)
             {
                 bool MarioLooksToTheRight = Mario.looksToTheRight;
@@ -304,7 +316,6 @@ int platformer_demo(sf::Window& window)
 			}
 		}
 
-
         camera->setPosition(-(Mario.getPosition().x - (width >> 1)), -(Mario.getPosition().y - (height >> 1)));
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
@@ -323,6 +334,12 @@ int platformer_demo(sf::Window& window)
 
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix() * Mario.getMatrix())));
         Mario.anim.draw();
+
+        camera->setPosition(20, 20);
+        uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
+        glBindTexture(GL_TEXTURE_2D, healthbar->texture);
+		glDrawArrays(GL_TRIANGLE_FAN, healthbar->frame, 4);
+		glBindTexture(GL_TEXTURE_2D, 0);
             
         glBindVertexArray(0);
         glUseProgram(0);

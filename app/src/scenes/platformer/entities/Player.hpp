@@ -98,7 +98,7 @@ public:
 	void Animation(float dt) noexcept
 	{
 		if (state == stay) { anim.setAnimation(MEGAMAN_STAY); anim.setLoop(true); }
-		if (state == walk) { anim.setAnimation(MEGAMAN_WALK); }
+		if (state == walk) { anim.setAnimation(MEGAMAN_WALK); anim.setLoop(true);}
 		if (state == jump) { anim.setAnimation(MEGAMAN_JUMP); }
 		if (state == duck) { anim.setAnimation(MEGAMAN_DUCK); }
 		if (state == climb) { anim.setAnimation(MEGAMAN_CLIMB); anim.pause(); if (dy != 0) anim.play(); }
