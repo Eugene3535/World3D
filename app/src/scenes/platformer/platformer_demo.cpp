@@ -250,6 +250,61 @@ int platformer_demo(sf::Window& window)
 
         Mario.update(dt);
 
+		for (auto& it : entities)
+		{
+			if(it->is<Goomba>())
+			{
+				Entity* enemy = it.get();
+
+				if (enemy->Health < 1)
+					continue;
+
+				if (Mario.hitbox.intersects(enemy->hitbox))
+					if (Mario.dy > 0)
+					{
+						enemy->dx = 0;
+						Mario.dy = -0.2;
+						enemy->Health = 0;
+					}
+					else if (!Mario.hit)
+					{
+						Mario.Health -= 5;
+						Mario.hit = true;
+						if (Mario.looksToTheRight)
+							Mario.hitbox.left += 10;
+						else
+							Mario.hitbox.left -= 10;
+					}
+
+				for (auto& it2 : entities)
+				{
+					if(it2->is<Bullet>())
+						if (it2->Health > 0)
+							if (it2->hitbox.intersects(enemy->hitbox))
+							{
+								it2->Health = 0;
+								enemy->Health -= 5;
+							}
+				}
+			}
+
+			if(it->is<MovingPlatform>())
+			{
+				if (Mario.hitbox.intersects(it->hitbox))
+					if (Mario.dy > 0)
+					{
+						if (Mario.hitbox.top + Mario.hitbox.height < it->hitbox.top + it->hitbox.height)
+						{
+							Mario.hitbox.top = it->hitbox.top - Mario.hitbox.height + 3;
+							Mario.hitbox.left += it->dx * dt;
+							Mario.dy = 0;
+							Mario.state = Player::stay;
+						}
+					}
+			}
+		}
+
+
         camera->setPosition(-(Mario.getPosition().x - (width >> 1)), -(Mario.getPosition().y - (height >> 1)));
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
