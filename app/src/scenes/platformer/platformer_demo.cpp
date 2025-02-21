@@ -18,6 +18,7 @@
 #include "scenes/platformer/sprites/SpriteHolder.hpp"
 #include "scenes/platformer/entities/Goomba.hpp"
 #include "scenes/platformer/entities/Bullet.hpp"
+#include "scenes/platformer/entities/MovingPlatform.hpp"
 #include "scenes/platformer/entities/Player.hpp"
 
 
@@ -54,15 +55,17 @@ int platformer_demo(sf::Window& window)
         return -1;
 
 //  Textures
-    const auto textureHandles = resourceHolder->create<Texture2D, 3>();
+    const auto textureHandles = resourceHolder->create<Texture2D, 4>();
 
     auto texGoomba = std::make_unique<Texture2D>(textureHandles[0]);
     auto texMegaman = std::make_unique<Texture2D>(textureHandles[1]);
     auto texBullet = std::make_unique<Texture2D>(textureHandles[2]);
+    auto texMovingPlat = std::make_unique<Texture2D>(textureHandles[3]);
 
     if(!texGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false)) return -1;
     if(!texMegaman->loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false)) return -1;
     if(!texBullet->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false)) return -1;
+    if(!texMovingPlat->loadFromFile(FileProvider::findPathToFile("movingPlatform.png"), false, false)) return -1;
 
 //  Sprite animation
     SpriteHolder spriteHolder(buffers[1]);
@@ -100,6 +103,9 @@ int platformer_demo(sf::Window& window)
         spriteHolder.createCustomAnimaton(BULLET_EXPLODE, texBullet.get(), bulletExplodeFrames);
     }
 
+// Moving platform
+    spriteHolder.createSingleAnimation(PLATFORM_MOVE, texMovingPlat.get(), glm::ivec4(0, 0, 95, 22));
+
 //  Megaman
     spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
 
@@ -123,6 +129,14 @@ int platformer_demo(sf::Window& window)
         bullet.setLoop(true);
         bullet.setRate(6);
         bullet.play();
+    }
+
+    Animator movingPlatrorm;
+    {
+        auto platform_move = spriteHolder.getSprites(PLATFORM_MOVE);
+        movingPlatrorm.addAnimation(PLATFORM_MOVE, platform_move);
+        movingPlatrorm.setLoop(false);
+        movingPlatrorm.play();
     }
 
     Animator megaman;
@@ -152,12 +166,16 @@ int platformer_demo(sf::Window& window)
 
     auto enemyObjects = tilemap.getObjectsByName("enemy");
     auto solidObjects = tilemap.getObjectsByName("solid");
-    auto allObjects = tilemap.getAllObjects();
+    auto mpObjects    = tilemap.getObjectsByName("MovingPlatform");
+    auto allObjects   = tilemap.getAllObjects();
 
     std::vector<std::unique_ptr<Entity>> entities;
 
     for (const auto& object : enemyObjects)
         auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, (int)object.bounds.left, (int)object.bounds.top)).get();
+
+    for (const auto& object : mpObjects)
+        auto entity = entities.emplace_back(std::make_unique<MovingPlatform>(movingPlatrorm, (int)object.bounds.left, (int)object.bounds.top)).get();
 
     auto playerObject = tilemap.getObject("player");
     Player Mario(megaman, allObjects, playerObject->bounds.left, playerObject->bounds.top);
