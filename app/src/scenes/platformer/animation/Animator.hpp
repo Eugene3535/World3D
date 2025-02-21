@@ -24,11 +24,12 @@ public:
 	void setRate(float rate) noexcept; // frames per second
 
 	float getRate() const noexcept;
+	bool isPlaying() const noexcept;
 	bool isLooped() const noexcept;
 	bool isOver()   const noexcept;
 
-	int32_t getWidth() const noexcept;
-	int32_t getHeight() const noexcept;
+	uint32_t getWidth() const noexcept;
+	uint32_t getHeight() const noexcept;
 
 private:
 	std::unordered_map<std::string, std::span<const Sprite2D>> m_animations;

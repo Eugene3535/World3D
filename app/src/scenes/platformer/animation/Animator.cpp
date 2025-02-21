@@ -111,6 +111,12 @@ float Animator::getRate() const noexcept
 }
 
 
+bool Animator::isPlaying() const noexcept
+{
+    return m_isPlaying;
+}
+
+
 bool Animator::isLooped() const noexcept
 {
     return m_isLooped;
@@ -127,19 +133,19 @@ bool Animator::isOver() const noexcept
 }
 
 
-int32_t Animator::getWidth() const noexcept
+uint32_t Animator::getWidth() const noexcept
 {
     if(!m_current.empty())
         return m_current[m_frame].width;
 
-    return 0;
+    return 0u;
 }
 
 
-int32_t Animator::getHeight() const noexcept
+uint32_t Animator::getHeight() const noexcept
 {
-    if(!m_current.empty())
+    if(m_frame < m_current.size())
         return m_current[m_frame].height;
 
-    return 0;
+    return 0u;
 }

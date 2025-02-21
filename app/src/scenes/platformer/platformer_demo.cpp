@@ -17,6 +17,7 @@
 #include "scenes/platformer/tilemap/TileMap.hpp"
 #include "scenes/platformer/sprites/SpriteHolder.hpp"
 #include "scenes/platformer/entities/Goomba.hpp"
+#include "scenes/platformer/entities/Bullet.hpp"
 #include "scenes/platformer/entities/Player.hpp"
 
 
@@ -53,13 +54,15 @@ int platformer_demo(sf::Window& window)
         return -1;
 
 //  Textures
-    const auto textureHandles = resourceHolder->create<Texture2D, 2>();
+    const auto textureHandles = resourceHolder->create<Texture2D, 3>();
 
     auto texGoomba = std::make_unique<Texture2D>(textureHandles[0]);
     auto texMegaman = std::make_unique<Texture2D>(textureHandles[1]);
+    auto texBullet = std::make_unique<Texture2D>(textureHandles[2]);
 
     if(!texGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false)) return -1;
     if(!texMegaman->loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false)) return -1;
+    if(!texBullet->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false)) return -1;
 
 //  Sprite animation
     SpriteHolder spriteHolder(buffers[1]);
@@ -85,6 +88,19 @@ int platformer_demo(sf::Window& window)
         spriteHolder.createSingleAnimation(GOOMBA_DEAD, texGoomba.get(), glm::ivec4(48, 0, 16, 16));
     }
 
+//  Bullet
+    {
+        std::array<glm::ivec4, 3> bulletExplodeFrames = 
+        {
+            glm::ivec4(32, 9, 7, 8),
+            glm::ivec4(58, 6, 13, 13),
+            glm::ivec4(85, 5, 16, 16)
+        };
+        spriteHolder.createSingleAnimation(BULLET_MOVE, texBullet.get(), glm::ivec4(8, 10, 6, 6));
+        spriteHolder.createCustomAnimaton(BULLET_EXPLODE, texBullet.get(), bulletExplodeFrames);
+    }
+
+//  Megaman
     spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
 
     Animator goomba;
@@ -96,6 +112,17 @@ int platformer_demo(sf::Window& window)
         goomba.setLoop(true);
         goomba.setRate(4);
         goomba.play();
+    }
+
+    Animator bullet;
+    {
+        auto bullet_move = spriteHolder.getSprites(BULLET_MOVE);
+        auto bullet_explode = spriteHolder.getSprites(BULLET_EXPLODE);
+        bullet.addAnimation(BULLET_MOVE, bullet_move);
+        bullet.addAnimation(BULLET_EXPLODE, bullet_explode);
+        bullet.setLoop(true);
+        bullet.setRate(6);
+        bullet.play();
     }
 
     Animator megaman;
@@ -124,17 +151,20 @@ int platformer_demo(sf::Window& window)
     }
 
     auto enemyObjects = tilemap.getObjectsByName("enemy");
+    auto solidObjects = tilemap.getObjectsByName("solid");
     auto allObjects = tilemap.getAllObjects();
 
     std::vector<std::unique_ptr<Entity>> entities;
 
-    for (const auto object : enemyObjects)
-        auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, (int)object->bounds.left, (int)object->bounds.top)).get();
+    for (const auto& object : enemyObjects)
+        auto entity = entities.emplace_back(std::make_unique<Goomba>(goomba, (int)object.bounds.left, (int)object.bounds.top)).get();
 
     auto playerObject = tilemap.getObject("player");
     Player Mario(megaman, allObjects, playerObject->bounds.left, playerObject->bounds.top);
         
     sf::Clock clock;
+
+    int cooldown = 0;
 
     while (window.isOpen())
     {
@@ -155,6 +185,7 @@ int platformer_demo(sf::Window& window)
         }
 
         auto dt = clock.restart().asSeconds();
+        ++cooldown;
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             window.close();
@@ -170,9 +201,34 @@ int platformer_demo(sf::Window& window)
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
             Mario.key.Right = true;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+        {
+            if (cooldown > 10)
+            {
+                bool MarioLooksToTheRight = Mario.looksToTheRight;
+                int posX = MarioLooksToTheRight ? static_cast<int>(Mario.hitbox.left - 18) : static_cast<int>(Mario.hitbox.left + 18);
+                int posY = static_cast<int>(Mario.hitbox.top + 18);
+                entities.emplace_back(std::make_unique<Bullet>(bullet, solidObjects, posX, posY, MarioLooksToTheRight));
+                cooldown = 0;
+            }
+        }
+
+        auto quick_remove = [](std::vector<std::unique_ptr<Entity>>& v, size_t i)
+		{
+			v[i].swap(v.back());
+			v.pop_back();
+		};
         
-        for(auto& entity : entities)
-            entity->update(dt);
+        for (auto i = 0; i < entities.size(); ++i)
+		{
+			entities[i]->update(dt);
+
+			if (!entities[i]->isAlive)
+			{
+				quick_remove(entities, i);
+			}
+		}
 
         Mario.update(dt);
 

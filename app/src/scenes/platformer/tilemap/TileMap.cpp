@@ -98,25 +98,25 @@ const TileMap::Object* TileMap::getObject(const std::string& name) const noexcep
 }
 
 
-std::vector<const TileMap::Object*> TileMap::getObjectsByName(const std::string& name) const noexcept
+std::vector<TileMap::Object> TileMap::getObjectsByName(const std::string& name) const noexcept
 {
-    std::vector<const TileMap::Object*> objectsByName;
+    std::vector<TileMap::Object> objectsByName;
 
     for (const auto& object : m_objects)
         if(object.name == name)
-            objectsByName.push_back(&object);
+            objectsByName.push_back(object);
 
     return objectsByName;
 }
 
 
-std::vector<const TileMap::Object*> TileMap::getObjectsByType(const std::string& type) const noexcept
+std::vector<TileMap::Object> TileMap::getObjectsByType(const std::string& type) const noexcept
 {
-    std::vector<const TileMap::Object*> objectsByType;
+    std::vector<TileMap::Object> objectsByType;
 
     for (const auto& object : m_objects)
         if(object.type == type)
-            objectsByType.push_back(&object);
+            objectsByType.push_back(object);
 
     return objectsByType;
 }
