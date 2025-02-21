@@ -69,6 +69,7 @@ void Animator::update(float dt) noexcept
             if(m_isLooped)
             {
                 m_timer = 0;
+                m_frame = 0;
             }
             else
             {
@@ -81,7 +82,7 @@ void Animator::update(float dt) noexcept
 
 void Animator::draw() const noexcept
 {
-	if(!m_current.empty())
+	if(m_frame < m_current.size())
 	{
         const auto& sprite = m_current[m_frame];
 

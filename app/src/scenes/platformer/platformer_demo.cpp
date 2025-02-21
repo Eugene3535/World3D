@@ -35,7 +35,6 @@ int platformer_demo(sf::Window& window)
 
     auto camera = std::make_unique<Orthogonal>(); 
     camera->setupProjectionMatrix(width, height);
-    //camera->setOrigin(width >> 1, height >> 1);
 
     std::array<Shader, 2> shaders;
     if (!shaders[0].loadFromFile(FileProvider::findPathToFile("tilemap.vert"), GL_VERTEX_SHADER)) return -1;
@@ -151,7 +150,6 @@ int platformer_demo(sf::Window& window)
                 width = event.size.width;
                 height = event.size.height;
                 camera->setupProjectionMatrix(width, height);
-                //camera->setOrigin(width >> 1, height >> 1);
                 glViewport(0, 0, width, height);
             }
         }

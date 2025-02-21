@@ -29,7 +29,7 @@ public:
 	Player(const Animator& a, std::span<const TileMap::Object> lev, int x, int y) noexcept:
 		Entity(a, x, y)
 	{
-		setOptions(0, 100, "stay");
+		setOptions(0, 100, MEGAMAN_STAY);
 		state = stay; hit = false;
 		objects = lev;
 		key.Left = key.Right = key.Up = key.Down = key.Space = false;
@@ -54,7 +54,7 @@ public:
 		if (key.Up)
 		{
 			if (onLadder) state = climb;
-			if (state == stay || state == walk) { dy = -360; state = jump; anim.setAnimation("jump"); }
+			if (state == stay || state == walk) { dy = -360; state = jump; anim.setAnimation(MEGAMAN_JUMP); }
 			if (state == climb) dy = -100;
 			if (state == climb) if (key.Left || key.Right) state = stay;
 		}
@@ -97,24 +97,24 @@ public:
 
 	void Animation(float dt) noexcept
 	{
-		if (state == stay) anim.setAnimation("stay");
-		if (state == walk) anim.setAnimation("walk");
-		if (state == jump) anim.setAnimation("jump");
-		if (state == duck) anim.setAnimation("duck");
-		if (state == climb) { anim.setAnimation("climb"); anim.pause(); if (dy != 0) anim.play(); }
+		if (state == stay) { anim.setAnimation(MEGAMAN_STAY); anim.setLoop(true); }
+		if (state == walk) { anim.setAnimation(MEGAMAN_WALK); }
+		if (state == jump) { anim.setAnimation(MEGAMAN_JUMP); }
+		if (state == duck) { anim.setAnimation(MEGAMAN_DUCK); }
+		if (state == climb) { anim.setAnimation(MEGAMAN_CLIMB); anim.pause(); if (dy != 0) anim.play(); }
 
 		if (shoot) 
 		{
-			anim.setAnimation("shoot");
+			anim.setAnimation(MEGAMAN_SHOOT);
 			if (state == walk) 
-				anim.setAnimation("shootAndWalk");
+				anim.setAnimation(MEGAMAN_SHOOTANDWALK);
 		}
 
 		if (hit) 
 		{
 			timer += dt;
 			if (timer > 1) { hit = false; timer = 0; }
-			anim.setAnimation("hit");
+			anim.setAnimation(MEGAMAN_HIT);
 		}
 
 		if (looksToTheRight) setScale(-1, 1); else setScale(1, 1);
