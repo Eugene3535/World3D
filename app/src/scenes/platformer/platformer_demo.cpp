@@ -41,14 +41,27 @@ int platformer_demo(sf::Window& window)
     camera->setupProjectionMatrix(width, height);
 
     std::array<Shader, 2> shaders;
-    if (!shaders[0].loadFromFile(FileProvider::findPathToFile("tilemap.vert"), GL_VERTEX_SHADER)) return -1;
+    if (!shaders[0].loadFromFile(FileProvider::findPathToFile("tilemap.vert"), GL_VERTEX_SHADER))   return -1;
     if (!shaders[1].loadFromFile(FileProvider::findPathToFile("tilemap.frag"), GL_FRAGMENT_SHADER)) return -1;
 
     auto tilemapProgram = std::make_unique<ShaderProgram>();
-    if (!tilemapProgram->link(shaders)) return -1;
+
+    if (!tilemapProgram->link(shaders)) 
+        return -1;
+
+    if (!shaders[1].loadFromFile(FileProvider::findPathToFile("healthbar.frag"), GL_FRAGMENT_SHADER)) return -1;
+
+    auto healthbarProgram = std::make_unique<ShaderProgram>();
+
+    if(!healthbarProgram->link(shaders))
+        return -1;
 
     glUseProgram(tilemapProgram->getHandle().value());
     glUniform1i(tilemapProgram->getUniformLocation("texture0").value(), 0);
+    glUseProgram(0);
+
+    glUseProgram(healthbarProgram->getHandle().value());
+    glUniform1i(healthbarProgram->getUniformLocation("texture0").value(), 0);
     glUseProgram(0);
 
     TileMap tilemap(*resourceHolder);
@@ -70,6 +83,25 @@ int platformer_demo(sf::Window& window)
     if(!texBullet->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false))             return -1;
     if(!texMovingPlat->loadFromFile(FileProvider::findPathToFile("movingPlatform.png"), false, false)) return -1;
     if(!texHealthBar->loadFromFile(FileProvider::findPathToFile("HealthBar.png"), false, false))       return -1;
+
+    glUseProgram(healthbarProgram->getHandle().value());
+
+    if(auto borderThickness = healthbarProgram->getUniformLocation("borderThickness"); borderThickness.has_value())
+    {
+        const auto ratio = 1.0f / glm::vec2(texHealthBar->getWidth(), texHealthBar->getHeight());
+
+        float left   = 3 * ratio.x;
+        float top    = 3 * ratio.y;
+        float right  = 10 * ratio.x;
+        float bottom = 66 * ratio.y;
+        
+        glUniform4f(borderThickness.value(), left, top, right, bottom);
+    }
+
+    if(auto hpUniform = healthbarProgram->getUniformLocation("hp"); hpUniform.has_value())
+        glUniform1i(hpUniform.value(), 100);
+    
+    glUseProgram(0);
 
 //  Sprite animation
     SpriteHolder spriteHolder(buffers[1]);
@@ -335,15 +367,23 @@ int platformer_demo(sf::Window& window)
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix() * Mario.getMatrix())));
         Mario.anim.draw();
 
+        glUseProgram(0);
+
+//  Health bar        
+        glUseProgram(healthbarProgram->getHandle().value());
+
+        if(auto hpUniform = healthbarProgram->getUniformLocation("hp"); hpUniform.has_value())
+            glUniform1i(hpUniform.value(), Mario.Health);
+
         camera->setPosition(20, 20);
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
         glBindTexture(GL_TEXTURE_2D, healthbar->texture);
 		glDrawArrays(GL_TRIANGLE_FAN, healthbar->frame, 4);
 		glBindTexture(GL_TEXTURE_2D, 0);
             
-        glBindVertexArray(0);
         glUseProgram(0);
-
+        glBindVertexArray(0);
+        
         window.display();
     }
 
