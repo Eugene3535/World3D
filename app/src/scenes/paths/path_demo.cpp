@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "files/Image.hpp"
+#include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/perspective/Perspective.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
@@ -61,8 +62,8 @@ int path_demo(sf::Window& window)
     vao->addVertexBuffer(vbo, layout);
 
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile("res/shaders/ground.vert", GL_VERTEX_SHADER)) return -1;
-    if(!shaders[1].loadFromFile("res/shaders/ground.frag", GL_FRAGMENT_SHADER)) return -1;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("ground.vert"), GL_VERTEX_SHADER)) return -1;
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("ground.frag"), GL_FRAGMENT_SHADER)) return -1;
 
     auto program = std::make_unique<ShaderProgram>();
     if(!program->link(shaders)) return -1;

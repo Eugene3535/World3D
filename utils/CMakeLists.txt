@@ -35,16 +35,16 @@ set(_opengl_utils_hdr_files
 )
 
 set(SHADER_FILES
-	${PROJECT_SOURCE_DIR}/res/shaders/dune.vert
-	${PROJECT_SOURCE_DIR}/res/shaders/dune.frag
-	${PROJECT_SOURCE_DIR}/res/shaders/ground.vert
-	${PROJECT_SOURCE_DIR}/res/shaders/ground.frag
-	${PROJECT_SOURCE_DIR}/res/shaders/heightmap.vert
-	${PROJECT_SOURCE_DIR}/res/shaders/heightmap.frag
-	${PROJECT_SOURCE_DIR}/res/shaders/circle.vert
-	${PROJECT_SOURCE_DIR}/res/shaders/circle.frag
-	${PROJECT_SOURCE_DIR}/res/shaders/tilemap.vert
-	${PROJECT_SOURCE_DIR}/res/shaders/tilemap.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/dune/dune.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/dune/dune.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/paths/ground.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/paths/ground.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/heightmap/heightmap.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/heightmap/heightmap.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/heightmap/circle.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/heightmap/circle.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/platformer/tilemap.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/platformer/tilemap.frag
 )
 
 source_group("shaders" FILES 
