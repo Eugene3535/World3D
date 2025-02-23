@@ -20,9 +20,9 @@ int path_demo(sf::Window& window)
     window.setMouseCursorVisible(false);
     glEnable(GL_DEPTH_TEST);
 
-    Image imgSnow;     imgSnow.loadFromFile("res/textures/snow.png");
-    Image imgPavement; imgPavement.loadFromFile("res/textures/pavement.jpg");
-    Image imgPath;     imgPath.loadFromFile("res/textures/test.png");
+    Image imgSnow;     imgSnow.loadFromFile(FileProvider::findPathToFile("snow.png"));
+    Image imgPavement; imgPavement.loadFromFile(FileProvider::findPathToFile("pavement.jpg"));
+    Image imgPath;     imgPath.loadFromFile(FileProvider::findPathToFile("test.png"));
 
     auto resourceHolder = std::make_unique<GlResourceHolder>();
     std::array<uint32_t, 3> textures = resourceHolder->create<Texture2D, 3>();
