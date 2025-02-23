@@ -10,6 +10,7 @@ int heightmap_demo(sf::Window& window) noexcept;
 int path_demo(sf::Window& window) noexcept;
 int dune_demo(sf::Window& window) noexcept;
 int platformer_demo(sf::Window& window) noexcept;
+int orbit_demo(sf::Window& window) noexcept;
 
 int main()
 {
@@ -43,7 +44,7 @@ int main()
     OpenGLDebugger messager;
 #endif
 
-    int returnValue = dune_demo(window);
+    int returnValue = orbit_demo(window);
 
     return returnValue;
 }

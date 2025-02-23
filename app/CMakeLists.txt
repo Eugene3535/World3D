@@ -29,11 +29,16 @@ set(PLATFORMER_SCENE_SRC_FILES
 	src/scenes/platformer/entities/Player.hpp
 )
 
+set(ORBIT_SCENE_SRC_FILES
+	src/scenes/orbit/orbit_demo.cpp
+)
+
 set(MAIN_APP_SRC_FILES
 	${DUNE_SCENE_SRC_FILES}
 	${HEIGHTMAP_SCENE_SRC_FILES}
 	${PATHS_SCENE_SRC_FILES}
 	${PLATFORMER_SCENE_SRC_FILES}
+	${ORBIT_SCENE_SRC_FILES}
 	src/main.cpp
 )
 
