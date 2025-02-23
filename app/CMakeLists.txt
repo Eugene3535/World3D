@@ -1,9 +1,19 @@
 set(APP_TARGET app)
 
-set(_app_src_files
-	src/scenes/heightmap/heightmap_demo.cpp
-	src/scenes/paths/path_demo.cpp
+
+set(DUNE_SCENE_SRC_FILES
 	src/scenes/dune/dune_demo.cpp
+)
+
+set(HEIGHTMAP_SCENE_SRC_FILES
+	src/scenes/heightmap/heightmap_demo.cpp
+)
+
+set(PATHS_SCENE_SRC_FILES
+	src/scenes/paths/path_demo.cpp
+)
+
+set(PLATFORMER_SCENE_SRC_FILES
 	src/scenes/platformer/platformer_demo.cpp
 	src/scenes/platformer/sprites/Sprite2D.hpp
 	src/scenes/platformer/sprites/SpriteHolder.cpp
@@ -17,11 +27,18 @@ set(_app_src_files
 	src/scenes/platformer/entities/Bullet.hpp
 	src/scenes/platformer/entities/MovingPlatform.hpp
 	src/scenes/platformer/entities/Player.hpp
+)
+
+set(MAIN_APP_SRC_FILES
+	${DUNE_SCENE_SRC_FILES}
+	${HEIGHTMAP_SCENE_SRC_FILES}
+	${PATHS_SCENE_SRC_FILES}
+	${PLATFORMER_SCENE_SRC_FILES}
 	src/main.cpp
 )
 
 add_executable(${APP_TARGET}
-	${_app_src_files}
+	${MAIN_APP_SRC_FILES}
 )
 
 target_compile_definitions(${APP_TARGET} PUBLIC "SFML_STATIC")

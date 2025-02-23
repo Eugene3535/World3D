@@ -43,7 +43,7 @@ int main()
     OpenGLDebugger messager;
 #endif
 
-    int returnValue = heightmap_demo(window);
+    int returnValue = dune_demo(window);
 
     return returnValue;
 }

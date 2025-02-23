@@ -28,7 +28,7 @@ int dune_demo(sf::Window& window) noexcept
     if(!imgSand.loadFromFile(FileProvider::findPathToFile("sand.jpg")))   return -1;
     if(!imgSpace.loadFromFile(FileProvider::findPathToFile("spice.jpg"))) return -1;
     if(!imgRock.loadFromFile(FileProvider::findPathToFile("rock01.jpg"))) return -1;
-    if(!imgStone.loadFromFile(FileProvider::findPathToFile("cracked_earth.jpg"))) return -1;
+    if(!imgStone.loadFromFile(FileProvider::findPathToFile("stone.jpg"))) return -1;
 
     auto resourceHolder = std::make_unique<GlResourceHolder>();
     std::array<uint32_t, 5> textures = resourceHolder->create<Texture2D, 5>();
