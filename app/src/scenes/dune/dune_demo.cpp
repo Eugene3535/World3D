@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "files/Image.hpp"
+#include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/Orthogonal.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
@@ -23,11 +24,11 @@ int dune_demo(sf::Window& window) noexcept
     Image imgRock;
     Image imgStone;
 
-    if(!imgMask.loadFromFile("res/textures/mask.png"))   return -1;
-    if(!imgSand.loadFromFile("res/textures/sand.jpg"))   return -1;
-    if(!imgSpace.loadFromFile("res/textures/spice.jpg")) return -1;
-    if(!imgRock.loadFromFile("res/textures/rock01.jpg")) return -1;
-    if(!imgStone.loadFromFile("res/textures/cracked_earth.jpg")) return -1;
+    if(!imgMask.loadFromFile(FileProvider::findPathToFile("mask.png")))   return -1;
+    if(!imgSand.loadFromFile(FileProvider::findPathToFile("sand.jpg")))   return -1;
+    if(!imgSpace.loadFromFile(FileProvider::findPathToFile("spice.jpg"))) return -1;
+    if(!imgRock.loadFromFile(FileProvider::findPathToFile("rock01.jpg"))) return -1;
+    if(!imgStone.loadFromFile(FileProvider::findPathToFile("cracked_earth.jpg"))) return -1;
 
     auto resourceHolder = std::make_unique<GlResourceHolder>();
     std::array<uint32_t, 5> textures = resourceHolder->create<Texture2D, 5>();
@@ -69,8 +70,8 @@ int dune_demo(sf::Window& window) noexcept
     vao->addVertexBuffer(vbo, layout);
 
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile("res/shaders/dune.vert", GL_VERTEX_SHADER)) return -1;
-    if(!shaders[1].loadFromFile("res/shaders/dune.frag", GL_FRAGMENT_SHADER)) return -1;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("dune.vert"), GL_VERTEX_SHADER)) return -1;
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("dune.frag"), GL_FRAGMENT_SHADER)) return -1;
 
     auto program = std::make_unique<ShaderProgram>();
     if(!program->link(shaders)) return -1;

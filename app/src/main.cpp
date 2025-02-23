@@ -43,7 +43,7 @@ int main()
     OpenGLDebugger messager;
 #endif
 
-    int returnValue = platformer_demo(window);
+    int returnValue = heightmap_demo(window);
 
     return returnValue;
 }

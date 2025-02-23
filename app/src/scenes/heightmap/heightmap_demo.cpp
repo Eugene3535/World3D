@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "files/Image.hpp"
+#include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/Orthogonal.hpp"
 #include "camera/perspective/Perspective.hpp"
@@ -38,13 +39,13 @@ int heightmap_demo(sf::Window& window) noexcept
     auto orthoCamera = std::make_unique<Orthogonal>();
     orthoCamera->setupProjectionMatrix(width, height);
 
-    Image imageMap;        if(!imageMap.loadFromFile("res/textures/heightmap.png"))            return -1;
-    Image imgCrackedEarth; if(!imgCrackedEarth.loadFromFile("res/textures/cracked_earth.jpg")) return -1;
-    Image imgRock;         if(!imgRock.loadFromFile("res/textures/rock.jpg"))                  return -1;
-    Image imgGrass;        if(!imgGrass.loadFromFile("res/textures/grass.jpg"))                return -1;
-    Image imgClover;       if(!imgClover.loadFromFile("res/textures/clover.png"))              return -1;
-    Image imageCircleOff;  if(!imageCircleOff.loadFromFile("res/textures/circle_off.png"))     return -1;
-    Image imageCircleOn;   if(!imageCircleOn.loadFromFile("res/textures/circle_on.png"))       return -1;
+    Image imageMap;        if(!imageMap.loadFromFile(FileProvider::findPathToFile("heightmap.png")))            return -1;
+    Image imgCrackedEarth; if(!imgCrackedEarth.loadFromFile(FileProvider::findPathToFile("cracked_earth.jpg"))) return -1;
+    Image imgRock;         if(!imgRock.loadFromFile(FileProvider::findPathToFile("rock.jpg")))                  return -1;
+    Image imgGrass;        if(!imgGrass.loadFromFile(FileProvider::findPathToFile("grass.jpg")) )               return -1;
+    Image imgClover;       if(!imgClover.loadFromFile(FileProvider::findPathToFile("clover.png")))              return -1;
+    Image imageCircleOff;  if(!imageCircleOff.loadFromFile(FileProvider::findPathToFile("circle_off.png")))     return -1;
+    Image imageCircleOn;   if(!imageCircleOn.loadFromFile(FileProvider::findPathToFile("circle_on.png")))       return -1;
 
     const auto textures = resourceHolder.create<Texture2D, 6>();
     
@@ -156,8 +157,8 @@ int heightmap_demo(sf::Window& window) noexcept
 //  Shaders
 //  Heightmap
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile("res/shaders/heightmap.vert", GL_VERTEX_SHADER)) return -1;
-    if(!shaders[1].loadFromFile("res/shaders/heightmap.frag", GL_FRAGMENT_SHADER)) return -1;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("heightmap.vert"), GL_VERTEX_SHADER)) return -1;
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("heightmap.frag"), GL_FRAGMENT_SHADER)) return -1;
 
     auto heightmapProgram = std::make_unique<ShaderProgram>();
     if(!heightmapProgram->link(shaders)) return -1;
@@ -170,8 +171,8 @@ int heightmap_demo(sf::Window& window) noexcept
     glUseProgram(0);
 
 //  Circle
-    if(!shaders[0].loadFromFile("res/shaders/circle.vert", GL_VERTEX_SHADER)) return -1;
-    if(!shaders[1].loadFromFile("res/shaders/circle.frag", GL_FRAGMENT_SHADER)) return -1;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("circle.vert"), GL_VERTEX_SHADER)) return -1;
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("circle.frag"), GL_FRAGMENT_SHADER)) return -1;
 
     auto circleProgram = std::make_unique<ShaderProgram>();
     if(!circleProgram->link(shaders)) return -1;
