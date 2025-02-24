@@ -105,16 +105,16 @@ int path_demo(sf::Window& window)
             window.close();
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-            camera->moveForward(100);
+            camera->moveForward(1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-            camera->moveLeft(100);
+            camera->moveLeft(1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-            camera->moveBackward(100);
+            camera->moveBackward(1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-            camera->moveRight(100);
+            camera->moveRight(1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
             camera->revertToOrigin(50);
@@ -134,7 +134,7 @@ int path_demo(sf::Window& window)
 
         sf::Mouse::setPosition({xt, yt});
 
-		camera->apply(0.01f);
+		camera->apply();
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

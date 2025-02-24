@@ -9,7 +9,7 @@ public:
 	Perspective() noexcept;
 
     void setupProjectionMatrix(float fovy, float aspect, float zNear, float zFar) noexcept;
-    void apply(float dt) noexcept;
+    void apply() noexcept;
 
     void setPosition(float x, float y, float z) noexcept;
     void setPosition(const glm::vec3& position) noexcept;
@@ -24,7 +24,7 @@ public:
     void moveUp(float velocity)       noexcept;
     void moveDown(float velocity)     noexcept;
 
-    void moveToPoint(float velocity) noexcept;
+    void zoom(float delta) noexcept;
     void revertToOrigin(float height) noexcept;
 
     const glm::vec3& getPosition()    const noexcept;

@@ -26,11 +26,11 @@ void Perspective::setupProjectionMatrix(float fovy, float aspect, float zNear, f
 }
 
 
-void Perspective::apply(float dt) noexcept
+void Perspective::apply() noexcept
 {
-    m_eye.x += m_delta.x * dt;
-    m_eye.y += m_delta.y * dt;
-    m_eye.z += m_delta.z * dt;
+    m_eye.x += m_delta.x;
+    m_eye.y += m_delta.y;
+    m_eye.z += m_delta.z;
 
     m_delta = { 0.0f, 0.0f, 0.0f };
 
@@ -114,9 +114,9 @@ void Perspective::moveDown(float velocity) noexcept
 }
 
 
-void Perspective::moveToPoint(float velocity) noexcept
+void Perspective::zoom(float delta) noexcept
 {
-    m_delta = getLineOfSight() * velocity;
+    m_delta = getLineOfSight() * delta;
     m_modelViewNeedUpdate = true;
 }
 

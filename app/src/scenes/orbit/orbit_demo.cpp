@@ -81,6 +81,8 @@ int orbit_demo(sf::Window& window) noexcept
     {
         sf::Event event;
 
+        float mouseScrollDelta = 0;
+
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -93,6 +95,11 @@ int orbit_demo(sf::Window& window) noexcept
                 camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
                 glViewport(0, 0, width, height);
             }
+
+            if(event.type == sf::Event::MouseWheelScrolled)
+            {
+                mouseScrollDelta = event.mouseWheelScroll.delta;
+            }
         }
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
@@ -103,14 +110,9 @@ int orbit_demo(sf::Window& window) noexcept
             camera->revertToOrigin(50);
         }
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        if(mouseScrollDelta != 0.0f)
         {
-            camera->moveToPoint(15);
-        }
-
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            camera->moveToPoint(-15);
+            camera->zoom(mouseScrollDelta);
         }
 
         const auto [xpos, ypos] = sf::Mouse::getPosition();
@@ -124,7 +126,7 @@ int orbit_demo(sf::Window& window) noexcept
 
         sf::Mouse::setPosition({xt, yt});
 
-		camera->apply(0.01f);
+		camera->apply();
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

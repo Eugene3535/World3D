@@ -227,16 +227,16 @@ int heightmap_demo(sf::Window& window) noexcept
             window.close();
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-            perspectiveCamera->moveForward(10);
+            perspectiveCamera->moveForward(0.1f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-            perspectiveCamera->moveLeft(10);
+            perspectiveCamera->moveLeft(0.1f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-            perspectiveCamera->moveBackward(10);
+            perspectiveCamera->moveBackward(0.1f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-            perspectiveCamera->moveRight(10);
+            perspectiveCamera->moveRight(0.1f);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
             perspectiveCamera->revertToOrigin(50);
@@ -257,7 +257,7 @@ int heightmap_demo(sf::Window& window) noexcept
 
         sf::Mouse::setPosition({xt, yt});
 
-		perspectiveCamera->apply(0.01f);
+		perspectiveCamera->apply();
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(perspectiveCamera->getModelViewProjectionMatrix())));
 
 		glEnable(GL_DEPTH_TEST);
