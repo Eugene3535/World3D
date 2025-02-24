@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstdio>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -17,9 +18,6 @@ Perspective::Perspective() noexcept:
 {
     
 }
-
-
-Perspective::~Perspective() noexcept = default;
 
 
 void Perspective::setupProjectionMatrix(float fovy, float aspect, float zNear, float zFar) noexcept
@@ -112,6 +110,23 @@ void Perspective::moveUp(float velocity) noexcept
 void Perspective::moveDown(float velocity) noexcept
 {
     m_delta.y = -velocity;
+    m_modelViewNeedUpdate = true;
+}
+
+
+void Perspective::moveToPoint(float velocity) noexcept
+{
+    m_delta = getLineOfSight() * velocity;
+    m_modelViewNeedUpdate = true;
+}
+
+
+void Perspective::revertToOrigin(float height) noexcept
+{
+    m_eye = { 0, height, 0 };
+    m_yaw = -45;
+    m_pitch = -135;
+
     m_modelViewNeedUpdate = true;
 }
 

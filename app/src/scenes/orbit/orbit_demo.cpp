@@ -34,8 +34,8 @@ int orbit_demo(sf::Window& window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto perspectiveCamera = std::make_unique<Perspective>();
-    perspectiveCamera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+    auto camera = std::make_unique<Perspective>();
+    camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
 
     auto texGrid = std::make_unique<Texture2D>(textureHandles[0]);
 
@@ -44,10 +44,10 @@ int orbit_demo(sf::Window& window) noexcept
 
     std::array<float, 20> vertices = 
     {
-        0.0f,  0.0f, 0.0f,  0.0f, 0.0f,
-        10.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-        10.0f, 0.0f, 10.0f, 1.0f, 1.0f,
-        0.0f,  0.0f, 10.0f, 0.0f, 1.0f
+        0.0f,   0.0f, 0.0f,   0.0f, 0.0f,
+        100.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+        100.0f, 0.0f, 100.0f, 1.0f, 1.0f,
+        0.0f,   0.0f, 100.0f, 0.0f, 1.0f
     };
 
     std::array<VertexBufferLayout::Attribute, 2> attributes
@@ -74,6 +74,9 @@ int orbit_demo(sf::Window& window) noexcept
     glUniform1i(program->getUniformLocation("texture0").value(), 0);
     glUseProgram(0);
 
+    glm::vec3 pos = {0, 50, 0};
+    camera->setPosition(pos);
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -87,7 +90,7 @@ int orbit_demo(sf::Window& window) noexcept
             {
                 width = event.size.width;
                 height = event.size.height;
-                perspectiveCamera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+                camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
                 glViewport(0, 0, width, height);
             }
         }
@@ -95,8 +98,20 @@ int orbit_demo(sf::Window& window) noexcept
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             window.close();
 
-        glm::vec3 pos = {30, 30, 30};
-        perspectiveCamera->setPosition(pos);
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
+        {
+            camera->revertToOrigin(50);
+        }
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        {
+            camera->moveToPoint(15);
+        }
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        {
+            camera->moveToPoint(-15);
+        }
 
         const auto [xpos, ypos] = sf::Mouse::getPosition();
 		auto [xt, yt] = window.getPosition();
@@ -104,13 +119,13 @@ int orbit_demo(sf::Window& window) noexcept
 		xt += width >> 1;
 		yt += height >> 1;
 
-		perspectiveCamera->rotateX((xt - xpos) * 0.125f);
-		perspectiveCamera->rotateY((yt - ypos) * 0.125f);
+		camera->rotateX((xt - xpos) * 0.125f);
+		camera->rotateY((yt - ypos) * 0.125f);
 
         sf::Mouse::setPosition({xt, yt});
 
-		perspectiveCamera->apply(0.01f);
-		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(perspectiveCamera->getModelViewProjectionMatrix())));
+		camera->apply(0.01f);
+		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

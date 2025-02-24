@@ -116,6 +116,9 @@ int path_demo(sf::Window& window)
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
             camera->moveRight(100);
 
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
+            camera->revertToOrigin(50);
+
         auto playerPos = camera->getPosition();
         playerPos.y = 30.7f;
         camera->setPosition(playerPos);

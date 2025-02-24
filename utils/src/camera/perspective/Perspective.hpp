@@ -7,7 +7,6 @@ class Perspective final
 {
 public:
 	Perspective() noexcept;
-	~Perspective() noexcept;
 
     void setupProjectionMatrix(float fovy, float aspect, float zNear, float zFar) noexcept;
     void apply(float dt) noexcept;
@@ -24,6 +23,9 @@ public:
     void moveRight(float velocity)    noexcept;
     void moveUp(float velocity)       noexcept;
     void moveDown(float velocity)     noexcept;
+
+    void moveToPoint(float velocity) noexcept;
+    void revertToOrigin(float height) noexcept;
 
     const glm::vec3& getPosition()    const noexcept;
     glm::vec3        getLineOfSight() const noexcept;

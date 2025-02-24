@@ -238,6 +238,9 @@ int heightmap_demo(sf::Window& window) noexcept
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
             perspectiveCamera->moveRight(10);
 
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
+            perspectiveCamera->revertToOrigin(50);
+
 //  Heightmap
 		auto playerPos = perspectiveCamera->getPosition();
 		playerPos.y = getHeightInPoint(playerPos.x, playerPos.z) + 1.7f;
