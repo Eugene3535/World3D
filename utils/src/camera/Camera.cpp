@@ -13,10 +13,17 @@ Camera::Camera() noexcept:
     m_yaw(0.0f),
     m_pitch(0.0),
     m_fov(45.0f),
-    m_velocity(0.0f),
-    m_mouseSensitivity(0.125f)
+    m_aspect(0.0f),
+    m_drawDistance(10.0f)
 {
     recalculateModelViewMatrix();
+}
+
+
+void Camera::updateProjectionMatrix(float aspect) noexcept
+{
+    m_aspect = aspect;
+    m_projection = glm::perspective(glm::radians(m_fov), m_aspect, 0.1f, m_drawDistance);
 }
 
 
@@ -26,16 +33,35 @@ glm::mat4 Camera::getModelViewProjectionMatrix() const noexcept
 }
 
 
-void Camera::processKeyboard(Camera::Direction direction, float deltaTime) noexcept
+void Camera::setDrawDistance(float distance) noexcept
 {
-    float velocity = m_velocity * deltaTime;
+    m_drawDistance = fabs(distance);
+    updateProjectionMatrix(m_aspect);
+}
 
+
+void Camera::setPosition(float x, float y, float z) noexcept
+{
+    m_eye = { x, y, z };
+}
+
+
+void Camera::setPosition(const glm::vec3& position) noexcept
+{
+    m_eye = position;
+}
+
+
+void Camera::processKeyboard(Camera::Direction direction, float velocity) noexcept
+{
     switch (direction)
     {
-        case Camera::FORWARD:  m_eye += m_vectorFront * velocity; break;
-        case Camera::BACKWARD: m_eye -= m_vectorFront * velocity; break;
-        case Camera::LEFT:     m_eye -= m_vectorRight * velocity; break;
-        case Camera::RIGHT:    m_eye += m_vectorRight * velocity; break;
+        case Camera::Forward:  m_eye += m_vectorFront * velocity; break;
+        case Camera::Backward: m_eye -= m_vectorFront * velocity; break;
+        case Camera::Left:     m_eye -= m_vectorRight * velocity; break;
+        case Camera::Right:    m_eye += m_vectorRight * velocity; break;
+        case Camera::Up:       m_eye.y += velocity; break;
+        case Camera::Down:     m_eye.y -= velocity; break;
 
         default: break;
     }    
@@ -44,10 +70,7 @@ void Camera::processKeyboard(Camera::Direction direction, float deltaTime) noexc
 
 void Camera::processMouseMovement(float xoffset, float yoffset) noexcept
 {
-    xoffset *= m_mouseSensitivity;
-    yoffset *= m_mouseSensitivity;
-
-    m_yaw += xoffset;
+    m_yaw -= xoffset;
     m_pitch += yoffset;
     m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
 
@@ -59,6 +82,12 @@ void Camera::processMouseScroll(float delta) noexcept
 {
     m_fov -= delta;
     m_fov = std::clamp(m_fov, 1.0f, 45.0f);
+}
+
+
+const glm::vec3& Camera::getPosition() const noexcept
+{
+    return m_eye;
 }
 
 

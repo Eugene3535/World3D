@@ -13,6 +13,7 @@
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/perspective/Perspective.hpp"
+#include "camera/Camera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
 
@@ -34,8 +35,9 @@ int orbit_demo(sf::Window& window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = std::make_unique<Perspective>();
-    camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+    auto camera = std::make_unique<Camera>();
+    camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
+    camera->setDrawDistance(1000);
 
     auto texGrid = std::make_unique<Texture2D>(textureHandles[0]);
 
@@ -92,7 +94,7 @@ int orbit_demo(sf::Window& window) noexcept
             {
                 width = event.size.width;
                 height = event.size.height;
-                camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+                camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
                 glViewport(0, 0, width, height);
             }
 
@@ -105,19 +107,20 @@ int orbit_demo(sf::Window& window) noexcept
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             window.close();
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
-        {
-            camera->revertToOrigin(50);
-        }
-
         if(mouseScrollDelta != 0.0f)
         {
-            camera->zoom(mouseScrollDelta);
+            camera->processMouseScroll(mouseScrollDelta);
+            camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
         }
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
         {
-            camera->move(0.01f);
+            camera->processKeyboard(Camera::Forward, 0.3f);
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        {
+            camera->processKeyboard(Camera::Backward, 0.3f);
         }
 
         const auto [xpos, ypos] = sf::Mouse::getPosition();
@@ -126,12 +129,10 @@ int orbit_demo(sf::Window& window) noexcept
 		xt += width >> 1;
 		yt += height >> 1;
 
-		camera->rotateX((xt - xpos) * 0.125f);
-		camera->rotateY((yt - ypos) * 0.125f);
+        camera->processMouseMovement((xt - xpos) * 0.125f, (yt - ypos) * 0.125f);
 
         sf::Mouse::setPosition({xt, yt});
 
-		camera->apply();
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
