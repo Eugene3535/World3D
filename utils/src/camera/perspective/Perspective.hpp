@@ -24,6 +24,8 @@ public:
     void moveUp(float velocity)       noexcept;
     void moveDown(float velocity)     noexcept;
 
+    void move(float velocity) noexcept;
+
     void zoom(float delta) noexcept;
     void revertToOrigin(float height) noexcept;
 

@@ -72,5 +72,5 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 endif()
 
 if(MSVC)
-	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${_app_src_files})
+	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${MAIN_APP_SRC_FILES})
 endif()

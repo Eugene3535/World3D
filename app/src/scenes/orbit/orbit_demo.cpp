@@ -115,6 +115,11 @@ int orbit_demo(sf::Window& window) noexcept
             camera->zoom(mouseScrollDelta);
         }
 
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        {
+            camera->move(0.01f);
+        }
+
         const auto [xpos, ypos] = sf::Mouse::getPosition();
 		auto [xt, yt] = window.getPosition();
 

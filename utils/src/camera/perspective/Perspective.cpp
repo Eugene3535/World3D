@@ -121,6 +121,16 @@ void Perspective::zoom(float delta) noexcept
 }
 
 
+void Perspective::move(float velocity) noexcept
+{
+    m_delta.x = -sin(glm::radians(m_pitch)) * velocity;
+    m_delta.y =  tan(glm::radians(m_yaw)) * velocity;
+    m_delta.z = -cos(glm::radians(m_pitch)) * velocity;
+
+    m_modelViewNeedUpdate = true;
+}
+
+
 void Perspective::revertToOrigin(float height) noexcept
 {
     m_eye = { 0, height, 0 };
