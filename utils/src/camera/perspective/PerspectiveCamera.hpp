@@ -1,11 +1,11 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#ifndef PERSPECTIVE_CAMERA_HPP
+#define PERSPECTIVE_CAMERA_HPP
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 
-class Camera
+class PerspectiveCamera
 {
 public:
     enum Direction
@@ -18,10 +18,10 @@ public:
         Down
     };
 
-    Camera() noexcept;
+    PerspectiveCamera() noexcept;
 
     void updateProjectionMatrix(float aspect) noexcept;
-    glm::mat4 getModelViewProjectionMatrix() const noexcept;
+    glm::mat4 getModelViewProjectionMatrix() noexcept;
 
     void setDrawDistance(float distance) noexcept;
 
@@ -50,6 +50,8 @@ private:
     float m_fov;
     float m_aspect;
     float m_drawDistance;
+
+    bool m_modelViewNeedUpdate;
 };
 
-#endif // !CAMERA_HPP
+#endif // !PERSPECTIVE_CAMERA_HPP

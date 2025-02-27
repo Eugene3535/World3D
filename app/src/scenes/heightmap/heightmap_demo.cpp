@@ -13,7 +13,7 @@
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/Orthogonal.hpp"
-#include "camera/perspective/Perspective.hpp"
+#include "camera/perspective/PerspectiveCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
 
@@ -32,9 +32,10 @@ int heightmap_demo(sf::Window& window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto perspectiveCamera = std::make_unique<Perspective>();
-    perspectiveCamera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
-    perspectiveCamera->setPosition(30, 3, 30);
+    auto camera = std::make_unique<PerspectiveCamera>();
+    camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
+    camera->setDrawDistance(100);
+    camera ->setPosition(30, 3, 30);
 
     auto orthoCamera = std::make_unique<Orthogonal>();
     orthoCamera->setupProjectionMatrix(width, height);
@@ -218,7 +219,7 @@ int heightmap_demo(sf::Window& window) noexcept
                 width = event.size.width;
                 height = event.size.height;
                 orthoCamera->setupProjectionMatrix(width, height);
-                perspectiveCamera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+                camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
                 glViewport(0, 0, width, height);
             }
         }
@@ -227,24 +228,21 @@ int heightmap_demo(sf::Window& window) noexcept
             window.close();
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-            perspectiveCamera->moveForward(0.1f);
+            camera->processKeyboard(PerspectiveCamera::Forward, 1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-            perspectiveCamera->moveLeft(0.1f);
+            camera->processKeyboard(PerspectiveCamera::Left, 1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-            perspectiveCamera->moveBackward(0.1f);
+            camera->processKeyboard(PerspectiveCamera::Backward, 1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-            perspectiveCamera->moveRight(0.1f);
-
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
-            perspectiveCamera->revertToOrigin(50);
+            camera->processKeyboard(PerspectiveCamera::Right, 1);
 
 //  Heightmap
-		auto playerPos = perspectiveCamera->getPosition();
+		auto playerPos = camera->getPosition();
 		playerPos.y = getHeightInPoint(playerPos.x, playerPos.z) + 1.7f;
-		perspectiveCamera->setPosition(playerPos);
+		camera->setPosition(playerPos);
 
         const auto [xpos, ypos] = sf::Mouse::getPosition();
 		auto [xt, yt] = window.getPosition();
@@ -252,13 +250,11 @@ int heightmap_demo(sf::Window& window) noexcept
 		xt += width >> 1;
 		yt += height >> 1;
 
-		perspectiveCamera->rotateX((xt - xpos) * 0.125f);
-		perspectiveCamera->rotateY((yt - ypos) * 0.125f);
+		camera->processMouseMovement((xt - xpos) * 0.125f, (yt - ypos) * 0.125f);
 
         sf::Mouse::setPosition({xt, yt});
 
-		perspectiveCamera->apply();
-		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(perspectiveCamera->getModelViewProjectionMatrix())));
+		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);

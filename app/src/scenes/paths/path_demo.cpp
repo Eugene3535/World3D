@@ -11,7 +11,7 @@
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "camera/perspective/Perspective.hpp"
+#include "camera/perspective/PerspectiveCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
 
@@ -79,8 +79,8 @@ int path_demo(sf::Window& window)
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
     auto [width, height] = window.getSize();
-    auto camera = std::make_unique<Perspective>();
-    camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+    auto camera = std::make_unique<PerspectiveCamera>();
+    camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
     camera->setPosition(3, 3, 3);
 
     while (window.isOpen())
@@ -96,7 +96,7 @@ int path_demo(sf::Window& window)
             {
                 width = event.size.width;
                 height = event.size.height;
-                camera->setupProjectionMatrix(45, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
+                camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
                 glViewport(0, 0, width, height);
             }
         }
@@ -105,19 +105,16 @@ int path_demo(sf::Window& window)
             window.close();
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-            camera->moveForward(1);
+            camera->processKeyboard(PerspectiveCamera::Forward, 1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-            camera->moveLeft(1);
+            camera->processKeyboard(PerspectiveCamera::Left, 1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-            camera->moveBackward(1);
+            camera->processKeyboard(PerspectiveCamera::Backward, 1);
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-            camera->moveRight(1);
-
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
-            camera->revertToOrigin(50);
+            camera->processKeyboard(PerspectiveCamera::Right, 1);
 
         auto playerPos = camera->getPosition();
         playerPos.y = 30.7f;
@@ -129,12 +126,10 @@ int path_demo(sf::Window& window)
 		xt += width >> 1;
 		yt += height >> 1;
 
-		camera->rotateX((xt - xpos) * 0.125f);
-		camera->rotateY((yt - ypos) * 0.125f);
+		camera->processMouseMovement((xt - xpos) * 0.125f, (yt - ypos) * 0.125f);
 
         sf::Mouse::setPosition({xt, yt});
 
-		camera->apply();
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

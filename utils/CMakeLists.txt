@@ -4,9 +4,8 @@ set(_opengl_utils_src_files
 	src/graphics/Transform2D.cpp
 	src/files/Image.cpp
 	src/files/FileProvider.cpp
-	src/camera/perspective/Perspective.cpp
+	src/camera/perspective/PerspectiveCamera.cpp
 	src/camera/orthogonal/Orthogonal.cpp
-	src/camera/Camera.cpp
 	src/opengl/holder/GlResourceHolder.cpp
 	src/opengl/resources/shaders/Shader.cpp
 	src/opengl/resources/shaders/ShaderProgram.cpp
@@ -22,9 +21,8 @@ set(_opengl_utils_hdr_files
 	src/graphics/Transform2D.hpp
 	src/files/Image.hpp
 	src/files/FileProvider.hpp
-	src/camera/perspective/Perspective.hpp
+	src/camera/perspective/PerspectiveCamera.hpp
 	src/camera/orthogonal/Orthogonal.hpp
-	src/camera/Camera.hpp
 	src/opengl/holder/GlResourceHolder.hpp
 	src/opengl/holder/GlResourceHolder.inl
 	src/opengl/resources/shaders/Shader.hpp

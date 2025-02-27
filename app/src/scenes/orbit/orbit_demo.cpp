@@ -12,8 +12,7 @@
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "camera/perspective/Perspective.hpp"
-#include "camera/Camera.hpp"
+#include "camera/perspective/PerspectiveCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
 
@@ -35,9 +34,9 @@ int orbit_demo(sf::Window& window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = std::make_unique<Camera>();
+    auto camera = std::make_unique<PerspectiveCamera>();
     camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
-    camera->setDrawDistance(1000);
+    camera->setDrawDistance(100);
 
     auto texGrid = std::make_unique<Texture2D>(textureHandles[0]);
 
@@ -115,12 +114,12 @@ int orbit_demo(sf::Window& window) noexcept
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
         {
-            camera->processKeyboard(Camera::Forward, 0.3f);
+            camera->processKeyboard(PerspectiveCamera::Forward, 0.3f);
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
         {
-            camera->processKeyboard(Camera::Backward, 0.3f);
+            camera->processKeyboard(PerspectiveCamera::Backward, 0.3f);
         }
 
         const auto [xpos, ypos] = sf::Mouse::getPosition();
