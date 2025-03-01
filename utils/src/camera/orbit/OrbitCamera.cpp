@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "camera/orbit/OrbitCamera.hpp"
@@ -13,7 +15,7 @@ OrbitCamera::OrbitCamera(const glm::vec3& center, const glm::vec3& upVector, flo
     m_azimuthAngle(azimuthAngle), 
     m_polarAngle(polarAngle)
 {
-    m_projection = glm::perspective(glm::radians(45.f), 1200 / (float)800, 0.1f, 100.f);
+    m_projection = glm::perspective(glm::radians(45.f), 1200 / (float)800, 0.1f, 200.f);
 }
 
 
@@ -33,14 +35,7 @@ void OrbitCamera::rotatePolar(const float radians) noexcept
 {
     m_polarAngle += radians;
     constexpr float polarCap = glm::pi<float>() / 2.0f - 0.001f;
-
-    if (m_polarAngle > polarCap) {
-        m_polarAngle = polarCap;
-    }
-
-    if (m_polarAngle < -polarCap) {
-        m_polarAngle = -polarCap;
-    }
+    m_polarAngle = std::clamp(m_polarAngle, -polarCap, polarCap);
 }
 
 
