@@ -1,14 +1,13 @@
-#ifndef ORTHOGONAL_HPP
-#define ORTHOGONAL_HPP
+#ifndef ORTHOGONAL_CAMERA_HPP
+#define ORTHOGONAL_CAMERA_HPP
 
 #include "graphics/Transform2D.hpp"
 
-class Orthogonal final:
+class OrthogonalCamera final:
     public Transform2D
 {
 public:
-	Orthogonal() noexcept;
-	~Orthogonal() noexcept;
+    OrthogonalCamera() noexcept;
 
     void      setupProjectionMatrix(int32_t width, int32_t height) noexcept;
     glm::mat4 getModelViewProjectionMatrix() const noexcept;
@@ -18,4 +17,4 @@ private:
     bool      m_modelViewNeedUpdate;
 };
 
-#endif // !ORTHOGONAL_HPP
+#endif // !ORTHOGONAL_CAMERA_HPP

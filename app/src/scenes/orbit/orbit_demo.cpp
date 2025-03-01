@@ -13,6 +13,7 @@
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/perspective/PerspectiveCamera.hpp"
+#include "camera/orbit/OrbitCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
 
@@ -33,6 +34,8 @@ int orbit_demo(sf::Window& window) noexcept
     GlBuffer uniformBuffer(bufferHandles[0], GL_UNIFORM_BUFFER);
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
+
+    auto orbitCamera = std::make_unique<OrbitCamera>(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0f, 0.0f), 15.0f, 3.0f, glm::pi<float>() * 0.5f, 0.0f);
 
     auto camera = std::make_unique<PerspectiveCamera>();
     camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));

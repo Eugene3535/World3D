@@ -12,7 +12,7 @@
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "camera/orthogonal/Orthogonal.hpp"
+#include "camera/orthogonal/OrthogonalCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 #include "scenes/platformer/tilemap/TileMap.hpp"
 #include "scenes/platformer/sprites/SpriteHolder.hpp"
@@ -37,7 +37,7 @@ int platformer_demo(sf::Window& window)
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = std::make_unique<Orthogonal>(); 
+    auto camera = std::make_unique<OrthogonalCamera>(); 
     camera->setupProjectionMatrix(width, height);
 
     std::array<Shader, 2> shaders;

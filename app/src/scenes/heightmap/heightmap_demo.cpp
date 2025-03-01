@@ -12,7 +12,7 @@
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "camera/orthogonal/Orthogonal.hpp"
+#include "camera/orthogonal/OrthogonalCamera.hpp"
 #include "camera/perspective/PerspectiveCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
@@ -37,7 +37,7 @@ int heightmap_demo(sf::Window& window) noexcept
     camera->setDrawDistance(100);
     camera ->setPosition(30, 3, 30);
 
-    auto orthoCamera = std::make_unique<Orthogonal>();
+    auto orthoCamera = std::make_unique<OrthogonalCamera>();
     orthoCamera->setupProjectionMatrix(width, height);
 
     Image imageMap;        if(!imageMap.loadFromFile(FileProvider::findPathToFile("heightmap.png")))            return -1;

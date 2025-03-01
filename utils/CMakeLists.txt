@@ -5,7 +5,8 @@ set(_opengl_utils_src_files
 	src/files/Image.cpp
 	src/files/FileProvider.cpp
 	src/camera/perspective/PerspectiveCamera.cpp
-	src/camera/orthogonal/Orthogonal.cpp
+	src/camera/orthogonal/OrthogonalCamera.cpp
+	src/camera/orbit/OrbitCamera.cpp
 	src/opengl/holder/GlResourceHolder.cpp
 	src/opengl/resources/shaders/Shader.cpp
 	src/opengl/resources/shaders/ShaderProgram.cpp
@@ -22,7 +23,8 @@ set(_opengl_utils_hdr_files
 	src/files/Image.hpp
 	src/files/FileProvider.hpp
 	src/camera/perspective/PerspectiveCamera.hpp
-	src/camera/orthogonal/Orthogonal.hpp
+	src/camera/orthogonal/OrthogonalCamera.hpp
+	src/camera/orbit/OrbitCamera.hpp
 	src/opengl/holder/GlResourceHolder.hpp
 	src/opengl/holder/GlResourceHolder.inl
 	src/opengl/resources/shaders/Shader.hpp

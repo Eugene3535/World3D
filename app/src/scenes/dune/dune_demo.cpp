@@ -11,7 +11,7 @@
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
-#include "camera/orthogonal/Orthogonal.hpp"
+#include "camera/orthogonal/OrthogonalCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
 int dune_demo(sf::Window& window) noexcept
@@ -88,7 +88,7 @@ int dune_demo(sf::Window& window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = std::make_unique<Orthogonal>();
+    auto camera = std::make_unique<OrthogonalCamera>();
     camera->setupProjectionMatrix(width, height);
 
     while (window.isOpen())
