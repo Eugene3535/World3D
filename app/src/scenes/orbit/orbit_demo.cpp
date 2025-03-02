@@ -35,7 +35,7 @@ int orbit_demo(sf::Window& window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto orbitCamera = std::make_unique<OrbitCamera>(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(0.0, 1.0f, 0.0f), 15.0f, 3.0f, glm::pi<float>() * 0.5f, 0.0f);
+    auto orbitCamera = std::make_unique<OrbitCamera>(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(0.0, 1.0f, 0.0f), 150.0f, 3.0f, glm::pi<float>() * 0.5f, 0.0f);
 
     auto camera = std::make_unique<PerspectiveCamera>();
     camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
@@ -78,9 +78,6 @@ int orbit_demo(sf::Window& window) noexcept
     glUniform1i(program->getUniformLocation("texture0").value(), 0);
     glUseProgram(0);
 
-    glm::vec3 pos = {3, 50, 3};
-    camera->setPosition(pos);
-
     while (window.isOpen())
     {
         sf::Event event;
@@ -111,8 +108,6 @@ int orbit_demo(sf::Window& window) noexcept
 
         if(mouseScrollDelta != 0.0f)
         {
-            // camera->processMouseScroll(mouseScrollDelta);
-            // camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
             orbitCamera->zoom(static_cast<float>(-mouseScrollDelta) * 0.5f);
         }
 
@@ -122,15 +117,10 @@ int orbit_demo(sf::Window& window) noexcept
 		xt += width >> 1;
 		yt += height >> 1;
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
         {
-            orbitCamera->moveHorizontal(-(xt - xpos) * 0.05f);
-            orbitCamera->moveVertical((yt - ypos) * 0.05f);
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        {
-            camera->processKeyboard(PerspectiveCamera::Right, 0.3f);
+            orbitCamera->moveHorizontal((xt - xpos) * 0.5f);
+            orbitCamera->moveVertical(-(yt - ypos) * 0.5f);
         }
 
         if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -138,8 +128,6 @@ int orbit_demo(sf::Window& window) noexcept
             orbitCamera->rotateAzimuth((xt - xpos) * 0.01f);
             orbitCamera->rotatePolar((yt - ypos) * 0.01f);
         }
-
-        // camera->processMouseMovement((xt - xpos) * 0.125f, (yt - ypos) * 0.125f);
 
         sf::Mouse::setPosition({xt, yt});
 

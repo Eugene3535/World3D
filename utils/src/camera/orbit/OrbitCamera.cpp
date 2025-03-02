@@ -15,7 +15,7 @@ OrbitCamera::OrbitCamera(const glm::vec3& center, const glm::vec3& upVector, flo
     m_azimuthAngle(azimuthAngle), 
     m_polarAngle(polarAngle)
 {
-    m_projection = glm::perspective(glm::radians(45.f), 1200 / (float)800, 0.1f, 200.f);
+    m_projection = glm::perspective(glm::radians(45.f), 1200 / (float)800, 0.1f, 500.f);
 }
 
 
