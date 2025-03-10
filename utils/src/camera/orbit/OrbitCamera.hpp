@@ -6,18 +6,21 @@
 class OrbitCamera
 {
 public:
-	OrbitCamera(const glm::vec3& center, const glm::vec3& upVector, float radius, float minRadius, float azimuthAngle, float polarAngle) noexcept;
+	OrbitCamera(const glm::vec3& center, float radius, float minRadius, float azimuthAngle, float polarAngle) noexcept;
 
-    void rotateAzimuth(const float radians) noexcept;
-    void rotatePolar(const float radians) noexcept;
-	void zoom(const float distance) noexcept;
-	void moveHorizontal(const float distance) noexcept;
-	void moveVertical(const float distance) noexcept;
+    void updateProjectionMatrix(float aspect) noexcept;
+
+    void rotateAzimuth(float radians) noexcept;
+    void rotatePolar(float radians) noexcept;
+	void zoom(float distance) noexcept;
+
+	void moveHorizontal(float distance) noexcept;
+	void moveVertical(float distance) noexcept;
     
     glm::mat4 getModelViewProjectionMatrix() const noexcept;
+
     glm::vec3 getEye() const noexcept;
-    glm::vec3 getViewPoint() const noexcept;
-    glm::vec3 getVectorUp() const noexcept;
+    const glm::vec3& getViewPoint() const noexcept;
     glm::vec3 getNormalizedViewVector() const noexcept;
 
     float getAzimuthAngle() const noexcept;
@@ -28,11 +31,12 @@ private:
     glm::mat4 m_projection;
     glm::mat4 m_modelView;
     glm::vec3 m_center;
-    glm::vec3 m_vectorUp;
     float m_radius;
     float m_minRadius;
-    float m_azimuthAngle;
-    float m_polarAngle;
+    float m_azimuth;
+    float m_polar;
+    float m_fov;
+    float m_aspect;
 };
 
 #endif // !ORBIT_CAMERA_HPP

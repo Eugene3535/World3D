@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "camera/perspective/PerspectiveCamera.hpp"
 
 
@@ -83,7 +81,7 @@ void PerspectiveCamera::processMouseMovement(float xoffset, float yoffset) noexc
 {
     m_yaw -= xoffset;
     m_pitch += yoffset;
-    m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
+    m_pitch = glm::clamp(m_pitch, -89.0f, 89.0f);
     m_modelViewNeedUpdate = true;
 }
 
@@ -91,7 +89,7 @@ void PerspectiveCamera::processMouseMovement(float xoffset, float yoffset) noexc
 void PerspectiveCamera::processMouseScroll(float delta) noexcept
 {
     m_fov -= delta;
-    m_fov = std::clamp(m_fov, 1.0f, 45.0f);
+    m_fov = glm::clamp(m_fov, 1.0f, 45.0f);
     m_modelViewNeedUpdate = true;
 }
 

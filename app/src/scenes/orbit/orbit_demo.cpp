@@ -35,11 +35,9 @@ int orbit_demo(sf::Window& window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto orbitCamera = std::make_unique<OrbitCamera>(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(0.0, 1.0f, 0.0f), 150.0f, 3.0f, glm::pi<float>() * 0.5f, 0.0f);
-
-    auto camera = std::make_unique<PerspectiveCamera>();
+    auto camera = std::make_unique<OrbitCamera>(glm::vec3(50.0f, 0.0f, 50.0f), 150.0f, 3.0f, glm::pi<float>() * 0.5f, 0.0f);
     camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
-    camera->setDrawDistance(100);
+    // camera->setDrawDistance(300);
 
     auto texGrid = std::make_unique<Texture2D>(textureHandles[0]);
 
@@ -78,6 +76,10 @@ int orbit_demo(sf::Window& window) noexcept
     glUniform1i(program->getUniformLocation("texture0").value(), 0);
     glUseProgram(0);
 
+    sf::Clock clock;
+
+    // camera->setup({ 150, 50, 150 }, { 50, 0, 50 });
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -108,7 +110,7 @@ int orbit_demo(sf::Window& window) noexcept
 
         if(mouseScrollDelta != 0.0f)
         {
-            orbitCamera->zoom(static_cast<float>(-mouseScrollDelta) * 0.5f);
+
         }
 
         const auto [xpos, ypos] = sf::Mouse::getPosition();
@@ -117,21 +119,24 @@ int orbit_demo(sf::Window& window) noexcept
 		xt += width >> 1;
 		yt += height >> 1;
 
-        if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
-        {
-            orbitCamera->moveHorizontal((xt - xpos) * 0.5f);
-            orbitCamera->moveVertical(-(yt - ypos) * 0.5f);
-        }
+        float  deltaX = (xt - xpos) * 0.125f; 
+        float  deltaY = (yt - ypos) * 0.125f;
 
         if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            orbitCamera->rotateAzimuth((xt - xpos) * 0.01f);
-            orbitCamera->rotatePolar((yt - ypos) * 0.01f);
+            camera->rotateAzimuth(deltaX * 0.01f);
+            camera->rotatePolar(deltaY * 0.01f);
+        }
+
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
+        {
+            camera->moveHorizontal(deltaX * 0.5f);
+            camera->moveVertical(-deltaY * 0.5f);
         }
 
         sf::Mouse::setPosition({xt, yt});
 
-		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orbitCamera->getModelViewProjectionMatrix())));
+		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
