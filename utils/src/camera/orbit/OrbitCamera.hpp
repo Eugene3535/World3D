@@ -6,16 +6,18 @@
 class OrbitCamera
 {
 public:
-	OrbitCamera(const glm::vec3& center, float radius, float minRadius, float azimuthAngle, float polarAngle) noexcept;
+	OrbitCamera() noexcept;
+
+    void setup(const glm::vec3& minPoint, const glm::vec3& maxPoint) noexcept;
 
     void updateProjectionMatrix(float aspect) noexcept;
+    void setDrawDistance(float distance) noexcept;
 
     void rotateAzimuth(float radians) noexcept;
     void rotatePolar(float radians) noexcept;
-	void zoom(float distance) noexcept;
-
 	void moveHorizontal(float distance) noexcept;
 	void moveVertical(float distance) noexcept;
+    void zoom(float distance) noexcept;
     
     glm::mat4 getModelViewProjectionMatrix() const noexcept;
 
@@ -29,14 +31,15 @@ public:
 
 private:
     glm::mat4 m_projection;
-    glm::mat4 m_modelView;
+    mutable glm::mat4 m_modelView;
     glm::vec3 m_center;
     float m_radius;
     float m_minRadius;
     float m_azimuth;
     float m_polar;
-    float m_fov;
     float m_aspect;
+    float m_drawDistance;
+    mutable bool m_modelViewNeedUpdate;
 };
 
 #endif // !ORBIT_CAMERA_HPP

@@ -3,25 +3,46 @@
 #include "camera/orbit/OrbitCamera.hpp"
 
 
-OrbitCamera::OrbitCamera(const glm::vec3& center, float radius, float minRadius, float azimuthAngle, float polarAngle) noexcept:
+OrbitCamera::OrbitCamera() noexcept:
     m_projection(glm::identity<glm::mat4>()),
     m_modelView(glm::identity<glm::mat4>()),
-    m_center(center),
-    m_radius(radius),
-    m_minRadius(minRadius),
-    m_azimuth(azimuthAngle),
-    m_polar(polarAngle),
-    m_fov(45.0f),
-    m_aspect(0.0f)
+    m_center(0.f),
+    m_radius(0.f),
+    m_minRadius(0.f),
+    m_azimuth(0.f),
+    m_polar(glm::quarter_pi<float>()),
+    m_aspect(0.f),
+    m_drawDistance(3.f),
+    m_modelViewNeedUpdate(true)
 {
 
+}
+
+
+void OrbitCamera::setup(const glm::vec3& minPoint, const glm::vec3& maxPoint) noexcept
+{
+    m_center = (minPoint + maxPoint) * 0.5f;
+    glm::vec3 halfSize = (maxPoint - minPoint) * 0.5f;
+    m_radius = glm::length(halfSize) * 1.5f;
+    m_minRadius = m_radius * 0.3f;
+    m_azimuth = 0;
+    m_polar = glm::quarter_pi<float>();
+    m_drawDistance = m_radius * 2;
+    m_modelViewNeedUpdate = true;
 }
 
 
 void OrbitCamera::updateProjectionMatrix(float aspect) noexcept
 {
     m_aspect = aspect;
-    m_projection = glm::perspective(glm::radians(m_fov), m_aspect, 0.1f, 300.f);
+    m_projection = glm::perspective(glm::radians(45.f), m_aspect, 0.1f, m_drawDistance);
+}
+
+
+void OrbitCamera::setDrawDistance(float distance) noexcept
+{
+    m_drawDistance = fabs(distance);
+    updateProjectionMatrix(m_aspect);
 }
 
 
@@ -35,6 +56,8 @@ void OrbitCamera::rotateAzimuth(float radians) noexcept
 
     if (m_azimuth < 0.f) 
         m_azimuth = fullCircle + m_azimuth;
+
+    m_modelViewNeedUpdate = true;
 }
 
 
@@ -45,15 +68,7 @@ void OrbitCamera::rotatePolar(float radians) noexcept
     // Check if the angle hasn't exceeded quarter of a circle to prevent flip, add a bit of epsilon like 0.001 radians
     constexpr auto polarCap = glm::pi<float>() / 2.0f - 0.001f;
     m_polar = glm::clamp(m_polar, -polarCap, polarCap);
-}
-
-
-void OrbitCamera::zoom(float distance) noexcept
-{
-    m_radius += distance;
-
-    if (m_radius < m_minRadius) 
-        m_radius = m_minRadius;
+    m_modelViewNeedUpdate = true;
 }
 
 
@@ -63,6 +78,7 @@ void OrbitCamera::moveHorizontal(float distance) noexcept
     const glm::vec3 viewVector = getNormalizedViewVector();
     const glm::vec3 strafeVector = glm::normalize(glm::cross(viewVector, glm::vec3(0.f, 1.f, 0.f)));
     m_center += strafeVector * distance;
+    m_modelViewNeedUpdate = true;
 }
 
 
@@ -73,14 +89,31 @@ void OrbitCamera::moveVertical(float distance) noexcept
     auto up = glm::normalize(glm::cross(right, front));
 
     m_center += up * distance;
+    m_modelViewNeedUpdate = true;
+}
+
+
+void OrbitCamera::zoom(float distance) noexcept
+{
+    m_radius += distance;
+
+    if (m_radius < m_minRadius) 
+        m_radius = m_minRadius;
+
+    m_modelViewNeedUpdate = true;
 }
 
 
 glm::mat4 OrbitCamera::getModelViewProjectionMatrix() const noexcept
 {
-    const auto eye = getEye();
+    if(m_modelViewNeedUpdate)
+    {
+        const auto eye = getEye();
+        m_modelView = glm::lookAt(eye, eye + getNormalizedViewVector(), glm::vec3(0.f, 1.f, 0.f));
+        m_modelViewNeedUpdate = false;
+    }
 
-	return m_projection * glm::lookAt(eye, eye + getNormalizedViewVector(), glm::vec3(0.f, 1.f, 0.f));
+	return m_projection * m_modelView;
 }
 
 

@@ -19,8 +19,6 @@
 
 int orbit_demo(sf::Window& window) noexcept
 {
-    window.setMouseCursorVisible(false);
-
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -35,9 +33,9 @@ int orbit_demo(sf::Window& window) noexcept
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
-    auto camera = std::make_unique<OrbitCamera>(glm::vec3(50.0f, 0.0f, 50.0f), 150.0f, 3.0f, glm::pi<float>() * 0.5f, 0.0f);
+    auto camera = std::make_unique<OrbitCamera>();
+    camera->setup({ 0, 0, 0 }, { 100, 0, 100 });
     camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
-    // camera->setDrawDistance(300);
 
     auto texGrid = std::make_unique<Texture2D>(textureHandles[0]);
 
@@ -78,7 +76,10 @@ int orbit_demo(sf::Window& window) noexcept
 
     sf::Clock clock;
 
-    // camera->setup({ 150, 50, 150 }, { 50, 0, 50 });
+    float prevMousePosX, prevMousePosY;
+    float curMousePosX, curMousePosY;
+    bool rotatingCamera = false;
+    bool movingCamera = false;
 
     while (window.isOpen())
     {
@@ -109,32 +110,53 @@ int orbit_demo(sf::Window& window) noexcept
             window.close();
 
         if(mouseScrollDelta != 0.0f)
-        {
-
-        }
-
-        const auto [xpos, ypos] = sf::Mouse::getPosition();
-		auto [xt, yt] = window.getPosition();
-
-		xt += width >> 1;
-		yt += height >> 1;
-
-        float  deltaX = (xt - xpos) * 0.125f; 
-        float  deltaY = (yt - ypos) * 0.125f;
-
+            camera->zoom(-mouseScrollDelta);
+        
         if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            camera->rotateAzimuth(deltaX * 0.01f);
-            camera->rotatePolar(deltaY * 0.01f);
+            if (!rotatingCamera && !movingCamera)
+            {
+                sf::Vector2f mousePos(sf::Mouse::getPosition());
+                rotatingCamera = true;
+                prevMousePosX = mousePos.x;
+                prevMousePosY = mousePos.y;
+            }
         }
+        else rotatingCamera = false;
 
         if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
         {
-            camera->moveHorizontal(deltaX * 0.5f);
-            camera->moveVertical(-deltaY * 0.5f);
+            if (!rotatingCamera && !movingCamera)
+            {
+                sf::Vector2f mousePos(sf::Mouse::getPosition());
+                movingCamera = true;
+                prevMousePosX = mousePos.x;
+                prevMousePosY = mousePos.y;
+            }
         }
+        else movingCamera = false;
 
-        sf::Mouse::setPosition({xt, yt});
+
+        sf::Vector2f mousePos(sf::Mouse::getPosition());
+        curMousePosX = mousePos.x;
+        curMousePosY = mousePos.y;
+        const auto deltaX = static_cast<float>(curMousePosX - prevMousePosX);
+        const auto deltaY = static_cast<float>(curMousePosY - prevMousePosY);
+    
+        if (rotatingCamera)
+        {
+            camera->rotateAzimuth(deltaX * 0.01f);
+            camera->rotatePolar(deltaY * 0.01f);
+            prevMousePosX = curMousePosX;
+            prevMousePosY = curMousePosY;
+        }
+        else if (movingCamera)
+        {
+            camera->moveHorizontal(-deltaX * 0.25f);
+            camera->moveVertical(deltaY * 0.25f);
+            prevMousePosX = curMousePosX;
+            prevMousePosY = curMousePosY;
+        }
 
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
