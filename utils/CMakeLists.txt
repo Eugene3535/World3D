@@ -14,7 +14,6 @@ set(_opengl_utils_src_files
 	src/opengl/resources/buffers/VertexBufferLayout.cpp
 	src/opengl/resources/graphics/VertexArrayObject.cpp
 	src/opengl/resources/graphics/Texture2D.cpp
-	src/opengl/debug/OpenGLDebugger.cpp
 )
 
 set(_opengl_utils_hdr_files
@@ -33,7 +32,6 @@ set(_opengl_utils_hdr_files
 	src/opengl/resources/buffers/VertexBufferLayout.hpp
 	src/opengl/resources/graphics/VertexArrayObject.hpp
 	src/opengl/resources/graphics/Texture2D.hpp
-	src/opengl/debug/OpenGLDebugger.hpp
 )
 
 set(SHADER_FILES

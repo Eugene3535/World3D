@@ -3,5 +3,4 @@
 2) Sprite renderer
 3) Move examples to OOP style (scene class)
 4) check return value in examples
-5) Repair OpenGl debug
-6) Replace std::array in GlResourceHolder by std::span
+5) Replace std::array in GlResourceHolder by std::span
