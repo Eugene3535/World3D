@@ -1,6 +1,3 @@
 
-1) Perspective camera add extenal methods(fov, zNear, zFar)
-2) Sprite renderer
-3) Move examples to OOP style (scene class)
-4) check return value in examples
-5) Replace std::array in GlResourceHolder by std::span
+1) Move examples to OOP style (scene class)
+2) Add font support

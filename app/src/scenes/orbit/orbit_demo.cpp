@@ -24,7 +24,7 @@ int orbit_demo(sf::Window& window) noexcept
 
     auto [width, height] = window.getSize();
 
-    auto resourceHolder = std::make_unique<GlResourceHolder>();;
+    auto resourceHolder = std::make_unique<GlResourceHolder>();
     const auto bufferHandles = resourceHolder->create<GlBuffer, 2>();
     const auto vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
     const auto textureHandles = resourceHolder->create<Texture2D, 1>();
