@@ -9,6 +9,7 @@ int path_demo(sf::Window& window) noexcept;
 int dune_demo(sf::Window& window) noexcept;
 int platformer_demo(sf::Window& window) noexcept;
 int orbit_demo(sf::Window& window) noexcept;
+int font_demo(sf::Window& window) noexcept;
 
 int main()
 {
@@ -53,7 +54,7 @@ int main()
         }, nullptr );
 #endif
 
-    int returnValue = platformer_demo(window);
+    int returnValue = font_demo(window);
 
     return returnValue;
 }

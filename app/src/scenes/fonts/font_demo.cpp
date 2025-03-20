@@ -17,7 +17,7 @@
 #include "opengl/holder/GlResourceHolder.hpp"
 
 
-int heightmap_demo(sf::Window& window) noexcept
+int font_demo(sf::Window& window) noexcept
 {
     glEnable(GL_DEPTH_TEST);
 
