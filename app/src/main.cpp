@@ -4,6 +4,12 @@
 
 #include <SFML/Window.hpp>
 
+#ifdef _WIN32
+#include <windows.h>
+extern "C" __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+extern "C" __declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001;
+#endif
+
 int heightmap_demo(sf::Window& window) noexcept;
 int path_demo(sf::Window& window) noexcept;
 int dune_demo(sf::Window& window) noexcept;
