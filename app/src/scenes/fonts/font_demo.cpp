@@ -64,9 +64,9 @@ int font_demo(sf::Window& window) noexcept
     if(!texCircleOff->loadFromImage(imageCircleOff, false, false)) return -1;
     if(!texCircleOn->loadFromImage(imageCircleOn, false, false)) return -1;
 
-    const uint8_t* pixels = imageMap.getPixels();
-    const uint32_t mapDepth = imageMap.getHeight();
-    const uint32_t mapWidth = imageMap.getWidth();
+    const uint8_t* pixels = imageMap.getPixelPtr();
+    const uint32_t mapDepth = imageMap.getSize().y;
+    const uint32_t mapWidth = imageMap.getSize().x;
 
     std::vector<float> heightmap;
     heightmap.resize(mapDepth * mapWidth);
@@ -81,7 +81,7 @@ int font_demo(sf::Window& window) noexcept
     {
         for (size_t x = 0; x < mapWidth; ++x)
         {
-            const uint8_t* pixel = pixels + ((z * mapWidth + x) * imageMap.getBytePerPixel());
+            const uint8_t* pixel = pixels + ((z * mapWidth + x) * 4);
             int32_t y = static_cast<int32_t>(pixel[0]);
             float Y = y * 0.03f;
 
@@ -294,8 +294,8 @@ int font_demo(sf::Window& window) noexcept
         glUseProgram(circleProgram->getHandle().value());
         glBindVertexArray(circleVao->getHandle());
 
-        int halfW = imageCircleOff.getWidth() / 2;
-        int halfH = imageCircleOff.getHeight() / 2;
+        int32_t halfW = imageCircleOff.getSize().x / 2;
+        int32_t halfH = imageCircleOff.getSize().y / 2;
         static float rotation = 0;
 
         orthoCamera->setOrigin(halfW, halfH);
@@ -308,7 +308,7 @@ int font_demo(sf::Window& window) noexcept
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        orthoCamera->setPosition(width - imageCircleOff.getWidth() + halfW, height - halfH);
+        orthoCamera->setPosition(width - imageCircleOff.getSize().x + halfW, height - halfH);
         orthoCamera->setRotation(rotation);
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orthoCamera->getModelViewProjectionMatrix())));
 

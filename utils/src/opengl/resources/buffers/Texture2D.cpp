@@ -19,28 +19,24 @@ bool Texture2D::loadFromImage(const Image& image, bool repeat, bool smooth) noex
 {
     if(m_handle)
     {
-        if (int32_t channels = image.getBytePerPixel(); (channels == 3) || (channels == 4))
-        {
-            int32_t format = (channels == 4) ? GL_RGBA : GL_RGB;
-            m_width  = image.getWidth();
-            m_height = image.getHeight();
+        m_width  = image.getSize().x;
+        m_height = image.getSize().y;
 
-            GLint wrapMode = repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER;
-            GLint filterMode = smooth  ? GL_LINEAR : GL_NEAREST;
-            m_isRepeated = repeat;
-            m_isSmooth   = smooth;
+        GLint wrapMode = repeat ? GL_REPEAT : GL_CLAMP_TO_BORDER;
+        GLint filterMode = smooth  ? GL_LINEAR : GL_NEAREST;
+        m_isRepeated = repeat;
+        m_isSmooth   = smooth;
 
-            glBindTexture(GL_TEXTURE_2D, m_handle);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMode);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMode);
-            glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, reinterpret_cast<const void*>(image.getPixels()));
-            glGenerateMipmap(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, m_handle);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMode);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, reinterpret_cast<const void*>(image.getPixelPtr()));
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
-            return true;
-        }
+        return true;
     }
 
     return false;

@@ -35,8 +35,8 @@ int path_demo(sf::Window& window)
     texPavement->loadFromImage(imgPavement, true, true);
     texPath->loadFromImage(imgPath, true, true);
 
-    float mapWidth  = static_cast<float>(imgPath.getWidth());
-    float mapHeight = static_cast<float>(imgPath.getHeight());
+    float mapWidth  = static_cast<float>(imgPath.getSize().x);
+    float mapHeight = static_cast<float>(imgPath.getSize().y);
 
     std::array<float, 20> vertices = 
     {
