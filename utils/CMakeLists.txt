@@ -2,6 +2,7 @@ set(OPENGL_UTILS_TARGET opengl_utils)
 
 set(_opengl_utils_src_files
 	src/graphics/Transform2D.cpp
+	src/graphics/Color.cpp
 	src/files/Image.cpp
 	src/files/FileProvider.cpp
 	src/camera/perspective/PerspectiveCamera.cpp
@@ -12,13 +13,14 @@ set(_opengl_utils_src_files
 	src/opengl/resources/shaders/ShaderProgram.cpp
 	src/opengl/resources/buffers/GlBuffer.cpp
 	src/opengl/resources/buffers/VertexBufferLayout.cpp
-	src/opengl/resources/graphics/VertexArrayObject.cpp
-	src/opengl/resources/graphics/Texture2D.cpp
+	src/opengl/resources/buffers/VertexArrayObject.cpp
+	src/opengl/resources/buffers/Texture2D.cpp
 )
 
 set(_opengl_utils_hdr_files
 	src/Config.hpp
 	src/graphics/Transform2D.hpp
+	src/graphics/Color.hpp
 	src/files/Image.hpp
 	src/files/FileProvider.hpp
 	src/camera/perspective/PerspectiveCamera.hpp
@@ -30,8 +32,8 @@ set(_opengl_utils_hdr_files
 	src/opengl/resources/shaders/ShaderProgram.hpp
 	src/opengl/resources/buffers/GlBuffer.hpp
 	src/opengl/resources/buffers/VertexBufferLayout.hpp
-	src/opengl/resources/graphics/VertexArrayObject.hpp
-	src/opengl/resources/graphics/Texture2D.hpp
+	src/opengl/resources/buffers/VertexArrayObject.hpp
+	src/opengl/resources/buffers/Texture2D.hpp
 )
 
 set(SHADER_FILES

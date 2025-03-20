@@ -5,8 +5,8 @@
 
 #include "Config.hpp"
 #include "opengl/resources/buffers/GlBuffer.hpp"
-#include "opengl/resources/graphics/VertexArrayObject.hpp"
-#include "opengl/resources/graphics/Texture2D.hpp"
+#include "opengl/resources/buffers/VertexArrayObject.hpp"
+#include "opengl/resources/buffers/Texture2D.hpp"
 
 
 class GlResourceHolder final

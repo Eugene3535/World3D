@@ -1,4 +1,4 @@
-#include "opengl/resources/graphics/VertexArrayObject.hpp"
+#include "opengl/resources/buffers/VertexArrayObject.hpp"
 
 
 VertexArrayObject::VertexArrayObject(GLuint handle) noexcept:

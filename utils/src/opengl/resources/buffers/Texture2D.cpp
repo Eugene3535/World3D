@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "files/Image.hpp"
-#include "opengl/resources/graphics/Texture2D.hpp"
+#include "opengl/resources/buffers/Texture2D.hpp"
 
 
 Texture2D::Texture2D(GLuint handle) noexcept:
