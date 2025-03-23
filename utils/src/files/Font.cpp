@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <array>
 
 #ifdef DEBUG
 #include <cstdio>
