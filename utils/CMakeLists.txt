@@ -76,6 +76,10 @@ PRIVATE
 	freetype
 )
 
+if(MSVC)
+	target_link_options(${OPENGL_UTILS_TARGET} PRIVATE "-Wl,--export-all-symbols")
+endif()
+
 target_include_directories(${OPENGL_UTILS_TARGET} 
 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src
