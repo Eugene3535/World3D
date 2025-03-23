@@ -22,7 +22,7 @@ public:
     bool loadFromFile(const std::filesystem::path& filepath) noexcept;
     bool saveToFile(const std::filesystem::path& filepath) const noexcept;
 
-    glm::uvec2 getSize() const noexcept;
+    const glm::uvec2& getSize() const noexcept;
 
     void createMaskFromColor(const Color& color, uint8_t alpha = 0) noexcept;
 

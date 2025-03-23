@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "files/Image.hpp"
+#include "files/Font.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
@@ -204,6 +205,11 @@ int font_demo(sf::Window& window) noexcept
 
         return 0.f;
     };
+
+    Font font(resourceHolder);
+
+    if( ! font.loadFromFile(FileProvider::findPathToFile("AvanteNrBook.ttf")) )
+        return -1;
 
     while (window.isOpen())
     {

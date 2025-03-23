@@ -13,6 +13,11 @@ public:
 	bool loadFromImage(const class Image& image, bool repeat, bool smooth) noexcept;
 	bool loadFromFile(const std::filesystem::path& filePath, bool repeat, bool smooth) noexcept;
 
+	bool create(GLuint width, GLuint height) noexcept;
+	void update(GLuint x, GLuint y, GLuint width, GLuint height, const uint8_t* pixels) noexcept;
+
+	bool copyToImage(Image& image) noexcept;
+
 	GLuint getHandle() const noexcept;
 	GLuint getWidth()  const noexcept;
 	GLuint getHeight() const noexcept;
@@ -22,6 +27,8 @@ public:
 
 	bool isSmooth()   const noexcept;
 	bool isRepeated() const noexcept;
+
+	static GLuint getMaximumSize() noexcept;
 
 private:
 	const GLuint m_handle;

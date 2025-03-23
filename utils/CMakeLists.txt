@@ -4,6 +4,7 @@ set(_opengl_utils_src_files
 	src/graphics/Transform2D.cpp
 	src/graphics/Color.cpp
 	src/files/Image.cpp
+	src/files/Font.cpp
 	src/files/FileProvider.cpp
 	src/camera/perspective/PerspectiveCamera.cpp
 	src/camera/orthogonal/OrthogonalCamera.cpp
@@ -22,6 +23,7 @@ set(_opengl_utils_hdr_files
 	src/graphics/Transform2D.hpp
 	src/graphics/Color.hpp
 	src/files/Image.hpp
+	src/files/Font.hpp
 	src/files/FileProvider.hpp
 	src/camera/perspective/PerspectiveCamera.hpp
 	src/camera/orthogonal/OrthogonalCamera.hpp
@@ -66,9 +68,12 @@ target_compile_definitions(${OPENGL_UTILS_TARGET} PRIVATE OPENGL_UTILS_API_EXPOR
 
 target_compile_features(${OPENGL_UTILS_TARGET} PRIVATE cxx_std_20)
 
-target_link_libraries(${OPENGL_UTILS_TARGET} PUBLIC
+target_link_libraries(${OPENGL_UTILS_TARGET} 
+PUBLIC
 	glad
 	glm
+PRIVATE
+	freetype
 )
 
 target_include_directories(${OPENGL_UTILS_TARGET} 
@@ -77,6 +82,12 @@ PUBLIC
 PRIVATE
 	${EXTERNAL_SOURCE_DIR}/stb
 )
+
+# Image.cpp must be compiled with the -fno-strict-aliasing
+# when gcc is used; otherwise saving PNGs may crash in stb_image_write
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set_source_files_properties(src/files/Image.cpp PROPERTIES COMPILE_FLAGS -fno-strict-aliasing)
+endif()
 
 if(MSVC)
 	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${_all_opengl_utils_files})

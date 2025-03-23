@@ -122,7 +122,7 @@ bool Image::saveToFile(const std::filesystem::path& filepath) const noexcept
 }
 
 
-glm::uvec2 Image::getSize() const noexcept
+const glm::uvec2& Image::getSize() const noexcept
 {
     return m_size;
 }
@@ -168,15 +168,15 @@ void Image::copy(const Image& source, uint32_t destX, uint32_t destY, const glm:
         if (srcRect.w > static_cast<int>(source.m_size.y)) srcRect.w = static_cast<int>(source.m_size.y);
     }
 
-    uint32_t width  = static_cast<uint32_t>(srcRect.z);
-    uint32_t height = static_cast<uint32_t>(srcRect.w);
+    int32_t width  = static_cast<uint32_t>(srcRect.z);
+    int32_t height = static_cast<uint32_t>(srcRect.w);
     if (destX + width  > m_size.x) width  = m_size.x - destX;
     if (destY + height > m_size.y) height = m_size.y - destY;
 
     if ((width <= 0) || (height <= 0))
         return;
 
-    size_t  pitch = static_cast<size_t>(width) * 4;
+    size_t pitch  = static_cast<size_t>(width) * 4;
     uint32_t rows = height;
     int32_t        srcStride = static_cast<int32_t>(source.m_size.x) * 4;
     int32_t        dstStride = static_cast<int32_t>(m_size.x) * 4;
