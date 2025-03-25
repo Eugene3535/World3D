@@ -10,17 +10,19 @@ VertexArrayObject::VertexArrayObject(GLuint handle) noexcept:
 }
 
 
-void VertexArrayObject::addVertexBuffer(const GlBuffer& buffer, const VertexBufferLayout& layout) noexcept
+void VertexArrayObject::addVertexBuffer(const GlBuffer& buffer, std::span<const VertexBufferLayout::Attribute> attributes) noexcept
 {
 	if(buffer.getTarget() == GL_ARRAY_BUFFER)
 	{
+		const VertexBufferLayout layout(attributes);
+
 		glBindVertexArray(m_handle);
 
 		for (const auto& attribute : layout.getAttributes())
 		{
 			glEnableVertexAttribArray(m_attributeCount);
-			glBindVertexBuffer(m_attributeCount, buffer.getHandle(), attribute.offset, static_cast<int32_t>(layout.getStride()));
-			glVertexAttribFormat(m_attributeCount, static_cast<int32_t>(attribute.componentsCount), attribute.componentType, GL_FALSE, 0);
+			glBindVertexBuffer(m_attributeCount, buffer.getHandle(), attribute.offset, static_cast<GLuint>(layout.getStride()));
+			glVertexAttribFormat(m_attributeCount, static_cast<GLint>(attribute.componentsCount), attribute.componentType, attribute.isNormalized, 0);
 			glVertexAttribBinding(m_attributeCount, m_attributeCount);
 
 			++m_attributeCount;

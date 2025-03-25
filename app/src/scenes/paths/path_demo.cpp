@@ -51,7 +51,7 @@ int path_demo(sf::Window& window)
         VertexBufferLayout::Attribute::Float3,
         VertexBufferLayout::Attribute::Float2
     };
-    VertexBufferLayout layout(attributes);
+
     std::array<uint32_t, 2> buffers = resourceHolder->create<GlBuffer, 2>();
     std::array<uint32_t, 1> vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
 
@@ -59,7 +59,7 @@ int path_demo(sf::Window& window)
     vbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
 
     auto vao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
-    vao->addVertexBuffer(vbo, layout);
+    vao->addVertexBuffer(vbo, attributes);
 
     std::array<Shader, 2> shaders;
     if(!shaders[0].loadFromFile(FileProvider::findPathToFile("ground.vert"), GL_VERTEX_SHADER)) return -1;

@@ -242,9 +242,8 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
         {
             VertexBufferLayout::Attribute::Float4
         };
-        const VertexBufferLayout layout(attributes);
 
-        plane->vao.addVertexBuffer(plane->vbo, layout);
+        plane->vao.addVertexBuffer(plane->vbo, attributes);
         plane->vao.setElementBuffer(plane->ebo);
 	}
 

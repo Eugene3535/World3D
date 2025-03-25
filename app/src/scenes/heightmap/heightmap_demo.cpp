@@ -119,7 +119,6 @@ int heightmap_demo(sf::Window& window) noexcept
         VertexBufferLayout::Attribute::Float3,
         VertexBufferLayout::Attribute::Float2
     };
-    const VertexBufferLayout heightmapLayout(heightmapAttributes);
 
     GlBuffer heightmapVbo(buffers[0], GL_ARRAY_BUFFER);
     GlBuffer heightmapEbo(buffers[1], GL_ELEMENT_ARRAY_BUFFER);
@@ -130,7 +129,7 @@ int heightmap_demo(sf::Window& window) noexcept
     heightmapEbo.create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
 
     auto heightmapVao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
-    heightmapVao->addVertexBuffer(heightmapVbo, heightmapLayout);
+    heightmapVao->addVertexBuffer(heightmapVbo, heightmapAttributes);
     heightmapVao->setElementBuffer(heightmapEbo);
 
 //  Circle
@@ -147,13 +146,12 @@ int heightmap_demo(sf::Window& window) noexcept
     {
         VertexBufferLayout::Attribute::Float4
     };
-    const VertexBufferLayout circleLayout(circleAttributes);
 
     GlBuffer circleVbo(buffers[2], GL_ARRAY_BUFFER);
     circleVbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
 
     auto circleVao = std::make_unique<VertexArrayObject>(vertexArrays[1]);
-    circleVao->addVertexBuffer(circleVbo, circleLayout);
+    circleVao->addVertexBuffer(circleVbo, circleAttributes);
 
 //  Shaders
 //  Heightmap

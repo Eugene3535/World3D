@@ -10,7 +10,7 @@ class VertexArrayObject final
 public:
     explicit VertexArrayObject(GLuint handle) noexcept;
 
-    void addVertexBuffer(const GlBuffer& buffer, const VertexBufferLayout& layout) noexcept;
+    void addVertexBuffer(const GlBuffer& buffer, std::span<const VertexBufferLayout::Attribute> attributes) noexcept;
     void setElementBuffer(const GlBuffer& buffer) noexcept;
 
     GLuint getHandle()     const noexcept;

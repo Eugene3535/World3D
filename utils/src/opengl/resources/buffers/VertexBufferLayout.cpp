@@ -68,12 +68,13 @@ static constexpr GLuint shaderAttributeTypeToComponentType(const VertexBufferLay
 }
 
 
-VertexBufferLayout::Attribute::Attribute(const Attribute::Type attrType) noexcept:
+VertexBufferLayout::Attribute::Attribute(const Attribute::Type attrType, GLboolean normalized) noexcept:
     type(attrType),
     componentType(shaderAttributeTypeToComponentType(attrType)),
     componentsCount(shaderAttributeTypeToComponentCount(attrType)),
     sizeInBytes(shaderAttributeTypeSizeOf(attrType)),
-    offset(0)
+    offset(0),
+    isNormalized(normalized)
 {
 
 }

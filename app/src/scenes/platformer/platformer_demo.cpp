@@ -113,8 +113,8 @@ int platformer_demo(sf::Window& window)
     {
         VertexBufferLayout::Attribute::Float4
     };
-    const VertexBufferLayout spriteLayout(spriteAttributes);
-    vao->addVertexBuffer(spriteHolder.getVertexBuffer(), spriteLayout);
+
+    vao->addVertexBuffer(spriteHolder.getVertexBuffer(), spriteAttributes);
 
 //  Goomba
     {

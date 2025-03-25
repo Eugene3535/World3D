@@ -30,13 +30,14 @@ public:
             Int4,
         };
 
-        Attribute(Type type) noexcept;
+        Attribute(Type type, GLboolean normalized = GL_FALSE) noexcept;
 
         Type   type;
         GLuint componentType;
         size_t componentsCount;
         size_t sizeInBytes;
         size_t offset;
+        GLboolean isNormalized;
     };
 
     VertexBufferLayout(std::span<const Attribute> attributes) noexcept;

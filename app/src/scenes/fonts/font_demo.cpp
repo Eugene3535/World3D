@@ -36,7 +36,7 @@ int font_demo(sf::Window& window) noexcept
     auto camera = std::make_unique<PerspectiveCamera>();
     camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
     camera->setDrawDistance(100);
-    camera ->setPosition(30, 3, 30);
+    camera->setPosition(30, 3, 30);
 
     auto orthoCamera = std::make_unique<OrthogonalCamera>();
     orthoCamera->setupProjectionMatrix(width, height);
@@ -49,14 +49,14 @@ int font_demo(sf::Window& window) noexcept
     Image imageCircleOff;  if(!imageCircleOff.loadFromFile(FileProvider::findPathToFile("circle_off.png")))     return -1;
     Image imageCircleOn;   if(!imageCircleOn.loadFromFile(FileProvider::findPathToFile("circle_on.png")))       return -1;
 
-    const auto textures = resourceHolder.create<Texture2D, 6>();
+    const auto textureHandles = resourceHolder.create<Texture2D, 6>();
     
-    auto texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
-    auto texRock         = std::make_unique<Texture2D>(textures[1]);
-    auto texGrass        = std::make_unique<Texture2D>(textures[2]);
-    auto texClover       = std::make_unique<Texture2D>(textures[3]);
-    auto texCircleOff    = std::make_unique<Texture2D>(textures[4]);
-    auto texCircleOn     = std::make_unique<Texture2D>(textures[5]);
+    auto texCrackedEarth = std::make_unique<Texture2D>(textureHandles[0]);
+    auto texRock         = std::make_unique<Texture2D>(textureHandles[1]);
+    auto texGrass        = std::make_unique<Texture2D>(textureHandles[2]);
+    auto texClover       = std::make_unique<Texture2D>(textureHandles[3]);
+    auto texCircleOff    = std::make_unique<Texture2D>(textureHandles[4]);
+    auto texCircleOn     = std::make_unique<Texture2D>(textureHandles[5]);
 
     if(!texCrackedEarth->loadFromImage(imgCrackedEarth, true, true)) return -1;
     if(!texRock->loadFromImage(imgRock, true, true)) return -1;
@@ -120,7 +120,6 @@ int font_demo(sf::Window& window) noexcept
         VertexBufferLayout::Attribute::Float3,
         VertexBufferLayout::Attribute::Float2
     };
-    const VertexBufferLayout heightmapLayout(heightmapAttributes);
 
     GlBuffer heightmapVbo(buffers[0], GL_ARRAY_BUFFER);
     GlBuffer heightmapEbo(buffers[1], GL_ELEMENT_ARRAY_BUFFER);
@@ -131,7 +130,7 @@ int font_demo(sf::Window& window) noexcept
     heightmapEbo.create(sizeof(uint32_t), indices.size(), static_cast<const void*>(indices.data()), GL_STATIC_DRAW);
 
     auto heightmapVao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
-    heightmapVao->addVertexBuffer(heightmapVbo, heightmapLayout);
+    heightmapVao->addVertexBuffer(heightmapVbo, heightmapAttributes);
     heightmapVao->setElementBuffer(heightmapEbo);
 
 //  Circle
@@ -148,13 +147,12 @@ int font_demo(sf::Window& window) noexcept
     {
         VertexBufferLayout::Attribute::Float4
     };
-    const VertexBufferLayout circleLayout(circleAttributes);
 
     GlBuffer circleVbo(buffers[2], GL_ARRAY_BUFFER);
     circleVbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
 
     auto circleVao = std::make_unique<VertexArrayObject>(vertexArrays[1]);
-    circleVao->addVertexBuffer(circleVbo, circleLayout);
+    circleVao->addVertexBuffer(circleVbo, circleAttributes);
 
 //  Shaders
 //  Heightmap
@@ -206,6 +204,7 @@ int font_demo(sf::Window& window) noexcept
         return 0.f;
     };
 
+//  Font
     Font font(resourceHolder);
 
     if( ! font.loadFromFile(FileProvider::findPathToFile("AvanteNrBook.ttf")) )
