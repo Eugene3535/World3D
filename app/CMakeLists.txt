@@ -51,8 +51,6 @@ add_executable(${APP_TARGET}
 	${MAIN_APP_SRC_FILES}
 )
 
-target_compile_definitions(${APP_TARGET} PUBLIC "SFML_STATIC")
-
 target_compile_features(${APP_TARGET} PUBLIC cxx_std_20)
 
 target_link_libraries(${APP_TARGET} PRIVATE
