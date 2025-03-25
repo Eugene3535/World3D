@@ -62,6 +62,12 @@ static constexpr GLuint shaderAttributeTypeToComponentType(const VertexBufferLay
         case VertexBufferLayout::Attribute::Type::Int3:
         case VertexBufferLayout::Attribute::Type::Int4:
             return GL_INT;
+
+        case VertexBufferLayout::Attribute::Type::Byte:
+        case VertexBufferLayout::Attribute::Type::Byte2:
+        case VertexBufferLayout::Attribute::Type::Byte3:
+        case VertexBufferLayout::Attribute::Type::Byte4:
+            return GL_UNSIGNED_BYTE;
     }
 
     return GL_FLOAT;

@@ -28,6 +28,10 @@ public:
             Int2,
             Int3,
             Int4,
+            Byte,
+            Byte2,
+            Byte3,
+            Byte4
         };
 
         Attribute(Type type, GLboolean normalized = GL_FALSE) noexcept;
