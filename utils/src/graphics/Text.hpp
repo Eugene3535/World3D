@@ -4,13 +4,19 @@
 #include <string>
 #include <vector>
 
+#include "glad/glad.h"
+
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/String.hpp>
 
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
+
+#include "graphics/Transform2D.hpp"
 #include "graphics/Color.hpp"
 
 
-class Text
+class Text: public Transform2D
 {
 public:
     enum Style: uint32_t
@@ -23,7 +29,7 @@ public:
     };
 
     Text() noexcept;
-    Text(const sf::String& string, const class Font* font, uint32_t characterSize = 30) noexcept;
+    ~Text() noexcept;
 
     void setString(const sf::String& string)   noexcept;
     void setFont(const class Font* font)       noexcept;
@@ -44,7 +50,8 @@ public:
     const Color&      getFillColor()                 const noexcept;
     const Color&      getOutlineColor()              const noexcept;
     float             getOutlineThickness()          const noexcept;
-    sf::Vector2f      findCharacterPos(size_t index) const noexcept;
+
+    void draw() noexcept;
 
 private:
     void ensureGeometryUpdate() const noexcept;
@@ -60,9 +67,17 @@ private:
     float               m_outlineThickness;    //!< Thickness of the text's outline
     //mutable VertexArray m_vertices;            //!< Vertex array containing the fill geometry
     //mutable VertexArray m_outlineVertices;     //!< Vertex array containing the outline geometry
-    mutable sf::FloatRect   m_bounds;              //!< Bounding rectangle of the text (in local coordinates)
+    mutable glm::vec4   m_bounds;              //!< Bounding rectangle of the text (in local coordinates)
     mutable bool        m_geometryNeedUpdate;  //!< Does the geometry need to be recomputed?
-    //mutable Uint64      m_fontTextureId;       //!< The font texture id
+    mutable const class Texture2D* m_fontTextureId = nullptr;       //!< The font texture id
+
+
+    GLuint m_vboText = 0;
+    GLuint m_vboOutline = 0;
+    GLuint m_vaoText = 0;
+    GLuint m_vaoOutline = 0;
+
+    mutable GLsizei m_count = 0;
 };
 
 #endif // !TEXT_HPP
