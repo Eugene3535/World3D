@@ -40,6 +40,13 @@ set(_opengl_utils_hdr_files
 	src/opengl/resources/buffers/Texture2D.hpp
 )
 
+set(_all_opengl_utils_files
+	${_opengl_utils_src_files}
+	${_opengl_utils_hdr_files}
+)
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${_all_opengl_utils_files})
+
 set(SHADER_FILES
 	${PROJECT_SOURCE_DIR}/res/shaders/dune/dune.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/dune/dune.frag
@@ -51,16 +58,11 @@ set(SHADER_FILES
 	${PROJECT_SOURCE_DIR}/res/shaders/heightmap/circle.frag
 	${PROJECT_SOURCE_DIR}/res/shaders/platformer/tilemap.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/platformer/tilemap.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/fonts/text.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/fonts/text.frag
 )
 
-source_group("shaders" FILES 
-	${SHADER_FILES}
-)
-
-set(_all_opengl_utils_files
-	${_opengl_utils_src_files}
-	${_opengl_utils_hdr_files}
-)
+source_group("shaders" FILES ${SHADER_FILES})
 
 add_library(${OPENGL_UTILS_TARGET} STATIC ${_all_opengl_utils_files})
 
@@ -70,13 +72,11 @@ target_compile_definitions(${OPENGL_UTILS_TARGET} PRIVATE OPENGL_UTILS_API_EXPOR
 
 target_compile_features(${OPENGL_UTILS_TARGET} PRIVATE cxx_std_20)
 
-target_link_libraries(${OPENGL_UTILS_TARGET} 
-PUBLIC
+target_link_libraries(${OPENGL_UTILS_TARGET} PUBLIC
 	glad
 	glm
 	sfml-system
 	sfml-window
-PRIVATE
 	freetype
 )
 
@@ -95,8 +95,4 @@ PRIVATE
 # when gcc is used; otherwise saving PNGs may crash in stb_image_write
 if(CMAKE_COMPILER_IS_GNUCXX)
     set_source_files_properties(src/files/Image.cpp PROPERTIES COMPILE_FLAGS -fno-strict-aliasing)
-endif()
-
-if(MSVC)
-	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${_all_opengl_utils_files})
 endif()

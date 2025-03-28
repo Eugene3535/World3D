@@ -216,6 +216,8 @@ void Text::draw() noexcept
     if(m_geometryNeedUpdate)
         ensureGeometryUpdate();
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_font->getTexture(30)->getHandle());
     glBindVertexArray(m_vaoText);
     glDrawArrays(GL_TRIANGLES, 0, m_count);
     glBindVertexArray(0);

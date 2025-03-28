@@ -33,7 +33,7 @@ public:
     void create(size_t elementSize, size_t elementCount, const void* data, GLenum usage) noexcept;
     void update(size_t offset, size_t elementSize, size_t elementCount, const void* data) noexcept;
 
-    void bindBufferRange(GLuint index, size_t offset, size_t size) noexcept;
+    void bindBufferRange(GLuint index, size_t offset, size_t size) const noexcept;
 
     GLuint getHandle() const noexcept;
     GLenum getTarget() const noexcept;

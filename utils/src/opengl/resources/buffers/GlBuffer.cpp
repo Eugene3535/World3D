@@ -39,7 +39,7 @@ void GlBuffer::update(size_t offset, size_t elementSize, size_t elementCount, co
 }
 
 
-void GlBuffer::bindBufferRange(GLuint index, size_t offset, size_t size) noexcept
+void GlBuffer::bindBufferRange(GLuint index, size_t offset, size_t size) const noexcept
 {
     glBindBuffer(m_target, m_handle);
 //  target must be one of GL_ATOMIC_COUNTER_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER, GL_UNIFORM_BUFFER, or GL_SHADER_STORAGE_BUFFER.

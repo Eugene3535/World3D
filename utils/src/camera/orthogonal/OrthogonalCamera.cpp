@@ -12,7 +12,7 @@ OrthogonalCamera::OrthogonalCamera() noexcept:
 
 void OrthogonalCamera::setupProjectionMatrix(int32_t width, int32_t height) noexcept
 {
-    m_projection = glm::ortho(0.f, static_cast<float>(width), static_cast<float>(height), 0.f, -1.f, 1.f);
+    m_projection = glm::ortho(0.f, static_cast<float>(width), static_cast<float>(height), 0.f);
 }
 
 
