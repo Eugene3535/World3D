@@ -1,6 +1,7 @@
 #include <array>
 #include <memory>
 #include <unordered_map>
+#include <cstdio>
 
 #include <glad/glad.h>
 
@@ -61,16 +62,14 @@ static void RenderText(ShaderProgram* program, const sf::String& text, float x, 
         float h = ch.Size.y * scale;
 
         // update VBO for each character
-        float vertices[6][4] = 
+        float vertices[4][4] = 
         {
             { xpos,     ypos + h,   0.0f, 0.0f },
             { xpos,     ypos,       0.0f, 1.0f },
             { xpos + w, ypos,       1.0f, 1.0f },
-
-            { xpos,     ypos + h,   0.0f, 0.0f },
-            { xpos + w, ypos,       1.0f, 1.0f },
             { xpos + w, ypos + h,   1.0f, 0.0f }
         };
+
         // render glyph texture over quad
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);
         // update content of VBO memory
@@ -79,7 +78,7 @@ static void RenderText(ShaderProgram* program, const sf::String& text, float x, 
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         // render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
         x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
     }
@@ -148,6 +147,8 @@ int font_demo(sf::Window& window) noexcept
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 
+        printf("width = %u, height = %u\n", face->glyph->bitmap.width, face->glyph->bitmap.rows);
+
         // set texture options
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -165,7 +166,7 @@ int font_demo(sf::Window& window) noexcept
 
         characters[c] = character;
 
-        // glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
     
     // destroy FreeType once we're finished
