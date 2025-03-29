@@ -106,10 +106,8 @@ int font_demo(sf::Window& window) noexcept
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
 
     auto orthoCamera = std::make_unique<OrthogonalCamera>();
+    orthoCamera->flipVertically(false);
     orthoCamera->setupProjectionMatrix(width, height);
-
-    glm::mat4 projection = glm::ortho(0.f, static_cast<float>(width), 0.f, static_cast<float>(height));
-    // projection = glm::ortho(0.f, static_cast<float>(width), static_cast<float>(height), 0.f);
 
 //  Shaders
     std::array<Shader, 2> shaders;
@@ -203,7 +201,7 @@ int font_demo(sf::Window& window) noexcept
             }
         }
 
-        uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(projection)));
+        uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orthoCamera->getModelViewProjectionMatrix())));
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
