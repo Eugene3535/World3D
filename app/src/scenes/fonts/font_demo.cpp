@@ -2,10 +2,10 @@
 #include <memory>
 #include <unordered_map>
 #include <cstdio>
+#include <codecvt>
 
 #include <glad/glad.h>
 
-#include <SFML/System/String.hpp>
 #include <SFML/Window.hpp>
 
 #include <glm/glm.hpp>
@@ -25,20 +25,19 @@
 // Holds all state information relevant to a character as loaded using FreeType
 struct Character 
 {
-    GLuint TextureID;   // ID handle of the glyph texture
     glm::ivec2 Size;    // Size of glyph
     glm::ivec2 Bearing; // Offset from baseline to left/top of glyph
     GLuint Advance;     // Horizontal offset to advance to next glyph
-
+    GLuint TextureID;   // ID handle of the glyph texture
 };
 
 
-static std::unordered_map<sf::Uint32, Character> characters;
+static std::unordered_map<wchar_t, Character> characters;
 static GLuint VAO;
 static GLuint VBO;
 
 
-static void RenderText(ShaderProgram* program, const sf::String& text, float x, float y, float scale, const glm::vec3& color) noexcept
+static void RenderText(ShaderProgram* program, const std::wstring& text, float x, float y, float scale, const glm::vec3& color) noexcept
 {
     // activate corresponding render state	
     auto shader = program->getHandle().value();
@@ -132,8 +131,8 @@ int font_demo(sf::Window& window) noexcept
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    std::string rawText("Вау гречка ёЁ юЮ first commit 1234");
-    sf::String text(sf::String::fromUtf8(rawText.begin(), rawText.end()));
+    std::string utf8String = "Вау гречка ёЁ юЮ first commit 1234";
+    std::wstring text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8String);
 
     for (auto c : text)
     {
@@ -158,10 +157,10 @@ int font_demo(sf::Window& window) noexcept
 
         Character character =
         {
-            texture,
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            static_cast<GLuint>(face->glyph->advance.x)
+            static_cast<GLuint>(face->glyph->advance.x),
+            texture
         };
 
         characters[c] = character;
@@ -182,6 +181,8 @@ int font_demo(sf::Window& window) noexcept
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+
 
 
     while (window.isOpen())
