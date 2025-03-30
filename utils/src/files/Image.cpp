@@ -96,22 +96,22 @@ bool Image::saveToFile(const std::filesystem::path& filepath) const noexcept
         int32_t width  = static_cast<int32_t>(m_size.x);
         int32_t height = static_cast<int32_t>(m_size.y);
 
-        if (extension == "bmp")
+        if (extension == ".bmp")
         {
             if (stbi_write_bmp(filepath.generic_string().c_str(), width, height, 4, m_pixels.data()))
                 return true;
         }
-        else if (extension == "tga")
+        else if (extension == ".tga")
         {     
             if (stbi_write_tga(filepath.generic_string().c_str(), width, height, 4, m_pixels.data()))
                 return true;
         }
-        else if (extension == "png")
+        else if (extension == ".png")
         {        
             if (stbi_write_png(filepath.generic_string().c_str(), width, height, 4, m_pixels.data(), 0))
                 return true;
         }
-        else if (extension == "jpg" || extension == "jpeg")
+        else if (extension == ".jpg" || extension == ".jpeg")
         {     
             if (stbi_write_jpg(filepath.generic_string().c_str(), width, height, 4, m_pixels.data(), 90))
                 return true;
