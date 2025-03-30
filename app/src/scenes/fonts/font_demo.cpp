@@ -1,7 +1,6 @@
 #include <array>
 #include <memory>
 #include <unordered_map>
-#include <cstdio>
 #include <codecvt>
 
 #include <glad/glad.h>
@@ -31,23 +30,12 @@ struct Character
     GLuint TextureID;   // ID handle of the glyph texture
 };
 
+using Characters = std::unordered_map<wchar_t, Character>;
 
-static std::unordered_map<wchar_t, Character> characters;
-static GLuint VAO;
-static GLuint VBO;
-
-
-static void RenderText(ShaderProgram* program, const std::wstring& text, float x, float y, float scale, const glm::vec3& color) noexcept
+static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y, float scale) noexcept
 {
-    // activate corresponding render state	
-    auto shader = program->getHandle().value();
-    glUseProgram(shader);
-
-    if(auto u = glGetUniformLocation(shader, "textColor"); u != -1)
-        glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
-
     glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO);
+    glBindVertexArray(vao.getHandle());
 
     // iterate through all characters
     for (auto c : text)
@@ -61,23 +49,23 @@ static void RenderText(ShaderProgram* program, const std::wstring& text, float x
         float h = ch.Size.y * scale;
 
         // update VBO for each character
-        float vertices[4][4] = 
+        float vertices[16] = 
         {
-            { xpos,     ypos + h,   0.0f, 0.0f },
-            { xpos,     ypos,       0.0f, 1.0f },
-            { xpos + w, ypos,       1.0f, 1.0f },
-            { xpos + w, ypos + h,   1.0f, 0.0f }
+            xpos,     ypos + h, 0.f, 0.f,
+            xpos,     ypos,     0.f, 1.f,
+            xpos + w, ypos,     1.f, 1.f,
+            xpos + w, ypos + h, 1.f, 0.f
         };
 
         // render glyph texture over quad
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-        // update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // update content of VBO memory
+        vbo.update(0, sizeof(glm::vec4), 4, vertices);
+
         // render quad
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
         x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
     }
@@ -97,11 +85,22 @@ int font_demo(sf::Window& window) noexcept
     auto [width, height] = window.getSize();
 
     GlResourceHolder resourceHolder;
-    auto vboHandles = resourceHolder.create<GlBuffer, 1>();
+    auto vboHandles = resourceHolder.create<GlBuffer, 2>();
+    auto vaoHandle = resourceHolder.create<VertexArrayObject, 1>();
 
     GlBuffer uniformBuffer(vboHandles[0], GL_UNIFORM_BUFFER);
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     uniformBuffer.bindBufferRange(0, 0, sizeof(glm::mat4));
+
+    GlBuffer vbo(vboHandles[1], GL_ARRAY_BUFFER);
+    vbo.create(sizeof(glm::vec4), 4, nullptr, GL_DYNAMIC_DRAW);
+
+    VertexArrayObject vao(vaoHandle[0]);
+    std::array<VertexBufferLayout::Attribute, 1> attributes
+    {
+        VertexBufferLayout::Attribute::Float4,
+    };
+    vao.addVertexBuffer(vbo, attributes);
 
     auto orthoCamera = std::make_unique<OrthogonalCamera>();
     orthoCamera->flipVertically(false);
@@ -134,6 +133,9 @@ int font_demo(sf::Window& window) noexcept
     std::string utf8String = "Вау гречка ёЁ юЮ first commit 1234";
     std::wstring text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8String);
 
+    std::vector<GLuint> textures;
+    Characters characters;
+
     for (auto c : text)
     {
         // Load character glyph 
@@ -146,7 +148,7 @@ int font_demo(sf::Window& window) noexcept
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 
-        printf("width = %u, height = %u\n", face->glyph->bitmap.width, face->glyph->bitmap.rows);
+        textures.push_back(texture);
 
         // set texture options
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -172,19 +174,6 @@ int font_demo(sf::Window& window) noexcept
     FT_Done_Face(face);
     FT_Done_FreeType(ftLibrary);
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-
-
-
     while (window.isOpen())
     {
         sf::Event event;
@@ -208,10 +197,23 @@ int font_demo(sf::Window& window) noexcept
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        RenderText(program.get(), text, 340.0f, 370.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+
+        auto shader = program->getHandle().value();
+        glUseProgram(shader);
+    
+        glm::vec3 color(0.5, 0.8f, 0.2f);
+
+        if(auto u = glGetUniformLocation(shader, "textColor"); u != -1)
+            glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
+
+        RenderText(characters, vao, vbo, text, 340.0f, 370.0f, 1.0f);
+
+        glUseProgram(0);
 
         window.display();
     }
+
+    glDeleteTextures(static_cast<GLsizei>(textures.size()), textures.data());
 
     return 0;
 }
