@@ -13,6 +13,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <stb_image_write.h>
+
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
@@ -135,6 +137,8 @@ int font_demo(sf::Window& window) noexcept
 
     Characters characters;
 
+    int cnt = 0;
+
     for (auto c : text)
     {
         if(characters.find(c) == characters.end())
@@ -148,6 +152,11 @@ int font_demo(sf::Window& window) noexcept
             GLuint texture = texHandle[0];
             glBindTexture(GL_TEXTURE_2D, texture);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+
+            std::string fName = "char_" + std::to_string(cnt) + ".png";
+            cnt++;
+
+            stbi_write_png(fName.c_str(), face->glyph->bitmap.width, face->glyph->bitmap.rows, 1, face->glyph->bitmap.buffer, 0);
 
             // set texture options
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

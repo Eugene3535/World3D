@@ -62,6 +62,7 @@ target_link_libraries(${APP_TARGET} PRIVATE
 target_include_directories(${APP_TARGET} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 	${EXTERNAL_SOURCE_DIR}/rapidxml
+	${EXTERNAL_SOURCE_DIR}/stb
 )
 
 add_custom_command(TARGET ${APP_TARGET} POST_BUILD
