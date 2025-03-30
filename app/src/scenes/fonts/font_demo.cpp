@@ -2,6 +2,7 @@
 #include <memory>
 #include <unordered_map>
 #include <codecvt>
+#include <cstdio>
 
 #include <glad/glad.h>
 
@@ -132,12 +133,14 @@ int font_demo(sf::Window& window) noexcept
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    std::string utf8String = "Вау гречка ёЁ юЮ first commit 1234";
+    std::string utf8String = "Вау гречка ёЁ юЮ first commit 1234 ()*<>";
     std::wstring text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8String);
 
     Characters characters;
 
     int cnt = 0;
+
+    auto& bitmap = face->glyph->bitmap;
 
     for (auto c : text)
     {
@@ -151,12 +154,13 @@ int font_demo(sf::Window& window) noexcept
             auto texHandle = resourceHolder.create<Texture2D, 1>();
             GLuint texture = texHandle[0];
             glBindTexture(GL_TEXTURE_2D, texture);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmap.width, bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 
-            std::string fName = "char_" + std::to_string(cnt) + ".png";
+            //std::string fName = "char_" + std::to_string(cnt) + ".png";
             cnt++;
 
-            stbi_write_png(fName.c_str(), face->glyph->bitmap.width, face->glyph->bitmap.rows, 1, face->glyph->bitmap.buffer, 0);
+            // stbi_write_png(fName.c_str(), bitmap.width, bitmap.rows, 1, bitmap.buffer, 0);
+            printf("Width: %u, Height: %u\n", bitmap.width, bitmap.rows);
 
             // set texture options
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -167,7 +171,7 @@ int font_demo(sf::Window& window) noexcept
 
             Character character =
             {
-                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                glm::ivec2(face->glyph->bitmap.width, bitmap.rows),
                 glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
                 static_cast<GLuint>(face->glyph->advance.x),
                 texture
@@ -182,6 +186,9 @@ int font_demo(sf::Window& window) noexcept
     // destroy FreeType once we're finished
     FT_Done_Face(face);
     FT_Done_FreeType(ftLibrary);
+
+    // enable byte-alignment restriction
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
     while (window.isOpen())
     {

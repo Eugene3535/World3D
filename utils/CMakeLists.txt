@@ -3,7 +3,6 @@ set(OPENGL_UTILS_TARGET opengl_utils)
 set(_opengl_utils_src_files
 	src/graphics/Transform2D.cpp
 	src/graphics/Color.cpp
-	src/graphics/Text.cpp
 	src/files/Image.cpp
 	src/files/Font.cpp
 	src/files/FileProvider.cpp
@@ -23,7 +22,6 @@ set(_opengl_utils_hdr_files
 	src/Config.hpp
 	src/graphics/Transform2D.hpp
 	src/graphics/Color.hpp
-	src/graphics/Text.hpp
 	src/files/Image.hpp
 	src/files/Font.hpp
 	src/files/FileProvider.hpp
