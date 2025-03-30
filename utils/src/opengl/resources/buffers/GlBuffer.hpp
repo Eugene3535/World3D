@@ -40,8 +40,8 @@ public:
     GLuint getCount()  const noexcept;
 
 private:
-    const GLuint m_handle;
-    const GLenum m_target;
+    GLuint m_handle;
+    GLenum m_target;
     GLenum       m_usage;
     GLuint       m_count;
 };

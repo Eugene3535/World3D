@@ -31,7 +31,7 @@ public:
 	static GLuint getMaximumSize() noexcept;
 
 private:
-	const GLuint m_handle;
+	GLuint m_handle;
 	GLuint m_width;
     GLuint m_height;
 	bool   m_isSmooth;

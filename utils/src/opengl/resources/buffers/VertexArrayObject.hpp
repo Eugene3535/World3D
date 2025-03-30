@@ -17,7 +17,7 @@ public:
     GLuint getIndexCount() const noexcept;
 
 private:
-    const GLuint m_handle;
+    GLuint m_handle;
     GLuint m_attributeCount;
     GLuint m_indexCount;
 };

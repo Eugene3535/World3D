@@ -133,41 +133,41 @@ int font_demo(sf::Window& window) noexcept
     std::string utf8String = "Вау гречка ёЁ юЮ first commit 1234";
     std::wstring text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8String);
 
-    std::vector<GLuint> textures;
     Characters characters;
 
     for (auto c : text)
     {
-        // Load character glyph 
-        if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-            return -1;
-            
-        // generate texture
-        GLuint texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
-
-        textures.push_back(texture);
-
-        // set texture options
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        // now store character for later use
-
-        Character character =
+        if(characters.find(c) == characters.end())
         {
-            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            static_cast<GLuint>(face->glyph->advance.x),
-            texture
-        };
+            // Load character glyph 
+            if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+                return -1;
+                
+            // generate texture
+            auto texHandle = resourceHolder.create<Texture2D, 1>();
+            GLuint texture = texHandle[0];
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 
-        characters[c] = character;
+            // set texture options
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            // now store character for later use
 
-        glBindTexture(GL_TEXTURE_2D, 0);
+            Character character =
+            {
+                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                static_cast<GLuint>(face->glyph->advance.x),
+                texture
+            };
+
+            characters[c] = character;
+
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
     }
     
     // destroy FreeType once we're finished
@@ -212,8 +212,6 @@ int font_demo(sf::Window& window) noexcept
 
         window.display();
     }
-
-    glDeleteTextures(static_cast<GLsizei>(textures.size()), textures.data());
 
     return 0;
 }

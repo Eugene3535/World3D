@@ -96,8 +96,8 @@ bool Texture2D::create(GLuint width, GLuint height) noexcept
 void Texture2D::update(GLuint x, GLuint y, GLuint width, GLuint height, const uint8_t* pixels) noexcept
 {
 //  Check out of bounds
-    if(x + width  <= m_width)  return;
-    if(y + height <= m_height) return;
+    if(x + width  >= m_width)  return;
+    if(y + height >= m_height) return;
 
     if (pixels)
     {
