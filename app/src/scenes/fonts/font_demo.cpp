@@ -133,7 +133,7 @@ int font_demo(sf::Window& window) noexcept
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    std::string utf8String = "Вау гречка ёЁ юЮ first commit 1234 ()*<>";
+    std::string utf8String = "Вау гречка ёЁ-юЮ first commit 1234 ()*<>";
     std::wstring text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8String);
 
     Characters characters;
@@ -159,8 +159,9 @@ int font_demo(sf::Window& window) noexcept
             //std::string fName = "char_" + std::to_string(cnt) + ".png";
             cnt++;
 
+            // uncomment to output into files and console
             // stbi_write_png(fName.c_str(), bitmap.width, bitmap.rows, 1, bitmap.buffer, 0);
-            printf("Width: %u, Height: %u\n", bitmap.width, bitmap.rows);
+            // printf("Width: %u, Height: %u\n", bitmap.width, bitmap.rows);
 
             // set texture options
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -171,7 +172,7 @@ int font_demo(sf::Window& window) noexcept
 
             Character character =
             {
-                glm::ivec2(face->glyph->bitmap.width, bitmap.rows),
+                glm::ivec2(bitmap.width, bitmap.rows),
                 glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
                 static_cast<GLuint>(face->glyph->advance.x),
                 texture
