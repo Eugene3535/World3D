@@ -23,6 +23,29 @@
 #include "camera/perspective/PerspectiveCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
+struct Glyph
+{
+    glm::ivec2 bearing;     // Offset from baseline to left/top of glyph
+    glm::ivec2 size;        // Size of glyph
+    glm::ivec4 textureRect; // Texture coordinates of the glyph inside the font's texture
+    GLuint advance;         // Horizontal offset to advance to next glyph
+};
+
+struct Row
+{
+    uint32_t width;  // Current width of the row
+    uint32_t top;    // Y position of the row into the texture
+    uint32_t height; // Height of the row
+};
+
+struct Page
+{
+    std::unordered_map<wchar_t, Glyph> glyphs;  // Table mapping code points to their corresponding glyph
+    std::vector<Row>                   rows;    // List containing the position of all the existing rows
+    uint32_t                           nextRow; // Y position of the next new row in the texture
+    GLuint                             texture; // Texture handle containing the pixels of the glyphs
+};
+
 
 // Holds all state information relevant to a character as loaded using FreeType
 struct Character 
@@ -35,7 +58,7 @@ struct Character
 
 using Characters = std::unordered_map<wchar_t, Character>;
 
-static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y, float scale) noexcept
+static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y) noexcept
 {
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(vao.getHandle());
@@ -45,11 +68,11 @@ static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer&
     {
         const Character& ch = characters[c];
 
-        float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+        float xpos = x + ch.Bearing.x;
+        float ypos = y - (ch.Size.y - ch.Bearing.y);
 
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
+        float w = ch.Size.x;
+        float h = ch.Size.y;
 
         // update VBO for each character
         float vertices[16] = 
@@ -70,7 +93,7 @@ static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer&
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+        x += (ch.Advance >> 6); // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
     }
 
     glBindVertexArray(0);
@@ -133,8 +156,11 @@ int font_demo(sf::Window& window) noexcept
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    std::string utf8String = "Вау гречка ёЁ-юЮ first commit 1234 ()*<>";
-    std::wstring text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8String);
+    const std::string utf8("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ");
+    const std::wstring utf16(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8));
+
+    std::string utf8Text = "Вау гречка ёЁ-юЮ first commit 1234 ()*<>";
+    std::wstring utf16Text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8Text);
 
     Characters characters;
 
@@ -142,7 +168,7 @@ int font_demo(sf::Window& window) noexcept
 
     auto& bitmap = face->glyph->bitmap;
 
-    for (auto c : text)
+    for (auto c : utf16)
     {
         if(characters.find(c) == characters.end())
         {
@@ -223,7 +249,7 @@ int font_demo(sf::Window& window) noexcept
         if(auto u = glGetUniformLocation(shader, "textColor"); u != -1)
             glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 
-        RenderText(characters, vao, vbo, text, 340.0f, 370.0f, 1.0f);
+        RenderText(characters, vao, vbo, utf16Text, 340.0f, 370.0f);
 
         glUseProgram(0);
 
