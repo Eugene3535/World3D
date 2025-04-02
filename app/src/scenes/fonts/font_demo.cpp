@@ -38,15 +38,6 @@ struct Row
     uint32_t height; // Height of the row
 };
 
-struct Page
-{
-    std::unordered_map<wchar_t, Glyph> glyphs;  // Table mapping code points to their corresponding glyph
-    std::vector<Row>                   rows;    // List containing the position of all the existing rows
-    uint32_t                           nextRow; // Y position of the next new row in the texture
-    GLuint                             texture; // Texture handle containing the pixels of the glyphs
-};
-
-
 // Holds all state information relevant to a character as loaded using FreeType
 struct Character 
 {
@@ -57,6 +48,15 @@ struct Character
 };
 
 using Characters = std::unordered_map<wchar_t, Character>;
+struct Page
+{
+    Characters           characters; // Table mapping code points to their corresponding glyph
+    std::vector<Row>     rows;       // List containing the position of all the existing rows
+    uint32_t             nextRow;    // Y position of the next new row in the texture
+    std::vector<uint8_t> pixels;     // Image handle containing the pixels of the glyphs
+    glm::ivec2           size;       // Size of page in pixels
+};
+
 
 static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y) noexcept
 {
@@ -101,6 +101,33 @@ static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer&
     glUseProgram(0);
 }
 
+bool needWrite = true;
+
+void WriteGlyphToPage(Page& page, const FT_Bitmap& bitmap) noexcept
+{
+    uint32_t rows = bitmap.rows;
+    uint32_t pitch = bitmap.pitch;
+
+    const uint8_t* srcPixels = bitmap.buffer;
+    uint8_t*       dstPixels = page.pixels.data();
+
+    uint32_t pageStride = page.size.x;
+
+    for (uint32_t i = 0; i < rows; ++i)
+    {
+        memcpy(dstPixels, srcPixels, pitch);
+        srcPixels += pitch;
+        dstPixels += pageStride;
+    }
+
+    if(needWrite)
+    {
+        needWrite = false;
+        std::string fName = "char_0.png";
+        stbi_write_png(fName.c_str(), page.size.x, page.size.y, 1, page.pixels.data(), 0);
+    }
+}
+
 
 int font_demo(sf::Window& window) noexcept
 {
@@ -108,7 +135,7 @@ int font_demo(sf::Window& window) noexcept
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto [width, height] = window.getSize();
+    auto [wndWidth, wndHeight] = window.getSize();
 
     GlResourceHolder resourceHolder;
     auto vboHandles = resourceHolder.create<GlBuffer, 2>();
@@ -130,7 +157,7 @@ int font_demo(sf::Window& window) noexcept
 
     auto orthoCamera = std::make_unique<OrthogonalCamera>();
     orthoCamera->flipVertically(false);
-    orthoCamera->setupProjectionMatrix(width, height);
+    orthoCamera->setupProjectionMatrix(wndWidth, wndHeight);
 
 //  Shaders
     std::array<Shader, 2> shaders;
@@ -151,22 +178,36 @@ int font_demo(sf::Window& window) noexcept
         return -1;
 
     // set size to load glyphs as
-    FT_Set_Pixel_Sizes(face, 0, 48);
+    FT_Set_Pixel_Sizes(face, 0, 30);
 
     // disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    const std::string utf8("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ");
+    const char utf8[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ";
     const std::wstring utf16(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8));
 
-    std::string utf8Text = "Вау гречка ёЁ-юЮ first commit 1234 ()*<>";
-    std::wstring utf16Text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8Text);
+    const char utf8Text[] = "Вау гречка ёЁ-юЮ first commit 1234 ()*<>";
+    std::wstring utf16Text(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8Text));
 
     Characters characters;
 
-    int cnt = 0;
+    // int cnt = 0;
 
     auto& bitmap = face->glyph->bitmap;
+
+    Page page;
+    page.pixels.resize(128 * 128);
+    page.size = { 128, 128 };
+
+    for (auto c : utf16)
+    {
+        if (FT_Load_Char(face, c, FT_LOAD_RENDER) == 0)
+        {
+            WriteGlyphToPage(page, bitmap);
+        }
+    }
+
+
 
     for (auto c : utf16)
     {
@@ -183,7 +224,7 @@ int font_demo(sf::Window& window) noexcept
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmap.width, bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 
             //std::string fName = "char_" + std::to_string(cnt) + ".png";
-            cnt++;
+            // cnt++;
 
             // uncomment to output into files and console
             // stbi_write_png(fName.c_str(), bitmap.width, bitmap.rows, 1, bitmap.buffer, 0);
@@ -228,10 +269,10 @@ int font_demo(sf::Window& window) noexcept
 
             if(event.type == sf::Event::Resized)
             {
-                width = event.size.width;
-                height = event.size.height;
-                orthoCamera->setupProjectionMatrix(width, height);
-                glViewport(0, 0, width, height);
+                wndWidth = event.size.width;
+                wndHeight = event.size.height;
+                orthoCamera->setupProjectionMatrix(wndWidth, wndHeight);
+                glViewport(0, 0, wndWidth, wndHeight);
             }
         }
 
