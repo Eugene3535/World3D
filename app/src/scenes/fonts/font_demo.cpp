@@ -33,6 +33,8 @@ struct Glyph
 
 struct Row
 {
+    Row(uint32_t rowTop, uint32_t rowHeight) noexcept : width(0), top(rowTop), height(rowHeight) {}
+
     uint32_t width;  // Current width of the row
     uint32_t top;    // Y position of the row into the texture
     uint32_t height; // Height of the row
@@ -41,20 +43,24 @@ struct Row
 // Holds all state information relevant to a character as loaded using FreeType
 struct Character 
 {
-    glm::ivec2 Size;    // Size of glyph
-    glm::ivec2 Bearing; // Offset from baseline to left/top of glyph
-    GLuint Advance;     // Horizontal offset to advance to next glyph
-    GLuint TextureID;   // ID handle of the glyph texture
+    glm::ivec2 size;    // Size of glyph
+    glm::ivec2 bearing; // Offset from baseline to left/top of glyph
+    GLuint advance;     // Horizontal offset to advance to next glyph
+    GLuint textureID;   // ID handle of the glyph texture
 };
 
 using Characters = std::unordered_map<wchar_t, Character>;
+using GlyphTable = std::unordered_map<wchar_t, Glyph>;
+
 struct Page
 {
-    Characters           characters; // Table mapping code points to their corresponding glyph
-    std::vector<Row>     rows;       // List containing the position of all the existing rows
-    uint32_t             nextRow;    // Y position of the next new row in the texture
-    std::vector<uint8_t> pixels;     // Image handle containing the pixels of the glyphs
-    glm::ivec2           size;       // Size of page in pixels
+    Page() noexcept: nextRow(0), size(0, 0) {}
+
+    GlyphTable           glyphs;  // Table mapping code points to their corresponding glyph
+    std::vector<Row>     rows;    // List containing the position of all the existing rows
+    uint32_t             nextRow; // Y position of the next new row in the texture
+    std::vector<uint8_t> image;   // Image handle containing the pixels of the glyphs
+    glm::ivec2           size;    // Size of page in pixels
 };
 
 
@@ -68,11 +74,11 @@ static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer&
     {
         const Character& ch = characters[c];
 
-        float xpos = x + ch.Bearing.x;
-        float ypos = y - (ch.Size.y - ch.Bearing.y);
+        float xpos = x + ch.bearing.x;
+        float ypos = y - (ch.size.y - ch.bearing.y);
 
-        float w = ch.Size.x;
-        float h = ch.Size.y;
+        float w = ch.size.x;
+        float h = ch.size.y;
 
         // update VBO for each character
         float vertices[16] = 
@@ -84,7 +90,7 @@ static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer&
         };
 
         // render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        glBindTexture(GL_TEXTURE_2D, ch.textureID);
 
         // update content of VBO memory
         vbo.update(0, sizeof(glm::vec4), 4, vertices);
@@ -93,7 +99,7 @@ static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer&
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.Advance >> 6); // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+        x += (ch.advance >> 6); // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
     }
 
     glBindVertexArray(0);
@@ -101,30 +107,103 @@ static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer&
     glUseProgram(0);
 }
 
-bool needWrite = true;
+
+
+glm::ivec4 findGlyphRect(Page& page, uint32_t width, uint32_t height) noexcept
+{
+    Row* row = nullptr;
+    float bestRatio = 0;
+
+    for (auto it = page.rows.begin(); it != page.rows.end() && !row; ++it)
+    {
+        float ratio = static_cast<float>(height) / static_cast<float>(it->height);
+
+        if ((ratio < 0.7f) || (ratio > 1.f))
+            continue;
+
+        if (width > page.size.x - it->width)
+            continue;
+
+        if (ratio < bestRatio)
+            continue;
+
+        row = &*it;
+        bestRatio = ratio;
+    }
+
+    if (!row) 
+    {
+        uint32_t rowHeight = height + height / 10;
+
+        if((page.nextRow + rowHeight >= page.size.y) || (width >= page.size.x)) // Make the image 2 times bigger
+        {
+            uint32_t imageWidth     = page.size.x;
+            uint32_t imageHeight    = page.size.y;
+            uint32_t newImageWidth  = imageWidth << 1;
+            uint32_t newImageHeight = imageHeight << 1;
+
+            std::vector<uint8_t> newImage(newImageWidth * newImageHeight);
+
+            const uint8_t* oldPixels = page.image.data();
+            uint8_t* newPixels = newImage.data();
+
+            for (uint32_t i = 0; i < imageHeight; ++i)
+            {
+                memcpy(newPixels, oldPixels, imageWidth);
+                oldPixels += imageWidth;
+                newPixels += newImageWidth;
+            }
+
+            page.image.swap(newImage);
+            page.size = { newImageWidth, newImageHeight };
+        }
+
+        page.rows.emplace_back(page.nextRow, rowHeight);
+        page.nextRow += rowHeight;
+        row = &page.rows.back();
+    }
+
+    glm::ivec4 rect(row->width, row->top, width, height);
+    row->width += width;
+
+    return rect;
+}
+
+int cnt = 0;
 
 void WriteGlyphToPage(Page& page, const FT_Bitmap& bitmap) noexcept
 {
-    uint32_t rows = bitmap.rows;
-    uint32_t pitch = bitmap.pitch;
+    // if(cnt > 4) return;
+    cnt++;
 
+    Glyph glyph;
+
+    uint32_t width  = bitmap.width;
+    uint32_t height = bitmap.rows;
+
+    const uint32_t rows = bitmap.rows;
+    const uint32_t columns = bitmap.width;
+    const uint32_t padding = 2;
+
+    width  += padding << 1;
+    height += padding << 1;
+
+    auto textureRect = findGlyphRect(page, width, height);
+    glyph.textureRect = textureRect;
+    glyph.textureRect.x += static_cast<int>(padding);
+    glyph.textureRect.y += static_cast<int>(padding);
+    glyph.textureRect.z -= static_cast<int>(padding << 1);
+    glyph.textureRect.w -= static_cast<int>(padding << 1);
+
+    uint32_t stride = page.size.x;
     const uint8_t* srcPixels = bitmap.buffer;
-    uint8_t*       dstPixels = page.pixels.data();
-
-    uint32_t pageStride = page.size.x;
+    uint8_t*       dstPixels = page.image.data() + (textureRect.y * stride + textureRect.x);
 
     for (uint32_t i = 0; i < rows; ++i)
     {
-        memcpy(dstPixels, srcPixels, pitch);
-        srcPixels += pitch;
-        dstPixels += pageStride;
-    }
-
-    if(needWrite)
-    {
-        needWrite = false;
-        std::string fName = "char_0.png";
-        stbi_write_png(fName.c_str(), page.size.x, page.size.y, 1, page.pixels.data(), 0);
+        memcpy(dstPixels, srcPixels, columns);
+        srcPixels += columns;
+        dstPixels += stride;
     }
 }
 
@@ -193,11 +272,10 @@ int font_demo(sf::Window& window) noexcept
 
     // int cnt = 0;
 
-    auto& bitmap = face->glyph->bitmap;
-
     Page page;
-    page.pixels.resize(128 * 128);
+    page.image.resize(128 * 128);
     page.size = { 128, 128 };
+    const auto& bitmap = face->glyph->bitmap;
 
     for (auto c : utf16)
     {
@@ -207,7 +285,7 @@ int font_demo(sf::Window& window) noexcept
         }
     }
 
-
+    stbi_write_png("test.png", page.size.x, page.size.y, 1, page.image.data(), 0);
 
     for (auto c : utf16)
     {
