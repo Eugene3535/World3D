@@ -55,6 +55,7 @@ struct Page
 };
 
 
+
 glm::ivec4 findGlyphRect(Page& page, uint32_t width, uint32_t height) noexcept
 {
     Row* row = nullptr;
@@ -132,8 +133,8 @@ void WriteGlyphToPage(wchar_t wc, Page& page, const FT_Face face) noexcept
         const uint32_t columns = bitmap.width;
         const uint32_t padding = 2;
     
-        width  += padding << 1;
-        height += padding << 1;
+        width  += (padding << 1);
+        height += (padding << 1);
     
         auto textureRect = findGlyphRect(page, width, height);
         glyph.textureRect = textureRect;
@@ -182,10 +183,9 @@ static void renderText(Page& page, VertexArrayObject& vao, GlBuffer& vbo, const 
 
         glm::vec4 rect = glyph.textureRect;
 
+        // padding
         rect.x -= 2;
         rect.y -= 2;
-        // rect.z += 2;
-        // rect.w += 2;
 
         float left   = rect.x / page.size.x;
         float top    = rect.y / page.size.y;
@@ -267,7 +267,7 @@ int font_demo(sf::Window& window) noexcept
         return -1;
 
     // set size to load glyphs as
-    FT_Set_Pixel_Sizes(face, 0, 30);
+    FT_Set_Pixel_Sizes(face, 0, 12);
 
     const char utf8[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ";
     const std::wstring utf16(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8));
@@ -283,7 +283,7 @@ int font_demo(sf::Window& window) noexcept
         if(FT_Load_Char(face, wc, FT_LOAD_RENDER) == 0)
             WriteGlyphToPage(wc, page, face);
 
-    stbi_write_png("test.png", page.size.x, page.size.y, 1, page.image.data(), 0);
+    //stbi_write_png("test.png", page.size.x, page.size.y, 1, page.image.data(), 0);
 
 //  disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -339,7 +339,7 @@ int font_demo(sf::Window& window) noexcept
         if(auto u = glGetUniformLocation(shader, "textColor"); u != -1)
             glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 
-        renderText(page, vao, vbo, utf16Text, 340.0f, 370.0f);
+        renderText(page, vao, vbo, utf16Text, 250.0f, 370.0f);
 
         glUseProgram(0);
 
