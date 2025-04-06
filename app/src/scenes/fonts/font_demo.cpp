@@ -40,73 +40,19 @@ struct Row
     uint32_t height; // Height of the row
 };
 
-// Holds all state information relevant to a character as loaded using FreeType
-struct Character 
-{
-    glm::ivec2 size;    // Size of glyph
-    glm::ivec2 bearing; // Offset from baseline to left/top of glyph
-    GLuint advance;     // Horizontal offset to advance to next glyph
-    GLuint textureID;   // ID handle of the glyph texture
-};
-
-using Characters = std::unordered_map<wchar_t, Character>;
 using GlyphTable = std::unordered_map<wchar_t, Glyph>;
 
 struct Page
 {
-    Page() noexcept: nextRow(0), size(0, 0) {}
+    Page() noexcept: nextRow(0), size(0, 0), texture(0) {}
 
     GlyphTable           glyphs;  // Table mapping code points to their corresponding glyph
     std::vector<Row>     rows;    // List containing the position of all the existing rows
     uint32_t             nextRow; // Y position of the next new row in the texture
     std::vector<uint8_t> image;   // Image handle containing the pixels of the glyphs
     glm::ivec2           size;    // Size of page in pixels
+    GLuint texture;
 };
-
-
-static void RenderText(Characters& characters, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y) noexcept
-{
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(vao.getHandle());
-
-    // iterate through all characters
-    for (auto c : text)
-    {
-        const Character& ch = characters[c];
-
-        float xpos = x + ch.bearing.x;
-        float ypos = y - (ch.size.y - ch.bearing.y);
-
-        float w = ch.size.x;
-        float h = ch.size.y;
-
-        // update VBO for each character
-        float vertices[16] = 
-        {
-            xpos,     ypos + h, 0.f, 0.f,
-            xpos,     ypos,     0.f, 1.f,
-            xpos + w, ypos,     1.f, 1.f,
-            xpos + w, ypos + h, 1.f, 0.f
-        };
-
-        // render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.textureID);
-
-        // update content of VBO memory
-        vbo.update(0, sizeof(glm::vec4), 4, vertices);
-
-        // render quad
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.advance >> 6); // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-    }
-
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glUseProgram(0);
-}
-
 
 
 glm::ivec4 findGlyphRect(Page& page, uint32_t width, uint32_t height) noexcept
@@ -169,43 +115,107 @@ glm::ivec4 findGlyphRect(Page& page, uint32_t width, uint32_t height) noexcept
     return rect;
 }
 
-int cnt = 0;
 
-void WriteGlyphToPage(Page& page, const FT_Bitmap& bitmap) noexcept
+
+void WriteGlyphToPage(wchar_t wc, Page& page, const FT_Face face) noexcept
 {
-    // if(cnt > 4) return;
-    cnt++;
+    const auto& bitmap = face->glyph->bitmap;
 
-    Glyph glyph;
-
-    uint32_t width  = bitmap.width;
-    uint32_t height = bitmap.rows;
-
-    const uint32_t rows = bitmap.rows;
-    const uint32_t columns = bitmap.width;
-    const uint32_t padding = 2;
-
-    width  += padding << 1;
-    height += padding << 1;
-
-    auto textureRect = findGlyphRect(page, width, height);
-    glyph.textureRect = textureRect;
-    glyph.textureRect.x += static_cast<int>(padding);
-    glyph.textureRect.y += static_cast<int>(padding);
-    glyph.textureRect.z -= static_cast<int>(padding << 1);
-    glyph.textureRect.w -= static_cast<int>(padding << 1);
-
-    uint32_t stride = page.size.x;
-    const uint8_t* srcPixels = bitmap.buffer;
-    uint8_t*       dstPixels = page.image.data() + (textureRect.y * stride + textureRect.x);
-
-    for (uint32_t i = 0; i < rows; ++i)
+    if(auto it = page.glyphs.find(wc); it == page.glyphs.end())
     {
-        memcpy(dstPixels, srcPixels, columns);
-        srcPixels += columns;
-        dstPixels += stride;
+        Glyph& glyph = page.glyphs[wc];
+
+        uint32_t width  = bitmap.width;
+        uint32_t height = bitmap.rows;
+    
+        const uint32_t rows = bitmap.rows;
+        const uint32_t columns = bitmap.width;
+        const uint32_t padding = 2;
+    
+        width  += padding << 1;
+        height += padding << 1;
+    
+        auto textureRect = findGlyphRect(page, width, height);
+        glyph.textureRect = textureRect;
+        glyph.textureRect.x += static_cast<int>(padding);
+        glyph.textureRect.y += static_cast<int>(padding);
+        glyph.textureRect.z -= static_cast<int>(padding << 1);
+        glyph.textureRect.w -= static_cast<int>(padding << 1);
+    
+        uint32_t stride = page.size.x;
+        const uint8_t* srcPixels = bitmap.buffer;
+        uint8_t*       dstPixels = page.image.data() + (textureRect.y * stride + textureRect.x);
+    
+        for (uint32_t i = 0; i < rows; ++i)
+        {
+            memcpy(dstPixels, srcPixels, columns);
+            srcPixels += columns;
+            dstPixels += stride;
+        }
+
+        glyph.bearing = { face->glyph->bitmap_left, face->glyph->bitmap_top };
+        glyph.size    = { bitmap.width, bitmap.rows };
+        glyph.advance = face->glyph->advance.x;
     }
 }
+
+
+
+static void renderText(Page& page, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y) noexcept
+{
+    auto& glyphs = page.glyphs;
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, page.texture);
+    glBindVertexArray(vao.getHandle());
+
+    // iterate through all characters
+    for (auto wc : text)
+    {
+        const Glyph& glyph = glyphs[wc];
+
+        float xpos = x + glyph.bearing.x;
+        float ypos = y - (glyph.size.y - glyph.bearing.y);
+
+        float w = glyph.size.x;
+        float h = glyph.size.y;
+
+        glm::vec4 rect = glyph.textureRect;
+
+        rect.x -= 2;
+        rect.y -= 2;
+        // rect.z += 2;
+        // rect.w += 2;
+
+        float left   = rect.x / page.size.x;
+        float top    = rect.y / page.size.y;
+        float right  = (rect.x + rect.z) / page.size.x;
+        float bottom = (rect.y + rect.w) / page.size.y;
+
+        // update VBO for each character
+        float vertices[16] = 
+        {
+            xpos,     ypos,     left, bottom,
+            xpos + w, ypos,     right, bottom,
+            xpos + w, ypos + h, right, top,
+            xpos, ypos + h,     left, top
+        };
+
+        // update content of VBO memory
+        vbo.update(0, sizeof(glm::vec4), 4, vertices);
+
+        // render quad
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (glyph.advance >> 6); // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUseProgram(0);
+}
+
 
 
 int font_demo(sf::Window& window) noexcept
@@ -259,75 +269,36 @@ int font_demo(sf::Window& window) noexcept
     // set size to load glyphs as
     FT_Set_Pixel_Sizes(face, 0, 30);
 
-    // disable byte-alignment restriction
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
     const char utf8[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ";
     const std::wstring utf16(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8));
 
-    const char utf8Text[] = "Вау гречка ёЁ-юЮ first commit 1234 ()*<>";
+    const char utf8Text[] = "Вау гречка ёЁ-юЮ-ыЫ first commit 1234 ()*<>q";
     std::wstring utf16Text(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8Text));
-
-    Characters characters;
-
-    // int cnt = 0;
 
     Page page;
     page.image.resize(128 * 128);
     page.size = { 128, 128 };
-    const auto& bitmap = face->glyph->bitmap;
 
-    for (auto c : utf16)
-    {
-        if (FT_Load_Char(face, c, FT_LOAD_RENDER) == 0)
-        {
-            WriteGlyphToPage(page, bitmap);
-        }
-    }
+    for(auto wc : utf16)
+        if(FT_Load_Char(face, wc, FT_LOAD_RENDER) == 0)
+            WriteGlyphToPage(wc, page, face);
 
     stbi_write_png("test.png", page.size.x, page.size.y, 1, page.image.data(), 0);
 
-    for (auto c : utf16)
-    {
-        if(characters.find(c) == characters.end())
-        {
-            // Load character glyph 
-            if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-                return -1;
-                
-            // generate texture
-            auto texHandle = resourceHolder.create<Texture2D, 1>();
-            GLuint texture = texHandle[0];
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmap.width, bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
+//  disable byte-alignment restriction
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-            //std::string fName = "char_" + std::to_string(cnt) + ".png";
-            // cnt++;
+    auto texHandle = resourceHolder.create<Texture2D, 1>();
+    GLuint texture = texHandle[0];
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, page.size.x, page.size.y, 0, GL_RED, GL_UNSIGNED_BYTE, page.image.data());
 
-            // uncomment to output into files and console
-            // stbi_write_png(fName.c_str(), bitmap.width, bitmap.rows, 1, bitmap.buffer, 0);
-            // printf("Width: %u, Height: %u\n", bitmap.width, bitmap.rows);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-            // set texture options
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            // now store character for later use
-
-            Character character =
-            {
-                glm::ivec2(bitmap.width, bitmap.rows),
-                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-                static_cast<GLuint>(face->glyph->advance.x),
-                texture
-            };
-
-            characters[c] = character;
-
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-    }
+    page.texture = texture;
     
     // destroy FreeType once we're finished
     FT_Done_Face(face);
@@ -368,7 +339,7 @@ int font_demo(sf::Window& window) noexcept
         if(auto u = glGetUniformLocation(shader, "textColor"); u != -1)
             glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 
-        RenderText(characters, vao, vbo, utf16Text, 340.0f, 370.0f);
+        renderText(page, vao, vbo, utf16Text, 340.0f, 370.0f);
 
         glUseProgram(0);
 
