@@ -18,18 +18,12 @@
 
 #include "files/Image.hpp"
 #include "files/FileProvider.hpp"
+#include "graphics/Glyph.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
 #include "camera/perspective/PerspectiveCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
 
-struct Glyph
-{
-    glm::ivec2 bearing;     // Offset from baseline to left/top of glyph
-    glm::ivec2 size;        // Size of glyph
-    glm::ivec4 textureRect; // Texture coordinates of the glyph inside the font's texture
-    GLuint advance;         // Horizontal offset to advance to next glyph
-};
 
 struct Row
 {
@@ -40,7 +34,7 @@ struct Row
     uint32_t height; // Height of the row
 };
 
-using GlyphTable = std::unordered_map<wchar_t, Glyph>;
+
 
 struct Page
 {
@@ -282,8 +276,6 @@ int font_demo(sf::Window& window) noexcept
     for(auto wc : utf16)
         if(FT_Load_Char(face, wc, FT_LOAD_RENDER) == 0)
             WriteGlyphToPage(wc, page, face);
-
-    //stbi_write_png("test.png", page.size.x, page.size.y, 1, page.image.data(), 0);
 
 //  disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

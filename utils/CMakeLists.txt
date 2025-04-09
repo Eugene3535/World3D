@@ -4,6 +4,7 @@ set(_opengl_utils_src_files
 	src/graphics/Transform2D.cpp
 	src/graphics/Color.cpp
 	src/files/Image.cpp
+	src/files/Font.cpp
 	src/files/FileProvider.cpp
 	src/camera/perspective/PerspectiveCamera.cpp
 	src/camera/orthogonal/OrthogonalCamera.cpp
@@ -21,7 +22,9 @@ set(_opengl_utils_hdr_files
 	src/Config.hpp
 	src/graphics/Transform2D.hpp
 	src/graphics/Color.hpp
+	src/graphics/Glyph.hpp
 	src/files/Image.hpp
+	src/files/Font.hpp
 	src/files/FileProvider.hpp
 	src/camera/perspective/PerspectiveCamera.hpp
 	src/camera/orthogonal/OrthogonalCamera.hpp
