@@ -71,20 +71,28 @@ bool Font::loadPage(uint32_t characterSize) noexcept
     if(auto page = m_pages.find(characterSize); page != m_pages.end())
         return true;
 
+    if(characterSize == 0)
+        return false;
+
     if(isLoaded())
     {
         FT_Face face = static_cast<FT_Face>(m_face);
-        FT_Set_Pixel_Sizes(face, 0, 12);
+        FT_Set_Pixel_Sizes(face, 0, characterSize);
 
         auto& page = m_pages[characterSize]; 
         page.image.resize(128 * 128);
         page.size = { 128, 128 };
+
+        int amount = 0;
     
         for(const auto wc : utf16)
             if(FT_Load_Char(face, wc, FT_LOAD_RENDER) == 0)
+            {
                 writeGlyphToPage(wc, page);
-
-        return true;
+                ++amount;
+            }
+ 
+        return amount > 0;
     }
 
     return false;
@@ -114,6 +122,36 @@ std::pair<const uint8_t*, glm::ivec2> Font::getImage(uint32_t characterSize) con
 const Font::Info& Font::getInfo() const noexcept
 {
     return m_info;
+}
+
+
+bool Font::hasGlyph(wchar_t codePoint) const noexcept
+{
+    if(m_face)
+        return FT_Get_Char_Index(static_cast<FT_Face>(m_face), codePoint) != 0;
+
+    return false;
+}
+
+
+void Font::getGlyph(wchar_t codePoint, uint32_t characterSize, Glyph* glyph) const noexcept
+{
+    if(auto it = m_pages.find(characterSize); it != m_pages.end())
+    {
+        if(auto found = it->second.glyphs.find(codePoint); found != it->second.glyphs.end())
+        {
+            memcpy(glyph, &found->second, sizeof(Glyph));
+        }
+    }
+}
+
+
+GlyphTable Font::getGlyphs(uint32_t characterSize) const noexcept
+{
+    if(auto it = m_pages.find(characterSize); it != m_pages.end())
+        return it->second.glyphs;
+
+    return {};
 }
 
 

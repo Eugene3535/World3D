@@ -26,11 +26,14 @@ public:
     bool loadFromFile(const std::string& font_name) noexcept;
     bool writeToFile(uint32_t characterSize) const noexcept;
     bool loadPage(uint32_t characterSize) noexcept;
-
     bool isLoaded() const noexcept;
 
     std::pair<const uint8_t*, glm::ivec2> getImage(uint32_t characterSize) const noexcept;
     const Info& getInfo() const noexcept;
+
+    bool hasGlyph(wchar_t codePoint) const noexcept;
+    void getGlyph(wchar_t codePoint, uint32_t characterSize, Glyph* glyph) const noexcept;
+    GlyphTable getGlyphs(uint32_t characterSize) const noexcept;
 
 private:
     struct Row

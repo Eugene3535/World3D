@@ -11,9 +11,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
 #include <stb_image_write.h>
 
 #include "files/Image.hpp"
@@ -23,145 +20,11 @@
 #include "camera/orthogonal/OrthogonalCamera.hpp"
 #include "camera/perspective/PerspectiveCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
+#include "files/Font.hpp"
 
 
-struct Row
+static void renderText(GlyphTable& glyphs, glm::ivec2 size, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y) noexcept
 {
-    Row(uint32_t rowTop, uint32_t rowHeight) noexcept : width(0), top(rowTop), height(rowHeight) {}
-
-    uint32_t width;  // Current width of the row
-    uint32_t top;    // Y position of the row into the texture
-    uint32_t height; // Height of the row
-};
-
-
-
-struct Page
-{
-    Page() noexcept: nextRow(0), size(0, 0), texture(0) {}
-
-    GlyphTable           glyphs;  // Table mapping code points to their corresponding glyph
-    std::vector<Row>     rows;    // List containing the position of all the existing rows
-    uint32_t             nextRow; // Y position of the next new row in the texture
-    std::vector<uint8_t> image;   // Image handle containing the pixels of the glyphs
-    glm::ivec2           size;    // Size of page in pixels
-    GLuint texture;
-};
-
-
-
-glm::ivec4 findGlyphRect(Page& page, uint32_t width, uint32_t height) noexcept
-{
-    Row* row = nullptr;
-    float bestRatio = 0;
-
-    for (auto it = page.rows.begin(); it != page.rows.end() && !row; ++it)
-    {
-        float ratio = static_cast<float>(height) / static_cast<float>(it->height);
-
-        if ((ratio < 0.7f) || (ratio > 1.f))
-            continue;
-
-        if (width > page.size.x - it->width)
-            continue;
-
-        if (ratio < bestRatio)
-            continue;
-
-        row = &*it;
-        bestRatio = ratio;
-    }
-
-    if (!row) 
-    {
-        uint32_t rowHeight = height + height / 10;
-
-        if((page.nextRow + rowHeight >= page.size.y) || (width >= page.size.x)) // Make the image 2 times bigger
-        {
-            uint32_t imageWidth     = page.size.x;
-            uint32_t imageHeight    = page.size.y;
-            uint32_t newImageWidth  = imageWidth << 1;
-            uint32_t newImageHeight = imageHeight << 1;
-
-            std::vector<uint8_t> newImage(newImageWidth * newImageHeight);
-
-            const uint8_t* oldPixels = page.image.data();
-            uint8_t* newPixels = newImage.data();
-
-            for (uint32_t i = 0; i < imageHeight; ++i)
-            {
-                memcpy(newPixels, oldPixels, imageWidth);
-                oldPixels += imageWidth;
-                newPixels += newImageWidth;
-            }
-
-            page.image.swap(newImage);
-            page.size = { newImageWidth, newImageHeight };
-        }
-
-        page.rows.emplace_back(page.nextRow, rowHeight);
-        page.nextRow += rowHeight;
-        row = &page.rows.back();
-    }
-
-    glm::ivec4 rect(row->width, row->top, width, height);
-    row->width += width;
-
-    return rect;
-}
-
-
-
-void WriteGlyphToPage(wchar_t wc, Page& page, const FT_Face face) noexcept
-{
-    const auto& bitmap = face->glyph->bitmap;
-
-    if(auto it = page.glyphs.find(wc); it == page.glyphs.end())
-    {
-        Glyph& glyph = page.glyphs[wc];
-
-        uint32_t width  = bitmap.width;
-        uint32_t height = bitmap.rows;
-    
-        const uint32_t rows = bitmap.rows;
-        const uint32_t columns = bitmap.width;
-        const uint32_t padding = 2;
-    
-        width  += (padding << 1);
-        height += (padding << 1);
-    
-        auto textureRect = findGlyphRect(page, width, height);
-        glyph.textureRect = textureRect;
-        glyph.textureRect.x += static_cast<int>(padding);
-        glyph.textureRect.y += static_cast<int>(padding);
-        glyph.textureRect.z -= static_cast<int>(padding << 1);
-        glyph.textureRect.w -= static_cast<int>(padding << 1);
-    
-        uint32_t stride = page.size.x;
-        const uint8_t* srcPixels = bitmap.buffer;
-        uint8_t*       dstPixels = page.image.data() + (textureRect.y * stride + textureRect.x);
-    
-        for (uint32_t i = 0; i < rows; ++i)
-        {
-            memcpy(dstPixels, srcPixels, columns);
-            srcPixels += columns;
-            dstPixels += stride;
-        }
-
-        glyph.bearing = { face->glyph->bitmap_left, face->glyph->bitmap_top };
-        glyph.size    = { bitmap.width, bitmap.rows };
-        glyph.advance = face->glyph->advance.x;
-    }
-}
-
-
-
-static void renderText(Page& page, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y) noexcept
-{
-    auto& glyphs = page.glyphs;
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, page.texture);
     glBindVertexArray(vao.getHandle());
 
     // iterate through all characters
@@ -181,10 +44,10 @@ static void renderText(Page& page, VertexArrayObject& vao, GlBuffer& vbo, const 
         rect.x -= 2;
         rect.y -= 2;
 
-        float left   = rect.x / page.size.x;
-        float top    = rect.y / page.size.y;
-        float right  = (rect.x + rect.z) / page.size.x;
-        float bottom = (rect.y + rect.w) / page.size.y;
+        float left   = rect.x / size.x;
+        float top    = rect.y / size.y;
+        float right  = (rect.x + rect.z) / size.x;
+        float bottom = (rect.y + rect.w) / size.y;
 
         // update VBO for each character
         float vertices[16] = 
@@ -206,7 +69,6 @@ static void renderText(Page& page, VertexArrayObject& vao, GlBuffer& vbo, const 
     }
 
     glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
 }
 
@@ -251,17 +113,20 @@ int font_demo(sf::Window& window) noexcept
     if(!program->link(shaders)) return -1;
 
 //  Font
-    FT_Library ftLibrary;
-    FT_Face face;
+    Font font;
+    const uint32_t characterSize = 12;
 
-    if (FT_Init_FreeType(&ftLibrary))
+    if(!font.loadFromFile("AvanteNrBook.ttf"))
         return -1;
 
-    if (FT_New_Face(ftLibrary, FileProvider::findPathToFile("AvanteNrBook.ttf").generic_string().c_str(), 0, &face))
+    if(!font.loadPage(characterSize))
         return -1;
 
-    // set size to load glyphs as
-    FT_Set_Pixel_Sizes(face, 0, 12);
+    auto page = font.getImage(characterSize);
+    auto glyphs = font.getGlyphs(characterSize);
+
+    if(glyphs.empty())
+        return -1;
 
     const char utf8[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ";
     const std::wstring utf16(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8));
@@ -269,32 +134,18 @@ int font_demo(sf::Window& window) noexcept
     const char utf8Text[] = "Вау гречка ёЁ-юЮ-ыЫ first commit 1234 ()*<>q";
     std::wstring utf16Text(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8Text));
 
-    Page page;
-    page.image.resize(128 * 128);
-    page.size = { 128, 128 };
-
-    for(auto wc : utf16)
-        if(FT_Load_Char(face, wc, FT_LOAD_RENDER) == 0)
-            WriteGlyphToPage(wc, page, face);
-
 //  disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     auto texHandle = resourceHolder.create<Texture2D, 1>();
     GLuint texture = texHandle[0];
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, page.size.x, page.size.y, 0, GL_RED, GL_UNSIGNED_BYTE, page.image.data());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, page.second.x, page.second.y, 0, GL_RED, GL_UNSIGNED_BYTE, page.first);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    page.texture = texture;
-    
-    // destroy FreeType once we're finished
-    FT_Done_Face(face);
-    FT_Done_FreeType(ftLibrary);
 
     // enable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
@@ -324,6 +175,10 @@ int font_demo(sf::Window& window) noexcept
 
 
         auto shader = program->getHandle().value();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
         glUseProgram(shader);
     
         glm::vec3 color(0.5, 0.8f, 0.2f);
@@ -331,9 +186,10 @@ int font_demo(sf::Window& window) noexcept
         if(auto u = glGetUniformLocation(shader, "textColor"); u != -1)
             glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 
-        renderText(page, vao, vbo, utf16Text, 250.0f, 370.0f);
+        renderText(glyphs, page.second, vao, vbo, utf16Text, 250.0f, 370.0f);
 
         glUseProgram(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         window.display();
     }
