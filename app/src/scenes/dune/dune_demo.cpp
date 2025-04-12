@@ -130,23 +130,22 @@ int dune_demo(sf::Window& window) noexcept
 
         glUseProgram(program->getHandle().value());
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture0->getHandle());
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture1->getHandle());
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, texture2->getHandle());
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, texture3->getHandle());
-        glActiveTexture(GL_TEXTURE4);
-        glBindTexture(GL_TEXTURE_2D, texture4->getHandle());
+        glBindTextureUnit(0, texture0->getHandle());
+        glBindTextureUnit(1, texture1->getHandle());
+        glBindTextureUnit(2, texture2->getHandle());
+        glBindTextureUnit(3, texture3->getHandle());
+        glBindTextureUnit(4, texture4->getHandle());
 
         glBindVertexArray(vao->getHandle());
-
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-        glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(0);
+
+        glBindTextureUnit(0, 0);
+        glBindTextureUnit(1, 0);
+        glBindTextureUnit(2, 0);
+        glBindTextureUnit(3, 0);
+        glBindTextureUnit(4, 0);
+
         glUseProgram(0);
 
         window.display();
