@@ -48,21 +48,21 @@ int heightmap_demo(sf::Window& window) noexcept
     StbImage imageCircleOff;  if(!imageCircleOff.loadFromFile(FileProvider::findPathToFile("circle_off.png")))     return -1;
     StbImage imageCircleOn;   if(!imageCircleOn.loadFromFile(FileProvider::findPathToFile("circle_on.png")))       return -1;
 
-    const auto textures = resourceHolder.create<Texture2D, 6>();
+    const auto textures = resourceHolder.create<Texture, 6>();
     
-    auto texCrackedEarth = std::make_unique<Texture2D>(textures[0]);
-    auto texRock         = std::make_unique<Texture2D>(textures[1]);
-    auto texGrass        = std::make_unique<Texture2D>(textures[2]);
-    auto texClover       = std::make_unique<Texture2D>(textures[3]);
-    auto texCircleOff    = std::make_unique<Texture2D>(textures[4]);
-    auto texCircleOn     = std::make_unique<Texture2D>(textures[5]);
+    Texture texCrackedEarth = { textures[0], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texRock         = { textures[1], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texGrass        = { textures[2], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texClover       = { textures[3], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texCircleOff    = { textures[4], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texCircleOn     = { textures[5], GL_TEXTURE_2D, 0, 0, 0, false, false };
 
-    if(!texCrackedEarth->loadFromImage(imgCrackedEarth, true, true)) return -1;
-    if(!texRock->loadFromImage(imgRock, true, true)) return -1;
-    if(!texGrass->loadFromImage(imgGrass, true, true)) return -1;
-    if(!texClover->loadFromImage(imgClover, true, true)) return -1;
-    if(!texCircleOff->loadFromImage(imageCircleOff, false, false)) return -1;
-    if(!texCircleOn->loadFromImage(imageCircleOn, false, false)) return -1;
+    if(!texCrackedEarth.loadFromImage(imgCrackedEarth, true, true)) return -1;
+    if(!texRock.loadFromImage(imgRock, true, true)) return -1;
+    if(!texGrass.loadFromImage(imgGrass, true, true)) return -1;
+    if(!texClover.loadFromImage(imgClover, true, true)) return -1;
+    if(!texCircleOff.loadFromImage(imageCircleOff, false, false)) return -1;
+    if(!texCircleOn.loadFromImage(imageCircleOn, false, false)) return -1;
 
     const uint8_t* pixels = imageMap.pixels.data();
     const uint32_t mapDepth = imageMap.width;
@@ -262,17 +262,10 @@ int heightmap_demo(sf::Window& window) noexcept
 
 		glUseProgram(heightmapProgram->getHandle().value());
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texCrackedEarth->getHandle());
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texRock->getHandle());
-
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, texGrass->getHandle());
-
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, texClover->getHandle());
+        glBindTextureUnit(0, texCrackedEarth.handle);
+        glBindTextureUnit(1, texRock.handle);
+        glBindTextureUnit(2, texGrass.handle);
+        glBindTextureUnit(3, texClover.handle);
 
 		const uint32_t numStrips = mapWidth - 1;
 		const uint32_t numTrisPerStrip = mapWidth * 2 - 2;
@@ -282,6 +275,11 @@ int heightmap_demo(sf::Window& window) noexcept
         for (uint32_t strip = 0; strip < numStrips; ++strip)
             glDrawElements(GL_TRIANGLE_STRIP, numTrisPerStrip + 2, GL_UNSIGNED_INT, reinterpret_cast<const void*>(sizeof(GLuint) * (numTrisPerStrip + 2) * strip));
     
+        glBindTextureUnit(0, 0);
+        glBindTextureUnit(1, 0);
+        glBindTextureUnit(2, 0);
+        glBindTextureUnit(3, 0);
+
         glBindVertexArray(0);
         glUseProgram(0);
 
@@ -301,10 +299,9 @@ int heightmap_demo(sf::Window& window) noexcept
         orthoCamera->setRotation(-rotation);
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orthoCamera->getModelViewProjectionMatrix())));
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texCircleOff->getHandle());
+        glBindTextureUnit(0, texCircleOff.handle);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(0, 0);
 
         orthoCamera->setPosition(width - imageCircleOff.width + halfW, height - halfH);
         orthoCamera->setRotation(rotation);
@@ -312,9 +309,9 @@ int heightmap_demo(sf::Window& window) noexcept
 
         rotation += 0.3f;
 
-        glBindTexture(GL_TEXTURE_2D, texCircleOn->getHandle());
+        glBindTextureUnit(0, texCircleOn.handle);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(0, 0);
 
         glBindVertexArray(0);
         glUseProgram(0);

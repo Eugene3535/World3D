@@ -19,21 +19,26 @@ int path_demo(sf::Window& window)
 {
     window.setMouseCursorVisible(false);
     glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     StbImage imgSnow;     imgSnow.loadFromFile(FileProvider::findPathToFile("snow.png"));
     StbImage imgPavement; imgPavement.loadFromFile(FileProvider::findPathToFile("pavement.jpg"));
     StbImage imgPath;     imgPath.loadFromFile(FileProvider::findPathToFile("test.png"));
 
     auto resourceHolder = std::make_unique<GlResourceHolder>();
-    std::array<uint32_t, 3> textures = resourceHolder->create<Texture2D, 3>();
+    auto textures = resourceHolder->create<Texture, 3>();
 
-    auto texSnow = std::make_unique<Texture2D>(textures[0]);
-    auto texPavement = std::make_unique<Texture2D>(textures[1]);
-    auto texPath = std::make_unique<Texture2D>(textures[2]);
+    Texture texSnow;
+    Texture texPavement;
+    Texture texPath;
 
-    texSnow->loadFromImage(imgSnow, true, true);
-    texPavement->loadFromImage(imgPavement, true, true);
-    texPath->loadFromImage(imgPath, true, true);
+    texSnow.handle = textures[0];
+    texPavement.handle = textures[1];
+    texPath.handle = textures[2];
+
+    texSnow.loadFromImage(imgSnow, true, true);
+    texPavement.loadFromImage(imgPavement, true, true);
+    texPath.loadFromImage(imgPath, true, true);
 
     float mapWidth  = static_cast<float>(imgPath.width);
     float mapHeight = static_cast<float>(imgPath.height);
@@ -62,16 +67,23 @@ int path_demo(sf::Window& window)
     vao->addVertexBuffer(vbo, attributes);
 
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("ground.vert"), GL_VERTEX_SHADER)) return -1;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("ground.vert"), GL_VERTEX_SHADER))   return -1;
     if(!shaders[1].loadFromFile(FileProvider::findPathToFile("ground.frag"), GL_FRAGMENT_SHADER)) return -1;
 
     auto program = std::make_unique<ShaderProgram>();
     if(!program->link(shaders)) return -1;
 
     glUseProgram(program->getHandle().value());
-    glUniform1i(program->getUniformLocation("snowSampler").value(), 0);
-    glUniform1i(program->getUniformLocation("pavementSampler").value(), 1);
-    glUniform1i(program->getUniformLocation("pathSampler").value(), 2);
+
+    if(program->getUniformLocation("snowSampler").has_value())
+        glUniform1i(program->getUniformLocation("snowSampler").value(), 0);
+
+    if(program->getUniformLocation("snowSampler").has_value())
+        glUniform1i(program->getUniformLocation("pavementSampler").value(), 1);
+
+    if(program->getUniformLocation("pathSampler").has_value())
+        glUniform1i(program->getUniformLocation("pathSampler").value(), 2);
+
     glUseProgram(0);
 
     GlBuffer uniformBuffer(buffers[1], GL_UNIFORM_BUFFER);
@@ -80,6 +92,7 @@ int path_demo(sf::Window& window)
 
     auto [width, height] = window.getSize();
     auto camera = std::make_unique<PerspectiveCamera>();
+    camera->setDrawDistance(500);
     camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
     camera->setPosition(3, 3, 3);
 
@@ -117,7 +130,7 @@ int path_demo(sf::Window& window)
             camera->processKeyboard(PerspectiveCamera::Right, 1);
 
         auto playerPos = camera->getPosition();
-        playerPos.y = 30.7f;
+        playerPos.y = 30;
         camera->setPosition(playerPos);
 
         const auto [xpos, ypos] = sf::Mouse::getPosition();
@@ -132,26 +145,23 @@ int path_demo(sf::Window& window)
 
 		uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glUseProgram(program->getHandle().value());
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texSnow->getHandle());
-    
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texPavement->getHandle());
-    
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, texPath->getHandle());
+        glBindTextureUnit(0, texSnow.handle);
+        glBindTextureUnit(1, texPavement.handle);
+        glBindTextureUnit(2, texPath.handle);
 
         glBindVertexArray(vao->getHandle());
-
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
         glBindVertexArray(0);
+
+        glBindTextureUnit(0, 0);
+        glBindTextureUnit(1, 0);
+        glBindTextureUnit(2, 0);
+
         glUseProgram(0);
 
         window.display();

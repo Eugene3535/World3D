@@ -30,7 +30,7 @@ public:
 		GlBuffer vbo;
 		GlBuffer ebo;
 		VertexArrayObject vao;
-		Texture2D texture;
+		Texture texture;
 	};
 
 	class Object

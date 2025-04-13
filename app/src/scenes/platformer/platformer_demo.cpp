@@ -70,25 +70,25 @@ int platformer_demo(sf::Window& window)
         return -1;
 
 //  Textures
-    const auto textureHandles = resourceHolder->create<Texture2D, 5>();
+    const auto textureHandles = resourceHolder->create<Texture, 5>();
 
-    auto texGoomba     = std::make_unique<Texture2D>(textureHandles[0]);
-    auto texMegaman    = std::make_unique<Texture2D>(textureHandles[1]);
-    auto texBullet     = std::make_unique<Texture2D>(textureHandles[2]);
-    auto texMovingPlat = std::make_unique<Texture2D>(textureHandles[3]);
-    auto texHealthBar  = std::make_unique<Texture2D>(textureHandles[4]);
+    Texture texGoomba     = { textureHandles[0], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texMegaman    = { textureHandles[1], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texBullet     = { textureHandles[2], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texMovingPlat = { textureHandles[3], GL_TEXTURE_2D, 0, 0, 0, false, false };
+    Texture texHealthBar  = { textureHandles[4], GL_TEXTURE_2D, 0, 0, 0, false, false };
 
-    if(!texGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false))              return -1;
-    if(!texMegaman->loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false))           return -1;
-    if(!texBullet->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false))             return -1;
-    if(!texMovingPlat->loadFromFile(FileProvider::findPathToFile("movingPlatform.png"), false, false)) return -1;
-    if(!texHealthBar->loadFromFile(FileProvider::findPathToFile("HealthBar.png"), false, false))       return -1;
+    if(!texGoomba.loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false))              return -1;
+    if(!texMegaman.loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false))           return -1;
+    if(!texBullet.loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false))             return -1;
+    if(!texMovingPlat.loadFromFile(FileProvider::findPathToFile("movingPlatform.png"), false, false)) return -1;
+    if(!texHealthBar.loadFromFile(FileProvider::findPathToFile("HealthBar.png"), false, false))       return -1;
 
     glUseProgram(healthbarProgram->getHandle().value());
 
     if(auto borderThickness = healthbarProgram->getUniformLocation("borderThickness"); borderThickness.has_value())
     {
-        const auto ratio = 1.0f / glm::vec2(texHealthBar->getWidth(), texHealthBar->getHeight());
+        const auto ratio = 1.0f / glm::vec2(texHealthBar.width, texHealthBar.height);
 
         float left   = 3 * ratio.x;
         float top    = 3 * ratio.y;
@@ -123,8 +123,8 @@ int platformer_demo(sf::Window& window)
             glm::ivec4(0, 0, 16, 16),
             glm::ivec4(16, 0, 16, 16)
         };
-        spriteHolder.createCustomAnimaton(GOOMBA_WALK, texGoomba.get(), goombaWalkFrames);
-        spriteHolder.createSingleAnimation(GOOMBA_DEAD, texGoomba.get(), glm::ivec4(48, 0, 16, 16));
+        spriteHolder.createCustomAnimaton(GOOMBA_WALK, &texGoomba, goombaWalkFrames);
+        spriteHolder.createSingleAnimation(GOOMBA_DEAD, &texGoomba, glm::ivec4(48, 0, 16, 16));
     }
 
 //  Bullet
@@ -135,18 +135,18 @@ int platformer_demo(sf::Window& window)
             glm::ivec4(58, 6, 13, 13),
             glm::ivec4(85, 5, 16, 16)
         };
-        spriteHolder.createSingleAnimation(BULLET_MOVE, texBullet.get(), glm::ivec4(8, 10, 6, 6));
-        spriteHolder.createCustomAnimaton(BULLET_EXPLODE, texBullet.get(), bulletExplodeFrames);
+        spriteHolder.createSingleAnimation(BULLET_MOVE, &texBullet, glm::ivec4(8, 10, 6, 6));
+        spriteHolder.createCustomAnimaton(BULLET_EXPLODE, &texBullet, bulletExplodeFrames);
     }
 
 // Moving platform
-    spriteHolder.createSingleAnimation(PLATFORM_MOVE, texMovingPlat.get(), glm::ivec4(0, 0, 95, 22));
+    spriteHolder.createSingleAnimation(PLATFORM_MOVE, &texMovingPlat, glm::ivec4(0, 0, 95, 22));
 
 //  Health bar
-    spriteHolder.createSingleAnimation(HEALTH_BAR, texHealthBar.get(), glm::ivec4(0, 0, texHealthBar->getWidth(), texHealthBar->getHeight()));
+    spriteHolder.createSingleAnimation(HEALTH_BAR, &texHealthBar, glm::ivec4(0, 0, texHealthBar.width, texHealthBar.height));
     
 //  Megaman
-    spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), texMegaman.get());
+    spriteHolder.loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), &texMegaman);
 
     Animator goomba;
     {

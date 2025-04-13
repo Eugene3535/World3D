@@ -27,7 +27,7 @@ int orbit_demo(sf::Window& window) noexcept
     auto resourceHolder = std::make_unique<GlResourceHolder>();
     const auto bufferHandles = resourceHolder->create<GlBuffer, 2>();
     const auto vertexArrays = resourceHolder->create<VertexArrayObject, 1>();
-    const auto textureHandles = resourceHolder->create<Texture2D, 1>();
+    const auto textureHandles = resourceHolder->create<Texture, 1>();
 
     GlBuffer uniformBuffer(bufferHandles[0], GL_UNIFORM_BUFFER);
     uniformBuffer.create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
@@ -37,7 +37,7 @@ int orbit_demo(sf::Window& window) noexcept
     camera->setup({ 0, 0, 0 }, { 100, 0, 100 });
     camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
 
-    auto texGrid = std::make_unique<Texture2D>(textureHandles[0]);
+    auto texGrid = std::make_unique<Texture>(textureHandles[0]);
 
     if(!texGrid->loadFromFile(FileProvider::findPathToFile("grid.png"), true, true)) 
         return -1;
@@ -163,14 +163,13 @@ int orbit_demo(sf::Window& window) noexcept
 
         glUseProgram(program->getHandle().value());
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texGrid->getHandle());
+        glBindTextureUnit(0, texGrid->handle);
         glBindVertexArray(vao->getHandle());
 
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(0, 0);
         glUseProgram(0);
 
         window.display();

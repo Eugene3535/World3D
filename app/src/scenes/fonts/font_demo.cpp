@@ -137,7 +137,7 @@ int font_demo(sf::Window& window) noexcept
 //  disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    auto texHandle = resourceHolder.create<Texture2D, 1>();
+    auto texHandle = resourceHolder.create<Texture, 1>();
     GLuint texture = texHandle[0];
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, page.second.x, page.second.y, 0, GL_RED, GL_UNSIGNED_BYTE, page.first);

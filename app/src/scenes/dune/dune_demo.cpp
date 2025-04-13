@@ -31,13 +31,13 @@ int dune_demo(sf::Window& window) noexcept
     if(!imgStone.loadFromFile(FileProvider::findPathToFile("stone.jpg"))) return -1;
 
     auto resourceHolder = std::make_unique<GlResourceHolder>();
-    std::array<uint32_t, 5> textures = resourceHolder->create<Texture2D, 5>();
+    std::array<uint32_t, 5> textures = resourceHolder->create<Texture, 5>();
 
-    auto texture0 = std::make_unique<Texture2D>(textures[0]);
-    auto texture1 = std::make_unique<Texture2D>(textures[1]);
-    auto texture2 = std::make_unique<Texture2D>(textures[2]);
-    auto texture3 = std::make_unique<Texture2D>(textures[3]);
-    auto texture4 = std::make_unique<Texture2D>(textures[4]);
+    auto texture0 = std::make_unique<Texture>(textures[0]);
+    auto texture1 = std::make_unique<Texture>(textures[1]);
+    auto texture2 = std::make_unique<Texture>(textures[2]);
+    auto texture3 = std::make_unique<Texture>(textures[3]);
+    auto texture4 = std::make_unique<Texture>(textures[4]);
 
     texture0->loadFromImage(imgMask, false, true);
     texture1->loadFromImage(imgSand, true, true);
@@ -130,11 +130,11 @@ int dune_demo(sf::Window& window) noexcept
 
         glUseProgram(program->getHandle().value());
 
-        glBindTextureUnit(0, texture0->getHandle());
-        glBindTextureUnit(1, texture1->getHandle());
-        glBindTextureUnit(2, texture2->getHandle());
-        glBindTextureUnit(3, texture3->getHandle());
-        glBindTextureUnit(4, texture4->getHandle());
+        glBindTextureUnit(0, texture0->handle);
+        glBindTextureUnit(1, texture1->handle);
+        glBindTextureUnit(2, texture2->handle);
+        glBindTextureUnit(3, texture3->handle);
+        glBindTextureUnit(4, texture4->handle);
 
         glBindVertexArray(vao->getHandle());
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

@@ -27,7 +27,7 @@ TileMap::TileMap(GlResourceHolder& rh) noexcept:
 {
     const auto buffers = rh.create<GlBuffer, 4>();
     const auto vertexArrays = rh.create<VertexArrayObject, 2>();
-    const auto textures = rh.create<Texture2D, 2>();
+    const auto textures = rh.create<Texture, 2>();
 
     m_background = std::make_unique<TileMap::Plane>(buffers[0], buffers[1], vertexArrays[0], textures[0]);
     m_foreground = std::make_unique<TileMap::Plane>(buffers[2], buffers[3], vertexArrays[1], textures[1]);
@@ -48,12 +48,12 @@ TileMap::~TileMap() noexcept
     vertexArrays[0] = m_background->vao.getHandle();
     vertexArrays[1] = m_foreground->vao.getHandle();
 
-    textures[0] = m_background->texture.getHandle();
-    textures[1] = m_foreground->texture.getHandle();
+    textures[0] = m_background->texture.handle;
+    textures[1] = m_foreground->texture.handle;
 
     m_resourceHolder.destroy<GlBuffer, 4>(buffers);
     m_resourceHolder.destroy<VertexArrayObject, 2>(vertexArrays);
-    m_resourceHolder.destroy<Texture2D, 2>(textures);
+    m_resourceHolder.destroy<Texture, 2>(textures);
 }
 
 
@@ -74,13 +74,13 @@ bool TileMap::loadFromFile(const std::filesystem::path& filepath) noexcept
 
 void TileMap::draw() noexcept
 {
-    glBindTexture(GL_TEXTURE_2D, m_background->texture.getHandle());
+    glBindTexture(GL_TEXTURE_2D, m_background->texture.handle);
     glBindVertexArray(m_background->vao.getHandle());
     glDrawElements(GL_TRIANGLES, m_background->ebo.getCount(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glBindTexture(GL_TEXTURE_2D, m_foreground->texture.getHandle());
+    glBindTexture(GL_TEXTURE_2D, m_foreground->texture.handle);
     glBindVertexArray(m_foreground->vao.getHandle());
     glDrawElements(GL_TRIANGLES, m_foreground->ebo.getCount(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
@@ -169,7 +169,7 @@ bool TileMap::loadTilePlanes(const void* node) noexcept
 		std::vector<GLfloat> vertices;
 		std::vector<GLuint>  indices;
 
-		sf::Vector2f ratio = sf::Vector2f(1.0f / (float)plane->texture.getWidth(), 1.0f / (float)plane->texture.getHeight());
+		sf::Vector2f ratio = sf::Vector2f(1.0f / (float)plane->texture.width, 1.0f / (float)plane->texture.height);
         size_t index = 0;
         isBackground = false;
 

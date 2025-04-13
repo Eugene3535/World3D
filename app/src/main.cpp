@@ -60,7 +60,7 @@ int main()
         }, nullptr );
 #endif
 
-    int returnValue = font_demo(window);
+    int returnValue = path_demo(window);
 
     return returnValue;
 }

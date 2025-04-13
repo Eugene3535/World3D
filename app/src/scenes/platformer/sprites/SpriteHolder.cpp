@@ -2,7 +2,7 @@
 
 #include "RapidXML/rapidxml_utils.hpp"
 
-#include "opengl/resources/buffers/Texture2D.hpp"
+#include "opengl/resources/buffers/Texture.hpp"
 #include "scenes/platformer/sprites/SpriteHolder.hpp"
 
 
@@ -13,32 +13,32 @@ SpriteHolder::SpriteHolder(const GLuint bufferHandle) noexcept:
 }
 
 
-void SpriteHolder::createSingleAnimation(const std::string& name, const Texture2D* texture, const glm::ivec4& frame) noexcept
+void SpriteHolder::createSingleAnimation(const std::string& name, const Texture* texture, const glm::ivec4& frame) noexcept
 {
 	if(auto it = m_animations.find(name); it == m_animations.end())
 	{
 		const GLuint id = m_sprites.size();
 		m_animations.emplace(name, sprite_range(id, 1));
 
-		const auto ratio = 1.0f / glm::vec2(texture->getWidth(), texture->getHeight());
-		addSprite(texture->getHandle(), frame, ratio);
+		const auto ratio = 1.0f / glm::vec2(texture->width, texture->height);
+		addSprite(texture->handle, frame, ratio);
 
 		m_vertexBufferObject.update(0, sizeof(float), m_vertices.size(), static_cast<const void*>(m_vertices.data()));
 	}
 }
 
 
-void SpriteHolder::createLinearAnimaton(const std::string& name, const Texture2D* texture, GLuint duration) noexcept
+void SpriteHolder::createLinearAnimaton(const std::string& name, const Texture* texture, GLuint duration) noexcept
 {
 	if(auto it = m_animations.find(name); it == m_animations.end())
 	{
 		const GLuint id = m_sprites.size();
 		m_animations.emplace(name, sprite_range(id, duration));
 
-		const auto size  = glm::vec2(texture->getWidth(), texture->getHeight());
+		const auto size  = glm::vec2(texture->width, texture->height);
 		const auto ratio = 1.0f / size;
-		const GLuint frameWidth = texture->getWidth() / duration;
-		const GLuint handle = texture->getHandle();
+		const GLuint frameWidth = texture->width / duration;
+		const GLuint handle = texture->handle;
 	
 		for (GLuint i = 0; i < duration; ++i)
 			addSprite(handle, glm::ivec4(i * frameWidth, 0, frameWidth, size.y), ratio);
@@ -48,7 +48,7 @@ void SpriteHolder::createLinearAnimaton(const std::string& name, const Texture2D
 }
 
 
-void SpriteHolder::createGridAnimaton(const std::string& name, const Texture2D* texture, GLuint columns, GLuint rows) noexcept
+void SpriteHolder::createGridAnimaton(const std::string& name, const Texture* texture, GLuint columns, GLuint rows) noexcept
 {
 	if(auto it = m_animations.find(name); it == m_animations.end())
 	{
@@ -56,12 +56,12 @@ void SpriteHolder::createGridAnimaton(const std::string& name, const Texture2D* 
 		const GLuint duration = columns * rows;
 		m_animations.emplace(name, sprite_range(id, duration));
 
-		const auto size  = glm::vec2(texture->getWidth(), texture->getHeight());
+		const auto size  = glm::vec2(texture->width, texture->height);
 		const auto ratio = 1.0f / size;
 
 		const int32_t width  = size.x / static_cast<float>(columns);
 		const int32_t height = size.y / static_cast<float>(rows);
-		const GLuint handle = texture->getHandle();
+		const GLuint handle = texture->handle;
 	
 		for (GLuint y = 0; y < rows; ++y)
 			for (GLuint x = 0; x < columns; ++x)	
@@ -72,15 +72,15 @@ void SpriteHolder::createGridAnimaton(const std::string& name, const Texture2D* 
 }
 
 
-void SpriteHolder::createCustomAnimaton(const std::string& name, const class Texture2D* texture, std::span<const glm::ivec4> frames) noexcept
+void SpriteHolder::createCustomAnimaton(const std::string& name, const class Texture* texture, std::span<const glm::ivec4> frames) noexcept
 {
 	if(auto it = m_animations.find(name); it == m_animations.end())
 	{
 		const GLuint id = m_sprites.size();
 		m_animations.emplace(name, sprite_range(id, static_cast<GLuint>(frames.size())));
 
-		const auto ratio = 1.0f / glm::vec2(texture->getWidth(), texture->getHeight());
-		const GLuint handle = texture->getHandle();
+		const auto ratio = 1.0f / glm::vec2(texture->width, texture->height);
+		const GLuint handle = texture->handle;
 	
 		for (const auto& frame : frames)	
 			addSprite(handle, frame, ratio);
@@ -90,16 +90,16 @@ void SpriteHolder::createCustomAnimaton(const std::string& name, const class Tex
 }
 
 
-void SpriteHolder::loadSpriteSheet(const std::filesystem::path& filePath, const Texture2D* texture) noexcept
+void SpriteHolder::loadSpriteSheet(const std::filesystem::path& filePath, const Texture* texture) noexcept
 {
 	auto document = std::make_unique<rapidxml::xml_document<char>>();
 	rapidxml::file<char> xmlFile(filePath.string().c_str());
 	document->parse<0>(xmlFile.data());
 	const auto spriteNode = document->first_node("sprites");
 
-	const auto size  = glm::vec2(texture->getWidth(), texture->getHeight());
+	const auto size  = glm::vec2(texture->width, texture->height);
 	const auto ratio = 1.0f / size;
-	const GLuint handle = texture->getHandle();
+	const GLuint handle = texture->handle;
 
 	for(auto animNode = spriteNode->first_node("animation");
 		     animNode != nullptr;

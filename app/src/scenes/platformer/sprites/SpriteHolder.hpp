@@ -21,11 +21,11 @@ class SpriteHolder final
 public:
 	SpriteHolder(const GLuint bufferHandle) noexcept;
 
-	void createSingleAnimation(const std::string& name, const class Texture2D* texture, const glm::ivec4& frame) noexcept;
-	void createLinearAnimaton(const std::string& name, const class Texture2D* texture, GLuint duration) noexcept;
-	void createGridAnimaton(const std::string& name, const class Texture2D* texture, GLuint columns, GLuint rows) noexcept;
-	void createCustomAnimaton(const std::string& name, const class Texture2D* texture, std::span<const glm::ivec4> frames) noexcept;
-	void loadSpriteSheet(const std::filesystem::path& filePath, const class Texture2D* texture) noexcept;
+	void createSingleAnimation(const std::string& name, const class Texture* texture, const glm::ivec4& frame) noexcept;
+	void createLinearAnimaton(const std::string& name, const class Texture* texture, GLuint duration) noexcept;
+	void createGridAnimaton(const std::string& name, const class Texture* texture, GLuint columns, GLuint rows) noexcept;
+	void createCustomAnimaton(const std::string& name, const class Texture* texture, std::span<const glm::ivec4> frames) noexcept;
+	void loadSpriteSheet(const std::filesystem::path& filePath, const class Texture* texture) noexcept;
 
 	const GlBuffer& getVertexBuffer() const noexcept;
 	std::span<const Sprite2D> getSprites(const std::string& name) const noexcept;
