@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "files/Image.hpp"
+#include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
@@ -40,13 +40,13 @@ int heightmap_demo(sf::Window& window) noexcept
     auto orthoCamera = std::make_unique<OrthogonalCamera>();
     orthoCamera->setupProjectionMatrix(width, height);
 
-    Image imageMap;        if(!imageMap.loadFromFile(FileProvider::findPathToFile("heightmap.png")))            return -1;
-    Image imgCrackedEarth; if(!imgCrackedEarth.loadFromFile(FileProvider::findPathToFile("cracked_earth.jpg"))) return -1;
-    Image imgRock;         if(!imgRock.loadFromFile(FileProvider::findPathToFile("rock.jpg")))                  return -1;
-    Image imgGrass;        if(!imgGrass.loadFromFile(FileProvider::findPathToFile("grass.jpg")) )               return -1;
-    Image imgClover;       if(!imgClover.loadFromFile(FileProvider::findPathToFile("clover.png")))              return -1;
-    Image imageCircleOff;  if(!imageCircleOff.loadFromFile(FileProvider::findPathToFile("circle_off.png")))     return -1;
-    Image imageCircleOn;   if(!imageCircleOn.loadFromFile(FileProvider::findPathToFile("circle_on.png")))       return -1;
+    StbImage imageMap;        if(!imageMap.loadFromFile(FileProvider::findPathToFile("heightmap.png")))            return -1;
+    StbImage imgCrackedEarth; if(!imgCrackedEarth.loadFromFile(FileProvider::findPathToFile("cracked_earth.jpg"))) return -1;
+    StbImage imgRock;         if(!imgRock.loadFromFile(FileProvider::findPathToFile("rock.jpg")))                  return -1;
+    StbImage imgGrass;        if(!imgGrass.loadFromFile(FileProvider::findPathToFile("grass.jpg")) )               return -1;
+    StbImage imgClover;       if(!imgClover.loadFromFile(FileProvider::findPathToFile("clover.png")))              return -1;
+    StbImage imageCircleOff;  if(!imageCircleOff.loadFromFile(FileProvider::findPathToFile("circle_off.png")))     return -1;
+    StbImage imageCircleOn;   if(!imageCircleOn.loadFromFile(FileProvider::findPathToFile("circle_on.png")))       return -1;
 
     const auto textures = resourceHolder.create<Texture2D, 6>();
     
@@ -64,9 +64,9 @@ int heightmap_demo(sf::Window& window) noexcept
     if(!texCircleOff->loadFromImage(imageCircleOff, false, false)) return -1;
     if(!texCircleOn->loadFromImage(imageCircleOn, false, false)) return -1;
 
-    const uint8_t* pixels = imageMap.getPixelPtr();
-    const uint32_t mapDepth = imageMap.getSize().y;
-    const uint32_t mapWidth = imageMap.getSize().x;
+    const uint8_t* pixels = imageMap.pixels.data();
+    const uint32_t mapDepth = imageMap.width;
+    const uint32_t mapWidth = imageMap.height;
 
     std::vector<float> heightmap;
     heightmap.resize(mapDepth * mapWidth);
@@ -81,7 +81,7 @@ int heightmap_demo(sf::Window& window) noexcept
     {
         for (size_t x = 0; x < mapWidth; ++x)
         {
-            const uint8_t* pixel = pixels + ((z * mapWidth + x) * 4);
+            const uint8_t* pixel = pixels + ((z * mapWidth + x) * imageMap.bytePerPixel);
             int32_t y = static_cast<int32_t>(pixel[0]);
             float Y = y * 0.03f;
 
@@ -292,8 +292,8 @@ int heightmap_demo(sf::Window& window) noexcept
         glUseProgram(circleProgram->getHandle().value());
         glBindVertexArray(circleVao->getHandle());
 
-        int32_t halfW = imageCircleOff.getSize().x / 2;
-        int32_t halfH = imageCircleOff.getSize().y / 2;
+        int32_t halfW = imageCircleOff.width / 2;
+        int32_t halfH = imageCircleOff.height / 2;
         static float rotation = 0;
 
         orthoCamera->setOrigin(halfW, halfH);
@@ -306,7 +306,7 @@ int heightmap_demo(sf::Window& window) noexcept
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        orthoCamera->setPosition(width - imageCircleOff.getSize().x + halfW, height - halfH);
+        orthoCamera->setPosition(width - imageCircleOff.width + halfW, height - halfH);
         orthoCamera->setRotation(rotation);
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(orthoCamera->getModelViewProjectionMatrix())));
 

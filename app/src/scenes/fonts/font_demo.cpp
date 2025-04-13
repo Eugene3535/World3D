@@ -13,7 +13,7 @@
 
 #include <stb_image_write.h>
 
-#include "files/Image.hpp"
+#include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
 #include "graphics/Glyph.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"

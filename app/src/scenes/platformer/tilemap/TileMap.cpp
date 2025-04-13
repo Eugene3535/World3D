@@ -5,7 +5,7 @@
 #include "RapidXML/rapidxml.hpp"
 #include "RapidXML/rapidxml_utils.hpp"
 
-#include "files/Image.hpp"
+#include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
 #include "scenes/platformer/tilemap/TileMap.hpp"
 
@@ -300,7 +300,7 @@ bool TileMap::loadObjects(const void* node) noexcept
 
 std::vector<TileMap::Tileset> TileMap::loadTilesets(const void* node) noexcept
 {
-    Image tilesetImage;
+    StbImage tilesetImage;
     tilesetImage.loadFromFile(FileProvider::findPathToFile("tileset1.png"));
 
     m_background->texture.loadFromImage(tilesetImage, false, false);

@@ -60,7 +60,7 @@ int main()
         }, nullptr );
 #endif
 
-    int returnValue = dune_demo(window);
+    int returnValue = font_demo(window);
 
     return returnValue;
 }

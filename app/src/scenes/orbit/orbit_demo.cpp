@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "files/Image.hpp"
+#include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/perspective/PerspectiveCamera.hpp"

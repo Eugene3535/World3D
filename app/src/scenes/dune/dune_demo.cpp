@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "files/Image.hpp"
+#include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
@@ -18,11 +18,11 @@ int dune_demo(sf::Window& window) noexcept
 {
     auto [width, height] = window.getSize();
 
-    Image imgMask;
-    Image imgSand;
-    Image imgSpace;
-    Image imgRock;
-    Image imgStone;
+    StbImage imgMask;
+    StbImage imgSand;
+    StbImage imgSpace;
+    StbImage imgRock;
+    StbImage imgStone;
 
     if(!imgMask.loadFromFile(FileProvider::findPathToFile("mask.png")))   return -1;
     if(!imgSand.loadFromFile(FileProvider::findPathToFile("sand.jpg")))   return -1;

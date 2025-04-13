@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "files/Image.hpp"
+#include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/perspective/PerspectiveCamera.hpp"
@@ -20,9 +20,9 @@ int path_demo(sf::Window& window)
     window.setMouseCursorVisible(false);
     glEnable(GL_DEPTH_TEST);
 
-    Image imgSnow;     imgSnow.loadFromFile(FileProvider::findPathToFile("snow.png"));
-    Image imgPavement; imgPavement.loadFromFile(FileProvider::findPathToFile("pavement.jpg"));
-    Image imgPath;     imgPath.loadFromFile(FileProvider::findPathToFile("test.png"));
+    StbImage imgSnow;     imgSnow.loadFromFile(FileProvider::findPathToFile("snow.png"));
+    StbImage imgPavement; imgPavement.loadFromFile(FileProvider::findPathToFile("pavement.jpg"));
+    StbImage imgPath;     imgPath.loadFromFile(FileProvider::findPathToFile("test.png"));
 
     auto resourceHolder = std::make_unique<GlResourceHolder>();
     std::array<uint32_t, 3> textures = resourceHolder->create<Texture2D, 3>();
@@ -35,8 +35,8 @@ int path_demo(sf::Window& window)
     texPavement->loadFromImage(imgPavement, true, true);
     texPath->loadFromImage(imgPath, true, true);
 
-    float mapWidth  = static_cast<float>(imgPath.getSize().x);
-    float mapHeight = static_cast<float>(imgPath.getSize().y);
+    float mapWidth  = static_cast<float>(imgPath.width);
+    float mapHeight = static_cast<float>(imgPath.height);
 
     std::array<float, 20> vertices = 
     {
