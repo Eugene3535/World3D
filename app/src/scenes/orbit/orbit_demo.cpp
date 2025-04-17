@@ -70,7 +70,7 @@ int orbit_demo(sf::Window& window) noexcept
     if(!program->link(shaders)) return -1;
 
     glUseProgram(program->getHandle().value());
-    glUniform1i(program->getUniformLocation("texture0").value(), 0);
+    glUniform1i(program->getUniformLocation("texture0"), 0);
     glUseProgram(0);
 
     sf::Clock clock;

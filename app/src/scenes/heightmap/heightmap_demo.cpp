@@ -163,10 +163,10 @@ int heightmap_demo(sf::Window& window) noexcept
     if(!heightmapProgram->link(shaders)) return -1;
 
     glUseProgram(heightmapProgram->getHandle().value());
-    glUniform1i(heightmapProgram->getUniformLocation("cracked_earth").value(), 0);
-    glUniform1i(heightmapProgram->getUniformLocation("rock").value(), 1);
-    glUniform1i(heightmapProgram->getUniformLocation("grass").value(), 2);
-    glUniform1i(heightmapProgram->getUniformLocation("clover").value(), 3);
+    glUniform1i(heightmapProgram->getUniformLocation("cracked_earth"), 0);
+    glUniform1i(heightmapProgram->getUniformLocation("rock"), 1);
+    glUniform1i(heightmapProgram->getUniformLocation("grass"), 2);
+    glUniform1i(heightmapProgram->getUniformLocation("clover"), 3);
     glUseProgram(0);
 
 //  Circle
@@ -177,7 +177,7 @@ int heightmap_demo(sf::Window& window) noexcept
     if(!circleProgram->link(shaders)) return -1;
 
     glUseProgram(circleProgram->getHandle().value());
-    glUniform1i(circleProgram->getUniformLocation("circleSampler").value(), 0);
+    glUniform1i(circleProgram->getUniformLocation("circleSampler"), 0);
     glUseProgram(0);
 
     auto getHeightInPoint = [mapWidth, mapDepth, &heightmap](float x, float z) -> float

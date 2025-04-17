@@ -75,14 +75,14 @@ int path_demo(sf::Window& window)
 
     glUseProgram(program->getHandle().value());
 
-    if(program->getUniformLocation("snowSampler").has_value())
-        glUniform1i(program->getUniformLocation("snowSampler").value(), 0);
+    if(GLint uniformLoc = program->getUniformLocation("snowSampler"); uniformLoc != -1)
+        glUniform1i(uniformLoc, 0);
 
-    if(program->getUniformLocation("snowSampler").has_value())
-        glUniform1i(program->getUniformLocation("pavementSampler").value(), 1);
+    if(GLint uniformLoc = program->getUniformLocation("snowSampler"); uniformLoc != -1)
+        glUniform1i(uniformLoc, 1);
 
-    if(program->getUniformLocation("pathSampler").has_value())
-        glUniform1i(program->getUniformLocation("pathSampler").value(), 2);
+    if(GLint uniformLoc = program->getUniformLocation("pathSampler"); uniformLoc != -1)
+        glUniform1i(uniformLoc, 2);
 
     glUseProgram(0);
 

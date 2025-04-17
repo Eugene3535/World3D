@@ -79,10 +79,10 @@ std::optional<GLuint> ShaderProgram::getHandle() const noexcept
 }
 
 
-std::optional<GLint> ShaderProgram::getUniformLocation(const char* name) const noexcept
+GLint ShaderProgram::getUniformLocation(const char* name) const noexcept
 {
     if(m_handle)
         return glGetUniformLocation(m_handle, name);
 
-    return std::nullopt;
+    return -1;
 }

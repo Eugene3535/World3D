@@ -57,11 +57,11 @@ int platformer_demo(sf::Window& window)
         return -1;
 
     glUseProgram(tilemapProgram->getHandle().value());
-    glUniform1i(tilemapProgram->getUniformLocation("texture0").value(), 0);
+    glUniform1i(tilemapProgram->getUniformLocation("texture0"), 0);
     glUseProgram(0);
 
     glUseProgram(healthbarProgram->getHandle().value());
-    glUniform1i(healthbarProgram->getUniformLocation("texture0").value(), 0);
+    glUniform1i(healthbarProgram->getUniformLocation("texture0"), 0);
     glUseProgram(0);
 
     TileMap tilemap(*resourceHolder);
@@ -86,7 +86,7 @@ int platformer_demo(sf::Window& window)
 
     glUseProgram(healthbarProgram->getHandle().value());
 
-    if(auto borderThickness = healthbarProgram->getUniformLocation("borderThickness"); borderThickness.has_value())
+    if(auto borderThickness = healthbarProgram->getUniformLocation("borderThickness"); borderThickness != -1)
     {
         const auto ratio = 1.0f / glm::vec2(texHealthBar.width, texHealthBar.height);
 
@@ -95,11 +95,11 @@ int platformer_demo(sf::Window& window)
         float right  = 10 * ratio.x;
         float bottom = 66 * ratio.y;
         
-        glUniform4f(borderThickness.value(), left, top, right, bottom);
+        glUniform4f(borderThickness, left, top, right, bottom);
     }
 
-    if(auto hpUniform = healthbarProgram->getUniformLocation("hp"); hpUniform.has_value())
-        glUniform1i(hpUniform.value(), 100);
+    if(auto hpUniform = healthbarProgram->getUniformLocation("hp"); hpUniform != -1)
+        glUniform1i(hpUniform, 100);
     
     glUseProgram(0);
 
@@ -372,8 +372,8 @@ int platformer_demo(sf::Window& window)
 //  Health bar        
         glUseProgram(healthbarProgram->getHandle().value());
 
-        if(auto hpUniform = healthbarProgram->getUniformLocation("hp"); hpUniform.has_value())
-            glUniform1i(hpUniform.value(), Mario.Health);
+        if(auto hpUniform = healthbarProgram->getUniformLocation("hp"); hpUniform != -1)
+            glUniform1i(hpUniform, Mario.Health);
 
         camera->setPosition(20, 20);
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));

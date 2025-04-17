@@ -17,7 +17,7 @@ public:
 
     std::optional<GLuint> link(std::span<const Shader> shaders) noexcept;
     std::optional<GLuint> getHandle() const noexcept;
-    std::optional<GLint>  getUniformLocation(const char* name) const noexcept;
+    GLint getUniformLocation(const char* name) const noexcept;
 
 private:
     GLuint m_handle;

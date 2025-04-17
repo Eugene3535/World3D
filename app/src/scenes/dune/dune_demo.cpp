@@ -76,11 +76,11 @@ int dune_demo(sf::Window& window) noexcept
     if(!program->link(shaders)) return -1;
 
     glUseProgram(program->getHandle().value());
-    glUniform1i(program->getUniformLocation("texMap").value(), 0);
-    glUniform1i(program->getUniformLocation("texSand").value(), 1);
-    glUniform1i(program->getUniformLocation("texSpice").value(), 2);
-    glUniform1i(program->getUniformLocation("texStone").value(), 3);
-    glUniform1i(program->getUniformLocation("texRock").value(), 4);
+    glUniform1i(program->getUniformLocation("texMap"), 0);
+    glUniform1i(program->getUniformLocation("texSand"), 1);
+    glUniform1i(program->getUniformLocation("texSpice"), 2);
+    glUniform1i(program->getUniformLocation("texStone"), 3);
+    glUniform1i(program->getUniformLocation("texRock"), 4);
     glUseProgram(0);
 
     GlBuffer uniformBuffer(buffers[1], GL_UNIFORM_BUFFER);
