@@ -91,6 +91,24 @@ bool Font::loadPage(uint32_t characterSize) noexcept
                 writeGlyphToPage(wc, page);
                 ++amount;
             }
+
+        const glm::vec2 size = page.size;
+
+        for(auto& [wc, glyph] : page.glyphs)
+        {
+            glm::vec4 textureRect = glyph.imageRect;
+
+            // padding
+            textureRect.x -= 2.f;
+            textureRect.y -= 2.f;
+
+            float left   = textureRect.x / size.x;
+            float top    = textureRect.y / size.y;
+            float right  = (textureRect.x + textureRect.z) / size.x;
+            float bottom = (textureRect.y + textureRect.w) / size.y;
+
+            glyph.textureRect = { left, top, right, bottom };
+        }
  
         return amount > 0;
     }
@@ -253,16 +271,16 @@ void Font::writeGlyphToPage(wchar_t wc, Font::Page& page) noexcept
         width  += (padding << 1);
         height += (padding << 1);
     
-        auto textureRect = findGlyphRect(page, width, height);
-        glyph.textureRect = textureRect;
-        glyph.textureRect.x += static_cast<int>(padding);
-        glyph.textureRect.y += static_cast<int>(padding);
-        glyph.textureRect.z -= static_cast<int>(padding << 1);
-        glyph.textureRect.w -= static_cast<int>(padding << 1);
+        auto imageRect = findGlyphRect(page, width, height);
+        glyph.imageRect = imageRect;
+        glyph.imageRect.x += static_cast<int>(padding);
+        glyph.imageRect.y += static_cast<int>(padding);
+        glyph.imageRect.z -= static_cast<int>(padding << 1);
+        glyph.imageRect.w -= static_cast<int>(padding << 1);
     
         uint32_t stride = page.size.x;
         const uint8_t* srcPixels = bitmap.buffer;
-        uint8_t*       dstPixels = page.image.data() + (textureRect.y * stride + textureRect.x);
+        uint8_t*       dstPixels = page.image.data() + (imageRect.y * stride + imageRect.x);
     
         for (uint32_t i = 0; i < rows; ++i)
         {

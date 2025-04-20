@@ -38,16 +38,10 @@ static void renderText(GlyphTable& glyphs, glm::ivec2 size, VertexArrayObject& v
         float w = glyph.size.x;
         float h = glyph.size.y;
 
-        glm::vec4 rect = glyph.textureRect;
-
-        // padding
-        rect.x -= 2;
-        rect.y -= 2;
-
-        float left   = rect.x / size.x;
-        float top    = rect.y / size.y;
-        float right  = (rect.x + rect.z) / size.x;
-        float bottom = (rect.y + rect.w) / size.y;
+        float left   = glyph.textureRect.x;
+        float top    = glyph.textureRect.y;
+        float right  = glyph.textureRect.z;
+        float bottom = glyph.textureRect.w;
 
         // update VBO for each character
         float vertices[16] = 
@@ -55,7 +49,7 @@ static void renderText(GlyphTable& glyphs, glm::ivec2 size, VertexArrayObject& v
             xpos,     ypos,     left, bottom,
             xpos + w, ypos,     right, bottom,
             xpos + w, ypos + h, right, top,
-            xpos, ypos + h,     left, top
+            xpos,     ypos + h, left, top
         };
 
         // update content of VBO memory
@@ -114,7 +108,7 @@ int font_demo(sf::Window& window) noexcept
 
 //  Font
     Font font;
-    const uint32_t characterSize = 12;
+    const uint32_t characterSize = 30;
 
     if(!font.loadFromFile("AvanteNrBook.ttf"))
         return -1;
