@@ -23,7 +23,7 @@
 #include "files/Font.hpp"
 
 
-static void renderText(GlyphTable& glyphs, glm::ivec2 size, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y) noexcept
+static void renderText(GlyphTable& glyphs, VertexArrayObject& vao, GlBuffer& vbo, const std::wstring& text, float x, float y) noexcept
 {
     glBindVertexArray(vao.getHandle());
 
@@ -180,7 +180,7 @@ int font_demo(sf::Window& window) noexcept
         if(auto u = glGetUniformLocation(shader, "textColor"); u != -1)
             glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 
-        renderText(glyphs, page.second, vao, vbo, utf16Text, 250.0f, 370.0f);
+        renderText(glyphs, vao, vbo, utf16Text, 250.0f, 370.0f);
 
         glUseProgram(0);
         glBindTexture(GL_TEXTURE_2D, 0);

@@ -63,7 +63,7 @@ set(SHADER_FILES
 
 source_group("shaders" FILES ${SHADER_FILES})
 
-add_library(${OPENGL_UTILS_TARGET} STATIC ${_all_opengl_utils_files})
+add_library(${OPENGL_UTILS_TARGET} SHARED ${_all_opengl_utils_files})
 
 target_sources(${OPENGL_UTILS_TARGET} PRIVATE ${SHADER_FILES})
 
