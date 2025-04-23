@@ -2,6 +2,7 @@
 #include <memory>
 #include <unordered_map>
 #include <cstdio>
+#include <codecvt>
 
 #include <glad/glad.h>
 
@@ -65,63 +66,6 @@ static void renderText(GlyphTable& glyphs, VertexArrayObject& vao, GlBuffer& vbo
     glUseProgram(0);
 }
 
-static wchar_t* utf8_to_wchar(const char* utf8_str) noexcept
-{
-    size_t len = strlen(utf8_str);
-    wchar_t* wstr = (wchar_t*)malloc((len + 1) * sizeof(wchar_t));
-
-    if (!wstr) 
-        return NULL;
-    
-    size_t i = 0, wpos = 0;
-    
-    while (i < len) 
-    {
-        uint32_t codepoint;
-        uint8_t byte = (uint8_t)utf8_str[i++];
-        
-        if ((byte & 0x80) == 0) // 1-byte sequence (ASCII)
-        {
-            codepoint = byte;
-        } 
-        else if ((byte & 0xE0) == 0xC0 && i < len) // 2-byte sequence
-        {
-            codepoint = ((byte & 0x1F) << 6) | ((uint8_t)utf8_str[i++] & 0x3F);
-        } 
-        else if ((byte & 0xF0) == 0xE0 && i + 1 < len) // 3-byte sequence
-        {
-            codepoint = ((byte & 0x0F) << 12) | 
-                      (((uint8_t)utf8_str[i++] & 0x3F) << 6) | 
-                      ((uint8_t)utf8_str[i++] & 0x3F);
-        } 
-        else if ((byte & 0xF8) == 0xF0 && (i + 2 < len)) // 4-byte sequence
-        {
-            codepoint = ((byte & 0x07) << 18) | 
-                      (((uint8_t)utf8_str[i++] & 0x3F) << 12) |
-                      (((uint8_t)utf8_str[i++] & 0x3F) << 6) |
-                      ((uint8_t)utf8_str[i++] & 0x3F);
-                      
-            // If wchar_t does not support the full Unicode domain, it is necessary to encode surrogate pairs of
-            if (sizeof(wchar_t) < 4 && codepoint > 0xFFFF) 
-            {
-                codepoint -= 0x10000;
-                wstr[wpos++] = (wchar_t)(0xD800 | ((codepoint >> 10) & 0x3FF));
-                wstr[wpos++] = (wchar_t)(0xDC00 | (codepoint & 0x3FF));
-                continue;
-            }
-        } 
-        else // Incorrect UTF-8 sequence, replace with a question mark
-        {
-            wstr[wpos++] = L'?';
-            continue;
-        }
-        
-        wstr[wpos++] = (wchar_t)codepoint;
-    }
-    
-    wstr[wpos] = L'\0';
-    return wstr;
-}
 
 int font_demo(sf::Window& window) noexcept
 {
@@ -178,9 +122,7 @@ int font_demo(sf::Window& window) noexcept
         return -1;
 
     const char utf8Text[] = "Вау гречка ёЁ-юЮ-ыЫ first commit 1234 ()*<>q";
-    wchar_t* utf16Text = utf8_to_wchar(utf8Text);
-    std::wstring converted(utf16Text);
-    free(utf16Text);
+    std::wstring utf16Text(std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8Text));
 
 //  disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -234,7 +176,7 @@ int font_demo(sf::Window& window) noexcept
         if(auto u = glGetUniformLocation(shader, "textColor"); u != -1)
             glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 
-        renderText(glyphs, vao, vbo, converted, 250.0f, 370.0f);
+        renderText(glyphs, vao, vbo, utf16Text, 250.0f, 370.0f);
 
         glUseProgram(0);
         glBindTexture(GL_TEXTURE_2D, 0);

@@ -1,3 +1,5 @@
+#include <codecvt>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -8,67 +10,7 @@
 
 
 static constexpr char utf8[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ";
-static std::wstring utf16;
-
-
-static wchar_t* utf8_to_wchar(const char* utf8_str) noexcept
-{
-    size_t len = strlen(utf8_str);
-    wchar_t* wstr = (wchar_t*)malloc((len + 1) * sizeof(wchar_t));
-
-    if (!wstr) 
-        return NULL;
-    
-    size_t i = 0, wpos = 0;
-    
-    while (i < len) 
-    {
-        uint32_t codepoint;
-        uint8_t byte = (uint8_t)utf8_str[i++];
-        
-        if ((byte & 0x80) == 0) // 1-byte sequence (ASCII)
-        {
-            codepoint = byte;
-        } 
-        else if ((byte & 0xE0) == 0xC0 && i < len) // 2-byte sequence
-        {
-            codepoint = ((byte & 0x1F) << 6) | ((uint8_t)utf8_str[i++] & 0x3F);
-        } 
-        else if ((byte & 0xF0) == 0xE0 && i + 1 < len) // 3-byte sequence
-        {
-            codepoint = ((byte & 0x0F) << 12) | 
-                      (((uint8_t)utf8_str[i++] & 0x3F) << 6) | 
-                      ((uint8_t)utf8_str[i++] & 0x3F);
-        } 
-        else if ((byte & 0xF8) == 0xF0 && i + 2 < len) // 4-byte sequence
-        {
-            codepoint = ((byte & 0x07) << 18) | 
-                      (((uint8_t)utf8_str[i++] & 0x3F) << 12) |
-                      (((uint8_t)utf8_str[i++] & 0x3F) << 6) |
-                      ((uint8_t)utf8_str[i++] & 0x3F);
-                      
-            // If wchar_t does not support the full Unicode domain, it is necessary to encode surrogate pairs of
-            if (sizeof(wchar_t) < 4 && codepoint > 0xFFFF) 
-            {
-                codepoint -= 0x10000;
-                wstr[wpos++] = (wchar_t)(0xD800 | ((codepoint >> 10) & 0x3FF));
-                wstr[wpos++] = (wchar_t)(0xDC00 | (codepoint & 0x3FF));
-                continue;
-            }
-        } 
-        else // Incorrect UTF-8 sequence, replace with a question mark
-        {
-            wstr[wpos++] = L'?';
-            continue;
-        }
-        
-        wstr[wpos++] = (wchar_t)codepoint;
-    }
-    
-    wstr[wpos] = L'\0';
-    return wstr;
-}
-
+std::wstring Font::utf16;
 
 Font::Font() noexcept:
     m_library(nullptr),
@@ -76,9 +18,7 @@ Font::Font() noexcept:
 {
     if(utf16.empty())
     {
-        wchar_t* converted = utf8_to_wchar(utf8);
-        utf16 = std::wstring(converted);
-        free(converted);
+        utf16 = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8);
     }
 }
 
