@@ -56,11 +56,11 @@ int platformer_demo(sf::Window& window)
     if(!healthbarProgram->link(shaders))
         return -1;
 
-    glUseProgram(tilemapProgram->getHandle().value());
+    glUseProgram(tilemapProgram->getHandle());
     glUniform1i(tilemapProgram->getUniformLocation("texture0"), 0);
     glUseProgram(0);
 
-    glUseProgram(healthbarProgram->getHandle().value());
+    glUseProgram(healthbarProgram->getHandle());
     glUniform1i(healthbarProgram->getUniformLocation("texture0"), 0);
     glUseProgram(0);
 
@@ -84,7 +84,7 @@ int platformer_demo(sf::Window& window)
     if(!texMovingPlat.loadFromFile(FileProvider::findPathToFile("movingPlatform.png"), false, false)) return -1;
     if(!texHealthBar.loadFromFile(FileProvider::findPathToFile("HealthBar.png"), false, false))       return -1;
 
-    glUseProgram(healthbarProgram->getHandle().value());
+    glUseProgram(healthbarProgram->getHandle());
 
     if(auto borderThickness = healthbarProgram->getUniformLocation("borderThickness"); borderThickness != -1)
     {
@@ -351,7 +351,7 @@ int platformer_demo(sf::Window& window)
         camera->setPosition(-(Mario.getPosition().x - (width >> 1)), -(Mario.getPosition().y - (height >> 1)));
         uniformBuffer.update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(camera->getModelViewProjectionMatrix())));
 
-        glUseProgram(tilemapProgram->getHandle().value());
+        glUseProgram(tilemapProgram->getHandle());
 
         glClear(GL_COLOR_BUFFER_BIT);
         tilemap.draw();
@@ -370,7 +370,7 @@ int platformer_demo(sf::Window& window)
         glUseProgram(0);
 
 //  Health bar        
-        glUseProgram(healthbarProgram->getHandle().value());
+        glUseProgram(healthbarProgram->getHandle());
 
         if(auto hpUniform = healthbarProgram->getUniformLocation("hp"); hpUniform != -1)
             glUniform1i(hpUniform, Mario.Health);

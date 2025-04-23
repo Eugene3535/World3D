@@ -164,7 +164,7 @@ int font_demo(sf::Window& window) noexcept
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        auto shader = program->getHandle().value();
+        auto shader = program->getHandle();
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);

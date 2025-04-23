@@ -2,7 +2,6 @@
 #define SHADER_HPP
 
 #include <filesystem>
-#include <optional>
 
 #include <glad/glad.h>
 
@@ -16,9 +15,9 @@ public:
     Shader& operator = (Shader&&) noexcept = delete;
     ~Shader() noexcept;
 
-    std::optional<GLuint> loadFromFile(const std::filesystem::path& filepath, GLenum shaderType) noexcept;
-    std::optional<GLuint> getHandle() const noexcept;
-    GLenum                getType()   const noexcept;
+    GLuint loadFromFile(const std::filesystem::path& filepath, GLenum shaderType) noexcept;
+    GLuint getHandle() const noexcept;
+    GLenum getType()   const noexcept;
 
 private:
     GLuint m_handle;

@@ -69,7 +69,7 @@ int orbit_demo(sf::Window& window) noexcept
     auto program = std::make_unique<ShaderProgram>();
     if(!program->link(shaders)) return -1;
 
-    glUseProgram(program->getHandle().value());
+    glUseProgram(program->getHandle());
     glUniform1i(program->getUniformLocation("texture0"), 0);
     glUseProgram(0);
 
@@ -161,7 +161,7 @@ int orbit_demo(sf::Window& window) noexcept
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram(program->getHandle().value());
+        glUseProgram(program->getHandle());
 
         glBindTextureUnit(0, texGrid->handle);
         glBindVertexArray(vao->getHandle());

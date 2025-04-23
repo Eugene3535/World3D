@@ -20,7 +20,7 @@ Shader::~Shader() noexcept
 }
 
 
-std::optional<GLuint> Shader::loadFromFile(const std::filesystem::path& filepath, GLenum shaderType) noexcept
+GLuint Shader::loadFromFile(const std::filesystem::path& filepath, GLenum shaderType) noexcept
 {
     glDeleteShader(m_handle);
     m_handle = 0;
@@ -71,16 +71,13 @@ std::optional<GLuint> Shader::loadFromFile(const std::filesystem::path& filepath
         }
     }
 
-    return getHandle();
+    return m_handle;
 }
 
 
-std::optional<GLuint> Shader::getHandle() const noexcept
+GLuint Shader::getHandle() const noexcept
 {
-    if(m_handle)
-        return m_handle;
-
-    return std::nullopt;
+    return m_handle;
 }
 
 

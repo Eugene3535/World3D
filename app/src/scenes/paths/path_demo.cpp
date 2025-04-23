@@ -73,7 +73,7 @@ int path_demo(sf::Window& window)
     auto program = std::make_unique<ShaderProgram>();
     if(!program->link(shaders)) return -1;
 
-    glUseProgram(program->getHandle().value());
+    glUseProgram(program->getHandle());
 
     if(GLint uniformLoc = program->getUniformLocation("snowSampler"); uniformLoc != -1)
         glUniform1i(uniformLoc, 0);
@@ -148,7 +148,7 @@ int path_demo(sf::Window& window)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        glUseProgram(program->getHandle().value());
+        glUseProgram(program->getHandle());
 
         glBindTextureUnit(0, texSnow.handle);
         glBindTextureUnit(1, texPavement.handle);

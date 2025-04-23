@@ -34,7 +34,7 @@ ShaderProgram::~ShaderProgram() noexcept
 }
 
 
-std::optional<GLuint> ShaderProgram::link(std::span<const Shader> shaders) noexcept
+GLuint ShaderProgram::link(std::span<const Shader> shaders) noexcept
 {
     glDeleteProgram(m_handle);
     m_handle = 0;
@@ -42,7 +42,7 @@ std::optional<GLuint> ShaderProgram::link(std::span<const Shader> shaders) noexc
     GLint program = glCreateProgram();
 
     for(const auto& shader : shaders)
-        glAttachShader(program, shader.getHandle().value());
+        glAttachShader(program, shader.getHandle());
     
     glLinkProgram(program);
 
@@ -64,18 +64,15 @@ std::optional<GLuint> ShaderProgram::link(std::span<const Shader> shaders) noexc
     }
 
     for(const auto& shader : shaders)
-        glDetachShader(program, shader.getHandle().value());
+        glDetachShader(program, shader.getHandle());
 
-    return getHandle();
+    return m_handle;
 }
 
 
-std::optional<GLuint> ShaderProgram::getHandle() const noexcept
+GLuint ShaderProgram::getHandle() const noexcept
 {
-    if(m_handle)
-        return m_handle;
-
-    return std::nullopt;
+    return m_handle;
 }
 
 

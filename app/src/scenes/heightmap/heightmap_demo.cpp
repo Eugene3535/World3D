@@ -162,7 +162,7 @@ int heightmap_demo(sf::Window& window) noexcept
     auto heightmapProgram = std::make_unique<ShaderProgram>();
     if(!heightmapProgram->link(shaders)) return -1;
 
-    glUseProgram(heightmapProgram->getHandle().value());
+    glUseProgram(heightmapProgram->getHandle());
     glUniform1i(heightmapProgram->getUniformLocation("cracked_earth"), 0);
     glUniform1i(heightmapProgram->getUniformLocation("rock"), 1);
     glUniform1i(heightmapProgram->getUniformLocation("grass"), 2);
@@ -176,7 +176,7 @@ int heightmap_demo(sf::Window& window) noexcept
     auto circleProgram = std::make_unique<ShaderProgram>();
     if(!circleProgram->link(shaders)) return -1;
 
-    glUseProgram(circleProgram->getHandle().value());
+    glUseProgram(circleProgram->getHandle());
     glUniform1i(circleProgram->getUniformLocation("circleSampler"), 0);
     glUseProgram(0);
 
@@ -260,7 +260,7 @@ int heightmap_demo(sf::Window& window) noexcept
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(heightmapProgram->getHandle().value());
+		glUseProgram(heightmapProgram->getHandle());
 
         glBindTextureUnit(0, texCrackedEarth.handle);
         glBindTextureUnit(1, texRock.handle);
@@ -287,7 +287,7 @@ int heightmap_demo(sf::Window& window) noexcept
         glDisable(GL_DEPTH_TEST);
         glDepthMask(GL_FALSE);
 
-        glUseProgram(circleProgram->getHandle().value());
+        glUseProgram(circleProgram->getHandle());
         glBindVertexArray(circleVao->getHandle());
 
         int32_t halfW = imageCircleOff.width / 2;
