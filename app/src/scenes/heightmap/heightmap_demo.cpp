@@ -64,7 +64,7 @@ int heightmap_demo(sf::Window& window) noexcept
     if(!texCircleOff.loadFromImage(imageCircleOff, false, false)) return -1;
     if(!texCircleOn.loadFromImage(imageCircleOn, false, false)) return -1;
 
-    const uint8_t* pixels = imageMap.pixels.data();
+    const uint8_t* pixels = imageMap.pixels.get();
     const uint32_t mapDepth = imageMap.width;
     const uint32_t mapWidth = imageMap.height;
 

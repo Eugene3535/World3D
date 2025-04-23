@@ -2,14 +2,18 @@
 #define IMAGE_HPP
 
 #include <filesystem>
-#include <vector>
+#include <memory>
 
 struct StbImage
 {
-    bool loadFromFile(const std::filesystem::path& filepath) noexcept;
-    bool saveFromFile(const std::filesystem::path& filepath) noexcept;
+    struct StbImageDeleter 
+    {
+        void operator()(uint8_t* src) noexcept;
+    };
 
-    std::vector<uint8_t> pixels;
+    bool loadFromFile(const std::filesystem::path& filepath) noexcept;
+
+    std::unique_ptr<uint8_t[], StbImageDeleter> pixels;
     int32_t width = 0;
     int32_t height = 0;
     int32_t bytePerPixel = 0;

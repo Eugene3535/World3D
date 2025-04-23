@@ -8,33 +8,19 @@
 
 #include "files/StbImage.hpp"
 
+void StbImage::StbImageDeleter::operator()(uint8_t* src) noexcept
+{
+    stbi_image_free(src);
+}
+
 bool StbImage::loadFromFile(const std::filesystem::path& filepath) noexcept
 {
-    if(!pixels.empty())
-        pixels.clear();
-
-    stbi_uc* src = stbi_load(filepath.generic_string().c_str(), &width, &height, &bytePerPixel, 0);
-
-    if (src)
+    if (stbi_uc* src = stbi_load(filepath.generic_string().c_str(), &width, &height, &bytePerPixel, 0); src != nullptr)
     {
-        pixels.resize(width * height * bytePerPixel);
-        memcpy(pixels.data(), src, pixels.size());
-        stbi_image_free(src);
+        pixels.reset(src);
 
         return true;
     }
 
     return false;
-}
-
-bool StbImage::saveFromFile(const std::filesystem::path& filepath) noexcept
-{
-    bool result = false;
-
-    if(pixels.empty() || width < 1 || height < 1 || bytePerPixel < 1 || bytePerPixel > 4)
-        return result;
-
-    result = stbi_write_png(filepath.generic_string().c_str(), width, height, bytePerPixel, pixels.data(), 0);
-
-    return result;
 }

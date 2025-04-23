@@ -60,7 +60,7 @@ int main()
         }, nullptr );
 #endif
 
-    int returnValue = font_demo(window);
+    int returnValue = heightmap_demo(window);
 
     return returnValue;
 }

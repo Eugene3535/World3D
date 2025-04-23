@@ -42,8 +42,8 @@ public:
 private:
     GLuint m_handle;
     GLenum m_target;
-    GLenum       m_usage;
-    GLuint       m_count;
+    GLenum m_usage;
+    GLuint m_count;
 };
 
 #endif // !GL_BUFFER_HPP
