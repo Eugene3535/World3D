@@ -1,3 +1,3 @@
 
 1) Move examples to OOP style (scene class)
-2) Add font support
+2) Optimization: move math lib from glm to cglm

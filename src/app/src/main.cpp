@@ -1,8 +1,6 @@
+#ifdef DEBUG
 #include <cstdio>
-
-#include <glad/glad.h>
-
-#include <SFML/Window.hpp>
+#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -10,12 +8,22 @@ extern "C" __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerformance = 0x00000001;
 #endif
 
+#include <glad/glad.h>
+
+#include <SFML/Window/Window.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Event.hpp>
+
+#include "opengl/holder/GlResourceHolder.hpp"
+#include "scenes/dune/DuneDemo.hpp"
+
+
 int heightmap_demo(sf::Window& window) noexcept;
 int path_demo(sf::Window& window) noexcept;
-int dune_demo(sf::Window& window) noexcept;
 int platformer_demo(sf::Window& window) noexcept;
 int orbit_demo(sf::Window& window) noexcept;
 int font_demo(sf::Window& window) noexcept;
+
 
 int main()
 {
@@ -35,17 +43,18 @@ int main()
 
     if (!gladLoadGL()) 
     {
+#ifdef DEBUG
         printf("Failed to initialize GLAD\n");
-
+#endif
         return -1;
     }
 
+#ifdef DEBUG
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
     printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
     printf("Vendor: %s\n", glGetString(GL_VENDOR));
     printf("Renderer: %s\n", glGetString(GL_RENDERER));
     
-#ifdef DEBUG
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
     glDebugMessageCallback( [](GLenum source,
@@ -60,7 +69,36 @@ int main()
         }, nullptr );
 #endif
 
-    int returnValue = font_demo(window);
+    GlResourceHolder resources;
 
-    return returnValue;
+    DuneDemo dune(window);
+    if(!dune.init(resources)) return -1;
+
+    sf::Clock clock;
+
+    while (window.isOpen())
+    {
+        sf::Event event;
+
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+
+            if(event.type == sf::Event::Resized)
+                glViewport(0, 0, width, height);
+
+            if(event.type == sf::Event::KeyPressed)
+                if(event.key.code == sf::Keyboard::Key::Escape)
+                    window.close();
+        }
+
+        auto dt = clock.restart();
+
+        dune.update(dt);
+        dune.draw();
+        window.display();
+    }
+
+    return 0;
 }

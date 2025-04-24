@@ -51,7 +51,7 @@ void OrbitCamera::rotateAzimuth(float radians) noexcept
     m_azimuth += radians;
 
     // Keep azimuth angle within range <0..2PI) - it's not necessary, just to have it nicely output
-    constexpr auto fullCircle = glm::pi<float>() * 2.f;
+    const auto fullCircle = glm::pi<float>() * 2.f;
     m_azimuth = fmodf(m_azimuth, fullCircle);
 
     if (m_azimuth < 0.f) 
@@ -66,7 +66,7 @@ void OrbitCamera::rotatePolar(float radians) noexcept
     m_polar += radians;
 
     // Check if the angle hasn't exceeded quarter of a circle to prevent flip, add a bit of epsilon like 0.001 radians
-    constexpr auto polarCap = glm::pi<float>() / 2.0f - 0.001f;
+    const auto polarCap = glm::pi<float>() / 2.0f - 0.001f;
     m_polar = glm::clamp(m_polar, -polarCap, polarCap);
     m_modelViewNeedUpdate = true;
 }

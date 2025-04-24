@@ -1,8 +1,7 @@
 set(APP_TARGET app)
 
-
 set(DUNE_SCENE_SRC_FILES
-	src/scenes/dune/dune_demo.cpp
+	src/scenes/dune/DuneDemo.cpp
 )
 
 set(HEIGHTMAP_SCENE_SRC_FILES
@@ -44,6 +43,8 @@ set(MAIN_APP_SRC_FILES
 	${PLATFORMER_SCENE_SRC_FILES}
 	${ORBIT_SCENE_SRC_FILES}
 	${FONTS_SCENE_SRC_FILES}
+	src/scenes/DemoScene.hpp
+	src/scenes/DemoScene.cpp
 	src/main.cpp
 )
 

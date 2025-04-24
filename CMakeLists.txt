@@ -26,15 +26,15 @@ else()
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 endif()
 
-add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
+add_compile_definitions($<$<CONFIG:Debug>:DEBUG> GLM_FORCE_SSE2)
 
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/sfml/2.6.2 sfml)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glad/core glad)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glm glm)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/freetype freetype)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/utils)
-add_subdirectory(${PROJECT_SOURCE_DIR}/app)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/utils)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/app)
 
 if(MSVC)
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT app)
