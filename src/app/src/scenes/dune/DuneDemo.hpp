@@ -1,3 +1,6 @@
+#ifndef DUNE_DEMO_HPP
+#define DUNE_DEMO_HPP
+
 #include <memory>
 
 #include "files/StbImage.hpp"
@@ -29,3 +32,6 @@ private:
     std::unique_ptr<class OrthogonalCamera>  m_camera;
     std::unique_ptr<class GlBuffer>          m_uniformBuffer;
 };
+
+
+#endif // !DUNE_DEMO_HPP

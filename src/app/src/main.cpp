@@ -16,13 +16,13 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 
 #include "opengl/holder/GlResourceHolder.hpp"
 #include "scenes/dune/DuneDemo.hpp"
+#include "scenes/fonts/FontDemo.hpp"
 
 
 int heightmap_demo(sf::Window& window) noexcept;
 int path_demo(sf::Window& window) noexcept;
 int platformer_demo(sf::Window& window) noexcept;
 int orbit_demo(sf::Window& window) noexcept;
-int font_demo(sf::Window& window) noexcept;
 
 
 int main()
@@ -74,6 +74,9 @@ int main()
     DuneDemo dune(window);
     if(!dune.init(resources)) return -1;
 
+    FontDemo fonts(window);
+    if(!fonts.init(resources)) return -1;
+
     sf::Clock clock;
 
     while (window.isOpen())
@@ -95,8 +98,8 @@ int main()
 
         auto dt = clock.restart();
 
-        dune.update(dt);
-        dune.draw();
+        fonts.update(dt);
+        fonts.draw();
         window.display();
     }
 

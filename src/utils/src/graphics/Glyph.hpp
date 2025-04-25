@@ -1,6 +1,8 @@
 #ifndef GLYPH_HPP
 #define GLYPH_HPP
 
+#include <unordered_map>
+
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
