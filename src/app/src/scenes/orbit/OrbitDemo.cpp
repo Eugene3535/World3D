@@ -1,0 +1,172 @@
+#include <array>
+#include <memory>
+
+#include <glad/glad.h>
+
+#include <SFML/Window/Window.hpp>
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Event.hpp>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "files/StbImage.hpp"
+#include "files/FileProvider.hpp"
+#include "opengl/resources/shaders/ShaderProgram.hpp"
+#include "camera/perspective/PerspectiveCamera.hpp"
+#include "camera/orbit/OrbitCamera.hpp"
+#include "opengl/holder/GlResourceHolder.hpp"
+#include "scenes/orbit/OrbitDemo.hpp"
+
+
+
+OrbitDemo::OrbitDemo(sf::Window& window) noexcept:
+    DemoScene(window),
+    m_previousMouse(),
+    m_currentMouse(),
+    m_mouseScrollDelta(0),
+    m_isRotationMode(false),
+    m_isMovementMode(true)
+{
+
+}
+
+
+OrbitDemo::~OrbitDemo()
+{
+
+}
+
+
+bool OrbitDemo::init(GlResourceHolder& holder) noexcept
+{
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    auto [width, height] = m_window.getSize();
+
+    const auto bufferHandles  = holder.create<GlBuffer, 2>();
+    const auto vertexArrays   = holder.create<VertexArrayObject, 1>();
+    const auto textureHandles = holder.create<Texture, 1>();
+
+    m_uniformBuffer = std::make_unique<GlBuffer>(bufferHandles[0], GL_UNIFORM_BUFFER);
+    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
+
+    m_camera = std::make_unique<OrbitCamera>();
+    m_camera->setup({ 0, 0, 0 }, { 100, 0, 100 });
+    m_camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
+
+    m_texture = std::make_unique<Texture>(textureHandles[0]);
+
+    if(!m_texture->loadFromFile(FileProvider::findPathToFile("grid.png"), true, true)) 
+        return false;
+
+    std::array<float, 20> vertices = 
+    {
+        0.0f,   0.0f, 0.0f,   0.0f, 0.0f,
+        100.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+        100.0f, 0.0f, 100.0f, 1.0f, 1.0f,
+        0.0f,   0.0f, 100.0f, 0.0f, 1.0f
+    };
+
+    std::array<VertexBufferLayout::Attribute, 2> attributes
+    {
+        VertexBufferLayout::Attribute::Float3,
+        VertexBufferLayout::Attribute::Float2
+    };
+
+    GlBuffer vbo(bufferHandles[1], GL_ARRAY_BUFFER);
+    vbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
+
+    m_vao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
+    m_vao->addVertexBuffer(vbo, attributes);
+
+    std::array<Shader, 2> shaders;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("orbit.vert"), GL_VERTEX_SHADER))   return false;
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("orbit.frag"), GL_FRAGMENT_SHADER)) return false;
+
+    m_program = std::make_unique<ShaderProgram>();
+
+    if(!m_program->link(shaders)) 
+        return false;
+
+    glUseProgram(m_program->getHandle());
+    glUniform1i(m_program->getUniformLocation("texture0"), 0);
+    glUseProgram(0);
+
+    m_isLoaded = true;
+
+    return m_isLoaded;
+}
+
+
+void OrbitDemo::update(const sf::Time& dt) noexcept
+{
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        if (!m_isRotationMode && !m_isMovementMode)
+        {
+            m_previousMouse = sf::Vector2f(sf::Mouse::getPosition());
+            m_isRotationMode = true;
+        }
+    }
+    else m_isRotationMode = false;
+
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
+    {
+        if (!m_isRotationMode && !m_isMovementMode)
+        {
+            m_previousMouse = sf::Vector2f(sf::Mouse::getPosition());
+            m_isMovementMode = true;
+        }
+    }
+    else m_isMovementMode = false;
+
+    m_currentMouse = sf::Vector2f(sf::Mouse::getPosition());
+
+    const auto deltaX = static_cast<float>(m_currentMouse.x - m_previousMouse.x);
+    const auto deltaY = static_cast<float>(m_currentMouse.y - m_previousMouse.y);
+
+    if (m_isRotationMode)
+    {
+        m_camera->rotateAzimuth(deltaX * 0.01f);
+        m_camera->rotatePolar(deltaY * 0.01f);
+        m_previousMouse = m_currentMouse;
+    }
+    else if (m_isMovementMode)
+    {
+        m_camera->moveHorizontal(-deltaX * 0.25f);
+        m_camera->moveVertical(deltaY * 0.25f);
+        m_previousMouse = m_currentMouse;
+    }
+
+    if(m_mouseScrollDelta != 0.f)
+        m_camera->zoom(-m_mouseScrollDelta);
+
+    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix())));
+}
+
+
+void OrbitDemo::draw() noexcept
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(m_program->getHandle());
+
+    glBindTextureUnit(0, m_texture->handle);
+    glBindVertexArray(m_vao->getHandle());
+
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glBindVertexArray(0);
+    glBindTextureUnit(0, 0);
+    glUseProgram(0);
+}
+
+
+void OrbitDemo::processMouseScroll(float delta) noexcept
+{
+    m_mouseScrollDelta = delta;
+}

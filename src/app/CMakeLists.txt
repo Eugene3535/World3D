@@ -7,7 +7,7 @@ set(DUNE_SCENE_SRC_FILES
 
 set(HEIGHTMAP_SCENE_SRC_FILES
 	src/scenes/heightmap/HeightmapDemo.cpp
-	src/scenes/heightmap/HeightmapDemo.cpp
+	src/scenes/heightmap/HeightmapDemo.hpp
 )
 
 set(PATHS_SCENE_SRC_FILES
@@ -31,7 +31,8 @@ set(PLATFORMER_SCENE_SRC_FILES
 )
 
 set(ORBIT_SCENE_SRC_FILES
-	src/scenes/orbit/orbit_demo.cpp
+	src/scenes/orbit/OrbitDemo.cpp
+	src/scenes/orbit/OrbitDemo.hpp
 )
 
 set(FONTS_SCENE_SRC_FILES

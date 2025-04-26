@@ -18,6 +18,7 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 #include "scenes/dune/DuneDemo.hpp"
 #include "scenes/fonts/FontDemo.hpp"
 #include "scenes/heightmap/HeightmapDemo.hpp"
+#include "scenes/orbit/OrbitDemo.hpp"
 
 
 int path_demo(sf::Window& window) noexcept;
@@ -77,14 +78,20 @@ int main()
     // FontDemo fonts(window);
     // if(!fonts.init(resources)) return -1;
 
-    HeightmapDemo heightmap(window);
-    if(!heightmap.init(resources)) return -1;
+    // HeightmapDemo heightmap(window);
+    // if(!heightmap.init(resources)) return -1;
+
+    OrbitDemo orbit(window);
+    if(!orbit.init(resources)) return -1;
+
+    DemoScene* scene = &orbit;
 
     sf::Clock clock;
 
     while (window.isOpen())
     {
         sf::Event event;
+        float mouseScrollDelta = 0;
 
         while (window.pollEvent(event))
         {
@@ -97,12 +104,18 @@ int main()
             if(event.type == sf::Event::KeyPressed)
                 if(event.key.code == sf::Keyboard::Key::Escape)
                     window.close();
+
+            if(event.type == sf::Event::MouseWheelScrolled)
+                mouseScrollDelta = event.mouseWheelScroll.delta; 
         }
 
         auto dt = clock.restart();
 
-        heightmap.update(dt);
-        heightmap.draw();
+        if(auto* orbit_demo = dynamic_cast<OrbitDemo*>(scene); orbit_demo != nullptr)
+            orbit_demo->processMouseScroll(mouseScrollDelta);
+
+        scene->update(dt);
+        scene->draw();
         window.display();
     }
 

@@ -17,7 +17,6 @@
 #include "camera/orthogonal/OrthogonalCamera.hpp"
 #include "camera/perspective/PerspectiveCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
-
 #include "scenes/heightmap/HeightmapDemo.hpp"
 
 
