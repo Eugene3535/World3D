@@ -19,11 +19,10 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 #include "scenes/fonts/FontDemo.hpp"
 #include "scenes/heightmap/HeightmapDemo.hpp"
 #include "scenes/orbit/OrbitDemo.hpp"
+#include "scenes/paths/PathDemo.hpp"
 
 
-int path_demo(sf::Window& window) noexcept;
 int platformer_demo(sf::Window& window) noexcept;
-int orbit_demo(sf::Window& window) noexcept;
 
 
 int main()
@@ -81,10 +80,13 @@ int main()
     // HeightmapDemo heightmap(window);
     // if(!heightmap.init(resources)) return -1;
 
-    OrbitDemo orbit(window);
-    if(!orbit.init(resources)) return -1;
+    // OrbitDemo orbit(window);
+    // if(!orbit.init(resources)) return -1;
 
-    DemoScene* scene = &orbit;
+    PathDemo path_demo(window);
+    if(!path_demo.init(resources)) return -1;
+
+    DemoScene* scene = &path_demo;
 
     sf::Clock clock;
 

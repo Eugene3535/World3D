@@ -11,7 +11,8 @@ set(HEIGHTMAP_SCENE_SRC_FILES
 )
 
 set(PATHS_SCENE_SRC_FILES
-	src/scenes/paths/path_demo.cpp
+	src/scenes/paths/PathDemo.cpp
+	src/scenes/paths/PathDemo.hpp
 )
 
 set(PLATFORMER_SCENE_SRC_FILES
