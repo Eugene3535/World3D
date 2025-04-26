@@ -3,7 +3,6 @@
 
 #include <memory>
 
-#include "files/StbImage.hpp"
 #include "scenes/DemoScene.hpp"
 
 
@@ -19,7 +18,7 @@ public:
     void draw() noexcept override;
 
 private:
-    StbImage m_mapMask;
+    std::unique_ptr<class StbImage> m_mapMask;
 
     std::unique_ptr<class Texture> m_texture0;
     std::unique_ptr<class Texture> m_texture1;

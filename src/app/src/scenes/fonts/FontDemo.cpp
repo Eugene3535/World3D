@@ -6,7 +6,7 @@
 
 #include <glad/glad.h>
 
-#include <SFML/Window.hpp>
+#include <SFML/Window/Window.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

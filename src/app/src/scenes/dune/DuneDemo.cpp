@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "files/FileProvider.hpp"
+#include "files/StbImage.hpp"
 #include "opengl/resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
 #include "opengl/holder/GlResourceHolder.hpp"
@@ -37,7 +38,8 @@ bool DuneDemo::init(GlResourceHolder& holder) noexcept
     StbImage imgRock;
     StbImage imgStone;
 
-    if(!m_mapMask.loadFromFile(FileProvider::findPathToFile("mask.png"))) return false;
+    m_mapMask = std::make_unique<StbImage>();
+    if(!m_mapMask->loadFromFile(FileProvider::findPathToFile("mask.png"))) return false;
     if(!imgSand.loadFromFile(FileProvider::findPathToFile("sand.jpg")))   return false;
     if(!imgSpace.loadFromFile(FileProvider::findPathToFile("spice.jpg"))) return false;
     if(!imgRock.loadFromFile(FileProvider::findPathToFile("rock01.jpg"))) return false;
@@ -51,7 +53,7 @@ bool DuneDemo::init(GlResourceHolder& holder) noexcept
     m_texture3 = std::make_unique<Texture>(textureHandles[3]);
     m_texture4 = std::make_unique<Texture>(textureHandles[4]);
 
-    m_texture0->loadFromImage(m_mapMask, false, true);
+    m_texture0->loadFromImage(*m_mapMask, false, true);
     m_texture1->loadFromImage(imgSand, true, true);
     m_texture2->loadFromImage(imgSpace, true, true);
     m_texture3->loadFromImage(imgStone, true, true);

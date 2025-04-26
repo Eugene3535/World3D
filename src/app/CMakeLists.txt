@@ -6,7 +6,8 @@ set(DUNE_SCENE_SRC_FILES
 )
 
 set(HEIGHTMAP_SCENE_SRC_FILES
-	src/scenes/heightmap/heightmap_demo.cpp
+	src/scenes/heightmap/HeightmapDemo.cpp
+	src/scenes/heightmap/HeightmapDemo.cpp
 )
 
 set(PATHS_SCENE_SRC_FILES
