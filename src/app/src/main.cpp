@@ -21,6 +21,7 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 #include "scenes/orbit/OrbitDemo.hpp"
 #include "scenes/paths/PathDemo.hpp"
 #include "scenes/platformer/PlatformerDemo.hpp"
+#include "scenes/SceneManager.hpp"
 
 
 int main()
@@ -68,26 +69,16 @@ int main()
 #endif
 
     GlResourceHolder resources;
+    SceneManager sceneManager(window);
 
-    DuneDemo dune(window);
-    if(!dune.init(resources)) return -1;
+    if(!sceneManager.pushScene<DuneDemo>()->init(resources))       return -1;
+    if(!sceneManager.pushScene<FontDemo>()->init(resources))       return -1;
+    if(!sceneManager.pushScene<HeightmapDemo>()->init(resources))  return -1;
+    if(!sceneManager.pushScene<OrbitDemo>()->init(resources))      return -1;
+    if(!sceneManager.pushScene<PathDemo>()->init(resources))       return -1;
+    if(!sceneManager.pushScene<PlatformerDemo>()->init(resources)) return -1;
 
-    FontDemo fonts(window);
-    if(!fonts.init(resources)) return -1;
-
-    HeightmapDemo heightmap(window);
-    if(!heightmap.init(resources)) return -1;
-
-    OrbitDemo orbit(window);
-    if(!orbit.init(resources)) return -1;
-
-    PathDemo path_demo(window);
-    if(!path_demo.init(resources)) return -1;
-
-    PlatformerDemo platformer(window);
-    if(!platformer.init(resources)) return -1;
-
-    DemoScene* scene = &platformer;
+    DemoScene* scene = sceneManager.getScene<DuneDemo>();
 
     sf::Clock clock;
 

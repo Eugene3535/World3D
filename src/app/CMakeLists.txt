@@ -51,6 +51,8 @@ set(MAIN_APP_SRC_FILES
 	${FONTS_SCENE_SRC_FILES}
 	src/scenes/DemoScene.hpp
 	src/scenes/DemoScene.cpp
+	src/scenes/SceneManager.hpp
+	src/scenes/SceneManager.cpp
 	src/main.cpp
 )
 
