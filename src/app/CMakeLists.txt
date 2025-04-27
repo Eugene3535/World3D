@@ -16,7 +16,8 @@ set(PATHS_SCENE_SRC_FILES
 )
 
 set(PLATFORMER_SCENE_SRC_FILES
-	src/scenes/platformer/platformer_demo.cpp
+	src/scenes/platformer/PlatformerDemo.cpp
+	src/scenes/platformer/PlatformerDemo.hpp
 	src/scenes/platformer/sprites/Sprite2D.hpp
 	src/scenes/platformer/sprites/SpriteHolder.cpp
 	src/scenes/platformer/sprites/SpriteHolder.hpp

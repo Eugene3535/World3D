@@ -20,9 +20,7 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 #include "scenes/heightmap/HeightmapDemo.hpp"
 #include "scenes/orbit/OrbitDemo.hpp"
 #include "scenes/paths/PathDemo.hpp"
-
-
-int platformer_demo(sf::Window& window) noexcept;
+#include "scenes/platformer/PlatformerDemo.hpp"
 
 
 int main()
@@ -83,10 +81,13 @@ int main()
     // OrbitDemo orbit(window);
     // if(!orbit.init(resources)) return -1;
 
-    PathDemo path_demo(window);
-    if(!path_demo.init(resources)) return -1;
+    // PathDemo path_demo(window);
+    // if(!path_demo.init(resources)) return -1;
 
-    DemoScene* scene = &path_demo;
+    PlatformerDemo platformer(window);
+    if(!platformer.init(resources)) return -1;
+
+    DemoScene* scene = &platformer;
 
     sf::Clock clock;
 
