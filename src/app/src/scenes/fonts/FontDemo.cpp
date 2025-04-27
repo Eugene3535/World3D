@@ -41,10 +41,6 @@ FontDemo::~FontDemo()
 
 bool FontDemo::init(GlResourceHolder& holder) noexcept
 {
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     auto [wndWidth, wndHeight] = m_window.getSize();
 
     auto vboHandles = holder.create<GlBuffer, 2>();
@@ -111,12 +107,12 @@ bool FontDemo::init(GlResourceHolder& holder) noexcept
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // enable byte-alignment restriction
+//  enable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+//  enable blending settings
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    m_isLoaded = true;
-
-    return m_isLoaded;
+    return true;
 }
 
 
@@ -128,17 +124,21 @@ void FontDemo::update(const sf::Time& dt) noexcept
 
 void FontDemo::draw() noexcept
 {
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(m_program->getHandle());
     
-
     glm::vec3 color(0.5, 0.8f, 0.2f);
     renderText(m_text, color, 250.0f, 370.0f);
 
-    
     glUseProgram(0);
+
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
 }
 
 

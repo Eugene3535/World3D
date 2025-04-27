@@ -31,8 +31,6 @@ DuneDemo::~DuneDemo()
 
 bool DuneDemo::init(GlResourceHolder& holder) noexcept
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
     StbImage imgSand;
     StbImage imgSpace;
     StbImage imgRock;
@@ -106,9 +104,7 @@ bool DuneDemo::init(GlResourceHolder& holder) noexcept
     m_camera = std::make_unique<OrthogonalCamera>();
     m_camera->setupProjectionMatrix(width, height);
 
-    m_isLoaded = true;
-
-    return m_isLoaded;
+    return true;
 }
 
 
@@ -132,6 +128,7 @@ void DuneDemo::update(const sf::Time& dt) noexcept
 
 void DuneDemo::draw() noexcept
 {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(m_program->getHandle());

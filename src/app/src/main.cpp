@@ -69,20 +69,20 @@ int main()
 
     GlResourceHolder resources;
 
-    // DuneDemo dune(window);
-    // if(!dune.init(resources)) return -1;
+    DuneDemo dune(window);
+    if(!dune.init(resources)) return -1;
 
-    // FontDemo fonts(window);
-    // if(!fonts.init(resources)) return -1;
+    FontDemo fonts(window);
+    if(!fonts.init(resources)) return -1;
 
-    // HeightmapDemo heightmap(window);
-    // if(!heightmap.init(resources)) return -1;
+    HeightmapDemo heightmap(window);
+    if(!heightmap.init(resources)) return -1;
 
-    // OrbitDemo orbit(window);
-    // if(!orbit.init(resources)) return -1;
+    OrbitDemo orbit(window);
+    if(!orbit.init(resources)) return -1;
 
-    // PathDemo path_demo(window);
-    // if(!path_demo.init(resources)) return -1;
+    PathDemo path_demo(window);
+    if(!path_demo.init(resources)) return -1;
 
     PlatformerDemo platformer(window);
     if(!platformer.init(resources)) return -1;

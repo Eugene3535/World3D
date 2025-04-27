@@ -6,8 +6,7 @@
 
 
 DemoScene::DemoScene(sf::Window& window) noexcept:
-    m_window(window),
-    m_isLoaded(false)
+    m_window(window)
 {
 
 }
@@ -31,10 +30,4 @@ void DemoScene::update(const sf::Time& dt) noexcept
 void DemoScene::draw() noexcept
 {
 
-}
-
-
-bool DemoScene::isLoaded() const noexcept
-{
-    return m_isLoaded;
 }

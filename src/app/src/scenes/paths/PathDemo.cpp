@@ -31,10 +31,6 @@ PathDemo::~PathDemo()
 
 bool PathDemo::init(GlResourceHolder& holder) noexcept
 {
-    m_window.setMouseCursorVisible(false);
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
     StbImage imgSnow;     imgSnow.loadFromFile(FileProvider::findPathToFile("snow.png"));
     StbImage imgPavement; imgPavement.loadFromFile(FileProvider::findPathToFile("pavement.jpg"));
     StbImage imgPath;     imgPath.loadFromFile(FileProvider::findPathToFile("test.png"));
@@ -109,9 +105,7 @@ bool PathDemo::init(GlResourceHolder& holder) noexcept
     m_camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
     m_camera->setPosition(3, 3, 3);
 
-    m_isLoaded = true;
-
-    return m_isLoaded;
+    return true;
 }
 
 
@@ -150,6 +144,9 @@ void PathDemo::update(const sf::Time& dt) noexcept
 
 void PathDemo::draw() noexcept
 {
+    glEnable(GL_DEPTH_TEST);
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(m_program->getHandle());
@@ -167,4 +164,6 @@ void PathDemo::draw() noexcept
     glBindTextureUnit(2, 0);
 
     glUseProgram(0);
+
+    glDisable(GL_DEPTH_TEST);
 }

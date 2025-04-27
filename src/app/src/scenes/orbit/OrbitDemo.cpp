@@ -41,9 +41,6 @@ OrbitDemo::~OrbitDemo()
 
 bool OrbitDemo::init(GlResourceHolder& holder) noexcept
 {
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
     auto [width, height] = m_window.getSize();
 
     const auto bufferHandles  = holder.create<GlBuffer, 2>();
@@ -96,9 +93,7 @@ bool OrbitDemo::init(GlResourceHolder& holder) noexcept
     glUniform1i(m_program->getUniformLocation("texture0"), 0);
     glUseProgram(0);
 
-    m_isLoaded = true;
-
-    return m_isLoaded;
+    return true;
 }
 
 
@@ -151,6 +146,8 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
 
 void OrbitDemo::draw() noexcept
 {
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(m_program->getHandle());
@@ -163,6 +160,8 @@ void OrbitDemo::draw() noexcept
     glBindVertexArray(0);
     glBindTextureUnit(0, 0);
     glUseProgram(0);
+    
+    glDisable(GL_DEPTH_TEST);
 }
 
 

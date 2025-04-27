@@ -234,9 +234,7 @@ bool PlatformerDemo::init(GlResourceHolder& holder) noexcept
     auto playerObject = m_tilemap->getObject("player");
     m_player = std::make_unique<Player>(*m_megaman, allObjects, playerObject->bounds.left, playerObject->bounds.top);
 
-    m_isLoaded = true;
-
-    return m_isLoaded;
+    return true;
 }
 
 
@@ -353,6 +351,7 @@ void PlatformerDemo::update(const sf::Time& elapsed) noexcept
 void PlatformerDemo::draw() noexcept
 {
     glClearColor(0.6f, 0.8f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     auto [width, height] = m_window.getSize();
 
@@ -361,7 +360,6 @@ void PlatformerDemo::draw() noexcept
 
     glUseProgram(m_tilemapProgram->getHandle());
 
-    glClear(GL_COLOR_BUFFER_BIT);
     m_tilemap->draw();
 
     glBindVertexArray(m_vao->getHandle());
@@ -383,8 +381,9 @@ void PlatformerDemo::draw() noexcept
     if(auto hpUniform = m_healthbarProgram->getUniformLocation("hp"); hpUniform != -1)
         glUniform1i(hpUniform, m_player->Health);
 
-        m_camera->setPosition(20, 20);
+    m_camera->setPosition(20, 20);
     m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix())));
+    
     glBindTexture(GL_TEXTURE_2D, m_healthbar->texture);
     glDrawArrays(GL_TRIANGLE_FAN, m_healthbar->frame, 4);
     glBindTexture(GL_TEXTURE_2D, 0);

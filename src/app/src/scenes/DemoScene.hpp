@@ -19,11 +19,8 @@ public:
     virtual void update(const class sf::Time& dt) noexcept;
     virtual void draw() noexcept;
 
-    bool isLoaded() const noexcept;
-
 protected:
     class sf::Window& m_window;
-    bool m_isLoaded;
 };
 
 
