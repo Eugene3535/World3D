@@ -63,7 +63,7 @@ add_executable(${APP_TARGET}
 target_compile_features(${APP_TARGET} PUBLIC cxx_std_20)
 
 target_link_libraries(${APP_TARGET} PRIVATE
-	opengl_utils
+	renderer
 	sfml-system
 	sfml-window
 )

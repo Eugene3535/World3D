@@ -5,6 +5,8 @@
 
 #include <glad/glad.h>
 
+#include "Export.hpp"
+
 // Class - buffer interface. 
 // Targets:
 
@@ -25,7 +27,7 @@
 
 // Usages: GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_STREAM_DRAW
 
-class GlBuffer final
+class RENDERER_API GlBuffer final
 {
 public:
     GlBuffer(GLuint handle, GLenum target) noexcept;

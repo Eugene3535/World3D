@@ -5,7 +5,9 @@
 
 #include <glad/glad.h>
 
-class Shader final
+#include "Export.hpp"
+
+class RENDERER_API Shader final
 {
 public:
     Shader() noexcept;

@@ -8,7 +8,7 @@
 
 #include "graphics/Glyph.hpp"
 
-class Font
+class RENDERER_API Font
 {
 public:
     struct Info

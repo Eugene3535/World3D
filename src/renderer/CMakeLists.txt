@@ -1,6 +1,6 @@
-set(OPENGL_UTILS_TARGET opengl_utils)
+set(RENDERER_TARGET renderer)
 
-set(_opengl_utils_src_files
+set(RENDERER_SRC_FILES
 	src/graphics/Transform2D.cpp
 	src/graphics/Color.cpp
 	src/files/StbImage.cpp
@@ -18,7 +18,7 @@ set(_opengl_utils_src_files
 	src/opengl/resources/buffers/Texture.cpp
 )
 
-set(_opengl_utils_hdr_files
+set(RENDERER_HDR_FILES
 	src/Config.hpp
 	src/graphics/Transform2D.hpp
 	src/graphics/Color.hpp
@@ -39,12 +39,12 @@ set(_opengl_utils_hdr_files
 	src/opengl/resources/buffers/Texture.hpp
 )
 
-set(_all_opengl_utils_files
-	${_opengl_utils_src_files}
-	${_opengl_utils_hdr_files}
+set(ALL_RENDERER_FILES
+	${RENDERER_SRC_FILES}
+	${RENDERER_HDR_FILES}
 )
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${_all_opengl_utils_files})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${ALL_RENDERER_FILES})
 
 set(SHADER_FILES
 	${PROJECT_SOURCE_DIR}/res/shaders/dune/dune.vert
@@ -63,15 +63,22 @@ set(SHADER_FILES
 
 source_group("shaders" FILES ${SHADER_FILES})
 
-add_library(${OPENGL_UTILS_TARGET} SHARED ${_all_opengl_utils_files})
+add_library(${RENDERER_TARGET} SHARED ${ALL_RENDERER_FILES})
 
-target_sources(${OPENGL_UTILS_TARGET} PRIVATE ${SHADER_FILES})
+include(GenerateExportHeader)
 
-target_compile_definitions(${OPENGL_UTILS_TARGET} PRIVATE OPENGL_UTILS_API_EXPORTS)
+generate_export_header(${RENDERER_TARGET}
+    BASE_NAME RENDERER
+    EXPORT_MACRO_NAME RENDERER_API
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/src/Export.hpp
+    STATIC_DEFINE RENDERER_STATIC_DEFINE
+)
 
-target_compile_features(${OPENGL_UTILS_TARGET} PRIVATE cxx_std_20)
+target_sources(${RENDERER_TARGET} PRIVATE ${SHADER_FILES})
 
-target_link_libraries(${OPENGL_UTILS_TARGET} PUBLIC
+target_compile_features(${RENDERER_TARGET} PRIVATE cxx_std_20)
+
+target_link_libraries(${RENDERER_TARGET} PUBLIC
 	glad
 	glm
 	sfml-system
@@ -79,11 +86,7 @@ target_link_libraries(${OPENGL_UTILS_TARGET} PUBLIC
 	freetype
 )
 
-if(MSVC)
-	target_link_options(${OPENGL_UTILS_TARGET} PRIVATE "-Wl,--export-all-symbols")
-endif()
-
-target_include_directories(${OPENGL_UTILS_TARGET} 
+target_include_directories(${RENDERER_TARGET} 
 PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 PRIVATE

@@ -4,9 +4,11 @@
 #include <filesystem>
 #include <memory>
 
-struct StbImage
+#include "Export.hpp"
+
+struct RENDERER_API StbImage
 {
-    struct StbImageDeleter 
+    struct RENDERER_API StbImageDeleter 
     {
         void operator()(uint8_t* src) noexcept;
     };

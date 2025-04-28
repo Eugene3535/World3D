@@ -33,7 +33,7 @@ add_subdirectory(${EXTERNAL_SOURCE_DIR}/glad/core glad)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glm glm)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/freetype freetype)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/utils)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/renderer)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/app)
 
 if(MSVC)

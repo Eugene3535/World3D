@@ -3,7 +3,9 @@
 
 #include <cstdint>
 
-class Color
+#include "Export.hpp"
+
+class RENDERER_API Color
 {
 public:
     Color() noexcept;

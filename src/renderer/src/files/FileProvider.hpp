@@ -4,7 +4,9 @@
 #include <string>
 #include <filesystem>
 
-struct FileProvider
+#include "Export.hpp"
+
+struct RENDERER_API FileProvider
 {
     static std::filesystem::path findPathToFile(const std::string& filename) noexcept;
 };

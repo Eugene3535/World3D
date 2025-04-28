@@ -6,16 +6,18 @@
 
 #include <glad/glad.h>
 
+#include "Export.hpp"
+
 // A vertex attribute is an input variable to a shader that is supplied with per - vertex data.
 // In OpenGL core profile, they are specified as in variables in a vertex shader and are backed by a GL_ARRAY_BUFFER.
 // These variable can contain, for example, positions, normals or texture coordinates.
 // A vertex is the combination of all the vertex attributes that belong together.
 
 
-class VertexBufferLayout
+class RENDERER_API VertexBufferLayout
 {
 public:
-    class Attribute
+    class RENDERER_API Attribute
     {
     public:
         enum Type

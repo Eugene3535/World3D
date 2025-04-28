@@ -7,7 +7,7 @@
 #include <glm/vec4.hpp>
 
 
-struct Glyph
+struct RENDERER_API Glyph
 {
     glm::ivec2 bearing;     // Offset from baseline to left/top of glyph
     glm::ivec2 size;        // Size of glyph

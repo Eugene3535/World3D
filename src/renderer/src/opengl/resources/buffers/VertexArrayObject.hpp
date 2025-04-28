@@ -1,11 +1,12 @@
 #ifndef VERTEX_ARRAY_OBJECT_HPP
 #define VERTEX_ARRAY_OBJECT_HPP
 
+#include "Export.hpp"
 #include "opengl/resources/buffers/GlBuffer.hpp"
 #include "opengl/resources/buffers/VertexBufferLayout.hpp"
 
 
-class VertexArrayObject final
+class RENDERER_API VertexArrayObject final
 {
 public:
     explicit VertexArrayObject(GLuint handle) noexcept;

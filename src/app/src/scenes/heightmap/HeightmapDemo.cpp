@@ -168,8 +168,8 @@ bool HeightmapDemo::init(GlResourceHolder& holder) noexcept
 //  Shaders
 //  Heightmap
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("heightmap.vert"), GL_VERTEX_SHADER)) return -1;
-    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("heightmap.frag"), GL_FRAGMENT_SHADER)) return -1;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("heightmap.vert"), GL_VERTEX_SHADER))   return false;
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("heightmap.frag"), GL_FRAGMENT_SHADER)) return false;
 
     m_heightmapProgram = std::make_unique<ShaderProgram>();
 
@@ -184,11 +184,11 @@ bool HeightmapDemo::init(GlResourceHolder& holder) noexcept
     glUseProgram(0);
 
 //  Circle
-    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("circle.vert"), GL_VERTEX_SHADER)) return -1;
-    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("circle.frag"), GL_FRAGMENT_SHADER)) return -1;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("circle.vert"), GL_VERTEX_SHADER))   return false;
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("circle.frag"), GL_FRAGMENT_SHADER)) return false;
 
     m_circleProgram = std::make_unique<ShaderProgram>();
-    if(!m_circleProgram->link(shaders)) return -1;
+    if(!m_circleProgram->link(shaders)) return false;
 
     glUseProgram(m_circleProgram->getHandle());
     glUniform1i(m_circleProgram->getUniformLocation("circleSampler"), 0);

@@ -3,7 +3,7 @@
 
 #include "graphics/Transform2D.hpp"
 
-class OrthogonalCamera final:
+class RENDERER_API OrthogonalCamera final:
     public Transform2D
 {
 public:

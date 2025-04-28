@@ -83,11 +83,13 @@ bool DuneDemo::init(GlResourceHolder& holder) noexcept
     m_vao->addVertexBuffer(vbo, attributes);
 
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("dune.vert"), GL_VERTEX_SHADER)) return -1;
-    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("dune.frag"), GL_FRAGMENT_SHADER)) return -1;
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("dune.vert"), GL_VERTEX_SHADER))   return false;
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("dune.frag"), GL_FRAGMENT_SHADER)) return false;
 
     m_program = std::make_unique<ShaderProgram>();
-    if(!m_program->link(shaders)) return -1;
+
+    if(!m_program->link(shaders)) 
+        return false;
 
     glUseProgram(m_program->getHandle());
     glUniform1i(m_program->getUniformLocation("texMap"), 0);

@@ -60,14 +60,14 @@ bool PlatformerDemo::init(GlResourceHolder& holder) noexcept
     m_tilemapProgram = std::make_unique<ShaderProgram>();
 
     if (!m_tilemapProgram->link(shaders)) 
-        return -1;
+        return false;
 
     if (!shaders[1].loadFromFile(FileProvider::findPathToFile("healthbar.frag"), GL_FRAGMENT_SHADER)) return false;
 
     m_healthbarProgram = std::make_unique<ShaderProgram>();
 
     if(!m_healthbarProgram->link(shaders))
-        return -1;
+        return false;
 
     glUseProgram(m_tilemapProgram->getHandle());
     glUniform1i(m_tilemapProgram->getUniformLocation("texture0"), 0);

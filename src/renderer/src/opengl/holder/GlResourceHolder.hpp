@@ -9,7 +9,7 @@
 #include "opengl/resources/buffers/Texture.hpp"
 
 
-class GlResourceHolder final
+class RENDERER_API GlResourceHolder final
 {
 public:
     GlResourceHolder() noexcept;

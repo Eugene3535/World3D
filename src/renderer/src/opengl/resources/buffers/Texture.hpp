@@ -3,6 +3,8 @@
 
 #include <filesystem>
 
+#include "Export.hpp"
+
 // There are a number of different types of textures. These are:
 
 // GL_TEXTURE_1D: Images in this texture all are 1-dimensional. They have width, but no height or depth.
@@ -19,7 +21,7 @@
 
 // More information is available here: https://www.khronos.org/opengl/wiki/texture
 
-struct Texture
+struct RENDERER_API Texture
 {
 	bool loadFromImage(const struct StbImage& image, bool repeat, bool smooth) noexcept;
 	bool loadFromFile(const std::filesystem::path& filePath, bool repeat, bool smooth) noexcept;

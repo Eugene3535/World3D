@@ -80,7 +80,7 @@ bool PathDemo::init(GlResourceHolder& holder) noexcept
     if(!shaders[1].loadFromFile(FileProvider::findPathToFile("ground.frag"), GL_FRAGMENT_SHADER)) return false;
 
     m_program = std::make_unique<ShaderProgram>();
-    if(!m_program->link(shaders)) return -1;
+    if(!m_program->link(shaders)) return false;
 
     glUseProgram(m_program->getHandle());
 

@@ -5,7 +5,7 @@
 
 #include "opengl/resources/shaders/Shader.hpp"
 
-class ShaderProgram final
+class RENDERER_API ShaderProgram final
 {
 public:
     ShaderProgram() noexcept;

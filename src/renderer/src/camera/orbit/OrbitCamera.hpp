@@ -3,7 +3,9 @@
 
 #include <glm/glm.hpp>
 
-class OrbitCamera
+#include "Export.hpp"
+
+class RENDERER_API OrbitCamera
 {
 public:
 	OrbitCamera() noexcept;

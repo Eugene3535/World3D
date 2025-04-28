@@ -4,8 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Export.hpp"
 
-class PerspectiveCamera
+class RENDERER_API PerspectiveCamera
 {
 public:
     enum Direction
