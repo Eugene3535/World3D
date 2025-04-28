@@ -1,6 +1,8 @@
 #ifndef DEMO_SCENE_HPP
 #define DEMO_SCENE_HPP
 
+#include "Export.hpp"
+
 
 namespace sf
 {
@@ -9,7 +11,7 @@ namespace sf
 }
 
 
-class DemoScene
+class RENDERER_API DemoScene
 {
 public:
     DemoScene(class sf::Window& window) noexcept;

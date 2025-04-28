@@ -6,8 +6,10 @@
 #include <unordered_map>
 #include <typeinfo>
 
+#include "Export.hpp"
 
-class SceneManager final
+
+class RENDERER_API SceneManager final
 {
 public:
     SceneManager(class sf::Window& window) noexcept;

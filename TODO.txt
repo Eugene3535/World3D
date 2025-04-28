@@ -1,1 +1,2 @@
-1) release GlHolder resources in destructors 
+1) release GlHolder resources in destructors
+2) Shared resources (camera)

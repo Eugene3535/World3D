@@ -19,6 +19,7 @@ set(RENDERER_SRC_FILES
 )
 
 set(RENDERER_HDR_FILES
+	src/Export.hpp
 	src/Config.hpp
 	src/graphics/Transform2D.hpp
 	src/graphics/Color.hpp
@@ -37,6 +38,11 @@ set(RENDERER_HDR_FILES
 	src/opengl/resources/buffers/VertexBufferLayout.hpp
 	src/opengl/resources/buffers/VertexArrayObject.hpp
 	src/opengl/resources/buffers/Texture.hpp
+	src/scenes/DemoScene.hpp
+	src/scenes/DemoScene.cpp
+	src/scenes/SceneManager.hpp
+	src/scenes/SceneManager.inl
+	src/scenes/SceneManager.cpp
 )
 
 set(ALL_RENDERER_FILES

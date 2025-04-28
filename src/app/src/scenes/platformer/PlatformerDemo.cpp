@@ -91,11 +91,11 @@ bool PlatformerDemo::init(GlResourceHolder& holder) noexcept
     m_textureMovingPlatform = std::make_unique<Texture>(textureHandles[3], GL_TEXTURE_2D, 0, 0, 0, false, false);
     m_textureHealthBar      = std::make_unique<Texture>(textureHandles[4], GL_TEXTURE_2D, 0, 0, 0, false, false);
 
-    if(!m_textureGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false))              return false;
-    if(!m_textureMegaman->loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false))           return false;
-    if(!m_textureBullet->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false))             return false;
+    if(!m_textureGoomba->loadFromFile(FileProvider::findPathToFile("enemy.png"), false, false))                  return false;
+    if(!m_textureMegaman->loadFromFile(FileProvider::findPathToFile("megaman.png"), false, false))               return false;
+    if(!m_textureBullet->loadFromFile(FileProvider::findPathToFile("bullet.png"), false, false))                 return false;
     if(!m_textureMovingPlatform->loadFromFile(FileProvider::findPathToFile("movingPlatform.png"), false, false)) return false;
-    if(!m_textureHealthBar->loadFromFile(FileProvider::findPathToFile("HealthBar.png"), false, false))       return false;
+    if(!m_textureHealthBar->loadFromFile(FileProvider::findPathToFile("HealthBar.png"), false, false))           return false;
 
     glUseProgram(m_healthbarProgram->getHandle());
 
