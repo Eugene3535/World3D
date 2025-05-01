@@ -35,6 +35,8 @@ HeightmapDemo::~HeightmapDemo()
 
 bool HeightmapDemo::init(GlResourceHolder& holder) noexcept
 {
+    m_window.setMouseCursorVisible(false);
+    
     auto [width, height] = m_window.getSize();
 
     std::array<uint32_t, 1> buffer = holder.create<GlBuffer, 1>();
@@ -260,8 +262,6 @@ void HeightmapDemo::update(const sf::Time& dt) noexcept
 
 void HeightmapDemo::draw() noexcept
 {
-    m_window.setMouseCursorVisible(false);
-
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
 
@@ -327,6 +327,4 @@ void HeightmapDemo::draw() noexcept
 
     glBindVertexArray(0);
     glUseProgram(0);
-
-    m_window.setMouseCursorVisible(true);
 }

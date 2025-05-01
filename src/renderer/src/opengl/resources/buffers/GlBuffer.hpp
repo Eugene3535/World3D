@@ -2,6 +2,7 @@
 #define GL_BUFFER_HPP
 
 #include <cstdint>
+#include <cstdlib>
 
 #include <glad/glad.h>
 
