@@ -9,20 +9,20 @@
 #  ifndef RENDERER_API
 #    ifdef renderer_EXPORTS
         /* We are building this library */
-#      define RENDERER_API __attribute__((visibility("default")))
+#      define RENDERER_API __declspec(dllexport)
 #    else
         /* We are using this library */
-#      define RENDERER_API __attribute__((visibility("default")))
+#      define RENDERER_API __declspec(dllimport)
 #    endif
 #  endif
 
 #  ifndef RENDERER_NO_EXPORT
-#    define RENDERER_NO_EXPORT __attribute__((visibility("hidden")))
+#    define RENDERER_NO_EXPORT 
 #  endif
 #endif
 
 #ifndef RENDERER_DEPRECATED
-#  define RENDERER_DEPRECATED __attribute__ ((__deprecated__))
+#  define RENDERER_DEPRECATED __declspec(deprecated)
 #endif
 
 #ifndef RENDERER_DEPRECATED_EXPORT

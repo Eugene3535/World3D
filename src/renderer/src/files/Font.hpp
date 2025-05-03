@@ -56,7 +56,7 @@ private:
     glm::ivec4 findGlyphRect(Page& page, uint32_t width, uint32_t height) noexcept;
     void writeGlyphToPage(wchar_t wc, Page& page) noexcept;
 
-    static std::wstring utf16;
+    static std::wstring wide_chars;
     
     std::unordered_map<uint32_t, Page> m_pages;
 

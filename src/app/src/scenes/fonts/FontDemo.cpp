@@ -2,16 +2,13 @@
 #include <memory>
 #include <unordered_map>
 #include <cstdio>
-#include <codecvt>
 
 #include <glad/glad.h>
-
 #include <SFML/Window/Window.hpp>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
 #include <stb_image_write.h>
+#include <utf8.h>
 
 #include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
@@ -90,8 +87,28 @@ bool FontDemo::init(GlResourceHolder& holder) noexcept
     if(!m_page.first || m_glyphs.empty())
         return false;
 
+    auto utf8_to_wstring = [](const std::string& utf8_str) -> std::wstring
+    {
+        std::wstring wstr;
+    
+        if constexpr (sizeof(wchar_t) == 2) 
+        {// UTF-16 (Windows)
+            std::u16string utf16;
+            utf8::utf8to16(utf8_str.begin(), utf8_str.end(), std::back_inserter(utf16));
+            wstr.assign(utf16.begin(), utf16.end());
+        } 
+        else 
+        {// UTF-32 (Linux/macOS)
+            std::u32string utf32;
+            utf8::utf8to32(utf8_str.begin(), utf8_str.end(), std::back_inserter(utf32));
+            wstr.assign(utf32.begin(), utf32.end());
+        }
+    
+        return wstr;
+    };
+
     const char utf8Text[] = "Вау гречка ёЁ-юЮ-ыЫ first commit 1234 ()*<>q";
-    m_text = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8Text);
+    m_text = utf8_to_wstring(utf8Text);
 
 //  disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

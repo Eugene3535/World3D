@@ -72,13 +72,13 @@ int main()
     SceneManager sceneManager(window);
 
     // if(!sceneManager.pushScene<DuneDemo>()->init(resources))       return -1;
-    // if(!sceneManager.pushScene<FontDemo>()->init(resources))       return -1;
-    if(!sceneManager.pushScene<HeightmapDemo>()->init(resources))  return -1;
+    if(!sceneManager.pushScene<FontDemo>()->init(resources))       return -1;
+    // if(!sceneManager.pushScene<HeightmapDemo>()->init(resources))  return -1;
     // if(!sceneManager.pushScene<OrbitDemo>()->init(resources))      return -1;
     // if(!sceneManager.pushScene<PathDemo>()->init(resources))       return -1;
     // if(!sceneManager.pushScene<PlatformerDemo>()->init(resources)) return -1;
 
-    DemoScene* scene = sceneManager.getScene<HeightmapDemo>();
+    DemoScene* scene = sceneManager.getScene<FontDemo>();
 
     sf::Clock clock;
 

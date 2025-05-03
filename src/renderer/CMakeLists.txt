@@ -90,6 +90,7 @@ target_link_libraries(${RENDERER_TARGET} PUBLIC
 	sfml-system
 	sfml-window
 	freetype
+	utf8cpp
 )
 
 target_include_directories(${RENDERER_TARGET} 

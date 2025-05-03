@@ -32,6 +32,7 @@ add_subdirectory(${EXTERNAL_SOURCE_DIR}/sfml/2.6.2 sfml)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glad/core glad)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glm glm)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/freetype freetype)
+add_subdirectory(${EXTERNAL_SOURCE_DIR}/utfcpp utfcpp)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/renderer)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/app)

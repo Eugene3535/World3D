@@ -1,24 +1,47 @@
-#include <codecvt>
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
+
+#include <utf8.h>
 
 #include "files/FileProvider.hpp"
 #include "files/Font.hpp"
 
 
-static constexpr char utf8[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ";
-std::wstring Font::utf16;
+static constexpr char utf8_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя0123456789!@#$%^&*()-_=+[]{};:'\",.<>/?\\|`~ ";
+std::wstring Font::wide_chars;
+
+
+static std::wstring utf8_to_wstring(const std::string& utf8_str) 
+{
+    std::wstring wstr;
+
+    if constexpr (sizeof(wchar_t) == 2) 
+    {// UTF-16 (Windows)
+        std::u16string utf16;
+        utf8::utf8to16(utf8_str.begin(), utf8_str.end(), std::back_inserter(utf16));
+        wstr.assign(utf16.begin(), utf16.end());
+    } 
+    else 
+    {// UTF-32 (Linux/macOS)
+        std::u32string utf32;
+        utf8::utf8to32(utf8_str.begin(), utf8_str.end(), std::back_inserter(utf32));
+        wstr.assign(utf32.begin(), utf32.end());
+    }
+
+    return wstr;
+}
+
 
 Font::Font() noexcept:
     m_library(nullptr),
     m_face(nullptr)
 {
-    if(utf16.empty())
+    if(Font::wide_chars.empty())
     {
-        utf16 = std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>().from_bytes(utf8);
+        Font::wide_chars = utf8_to_wstring(utf8_chars);
     }
 }
 
@@ -87,7 +110,7 @@ bool Font::loadPage(uint32_t characterSize) noexcept
 
         int amount = 0;
     
-        for(const auto wc : utf16)
+        for(const auto wc : wide_chars)
             if(FT_Load_Char(face, wc, FT_LOAD_RENDER) == 0)
             {
                 writeGlyphToPage(wc, page);
