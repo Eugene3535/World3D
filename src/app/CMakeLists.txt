@@ -1,45 +1,45 @@
 set(APP_TARGET app)
 
 set(DUNE_SCENE_SRC_FILES
-	src/scenes/dune/DuneDemo.cpp
-	src/scenes/dune/DuneDemo.hpp
+	scenes/dune/DuneDemo.cpp
+	scenes/dune/DuneDemo.hpp
 )
 
 set(HEIGHTMAP_SCENE_SRC_FILES
-	src/scenes/heightmap/HeightmapDemo.cpp
-	src/scenes/heightmap/HeightmapDemo.hpp
+	scenes/heightmap/HeightmapDemo.cpp
+	scenes/heightmap/HeightmapDemo.hpp
 )
 
 set(PATHS_SCENE_SRC_FILES
-	src/scenes/paths/PathDemo.cpp
-	src/scenes/paths/PathDemo.hpp
+	scenes/paths/PathDemo.cpp
+	scenes/paths/PathDemo.hpp
 )
 
 set(PLATFORMER_SCENE_SRC_FILES
-	src/scenes/platformer/PlatformerDemo.cpp
-	src/scenes/platformer/PlatformerDemo.hpp
-	src/scenes/platformer/sprites/Sprite2D.hpp
-	src/scenes/platformer/sprites/SpriteHolder.cpp
-	src/scenes/platformer/sprites/SpriteHolder.hpp
-	src/scenes/platformer/animation/Animator.cpp
-	src/scenes/platformer/animation/Animator.hpp
-	src/scenes/platformer/tilemap/TileMap.cpp
-	src/scenes/platformer/tilemap/TileMap.hpp
-	src/scenes/platformer/entities/Entity.hpp
-	src/scenes/platformer/entities/Goomba.hpp
-	src/scenes/platformer/entities/Bullet.hpp
-	src/scenes/platformer/entities/MovingPlatform.hpp
-	src/scenes/platformer/entities/Player.hpp
+	scenes/platformer/PlatformerDemo.cpp
+	scenes/platformer/PlatformerDemo.hpp
+	scenes/platformer/sprites/Sprite2D.hpp
+	scenes/platformer/sprites/SpriteHolder.cpp
+	scenes/platformer/sprites/SpriteHolder.hpp
+	scenes/platformer/animation/Animator.cpp
+	scenes/platformer/animation/Animator.hpp
+	scenes/platformer/tilemap/TileMap.cpp
+	scenes/platformer/tilemap/TileMap.hpp
+	scenes/platformer/entities/Entity.hpp
+	scenes/platformer/entities/Goomba.hpp
+	scenes/platformer/entities/Bullet.hpp
+	scenes/platformer/entities/MovingPlatform.hpp
+	scenes/platformer/entities/Player.hpp
 )
 
 set(ORBIT_SCENE_SRC_FILES
-	src/scenes/orbit/OrbitDemo.cpp
-	src/scenes/orbit/OrbitDemo.hpp
+	scenes/orbit/OrbitDemo.cpp
+	scenes/orbit/OrbitDemo.hpp
 )
 
 set(FONTS_SCENE_SRC_FILES
-	src/scenes/fonts/FontDemo.cpp
-	src/scenes/fonts/FontDemo.cpp
+	scenes/fonts/FontDemo.cpp
+	scenes/fonts/FontDemo.cpp
 )
 
 set(MAIN_APP_SRC_FILES
@@ -49,7 +49,7 @@ set(MAIN_APP_SRC_FILES
 	${PLATFORMER_SCENE_SRC_FILES}
 	${ORBIT_SCENE_SRC_FILES}
 	${FONTS_SCENE_SRC_FILES}
-	src/main.cpp
+	main.cpp
 )
 
 add_executable(${APP_TARGET}
@@ -59,13 +59,13 @@ add_executable(${APP_TARGET}
 target_compile_features(${APP_TARGET} PUBLIC cxx_std_20)
 
 target_link_libraries(${APP_TARGET} PRIVATE
-	renderer
+	shiny
 	sfml-system
 	sfml-window
 )
 
 target_include_directories(${APP_TARGET} PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}
 	${EXTERNAL_SOURCE_DIR}/rapidxml
 	${EXTERNAL_SOURCE_DIR}/stb
 )
