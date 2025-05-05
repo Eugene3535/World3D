@@ -1,7 +1,7 @@
 #include <SFML/Window/Window.hpp>
 #include <SFML/System/Time.hpp>
 
-#include "opengl/holder/GlResourceHolder.hpp"
+#include "resources/holder/GlResourceHolder.hpp"
 #include "scenes/DemoScene.hpp"
 
 

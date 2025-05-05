@@ -1,2 +1,2 @@
-1) release GlHolder resources in destructors
-2) Shared resources (camera)
+1) Optimization: glm -> cglm
+2) Increased stability: sfml -> glfw

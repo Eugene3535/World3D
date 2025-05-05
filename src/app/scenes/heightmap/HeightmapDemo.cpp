@@ -13,10 +13,10 @@
 
 #include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
-#include "opengl/resources/shaders/ShaderProgram.hpp"
+#include "resources/holder/GlResourceHolder.hpp"
+#include "resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
 #include "camera/perspective/PerspectiveCamera.hpp"
-#include "opengl/holder/GlResourceHolder.hpp"
 #include "scenes/heightmap/HeightmapDemo.hpp"
 
 

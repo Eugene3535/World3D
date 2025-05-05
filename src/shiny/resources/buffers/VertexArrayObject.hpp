@@ -2,8 +2,8 @@
 #define VERTEX_ARRAY_OBJECT_HPP
 
 #include "Export.hpp"
-#include "opengl/resources/buffers/GlBuffer.hpp"
-#include "opengl/resources/buffers/VertexBufferLayout.hpp"
+#include "resources/buffers/GlBuffer.hpp"
+#include "resources/buffers/VertexBufferLayout.hpp"
 
 
 class SHINY_API VertexArrayObject final

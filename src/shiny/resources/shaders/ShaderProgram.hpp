@@ -3,7 +3,7 @@
 
 #include <span>
 
-#include "opengl/resources/shaders/Shader.hpp"
+#include "files/Shader.hpp"
 
 class SHINY_API ShaderProgram final
 {

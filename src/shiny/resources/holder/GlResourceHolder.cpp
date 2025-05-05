@@ -1,4 +1,4 @@
-#include "opengl/holder/GlResourceHolder.hpp"
+#include "resources/holder/GlResourceHolder.hpp"
 
 
 GlResourceHolder::GlResourceHolder() noexcept

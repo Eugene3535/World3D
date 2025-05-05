@@ -14,7 +14,7 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "opengl/holder/GlResourceHolder.hpp"
+#include "resources/holder/GlResourceHolder.hpp"
 #include "scenes/dune/DuneDemo.hpp"
 #include "scenes/fonts/FontDemo.hpp"
 #include "scenes/heightmap/HeightmapDemo.hpp"

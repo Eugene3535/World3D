@@ -11,9 +11,9 @@
 
 #include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
-#include "opengl/resources/shaders/ShaderProgram.hpp"
+#include "resources/shaders/ShaderProgram.hpp"
+#include "resources/holder/GlResourceHolder.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
-#include "opengl/holder/GlResourceHolder.hpp"
 #include "scenes/platformer/tilemap/TileMap.hpp"
 #include "scenes/platformer/sprites/SpriteHolder.hpp"
 #include "scenes/platformer/entities/Goomba.hpp"

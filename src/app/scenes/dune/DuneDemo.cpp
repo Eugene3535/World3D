@@ -10,9 +10,9 @@
 
 #include "files/FileProvider.hpp"
 #include "files/StbImage.hpp"
-#include "opengl/resources/shaders/ShaderProgram.hpp"
+#include "resources/holder/GlResourceHolder.hpp"
+#include "resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
-#include "opengl/holder/GlResourceHolder.hpp"
 #include "scenes/dune/DuneDemo.hpp"
 
 

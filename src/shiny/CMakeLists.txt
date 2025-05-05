@@ -1,42 +1,42 @@
 set(SHINY_TARGET shiny)
 
 set(SHINY_SRC_FILES
-	graphics/Transform2D.cpp
 	graphics/Color.cpp
-	files/StbImage.cpp
-	files/Font.cpp
+	graphics/Transform2D.cpp
 	files/FileProvider.cpp
+	files/Font.cpp
+	files/Shader.cpp
+	files/StbImage.cpp
 	camera/perspective/PerspectiveCamera.cpp
 	camera/orthogonal/OrthogonalCamera.cpp
 	camera/orbit/OrbitCamera.cpp
-	opengl/holder/GlResourceHolder.cpp
-	opengl/resources/shaders/Shader.cpp
-	opengl/resources/shaders/ShaderProgram.cpp
-	opengl/resources/buffers/GlBuffer.cpp
-	opengl/resources/buffers/VertexBufferLayout.cpp
-	opengl/resources/buffers/VertexArrayObject.cpp
-	opengl/resources/buffers/Texture.cpp
+	resources/holder/GlResourceHolder.cpp
+	resources/shaders/ShaderProgram.cpp
+	resources/buffers/GlBuffer.cpp
+	resources/buffers/VertexBufferLayout.cpp
+	resources/buffers/VertexArrayObject.cpp
+	resources/buffers/Texture.cpp
 )
 
 set(SHINY_HDR_FILES
 	Export.hpp
-	graphics/Transform2D.hpp
 	graphics/Color.hpp
 	graphics/Glyph.hpp
-	files/StbImage.hpp
-	files/Font.hpp
+	graphics/Transform2D.hpp
 	files/FileProvider.hpp
+	files/Font.hpp
+	files/Shader.hpp
+	files/StbImage.hpp
 	camera/perspective/PerspectiveCamera.hpp
 	camera/orthogonal/OrthogonalCamera.hpp
 	camera/orbit/OrbitCamera.hpp
-	opengl/holder/GlResourceHolder.hpp
-	opengl/holder/GlResourceHolder.inl
-	opengl/resources/shaders/Shader.hpp
-	opengl/resources/shaders/ShaderProgram.hpp
-	opengl/resources/buffers/GlBuffer.hpp
-	opengl/resources/buffers/VertexBufferLayout.hpp
-	opengl/resources/buffers/VertexArrayObject.hpp
-	opengl/resources/buffers/Texture.hpp
+	resources/holder/GlResourceHolder.hpp
+	resources/holder/GlResourceHolder.inl
+	resources/shaders/ShaderProgram.hpp
+	resources/buffers/GlBuffer.hpp
+	resources/buffers/VertexBufferLayout.hpp
+	resources/buffers/VertexArrayObject.hpp
+	resources/buffers/Texture.hpp
 	scenes/DemoScene.hpp
 	scenes/DemoScene.cpp
 	scenes/SceneManager.hpp

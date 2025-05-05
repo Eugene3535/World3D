@@ -1,4 +1,4 @@
-#include "opengl/resources/buffers/VertexBufferLayout.hpp"
+#include "resources/buffers/VertexBufferLayout.hpp"
 
 
 static constexpr GLuint shaderAttributeTypeToComponentCount(const VertexBufferLayout::Attribute::Type type) noexcept

@@ -3,7 +3,7 @@
 #include <cstdio>
 #endif
 
-#include "opengl/resources/shaders/Shader.hpp"
+#include "files/Shader.hpp"
 
 
 Shader::Shader() noexcept:

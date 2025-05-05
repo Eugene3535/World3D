@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "opengl/resources/buffers/GlBuffer.hpp"
+#include "resources/buffers/GlBuffer.hpp"
 
 
 GlBuffer::GlBuffer(GLuint handle, GLenum target) noexcept:

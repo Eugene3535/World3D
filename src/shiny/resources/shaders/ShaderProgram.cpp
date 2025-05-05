@@ -2,7 +2,7 @@
 #include <cstdio>
 #endif
 
-#include "opengl/resources/shaders/ShaderProgram.hpp"
+#include "resources/shaders/ShaderProgram.hpp"
 
 
 ShaderProgram::ShaderProgram() noexcept:

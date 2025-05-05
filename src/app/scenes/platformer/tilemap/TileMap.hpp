@@ -8,7 +8,7 @@
 
 #include <SFML/Graphics/Rect.hpp>
 
-#include "opengl/holder/GlResourceHolder.hpp"
+#include "resources/holder/GlResourceHolder.hpp"
 
 class TileMap
 {

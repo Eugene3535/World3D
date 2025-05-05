@@ -3,9 +3,9 @@
 
 #include <glad/glad.h>
 
-#include "opengl/resources/buffers/GlBuffer.hpp"
-#include "opengl/resources/buffers/VertexArrayObject.hpp"
-#include "opengl/resources/buffers/Texture.hpp"
+#include "resources/buffers/GlBuffer.hpp"
+#include "resources/buffers/VertexArrayObject.hpp"
+#include "resources/buffers/Texture.hpp"
 
 
 class SHINY_API GlResourceHolder final
@@ -32,6 +32,6 @@ private:
     std::vector<GLuint> m_textures;
 };
 
-#include "opengl/holder/GlResourceHolder.inl"
+#include "resources/holder/GlResourceHolder.inl"
 
 #endif // !GL_RESOURCE_HOLDER_HPP

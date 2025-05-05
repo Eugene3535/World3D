@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 #include "files/StbImage.hpp"
-#include "opengl/resources/buffers/Texture.hpp"
+#include "resources/buffers/Texture.hpp"
 
 bool Texture::loadFromImage(const StbImage& image, bool repeat, bool smooth) noexcept
 {

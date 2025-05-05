@@ -2,7 +2,7 @@
 
 #include "RapidXML/rapidxml_utils.hpp"
 
-#include "opengl/resources/buffers/Texture.hpp"
+#include "resources/buffers/Texture.hpp"
 #include "scenes/platformer/sprites/SpriteHolder.hpp"
 
 
