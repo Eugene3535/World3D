@@ -7,8 +7,8 @@ set(SHINY_SRC_FILES
 	files/Font.cpp
 	files/Shader.cpp
 	files/StbImage.cpp
-	camera/perspective/PerspectiveCamera.cpp
-	camera/orthogonal/OrthogonalCamera.cpp
+	# camera/perspective/PerspectiveCamera.cpp
+	# camera/orthogonal/OrthogonalCamera.cpp
 	camera/orbit/OrbitCamera.cpp
 	resources/holder/GlResourceHolder.cpp
 	resources/shaders/ShaderProgram.cpp
@@ -27,8 +27,8 @@ set(SHINY_HDR_FILES
 	files/Font.hpp
 	files/Shader.hpp
 	files/StbImage.hpp
-	camera/perspective/PerspectiveCamera.hpp
-	camera/orthogonal/OrthogonalCamera.hpp
+	# camera/perspective/PerspectiveCamera.hpp
+	# camera/orthogonal/OrthogonalCamera.hpp
 	camera/orbit/OrbitCamera.hpp
 	resources/holder/GlResourceHolder.hpp
 	resources/holder/GlResourceHolder.inl
@@ -85,7 +85,7 @@ target_compile_features(${SHINY_TARGET} PRIVATE cxx_std_20)
 
 target_link_libraries(${SHINY_TARGET} PUBLIC
 	glad
-	glm
+	cglm
 	sfml-system
 	sfml-window
 	freetype

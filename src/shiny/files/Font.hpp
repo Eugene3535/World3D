@@ -28,7 +28,7 @@ public:
     bool loadPage(uint32_t characterSize) noexcept;
     bool isLoaded() const noexcept;
 
-    std::pair<const uint8_t*, glm::ivec2> getImage(uint32_t characterSize) const noexcept;
+    std::pair<const uint8_t*, ivec2> getImage(uint32_t characterSize) const noexcept;
     const Info& getInfo() const noexcept;
 
     bool hasGlyph(wchar_t codePoint) const noexcept;
@@ -49,11 +49,11 @@ private:
         std::vector<Row>     rows;
         uint32_t             nextRow = 0;
         std::vector<uint8_t> image;
-        glm::ivec2           size;
+        ivec2                size;
     };
 
     void cleanup() noexcept;
-    glm::ivec4 findGlyphRect(Page& page, uint32_t width, uint32_t height) noexcept;
+    void findGlyphRect(Page& page, uint32_t width, uint32_t height, ivec4 result) noexcept;
     void writeGlyphToPage(wchar_t wc, Page& page) noexcept;
 
     static std::wstring wide_chars;

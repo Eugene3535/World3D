@@ -1,7 +1,8 @@
 #ifndef ORBIT_CAMERA_HPP
 #define ORBIT_CAMERA_HPP
 
-#include <glm/glm.hpp>
+#include <cglm/types.h>
+#include <cglm/mat4.h>
 
 #include "Export.hpp"
 
@@ -10,7 +11,7 @@ class SHINY_API OrbitCamera
 public:
 	OrbitCamera() noexcept;
 
-    void setup(const glm::vec3& minPoint, const glm::vec3& maxPoint) noexcept;
+    void setup(const vec3 minPoint, const vec3 maxPoint) noexcept;
 
     void updateProjectionMatrix(float aspect) noexcept;
     void setDrawDistance(float distance) noexcept;
@@ -21,26 +22,26 @@ public:
 	void moveVertical(float distance) noexcept;
     void zoom(float distance) noexcept;
     
-    glm::mat4 getModelViewProjectionMatrix() const noexcept;
+    void getModelViewProjectionMatrix(mat4 mvp) noexcept;
 
-    glm::vec3 getEye() const noexcept;
-    const glm::vec3& getViewPoint() const noexcept;
-    glm::vec3 getNormalizedViewVector() const noexcept;
+    void getEye(vec3 eye) const noexcept;
+    void getViewPoint(vec3 point) const noexcept;
+    void getNormalizedViewVector(vec3 v) const noexcept;
 
     float getAzimuthAngle() const noexcept;
     float getPolarAngle() const noexcept;
     float getRadius() const noexcept;
 
 private:
-    glm::mat4 m_projection;
-    mutable glm::mat4 m_modelView;
-    glm::vec3 m_center;
-    float m_radius;
-    float m_minRadius;
-    float m_azimuth;
-    float m_polar;
-    float m_aspect;
-    float m_drawDistance;
+    mat4         m_projection;
+    mutable mat4 m_modelView;
+    vec3         m_center;
+    float        m_radius;
+    float        m_minRadius;
+    float        m_azimuth;
+    float        m_polar;
+    float        m_aspect;
+    float        m_drawDistance;
     mutable bool m_modelViewNeedUpdate;
 };
 

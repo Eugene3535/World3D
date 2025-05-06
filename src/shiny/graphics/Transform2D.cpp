@@ -1,36 +1,34 @@
-#include <cmath>
-
-#include <glm/gtc/type_ptr.hpp>
+#include <cglm/vec2.h>
 
 #include "graphics/Transform2D.hpp"
 
 
 Transform2D::Transform2D() noexcept:
-    m_matrix(glm::identity<glm::mat4>()),
-    m_origin(0.0f, 0.0f),
-    m_position(0.0f, 0.0f),
-    m_scale(1.0f, 1.0f),
-    m_rotation(0.0f),
+    m_rotation(0),
     m_transformNeedUpdate(true)
 {
-
+    glm_vec2_zero(m_origin);
+    glm_vec2_zero(m_position);
+    glm_vec2_one(m_scale);
+    glm_mat4_identity(m_matrix);
 }
 
 
-Transform2D::~Transform2D() noexcept = default;
+Transform2D::~Transform2D() = default;
 
 
-void Transform2D::setPosition(float x, float y) noexcept
+
+void Transform2D::loadIdentity() noexcept
 {
-    m_position.x = x;
-    m_position.y = y;
+    *this = Transform2D();
+}
+
+
+void Transform2D::setPosition(const vec2 position) noexcept
+{
+    m_position[0] = position[0];
+    m_position[1] = position[1];
     m_transformNeedUpdate = true;
-}
-
-
-void Transform2D::setPosition(const glm::vec2& position) noexcept
-{
-    setPosition(position.x, position.y);
 }
 
 
@@ -45,43 +43,26 @@ void Transform2D::setRotation(float angle) noexcept
 }
 
 
-void Transform2D::setScale(float factorX, float factorY) noexcept
+void Transform2D::setScale(const vec2 factors) noexcept
 {
-    m_scale.x = factorX;
-    m_scale.y = factorY;
+    m_scale[0] = factors[0];
+    m_scale[1] = factors[1];
     m_transformNeedUpdate = true;
 }
 
 
-void Transform2D::setScale(const glm::vec2& factors) noexcept
+void Transform2D::setOrigin(const vec2 origin) noexcept
 {
-    setScale(factors.x, factors.y);
-}
-
-
-void Transform2D::setScale(float factor) noexcept
-{
-    setScale(factor, factor);
-}
-
-
-void Transform2D::setOrigin(float x, float y) noexcept
-{
-    m_origin.x = x;
-    m_origin.y = y;
+    m_origin[0] = origin[0];
+    m_origin[1] = origin[1];
     m_transformNeedUpdate = true;
 }
 
 
-void Transform2D::setOrigin(const glm::vec2& origin) noexcept
+void Transform2D::getPosition(vec2 position) const noexcept
 {
-    setOrigin(origin.x, origin.y);
-}
-
-
-const glm::vec2& Transform2D::getPosition() const noexcept
-{
-    return m_position;
+    position[0] = m_position[0];
+    position[1] = m_position[1];
 }
 
 
@@ -91,27 +72,24 @@ float Transform2D::getRotation() const noexcept
 }
 
 
-const glm::vec2& Transform2D::getScale() const noexcept
+void Transform2D::getScale(vec2 scale) const noexcept
 {
-    return m_scale;
+    scale[0] = m_scale[0];
+    scale[1] = m_scale[1];
 }
 
 
-const glm::vec2& Transform2D::getOrigin() const noexcept
+void Transform2D::getOrigin(vec2 origin) const noexcept
 {
-    return m_origin;
+    origin[0] = m_origin[0];
+    origin[1] = m_origin[1];
 }
 
 
-void Transform2D::move(float offsetX, float offsetY) noexcept
+void Transform2D::move(const vec2 offset) noexcept
 {
-    setPosition(m_position.x + offsetX, m_position.y + offsetY);
-}
-
-
-void Transform2D::move(const glm::vec2& offset) noexcept
-{
-    setPosition(m_position.x + offset.x, m_position.y + offset.y);
+    vec2 position = { m_position[0] + offset[0], m_position[1] + offset[1] };
+    setPosition(position);
 }
 
 
@@ -121,34 +99,22 @@ void Transform2D::rotate(float angle) noexcept
 }
 
 
-void Transform2D::scale(float factorX, float factorY) noexcept
-{
-    setScale(m_scale.x * factorX, m_scale.y * factorY);
-}
-
-
-void Transform2D::scale(const glm::vec2& factor) noexcept
-{
-    setScale(m_scale.x * factor.x, m_scale.y * factor.y);
-}
-
-
-const glm::mat4& Transform2D::getMatrix() const noexcept
+void Transform2D::getMatrix(mat4 result) const noexcept
 {  
     // Recompute the matrix if needed
     if (m_transformNeedUpdate)
     {
-        float angle  = glm::radians(-m_rotation);
+        float angle  = glm_rad(-m_rotation);
         float cosine = cos(angle);
         float sine   = sin(angle);
-        float sxc    = m_scale.x * cosine;
-        float syc    = m_scale.y * cosine;
-        float sxs    = m_scale.x * sine;
-        float sys    = m_scale.y * sine;
-        float tx     = -m_origin.x * sxc - m_origin.y * sys + m_position.x;
-        float ty     =  m_origin.x * sxs - m_origin.y * syc + m_position.y;
+        float sxc    = m_scale[0] * cosine;
+        float syc    = m_scale[1] * cosine;
+        float sxs    = m_scale[0] * sine;
+        float sys    = m_scale[1] * sine;
+        float tx     = -m_origin[0] * sxc - m_origin[1] * sys + m_position[0];
+        float ty     =  m_origin[0] * sxs - m_origin[1] * syc + m_position[1];
 
-        auto m = glm::value_ptr(m_matrix);
+        auto m = static_cast<float*>(&m_matrix[0][0]);
 
         m[0] = sxc;  m[4] = sys; m[8] = 0.f;  m[12] = tx;
         m[1] = -sxs; m[5] = syc; m[9] = 0.f;  m[13] = ty;
@@ -158,11 +124,5 @@ const glm::mat4& Transform2D::getMatrix() const noexcept
         m_transformNeedUpdate = false;
     }
 
-    return m_matrix;
-}
-
-
-void Transform2D::loadIdentity() noexcept
-{
-    *this = Transform2D();
+    glm_mat4_copy(m_matrix, result);
 }

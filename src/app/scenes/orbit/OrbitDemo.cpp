@@ -8,17 +8,12 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
 #include "resources/holder/GlResourceHolder.hpp"
 #include "resources/shaders/ShaderProgram.hpp"
-#include "camera/perspective/PerspectiveCamera.hpp"
 #include "camera/orbit/OrbitCamera.hpp"
 #include "scenes/orbit/OrbitDemo.hpp"
-
 
 
 OrbitDemo::OrbitDemo(sf::Window& window) noexcept:
@@ -48,11 +43,11 @@ bool OrbitDemo::init(GlResourceHolder& holder) noexcept
     const auto textureHandles = holder.create<Texture, 1>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(bufferHandles[0], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
+    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_camera = std::make_unique<OrbitCamera>();
-    m_camera->setup({ 0, 0, 0 }, { 100, 0, 100 });
+    m_camera->setup((vec3){ 0, 0, 0 }, (vec3){ 100, 0, 100 });
     m_camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
 
     m_texture = std::make_unique<Texture>(textureHandles[0]);
@@ -140,7 +135,10 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
     if(m_mouseScrollDelta != 0.f)
         m_camera->zoom(-m_mouseScrollDelta);
 
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix())));
+    mat4 mvp;
+    m_camera->getModelViewProjectionMatrix(mvp);
+
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 }
 
 

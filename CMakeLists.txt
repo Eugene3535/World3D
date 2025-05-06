@@ -14,8 +14,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(SFML_BUILD_GRAPHICS OFF CACHE BOOL "" FORCE)
 set(SFML_BUILD_AUDIO OFF CACHE BOOL "" FORCE)
 set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE)
-
-set(GLM_BUILD_LIBRARY OFF CACHE BOOL "" FORCE)
+set(CGLM_USE_TESTS OFF CACHE BOOL "Enable tests" FORCE)
 
 if(MSVC)
 	string(APPEND CMAKE_RUNTIME_OUTPUT_DIRECTORY "/bin")
@@ -30,7 +29,7 @@ add_compile_definitions($<$<CONFIG:Debug>:DEBUG> GLM_FORCE_SSE2)
 
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/sfml/2.6.2 sfml)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glad/core glad)
-add_subdirectory(${EXTERNAL_SOURCE_DIR}/glm glm)
+add_subdirectory(${EXTERNAL_SOURCE_DIR}/cglm cglm)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/freetype freetype)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/utfcpp utfcpp)
 
