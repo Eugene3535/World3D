@@ -1,8 +1,8 @@
 #ifndef PERSPECTIVE_CAMERA_HPP
 #define PERSPECTIVE_CAMERA_HPP
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <cglm/types.h>
+#include <cglm/mat4.h>
 
 #include "Export.hpp"
 
@@ -22,29 +22,29 @@ public:
     PerspectiveCamera() noexcept;
 
     void updateProjectionMatrix(float aspect) noexcept;
-    glm::mat4 getModelViewProjectionMatrix() noexcept;
+    void getModelViewProjectionMatrix(mat4 mvp) noexcept;
 
     void setDrawDistance(float distance) noexcept;
 
     void setPosition(float x, float y, float z) noexcept;
-    void setPosition(const glm::vec3& position) noexcept;
+    void setPosition(vec3 position) noexcept;
 
     void processKeyboard(Direction direction, float velocity) noexcept;
     void processMouseMovement(float xoffset, float yoffset) noexcept;
     void processMouseScroll(float delta) noexcept;
 
-    const glm::vec3& getPosition() const noexcept;
+    void getPosition(vec3 position) const noexcept;
 
 private:
     void recalculateModelViewMatrix() noexcept;
 
-    glm::mat4 m_projection;
-    glm::mat4 m_modelView;
+    mat4 m_projection;
+    mat4 m_modelView;
 
-    glm::vec3 m_eye;
-    glm::vec3 m_vectorFront;
-    glm::vec3 m_vectorUp;
-    glm::vec3 m_vectorRight;
+    vec3 m_eye;
+    vec3 m_vectorFront;
+    vec3 m_vectorUp;
+    vec3 m_vectorRight;
 
     float m_yaw;
     float m_pitch;

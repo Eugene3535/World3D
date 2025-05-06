@@ -1,11 +1,10 @@
+#include <cglm/cam.h>
+
 #include "camera/perspective/PerspectiveCamera.hpp"
 
 
 PerspectiveCamera::PerspectiveCamera() noexcept:
-    m_projection(glm::identity<glm::mat4>()),
-    m_modelView(glm::identity<glm::mat4>()),
     m_eye(),
-    m_vectorFront(glm::vec3(0.0f, 0.0f, -1.0f)),
     m_vectorUp(),
     m_vectorRight(),
     m_yaw(0.0f),
@@ -15,18 +14,21 @@ PerspectiveCamera::PerspectiveCamera() noexcept:
     m_drawDistance(10.0f),
     m_modelViewNeedUpdate(true)
 {
-    
+    glm_mat4_identity(m_projection);
+    glm_mat4_identity(m_modelView);
+    glm_vec3_zero(m_vectorFront);
+    m_vectorFront[2] = -1;
 }
 
 
 void PerspectiveCamera::updateProjectionMatrix(float aspect) noexcept
 {
     m_aspect = aspect;
-    m_projection = glm::perspective(glm::radians(m_fov), m_aspect, 0.1f, m_drawDistance);
+    glm_perspective(glm_rad(45), m_aspect, 0.1f, m_drawDistance, m_projection);
 }
 
 
-glm::mat4 PerspectiveCamera::getModelViewProjectionMatrix() noexcept
+void PerspectiveCamera::getModelViewProjectionMatrix(mat4 mvp) noexcept
 {
     if (m_modelViewNeedUpdate)
     {
@@ -34,7 +36,7 @@ glm::mat4 PerspectiveCamera::getModelViewProjectionMatrix() noexcept
         m_modelViewNeedUpdate = false;
     }
 
-    return m_projection * m_modelView;
+    glm_mat4_mul(m_projection, m_modelView, mvp);
 }
 
 
@@ -47,28 +49,44 @@ void PerspectiveCamera::setDrawDistance(float distance) noexcept
 
 void PerspectiveCamera::setPosition(float x, float y, float z) noexcept
 {
-    m_eye = { x, y, z };
+    m_eye[0] = x;
+    m_eye[1] = y;
+    m_eye[2] = z;
     m_modelViewNeedUpdate = true;
 }
 
 
-void PerspectiveCamera::setPosition(const glm::vec3& position) noexcept
+void PerspectiveCamera::setPosition(vec3 position) noexcept
 {
-    m_eye = position;
+    glm_vec3_copy(position, m_eye);
     m_modelViewNeedUpdate = true;
 }
 
 
 void PerspectiveCamera::processKeyboard(PerspectiveCamera::Direction direction, float velocity) noexcept
 {
+    auto add_offset = [](vec3 dir, float vel, vec3 eye) -> void
+    {
+        eye[0] += dir[0] * vel;
+        eye[1] += dir[1] * vel;
+        eye[2] += dir[2] * vel;
+    };
+
+    auto sub_offset = [](vec3 dir, float vel, vec3 eye) -> void
+    {
+        eye[0] -= dir[0] * vel;
+        eye[1] -= dir[1] * vel;
+        eye[2] -= dir[2] * vel;
+    };
+
     switch (direction)
     {
-        case PerspectiveCamera::Forward:  m_eye += m_vectorFront * velocity; break;
-        case PerspectiveCamera::Backward: m_eye -= m_vectorFront * velocity; break;
-        case PerspectiveCamera::Left:     m_eye -= m_vectorRight * velocity; break;
-        case PerspectiveCamera::Right:    m_eye += m_vectorRight * velocity; break;
-        case PerspectiveCamera::Up:       m_eye.y += velocity; break;
-        case PerspectiveCamera::Down:     m_eye.y -= velocity; break;
+        case PerspectiveCamera::Forward:  add_offset(m_vectorFront, velocity, m_eye); break;
+        case PerspectiveCamera::Backward: sub_offset(m_vectorFront, velocity, m_eye); break;
+        case PerspectiveCamera::Left:     sub_offset(m_vectorRight, velocity, m_eye); break;
+        case PerspectiveCamera::Right:    add_offset(m_vectorRight, velocity, m_eye); break;
+        case PerspectiveCamera::Up:       m_eye[1] += velocity; break;
+        case PerspectiveCamera::Down:     m_eye[1] -= velocity; break;
 
         default: break;
     }
@@ -81,7 +99,7 @@ void PerspectiveCamera::processMouseMovement(float xoffset, float yoffset) noexc
 {
     m_yaw -= xoffset;
     m_pitch += yoffset;
-    m_pitch = glm::clamp(m_pitch, -89.0f, 89.0f);
+    m_pitch = glm_clamp(m_pitch, -89.0f, 89.0f);
     m_modelViewNeedUpdate = true;
 }
 
@@ -89,27 +107,35 @@ void PerspectiveCamera::processMouseMovement(float xoffset, float yoffset) noexc
 void PerspectiveCamera::processMouseScroll(float delta) noexcept
 {
     m_fov -= delta;
-    m_fov = glm::clamp(m_fov, 1.0f, 45.0f);
+    m_fov = glm_clamp(m_fov, 1.0f, 45.0f);
     m_modelViewNeedUpdate = true;
 }
 
 
-const glm::vec3& PerspectiveCamera::getPosition() const noexcept
+void PerspectiveCamera::getPosition(vec3 position) const noexcept
 {
-    return m_eye;
+    position[0] = m_eye[0];
+    position[1] = m_eye[1];
+    position[2] = m_eye[2];
 }
 
 
 void PerspectiveCamera::recalculateModelViewMatrix() noexcept
 {
-    glm::vec3 front;
-    front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-    front.y = sin(glm::radians(m_pitch));
-    front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+    vec3 front = 
+    {
+        cos(glm_rad(m_yaw)) * cos(glm_rad(m_pitch)),
+        sin(glm_rad(m_pitch)),
+        sin(glm_rad(m_yaw)) * cos(glm_rad(m_pitch))
+    };
 
-    m_vectorFront = glm::normalize(front);
-    m_vectorRight = glm::normalize(glm::cross(m_vectorFront, glm::vec3(0.0f, 1.0f, 0.0f)));
-    m_vectorUp = glm::normalize(glm::cross(m_vectorRight, m_vectorFront));
 
-    m_modelView = glm::lookAt(m_eye, m_eye + m_vectorFront, m_vectorUp);
+    glm_vec3_normalize_to(front, m_vectorFront);
+    glm_vec3_crossn(m_vectorFront, (vec3){ 0.0f, 1.0f, 0.0f }, m_vectorRight);
+    glm_vec3_crossn(m_vectorRight, m_vectorFront, m_vectorUp);
+
+    vec3 center;
+    glm_vec3_add(m_eye, m_vectorFront, center);
+
+    glm_lookat(m_eye, center, m_vectorUp, m_modelView);
 }
