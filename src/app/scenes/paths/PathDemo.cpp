@@ -28,6 +28,8 @@ PathDemo::~PathDemo()
 
 bool PathDemo::init(GlResourceHolder& holder) noexcept
 {
+    m_window.setMouseCursorVisible(false);
+    
     StbImage imgSnow;     imgSnow.loadFromFile(FileProvider::findPathToFile("snow.png"));
     StbImage imgPavement; imgPavement.loadFromFile(FileProvider::findPathToFile("pavement.jpg"));
     StbImage imgPath;     imgPath.loadFromFile(FileProvider::findPathToFile("test.png"));

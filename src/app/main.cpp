@@ -16,7 +16,7 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 
 #include "resources/holder/GlResourceHolder.hpp"
 // #include "scenes/dune/DuneDemo.hpp"
-// #include "scenes/fonts/FontDemo.hpp"
+#include "scenes/fonts/FontDemo.hpp"
 // #include "scenes/heightmap/HeightmapDemo.hpp"
 #include "scenes/orbit/OrbitDemo.hpp"
 #include "scenes/paths/PathDemo.hpp"
@@ -72,13 +72,13 @@ int main()
     SceneManager sceneManager(window);
 
     // if(!sceneManager.pushScene<DuneDemo>()->init(resources))       return -1;
-    // if(!sceneManager.pushScene<FontDemo>()->init(resources))       return -1;
+    if(!sceneManager.pushScene<FontDemo>()->init(resources))       return -1;
     // if(!sceneManager.pushScene<HeightmapDemo>()->init(resources))  return -1;
     // if(!sceneManager.pushScene<OrbitDemo>()->init(resources))      return -1;
-    if(!sceneManager.pushScene<PathDemo>()->init(resources))       return -1;
+    // if(!sceneManager.pushScene<PathDemo>()->init(resources))       return -1;
     // if(!sceneManager.pushScene<PlatformerDemo>()->init(resources)) return -1;
 
-    DemoScene* scene = sceneManager.getScene<PathDemo>();
+    DemoScene* scene = sceneManager.getScene<FontDemo>();
 
     sf::Clock clock;
 

@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <utility>
 
 #include "graphics/Glyph.hpp"
 
@@ -14,6 +13,14 @@ public:
     struct Info
     {
         std::string family;
+    };
+
+    struct Image
+    {
+        const uint8_t* pixels = nullptr;
+        uint32_t width = 0;
+        uint32_t height = 0;
+        uint32_t characterSize = 0;
     };
 
     Font() noexcept;
@@ -28,7 +35,7 @@ public:
     bool loadPage(uint32_t characterSize) noexcept;
     bool isLoaded() const noexcept;
 
-    std::pair<const uint8_t*, ivec2> getImage(uint32_t characterSize) const noexcept;
+    Image getImage(uint32_t characterSize) const noexcept;
     const Info& getInfo() const noexcept;
 
     bool hasGlyph(wchar_t codePoint) const noexcept;

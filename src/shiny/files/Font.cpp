@@ -84,8 +84,8 @@ bool Font::writeToFile(uint32_t characterSize) const noexcept
 {
     bool result = false;
 
-    if(auto image = getImage(characterSize); image.first)
-        result = stbi_write_png(m_info.family.c_str(), image.second[0], image.second[1], 1, image.first, 0);
+    if(auto image = getImage(characterSize); image.pixels != nullptr)
+        result = stbi_write_png(m_info.family.c_str(), image.width, image.height, 1, image.pixels, 0);
 
     return result;
 }
@@ -158,15 +158,16 @@ bool Font::isLoaded() const noexcept
 }
 
 
-std::pair<const uint8_t*, ivec2> Font::getImage(uint32_t characterSize) const noexcept
+Font::Image Font::getImage(uint32_t characterSize) const noexcept
 {
-    std::pair<const uint8_t*, ivec2> image = {};
+    Image image = {};
 
     if(auto it = m_pages.find(characterSize); it != m_pages.end())
     {
-        image.first = it->second.image.data();
-        image.second[0] = it->second.size[0];
-        image.second[1] = it->second.size[1];
+        image.pixels = it->second.image.data();
+        image.width = it->second.size[0];
+        image.height = it->second.size[1];
+        image.characterSize = it->first;
     }
         
     return image;

@@ -5,15 +5,11 @@
 
 #include <glad/glad.h>
 #include <SFML/Window/Window.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <stb_image_write.h>
 #include <utf8.h>
 
 #include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
-#include "files/Font.hpp"
-#include "graphics/Glyph.hpp"
 #include "resources/holder/GlResourceHolder.hpp"
 #include "resources/shaders/ShaderProgram.hpp"
 #include "camera/orthogonal/OrthogonalCamera.hpp"
@@ -43,11 +39,11 @@ bool FontDemo::init(GlResourceHolder& holder) noexcept
     auto vaoHandle = holder.create<VertexArrayObject, 1>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(vboHandles[0], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
+    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_vbo = std::make_unique<GlBuffer>(vboHandles[1], GL_ARRAY_BUFFER);
-    m_vbo->create(sizeof(glm::vec4), 4, nullptr, GL_DYNAMIC_DRAW);
+    m_vbo->create(sizeof(vec4), 4, nullptr, GL_DYNAMIC_DRAW);
 
     m_vao = std::make_unique<VertexArrayObject>(vaoHandle[0]);
 
@@ -83,7 +79,7 @@ bool FontDemo::init(GlResourceHolder& holder) noexcept
     m_page = m_font->getImage(characterSize);
     m_glyphs = m_font->getGlyphs(characterSize);
 
-    if(!m_page.first || m_glyphs.empty())
+    if(!m_page.pixels || m_glyphs.empty())
         return false;
 
     auto utf8_to_wstring = [](const std::string& utf8_str) -> std::wstring
@@ -115,7 +111,7 @@ bool FontDemo::init(GlResourceHolder& holder) noexcept
     auto texHandle = holder.create<Texture, 1>();
     m_fontTexture = texHandle[0];
     glBindTexture(GL_TEXTURE_2D, m_fontTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_page.second.x, m_page.second.y, 0, GL_RED, GL_UNSIGNED_BYTE, m_page.first);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_page.width, m_page.height, 0, GL_RED, GL_UNSIGNED_BYTE, m_page.pixels);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -134,7 +130,9 @@ bool FontDemo::init(GlResourceHolder& holder) noexcept
 
 void FontDemo::update(const sf::Time& dt) noexcept
 {
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix())));
+    mat4 mvp;
+    m_camera->getModelViewProjectionMatrix(mvp);
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 }
 
 
@@ -148,7 +146,7 @@ void FontDemo::draw() noexcept
 
     glUseProgram(m_program->getHandle());
     
-    glm::vec3 color(0.5, 0.8f, 0.2f);
+    vec3 color = { 0.5, 0.8f, 0.2f };
     renderText(m_text, color, 250.0f, 370.0f);
 
     glUseProgram(0);
@@ -158,10 +156,10 @@ void FontDemo::draw() noexcept
 }
 
 
-void FontDemo::renderText(const std::wstring& text, const glm::vec3& color, float x, float y) noexcept
+void FontDemo::renderText(const std::wstring& text, const vec3 color, float x, float y) noexcept
 {
     if(auto uniform = glGetUniformLocation(m_program->getHandle(), "textColor"); uniform != -1)
-        glUniform3f(uniform, color.x, color.y, color.z);
+        glUniform3f(uniform, color[0], color[1], color[2]);
 
     glBindTextureUnit(0, m_fontTexture);
     glBindVertexArray(m_vao->getHandle());
@@ -171,16 +169,16 @@ void FontDemo::renderText(const std::wstring& text, const glm::vec3& color, floa
     {
         const Glyph& glyph = m_glyphs[wc];
 
-        float xpos = x + glyph.bearing.x;
-        float ypos = y - (glyph.size.y - glyph.bearing.y);
+        float xpos = x + glyph.bearing[0];
+        float ypos = y - (glyph.size[1] - glyph.bearing[1]);
 
-        float w = glyph.size.x;
-        float h = glyph.size.y;
+        float w = glyph.size[0];
+        float h = glyph.size[1];
 
-        float left   = glyph.textureRect.x;
-        float top    = glyph.textureRect.y;
-        float right  = glyph.textureRect.z;
-        float bottom = glyph.textureRect.w;
+        float left   = glyph.textureRect[0];
+        float top    = glyph.textureRect[1];
+        float right  = glyph.textureRect[2];
+        float bottom = glyph.textureRect[3];
 
         // update VBO for each character
         float vertices[16] = 
@@ -192,7 +190,7 @@ void FontDemo::renderText(const std::wstring& text, const glm::vec3& color, floa
         };
 
         // update content of VBO memory
-        m_vbo->update(0, sizeof(glm::vec4), 4, vertices);
+        m_vbo->update(0, sizeof(vec4), 4, vertices);
 
         // render quad
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

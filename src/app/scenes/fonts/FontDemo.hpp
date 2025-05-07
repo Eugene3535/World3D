@@ -5,9 +5,7 @@
 #include <string>
 #include <utility>
 
-#include <glm/vec3.hpp>
-
-#include "graphics/Glyph.hpp"
+#include "files/Font.hpp"
 #include "scenes/DemoScene.hpp"
 
 
@@ -23,16 +21,16 @@ public:
     void draw() noexcept override;
 
 private:
-    void renderText(const std::wstring& text, const glm::vec3& color, float x, float y) noexcept;
+    void renderText(const std::wstring& text, const vec3 color, float x, float y) noexcept;
 
     std::unique_ptr<class ShaderProgram>     m_program;
     std::unique_ptr<class GlBuffer>          m_vbo;
     std::unique_ptr<class VertexArrayObject> m_vao;
     std::unique_ptr<class OrthogonalCamera>  m_camera;
     std::unique_ptr<class GlBuffer>          m_uniformBuffer;
-    std::unique_ptr<class Font>              m_font;
+    std::unique_ptr<Font>                    m_font;
     GlyphTable                               m_glyphs;
-    std::pair<const uint8_t*, glm::ivec2>    m_page;
+    Font::Image                              m_page;
     std::wstring                             m_text;
     uint32_t                                 m_fontTexture;
 };
