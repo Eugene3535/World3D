@@ -1,12 +1,8 @@
 #include <array>
 
 #include <glad/glad.h>
-
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Keyboard.hpp>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "files/FileProvider.hpp"
 #include "files/StbImage.hpp"
@@ -100,8 +96,8 @@ bool DuneDemo::init(GlResourceHolder& holder) noexcept
     glUseProgram(0);
 
     m_uniformBuffer = std::make_unique<GlBuffer>(buffers[1], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
+    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_camera = std::make_unique<OrthogonalCamera>();
     m_camera->setupProjectionMatrix(width, height);
@@ -112,19 +108,40 @@ bool DuneDemo::init(GlResourceHolder& holder) noexcept
 
 void DuneDemo::update(const sf::Time& dt) noexcept
 {
+    vec2 offset = {};
+    bool is_key_pressed = false;
+
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        m_camera->move(0.0f, 3.0f);
+    {
+        offset[1] = 3;
+        is_key_pressed = true;
+    }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-        m_camera->move(3.0f, 0.0f);
+    {
+        offset[0] = 3;
+        is_key_pressed = true;
+    }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        m_camera->move(0.0f, -3.0f);
+    {
+        offset[1] = -3;
+        is_key_pressed = true;
+    }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-        m_camera->move(-3.0f, 0.0f);
+    {
+        offset[0] = -3;
+        is_key_pressed = true;
+    }
 
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix())));
+    if(is_key_pressed)
+        m_camera->move(offset);
+
+    mat4 mvp;
+    m_camera->getModelViewProjectionMatrix(mvp);
+
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 }
 
 
