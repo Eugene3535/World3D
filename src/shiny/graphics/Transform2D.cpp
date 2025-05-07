@@ -24,6 +24,30 @@ void Transform2D::loadIdentity() noexcept
 }
 
 
+void Transform2D::setPosition(float x, float y) noexcept
+{
+    m_position[0] = x;
+    m_position[1] = y;
+    m_transformNeedUpdate = true;
+}
+
+
+void Transform2D::setScale(float x, float y) noexcept
+{
+    m_scale[0] = x;
+    m_scale[1] = y;
+    m_transformNeedUpdate = true;
+}
+
+
+void Transform2D::setOrigin(float x, float y) noexcept
+{
+    m_origin[0] = x;
+    m_origin[1] = y;
+    m_transformNeedUpdate = true;
+}
+
+
 void Transform2D::setPosition(const vec2 position) noexcept
 {
     m_position[0] = position[0];

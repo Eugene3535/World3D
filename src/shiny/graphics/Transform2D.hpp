@@ -15,6 +15,10 @@ public:
 
     void loadIdentity() noexcept;
 
+    void setPosition(float x, float y) noexcept;
+    void setScale(float x, float y)    noexcept;
+    void setOrigin(float x, float y)   noexcept;
+
     void setPosition(const vec2 position) noexcept;
     void setRotation(float angle)         noexcept;
     void setScale(const vec2 factors)     noexcept;

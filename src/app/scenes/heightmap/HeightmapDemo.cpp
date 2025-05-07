@@ -2,14 +2,10 @@
 #include <memory>
 
 #include <glad/glad.h>
-
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Event.hpp>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
@@ -42,8 +38,8 @@ bool HeightmapDemo::init(GlResourceHolder& holder) noexcept
     std::array<uint32_t, 1> buffer = holder.create<GlBuffer, 1>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(buffer[0], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
+    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_orthoCamera = std::make_unique<OrthogonalCamera>();
     m_orthoCamera->setupProjectionMatrix(width, height);
@@ -241,8 +237,9 @@ void HeightmapDemo::update(const sf::Time& dt) noexcept
         m_perspectiveCamera->processKeyboard(PerspectiveCamera::Right, 0.1f);
 
     //  Heightmap
-    auto playerPos = m_perspectiveCamera->getPosition();
-    playerPos.y = getHeightInPoint(playerPos.x, playerPos.z) + 1.7f;
+    vec3 playerPos;
+    m_perspectiveCamera->getPosition(playerPos);
+    playerPos[1] = getHeightInPoint(playerPos[0], playerPos[2]) + 1.7f;
     m_perspectiveCamera->setPosition(playerPos);
 
     const auto [xpos, ypos] = sf::Mouse::getPosition();
@@ -256,7 +253,10 @@ void HeightmapDemo::update(const sf::Time& dt) noexcept
 
     sf::Mouse::setPosition({xt, yt});
 
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_perspectiveCamera->getModelViewProjectionMatrix())));
+    mat4 mvp;
+    m_perspectiveCamera->getModelViewProjectionMatrix(mvp);
+
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 }
 
 
@@ -302,14 +302,16 @@ void HeightmapDemo::draw() noexcept
     glUseProgram(m_circleProgram->getHandle());
     glBindVertexArray(m_circleVao->getHandle());
 
-    int32_t halfW = m_texCircleOff->width / 2;
-    int32_t halfH = m_texCircleOff->height / 2;
+    int32_t halfW = (m_texCircleOff->width >> 1);
+    int32_t halfH = (m_texCircleOff->height >> 1);
     static float rotation = 0;
+    mat4 mvp;
 
     m_orthoCamera->setOrigin(halfW, halfH);
     m_orthoCamera->setPosition(halfW, height - halfH);
     m_orthoCamera->setRotation(-rotation);
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_orthoCamera->getModelViewProjectionMatrix())));
+    m_orthoCamera->getModelViewProjectionMatrix(mvp);
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 
     glBindTextureUnit(0, m_texCircleOff->handle);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -317,7 +319,8 @@ void HeightmapDemo::draw() noexcept
 
     m_orthoCamera->setPosition(width - m_texCircleOff->width + halfW, height - halfH);
     m_orthoCamera->setRotation(rotation);
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_orthoCamera->getModelViewProjectionMatrix())));
+    m_orthoCamera->getModelViewProjectionMatrix(mvp);
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 
     rotation += 0.3f;
 
