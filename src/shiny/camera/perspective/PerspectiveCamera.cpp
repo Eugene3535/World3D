@@ -1,4 +1,5 @@
-#include <cglm/cam.h>
+#include <cglm/call/vec3.h>
+#include <cglm/call/cam.h>
 
 #include "camera/perspective/PerspectiveCamera.hpp"
 
@@ -14,9 +15,9 @@ PerspectiveCamera::PerspectiveCamera() noexcept:
     m_drawDistance(10.0f),
     m_modelViewNeedUpdate(true)
 {
-    glm_mat4_identity(m_projection);
-    glm_mat4_identity(m_modelView);
-    glm_vec3_zero(m_vectorFront);
+    glmc_mat4_identity(m_projection);
+    glmc_mat4_identity(m_modelView);
+    glmc_vec3_zero(m_vectorFront);
     m_vectorFront[2] = -1;
 }
 
@@ -24,7 +25,7 @@ PerspectiveCamera::PerspectiveCamera() noexcept:
 void PerspectiveCamera::updateProjectionMatrix(float aspect) noexcept
 {
     m_aspect = aspect;
-    glm_perspective(glm_rad(45), m_aspect, 0.1f, m_drawDistance, m_projection);
+    glmc_perspective(glm_rad(45), m_aspect, 0.1f, m_drawDistance, m_projection);
 }
 
 
@@ -36,7 +37,7 @@ void PerspectiveCamera::getModelViewProjectionMatrix(mat4 mvp) noexcept
         m_modelViewNeedUpdate = false;
     }
 
-    glm_mat4_mul(m_projection, m_modelView, mvp);
+    glmc_mat4_mul(m_projection, m_modelView, mvp);
 }
 
 
@@ -58,7 +59,7 @@ void PerspectiveCamera::setPosition(float x, float y, float z) noexcept
 
 void PerspectiveCamera::setPosition(vec3 position) noexcept
 {
-    glm_vec3_copy(position, m_eye);
+    glmc_vec3_copy(position, m_eye);
     m_modelViewNeedUpdate = true;
 }
 
@@ -130,12 +131,12 @@ void PerspectiveCamera::recalculateModelViewMatrix() noexcept
     };
 
 
-    glm_vec3_normalize_to(front, m_vectorFront);
-    glm_vec3_crossn(m_vectorFront, (vec3){ 0.0f, 1.0f, 0.0f }, m_vectorRight);
-    glm_vec3_crossn(m_vectorRight, m_vectorFront, m_vectorUp);
+    glmc_vec3_normalize_to(front, m_vectorFront);
+    glmc_vec3_crossn(m_vectorFront, (vec3){ 0.0f, 1.0f, 0.0f }, m_vectorRight);
+    glmc_vec3_crossn(m_vectorRight, m_vectorFront, m_vectorUp);
 
     vec3 center;
-    glm_vec3_add(m_eye, m_vectorFront, center);
+    glmc_vec3_add(m_eye, m_vectorFront, center);
 
-    glm_lookat(m_eye, center, m_vectorUp, m_modelView);
+    glmc_lookat(m_eye, center, m_vectorUp, m_modelView);
 }

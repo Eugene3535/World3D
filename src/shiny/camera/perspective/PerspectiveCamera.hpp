@@ -2,7 +2,7 @@
 #define PERSPECTIVE_CAMERA_HPP
 
 #include <cglm/types.h>
-#include <cglm/mat4.h>
+#include <cglm/call/mat4.h>
 
 #include "Export.hpp"
 

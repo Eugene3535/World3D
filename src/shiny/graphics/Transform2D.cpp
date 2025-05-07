@@ -1,4 +1,4 @@
-#include <cglm/vec2.h>
+#include <cglm/call/vec2.h>
 
 #include "graphics/Transform2D.hpp"
 
@@ -7,10 +7,10 @@ Transform2D::Transform2D() noexcept:
     m_rotation(0),
     m_transformNeedUpdate(true)
 {
-    glm_vec2_zero(m_origin);
-    glm_vec2_zero(m_position);
-    glm_vec2_one(m_scale);
-    glm_mat4_identity(m_matrix);
+    glmc_vec2_zero(m_origin);
+    glmc_vec2_zero(m_position);
+    glmc_vec2_one(m_scale);
+    glmc_mat4_identity(m_matrix);
 }
 
 
@@ -148,5 +148,5 @@ void Transform2D::getMatrix(mat4 result) const noexcept
         m_transformNeedUpdate = false;
     }
 
-    glm_mat4_copy(m_matrix, result);
+    glmc_mat4_copy(m_matrix, result);
 }

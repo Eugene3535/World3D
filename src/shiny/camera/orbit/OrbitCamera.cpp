@@ -1,4 +1,5 @@
-#include <cglm/cam.h>
+#include <cglm/call/vec3.h>
+#include <cglm/call/cam.h>
 
 #include "camera/orbit/OrbitCamera.hpp"
 
@@ -12,9 +13,9 @@ OrbitCamera::OrbitCamera() noexcept:
     m_drawDistance(3.f),
     m_modelViewNeedUpdate(true)
 {
-    glm_vec3_zero(m_center);
-    glm_mat4_identity(m_projection);
-    glm_mat4_identity(m_modelView);
+    glmc_vec3_zero(m_center);
+    glmc_mat4_identity(m_projection);
+    glmc_mat4_identity(m_modelView);
 }
 
 
@@ -31,7 +32,7 @@ void OrbitCamera::setup(const vec3 minPoint, const vec3 maxPoint) noexcept
         (maxPoint[2] - minPoint[2]) * 0.5f
     };
 
-    m_radius = glm_vec3_norm(halfSize) * 1.5f;
+    m_radius = glmc_vec3_norm(halfSize) * 1.5f;
 
     m_minRadius = m_radius * 0.3f;
     m_azimuth = 0;
@@ -44,7 +45,7 @@ void OrbitCamera::setup(const vec3 minPoint, const vec3 maxPoint) noexcept
 void OrbitCamera::updateProjectionMatrix(float aspect) noexcept
 {
     m_aspect = aspect;
-    glm_perspective(glm_rad(45), m_aspect, 0.1f, m_drawDistance, m_projection);
+    glmc_perspective(glm_rad(45), m_aspect, 0.1f, m_drawDistance, m_projection);
 }
 
 
@@ -90,7 +91,7 @@ void OrbitCamera::moveHorizontal(float distance) noexcept
     getNormalizedViewVector(view);
 
     vec3 strafe;
-    glm_vec3_crossn(view, (vec3){ 0.f, 1.f, 0.f }, strafe);
+    glmc_vec3_crossn(view, (vec3){ 0.f, 1.f, 0.f }, strafe);
 
     m_center[0] += strafe[0] * distance;
     m_center[1] += strafe[1] * distance;
@@ -107,9 +108,9 @@ void OrbitCamera::moveVertical(float distance) noexcept
     getViewPoint(view);
     getEye(eye);
 
-    glm_vec3_sub(view, eye, front);
-    glm_vec3_crossn(front, (vec3){ 0.0f, 1.0f, 0.0f }, right);
-    glm_vec3_crossn(right, front, up);
+    glmc_vec3_sub(view, eye, front);
+    glmc_vec3_crossn(front, (vec3){ 0.0f, 1.0f, 0.0f }, right);
+    glmc_vec3_crossn(right, front, up);
 
     m_center[0] += up[0] * distance;
     m_center[1] += up[1] * distance;
@@ -137,13 +138,13 @@ void OrbitCamera::getModelViewProjectionMatrix(mat4 mvp) noexcept
         vec3 eye, view, center;
         getEye(eye);
         getNormalizedViewVector(view);
-        glm_vec3_add(eye, view, center);
+        glmc_vec3_add(eye, view, center);
 
-        glm_lookat(eye, center, (vec3){ 0.f, 1.f, 0.f }, m_modelView);
+        glmc_lookat(eye, center, (vec3){ 0.f, 1.f, 0.f }, m_modelView);
         m_modelViewNeedUpdate = false;
     }
 
-    glm_mat4_mul(m_projection, m_modelView, mvp);
+    glmc_mat4_mul(m_projection, m_modelView, mvp);
 }
 
 
@@ -173,8 +174,8 @@ void OrbitCamera::getNormalizedViewVector(vec3 v) const noexcept
     vec3 view, eye;
     getViewPoint(view);
     getEye(eye);
-    glm_vec3_sub(view, eye, v);
-    glm_vec3_normalize(v);
+    glmc_vec3_sub(view, eye, v);
+    glmc_vec3_normalize(v);
 }
 
 

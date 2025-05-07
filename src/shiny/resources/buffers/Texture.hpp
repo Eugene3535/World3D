@@ -31,9 +31,9 @@ struct SHINY_API Texture
 
 	uint32_t handle = 0;
 	uint32_t type   = 0;
-	uint32_t width  = 0;
-    uint32_t height = 0;
-	uint32_t depth  = 0;
+	int32_t width   = 0;
+    int32_t height  = 0;
+	int32_t depth   = 0;
 
 	bool isSmooth   = false;
 	bool isRepeated = false;

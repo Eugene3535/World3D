@@ -368,13 +368,13 @@ void PlatformerDemo::draw() noexcept
     for(auto& entity : m_entities)
     { 
         entity->getMatrix(modelMatrix);
-        glm_mat4_mul(mvp, modelMatrix, modelMatrix);
+        glmc_mat4_mul(mvp, modelMatrix, modelMatrix);
         m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(modelMatrix));
         entity->anim.draw();
     }
 
     m_player->getMatrix(modelMatrix);
-    glm_mat4_mul(mvp, modelMatrix, modelMatrix);
+    glmc_mat4_mul(mvp, modelMatrix, modelMatrix);
     m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(modelMatrix));
     m_player->anim.draw();
 
