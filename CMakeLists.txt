@@ -25,7 +25,7 @@ else()
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 endif()
 
-add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
+add_compile_definitions($<$<CONFIG:Debug>:DEBUG> CGLM_USE_ANONYMOUS_STRUCT)
 
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/sfml/2.6.2 sfml)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glad/core glad)

@@ -2,12 +2,8 @@
 #include <memory>
 
 #include <glad/glad.h>
-
 #include <SFML/Window.hpp>
 #include <SFML/System/Clock.hpp>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "files/StbImage.hpp"
 #include "files/FileProvider.hpp"
@@ -46,8 +42,8 @@ bool PlatformerDemo::init(GlResourceHolder& holder) noexcept
     const auto buffers = holder.create<GlBuffer, 2>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(buffers[0], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
+    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_camera = std::make_unique<OrthogonalCamera>(); 
     m_camera->setupProjectionMatrix(width, height);
@@ -100,12 +96,12 @@ bool PlatformerDemo::init(GlResourceHolder& holder) noexcept
 
     if(auto borderThickness = m_healthbarProgram->getUniformLocation("borderThickness"); borderThickness != -1)
     {
-        const auto ratio = 1.0f / glm::vec2(m_textureHealthBar->width, m_textureHealthBar->height);
+        const vec2 ratio = { 1.f / m_textureHealthBar->width, 1.f / m_textureHealthBar->height };
 
-        float left   = 3 * ratio.x;
-        float top    = 3 * ratio.y;
-        float right  = 10 * ratio.x;
-        float bottom = 66 * ratio.y;
+        float left   = 3 * ratio[0];
+        float top    = 3 * ratio[1];
+        float right  = 10 * ratio[0];
+        float bottom = 66 * ratio[1];
         
         glUniform4f(borderThickness, left, top, right, bottom);
     }
@@ -130,32 +126,31 @@ bool PlatformerDemo::init(GlResourceHolder& holder) noexcept
 
 //  Goomba
     {
-        std::array<glm::ivec4, 2> goombaWalkFrames = 
-        {
-            glm::ivec4(0, 0, 16, 16),
-            glm::ivec4(16, 0, 16, 16)
-        };
+        std::array<ivec4s, 2> goombaWalkFrames; 
+        goombaWalkFrames[0] = { 0, 0, 16, 16  };
+        goombaWalkFrames[1] = { 16, 0, 16, 16 };
+        
         m_sprites->createCustomAnimaton(GOOMBA_WALK, m_textureGoomba.get(), goombaWalkFrames);
-        m_sprites->createSingleAnimation(GOOMBA_DEAD, m_textureGoomba.get(), glm::ivec4(48, 0, 16, 16));
+        m_sprites->createSingleAnimation(GOOMBA_DEAD, m_textureGoomba.get(), { 48, 0, 16, 16 });
     }
 
 //  Bullet
     {
-        std::array<glm::ivec4, 3> bulletExplodeFrames = 
-        {
-            glm::ivec4(32, 9, 7, 8),
-            glm::ivec4(58, 6, 13, 13),
-            glm::ivec4(85, 5, 16, 16)
-        };
-        m_sprites->createSingleAnimation(BULLET_MOVE, m_textureBullet.get(), glm::ivec4(8, 10, 6, 6));
+        std::array<ivec4s, 3> bulletExplodeFrames;       
+        bulletExplodeFrames[0] = { 32, 9, 7,  8  };
+        bulletExplodeFrames[1] = { 58, 6, 13, 13 };
+        bulletExplodeFrames[2] = { 85, 5, 16, 16 };
+        
+        m_sprites->createSingleAnimation(BULLET_MOVE, m_textureBullet.get(), { 8, 10, 6, 6 });
         m_sprites->createCustomAnimaton(BULLET_EXPLODE, m_textureBullet.get(), bulletExplodeFrames);
     }
 
 // Moving platform
-    m_sprites->createSingleAnimation(PLATFORM_MOVE, m_textureMovingPlatform.get(), glm::ivec4(0, 0, 95, 22));
+    m_sprites->createSingleAnimation(PLATFORM_MOVE, m_textureMovingPlatform.get(), { 0, 0, 95, 22 });
 
 //  Health bar
-    m_sprites->createSingleAnimation(HEALTH_BAR, m_textureHealthBar.get(), glm::ivec4(0, 0, m_textureHealthBar->width, m_textureHealthBar->height));
+    ivec4s healthBarFrame = { 0, 0, m_textureHealthBar->width, m_textureHealthBar->height };
+    m_sprites->createSingleAnimation(HEALTH_BAR, m_textureHealthBar.get(), healthBarFrame);
     
 //  Megaman
     m_sprites->loadSpriteSheet(FileProvider::findPathToFile("anim_megaman.xml"), m_textureMegaman.get());
@@ -215,9 +210,9 @@ bool PlatformerDemo::init(GlResourceHolder& holder) noexcept
         m_megaman->play();
     }
 
-    auto healthBarFrame = m_sprites->getSprites(HEALTH_BAR);
+    auto healthBarFrames = m_sprites->getSprites(HEALTH_BAR);
     m_healthbar = std::make_unique<Sprite2D>();
-    *m_healthbar = healthBarFrame[0];
+    *m_healthbar = healthBarFrames[0];
 
     auto enemyObjects = m_tilemap->getObjectsByName("enemy");
     auto solidObjects = m_tilemap->getObjectsByName("solid");
@@ -354,8 +349,15 @@ void PlatformerDemo::draw() noexcept
 
     auto [width, height] = m_window.getSize();
 
-    m_camera->setPosition(-(m_player->getPosition().x - (width >> 1)), -(m_player->getPosition().y - (height >> 1)));
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix())));
+    mat4 mvp;
+    mat4 modelMatrix;
+    
+    vec2 playerPos;
+    m_player->getPosition(playerPos);
+
+    m_camera->setPosition(-(playerPos[0] - (width >> 1)), -(playerPos[1] - (height >> 1)));
+    m_camera->getModelViewProjectionMatrix(mvp);
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 
     glUseProgram(m_tilemapProgram->getHandle());
 
@@ -364,12 +366,16 @@ void PlatformerDemo::draw() noexcept
     glBindVertexArray(m_vao->getHandle());
 
     for(auto& entity : m_entities)
-    {
-        m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix() * entity->getMatrix())));
+    { 
+        entity->getMatrix(modelMatrix);
+        glm_mat4_mul(mvp, modelMatrix, modelMatrix);
+        m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(modelMatrix));
         entity->anim.draw();
     }
 
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix() * m_player->getMatrix())));
+    m_player->getMatrix(modelMatrix);
+    glm_mat4_mul(mvp, modelMatrix, modelMatrix);
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(modelMatrix));
     m_player->anim.draw();
 
     glUseProgram(0);
@@ -381,7 +387,8 @@ void PlatformerDemo::draw() noexcept
         glUniform1i(hpUniform, m_player->Health);
 
     m_camera->setPosition(20, 20);
-    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(m_camera->getModelViewProjectionMatrix())));
+    m_camera->getModelViewProjectionMatrix(mvp);
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
     
     glBindTexture(GL_TEXTURE_2D, m_healthbar->texture);
     glDrawArrays(GL_TRIANGLE_FAN, m_healthbar->frame, 4);

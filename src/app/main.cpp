@@ -20,7 +20,7 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 #include "scenes/heightmap/HeightmapDemo.hpp"
 #include "scenes/orbit/OrbitDemo.hpp"
 #include "scenes/paths/PathDemo.hpp"
-// #include "scenes/platformer/PlatformerDemo.hpp"
+#include "scenes/platformer/PlatformerDemo.hpp"
 #include "scenes/SceneManager.hpp"
 
 
@@ -73,12 +73,12 @@ int main()
 
     // if(!sceneManager.pushScene<DuneDemo>()->init(resources))       return -1;
     // if(!sceneManager.pushScene<FontDemo>()->init(resources))       return -1;
-    if(!sceneManager.pushScene<HeightmapDemo>()->init(resources))  return -1;
+    // if(!sceneManager.pushScene<HeightmapDemo>()->init(resources))  return -1;
     // if(!sceneManager.pushScene<OrbitDemo>()->init(resources))      return -1;
     // if(!sceneManager.pushScene<PathDemo>()->init(resources))       return -1;
-    // if(!sceneManager.pushScene<PlatformerDemo>()->init(resources)) return -1;
+    if(!sceneManager.pushScene<PlatformerDemo>()->init(resources)) return -1;
 
-    DemoScene* scene = sceneManager.getScene<HeightmapDemo>();
+    DemoScene* scene = sceneManager.getScene<PlatformerDemo>();
 
     sf::Clock clock;
 
