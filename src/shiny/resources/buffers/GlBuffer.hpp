@@ -31,6 +31,7 @@
 class SHINY_API GlBuffer final
 {
 public:
+    GlBuffer() noexcept;
     GlBuffer(GLuint handle, GLenum target) noexcept;
 
     void create(size_t elementSize, size_t elementCount, const void* data, GLenum usage) noexcept;

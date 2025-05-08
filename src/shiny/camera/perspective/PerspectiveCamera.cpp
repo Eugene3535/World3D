@@ -130,7 +130,6 @@ void PerspectiveCamera::recalculateModelViewMatrix() noexcept
         sin(glm_rad(m_yaw)) * cos(glm_rad(m_pitch))
     };
 
-
     glmc_vec3_normalize_to(front, m_vectorFront);
     glmc_vec3_crossn(m_vectorFront, (vec3){ 0.0f, 1.0f, 0.0f }, m_vectorRight);
     glmc_vec3_crossn(m_vectorRight, m_vectorFront, m_vectorUp);

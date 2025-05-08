@@ -9,7 +9,8 @@
 class SHINY_API VertexArrayObject final
 {
 public:
-    explicit VertexArrayObject(GLuint handle) noexcept;
+    VertexArrayObject() noexcept;
+    VertexArrayObject(GLuint handle) noexcept;
 
     void addVertexBuffer(const GlBuffer& buffer, std::span<const VertexBufferLayout::Attribute> attributes) noexcept;
     void setElementBuffer(const GlBuffer& buffer) noexcept;

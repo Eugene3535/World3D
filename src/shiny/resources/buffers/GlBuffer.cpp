@@ -3,6 +3,16 @@
 #include "resources/buffers/GlBuffer.hpp"
 
 
+GlBuffer::GlBuffer() noexcept:
+    m_handle(0),
+    m_target(0),
+    m_usage(GL_STREAM_DRAW),
+    m_count(0)
+{
+
+}
+
+
 GlBuffer::GlBuffer(GLuint handle, GLenum target) noexcept:
     m_handle(handle),
     m_target(target),
@@ -15,43 +25,53 @@ GlBuffer::GlBuffer(GLuint handle, GLenum target) noexcept:
 
 void GlBuffer::create(size_t elementSize, size_t elementCount, const void* data, GLenum usage) noexcept
 {
-    glBindBuffer(m_target, m_handle);
-    glBufferData(m_target, static_cast<GLsizeiptr>(elementCount * elementSize), data, usage);
-    glBindBuffer(m_target, 0);
-
-    m_usage = usage;
-    m_count = static_cast<GLuint>(elementCount);
+    if(m_target)
+    {
+        glBindBuffer(m_target, m_handle);
+        glBufferData(m_target, static_cast<GLsizeiptr>(elementCount * elementSize), data, usage);
+        glBindBuffer(m_target, 0);
+    
+        m_usage = usage;
+        m_count = static_cast<GLuint>(elementCount);
+    }
 }
 
 
 void GlBuffer::update(size_t offset, size_t elementSize, size_t elementCount, const void* data) noexcept
 {
-    glBindBuffer(m_target, m_handle);
-
-    if(elementCount > m_count)
+    if(m_target)
     {
-        glBufferData(m_target, static_cast<GLsizeiptr>(elementCount * elementSize), nullptr, m_usage);
-        m_count = static_cast<GLuint>(elementCount);
+        glBindBuffer(m_target, m_handle);
+
+        if(elementCount > m_count)
+        {
+            glBufferData(m_target, static_cast<GLsizeiptr>(elementCount * elementSize), nullptr, m_usage);
+            m_count = static_cast<GLuint>(elementCount);
+        }
+            
+        glBufferSubData(m_target, static_cast<GLintptr>(elementSize * offset), static_cast<GLsizeiptr>(elementCount * elementSize), data);
+        glBindBuffer(m_target, 0);
     }
-        
-    glBufferSubData(m_target, static_cast<GLintptr>(elementSize * offset), static_cast<GLsizeiptr>(elementCount * elementSize), data);
-    glBindBuffer(m_target, 0);
 }
 
 
 void GlBuffer::bindBufferRange(GLuint index, size_t offset, size_t size) const noexcept
 {
-    glBindBuffer(m_target, m_handle);
-//  target must be one of GL_ATOMIC_COUNTER_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER, GL_UNIFORM_BUFFER, or GL_SHADER_STORAGE_BUFFER.
-    const bool target_is_correct = ((m_target == GL_ATOMIC_COUNTER_BUFFER)     ||
-                                    (m_target == GL_TRANSFORM_FEEDBACK_BUFFER) ||
-                                    (m_target == GL_UNIFORM_BUFFER)            ||
-                                    (m_target == GL_SHADER_STORAGE_BUFFER));                   
-
-    if(target_is_correct)
-        glBindBufferRange(m_target, index, m_handle, static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size));
-
-    glBindBuffer(m_target, 0);
+    if(m_target)
+    {
+        //  target must be one of GL_ATOMIC_COUNTER_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER, GL_UNIFORM_BUFFER, or GL_SHADER_STORAGE_BUFFER.
+        const bool target_is_correct = ((m_target == GL_ATOMIC_COUNTER_BUFFER)     ||
+                                        (m_target == GL_TRANSFORM_FEEDBACK_BUFFER) ||
+                                        (m_target == GL_UNIFORM_BUFFER)            ||
+                                        (m_target == GL_SHADER_STORAGE_BUFFER));                   
+    
+        if(target_is_correct)
+        {
+            glBindBuffer(m_target, m_handle);
+            glBindBufferRange(m_target, index, m_handle, static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size));
+            glBindBuffer(m_target, 0);
+        }
+    }
 }
 
 
