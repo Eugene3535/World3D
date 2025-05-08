@@ -13,7 +13,7 @@ public:
     DuneDemo(class sf::Window& window) noexcept;
     ~DuneDemo();
 
-    bool init(class GlResourceHolder& holder) noexcept override;
+    bool init() noexcept override;
     void update(const class sf::Time& dt) noexcept override;
     void draw() noexcept override;
 

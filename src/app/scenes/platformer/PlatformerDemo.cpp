@@ -35,8 +35,10 @@ PlatformerDemo::~PlatformerDemo()
 }
 
 
-bool PlatformerDemo::init(GlResourceHolder& holder) noexcept
+bool PlatformerDemo::init() noexcept
 {
+    auto& holder = *GlResourceHolder::getInstance();
+
     auto [width, height] = m_window.getSize();
 
     const auto buffers = holder.create<GlBuffer, 2>();

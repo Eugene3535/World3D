@@ -13,7 +13,7 @@ public:
     PathDemo(class sf::Window& window) noexcept;
     ~PathDemo();
 
-    bool init(class GlResourceHolder& holder) noexcept override;
+    bool init() noexcept override;
     void update(const class sf::Time& dt) noexcept override;
     void draw() noexcept override;
 

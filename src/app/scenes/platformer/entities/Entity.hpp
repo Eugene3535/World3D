@@ -6,7 +6,7 @@
 
 #include <SFML/Graphics/Rect.hpp>
 
-#include "graphics/Transform2D.hpp"
+#include "graphics/common/Transform2D.hpp"
 #include "scenes/platformer/animation/Animator.hpp"
 #include "scenes/platformer/tilemap/TileMap.hpp"
 

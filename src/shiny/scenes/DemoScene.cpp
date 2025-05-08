@@ -1,7 +1,6 @@
 #include <SFML/Window/Window.hpp>
 #include <SFML/System/Time.hpp>
 
-#include "resources/holder/GlResourceHolder.hpp"
 #include "scenes/DemoScene.hpp"
 
 
@@ -15,7 +14,7 @@ DemoScene::DemoScene(sf::Window& window) noexcept:
 DemoScene::~DemoScene() = default;
 
 
-bool DemoScene::init(GlResourceHolder& holder) noexcept
+bool DemoScene::init() noexcept
 {
     return false;
 }

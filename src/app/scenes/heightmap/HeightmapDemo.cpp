@@ -29,8 +29,10 @@ HeightmapDemo::~HeightmapDemo()
 }
 
 
-bool HeightmapDemo::init(GlResourceHolder& holder) noexcept
+bool HeightmapDemo::init() noexcept
 {
+    auto& holder = *GlResourceHolder::getInstance();
+
     m_window.setMouseCursorVisible(false);
     
     auto [width, height] = m_window.getSize();

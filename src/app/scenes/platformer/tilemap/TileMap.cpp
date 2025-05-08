@@ -51,9 +51,9 @@ TileMap::~TileMap() noexcept
     textures[0] = m_background->texture.handle;
     textures[1] = m_foreground->texture.handle;
 
-    m_resourceHolder.destroy<GlBuffer, 4>(buffers);
-    m_resourceHolder.destroy<VertexArrayObject, 2>(vertexArrays);
-    m_resourceHolder.destroy<Texture, 2>(textures);
+    m_resourceHolder.destroy<GlBuffer>(buffers);
+    m_resourceHolder.destroy<VertexArrayObject>(vertexArrays);
+    m_resourceHolder.destroy<Texture>(textures);
 }
 
 

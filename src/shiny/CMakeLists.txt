@@ -1,8 +1,8 @@
 set(SHINY_TARGET shiny)
 
 set(SHINY_SRC_FILES
-	graphics/Color.cpp
-	graphics/Transform2D.cpp
+	graphics/common/Color.cpp
+	graphics/common/Transform2D.cpp
 	files/FileProvider.cpp
 	files/Font.cpp
 	files/Shader.cpp
@@ -20,9 +20,9 @@ set(SHINY_SRC_FILES
 
 set(SHINY_HDR_FILES
 	Export.hpp
-	graphics/Color.hpp
+	graphics/common/Color.hpp
+	graphics/common/Transform2D.hpp
 	graphics/Glyph.hpp
-	graphics/Transform2D.hpp
 	files/FileProvider.hpp
 	files/Font.hpp
 	files/Shader.hpp

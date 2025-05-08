@@ -22,20 +22,20 @@ std::array<GLuint, N> GlResourceHolder::create() noexcept
 }
 
 
-template<class T, size_t N>
-void GlResourceHolder::destroy(const std::array<GLuint, N>& objects) noexcept
+template<class T>
+void GlResourceHolder::destroy(const std::span<GLuint> objects) noexcept
 {
     if constexpr(std::is_same_v<T, GlBuffer>)
     {
-        destroyResources<N>(objects, m_buffers, glDeleteBuffers);
+        destroyResources(objects, m_buffers, glDeleteBuffers);
     }
     else if constexpr(std::is_same_v<T, VertexArrayObject>)
     {
-        destroyResources<N>(objects, m_arrays, glDeleteVertexArrays);
+        destroyResources(objects, m_arrays, glDeleteVertexArrays);
     }
     else if constexpr(std::is_same_v<T, Texture>)
     {
-        destroyResources<N>(objects, m_textures, glDeleteTextures);
+        destroyResources(objects, m_textures, glDeleteTextures);
     }
     else
     {
@@ -53,30 +53,4 @@ std::array<GLuint, N> GlResourceHolder::createResources(std::vector<GLuint>& han
     handles.insert(handles.end(), objects.begin(), objects.end());
 
     return objects;
-}
-
-
-template<size_t N>
-void GlResourceHolder::destroyResources(const std::array<GLuint, N>& objects, std::vector<GLuint>& handles, void(*func)(GLint, const GLuint*)) noexcept
-{
-//  Avoid deleting non-existent objects
-    std::vector<GLuint> tmp;
-    tmp.reserve(N);
-
-    for(GLuint object : objects)
-    {
-        for(size_t i = 0; i < handles.size(); ++i)
-        {
-            if(auto& handle = handles[i]; handle == object)
-            {
-                tmp.push_back(object);
-                std::swap(handle, handles.back());
-                handles.pop_back();
-                break;
-            }
-        }
-    }
-    
-    if(!tmp.empty())
-        func(static_cast<GLint>(tmp.size()), tmp.data());
 }

@@ -1,4 +1,4 @@
-#include "graphics/Color.hpp"
+#include "graphics/common/Color.hpp"
 
 
 const Color Color::Black(0, 0, 0);

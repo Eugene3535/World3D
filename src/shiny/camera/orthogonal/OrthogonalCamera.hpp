@@ -1,7 +1,7 @@
 #ifndef ORTHOGONAL_CAMERA_HPP
 #define ORTHOGONAL_CAMERA_HPP
 
-#include "graphics/Transform2D.hpp"
+#include "graphics/common/Transform2D.hpp"
 
 class SHINY_API OrthogonalCamera final:
     public Transform2D

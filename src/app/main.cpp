@@ -71,14 +71,14 @@ int main()
     GlResourceHolder resources;
     SceneManager sceneManager(window);
 
-    // if(!sceneManager.pushScene<DuneDemo>()->init(resources))       return -1;
-    // if(!sceneManager.pushScene<FontDemo>()->init(resources))       return -1;
-    // if(!sceneManager.pushScene<HeightmapDemo>()->init(resources))  return -1;
-    // if(!sceneManager.pushScene<OrbitDemo>()->init(resources))      return -1;
-    // if(!sceneManager.pushScene<PathDemo>()->init(resources))       return -1;
-    if(!sceneManager.pushScene<PlatformerDemo>()->init(resources)) return -1;
+    if(!sceneManager.pushScene<DuneDemo>()->init())          return -1;
+    // if(!sceneManager.pushScene<FontDemo>()->init())       return -1;
+    // if(!sceneManager.pushScene<HeightmapDemo>()->init())  return -1;
+    // if(!sceneManager.pushScene<OrbitDemo>()->init())      return -1;
+    // if(!sceneManager.pushScene<PathDemo>()->init())       return -1;
+    // if(!sceneManager.pushScene<PlatformerDemo>()->init()) return -1;
 
-    DemoScene* scene = sceneManager.getScene<PlatformerDemo>();
+    DemoScene* scene = sceneManager.getScene<DuneDemo>();
 
     sf::Clock clock;
 

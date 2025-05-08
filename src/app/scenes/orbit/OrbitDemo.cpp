@@ -34,8 +34,10 @@ OrbitDemo::~OrbitDemo()
 }
 
 
-bool OrbitDemo::init(GlResourceHolder& holder) noexcept
+bool OrbitDemo::init() noexcept
 {
+    auto& holder = *GlResourceHolder::getInstance();
+    
     auto [width, height] = m_window.getSize();
 
     const auto bufferHandles  = holder.create<GlBuffer, 2>();
