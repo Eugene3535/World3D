@@ -23,6 +23,7 @@ set(SHINY_HDR_FILES
 	graphics/common/Color.hpp
 	graphics/common/Transform2D.hpp
 	graphics/Glyph.hpp
+	graphics/meshes/Mesh.hpp
 	files/FileProvider.hpp
 	files/Font.hpp
 	files/Shader.hpp

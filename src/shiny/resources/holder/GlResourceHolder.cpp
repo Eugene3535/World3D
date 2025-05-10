@@ -32,7 +32,7 @@ GlResourceHolder* GlResourceHolder::getInstance() noexcept
 }
 
 
-void GlResourceHolder::destroyResources(const std::span<GLuint> objects, std::vector<GLuint>& handles, void(*func)(GLint, const GLuint*)) noexcept
+void GlResourceHolder::destroyResources(std::span<const GLuint> objects, std::vector<GLuint>& handles, void(*func)(GLint, const GLuint*)) noexcept
 {
     if(!objects.empty())
     {

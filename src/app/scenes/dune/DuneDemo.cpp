@@ -42,18 +42,16 @@ bool DuneDemo::init() noexcept
     if(!imgStone.loadFromFile(FileProvider::findPathToFile("stone.jpg"))) return false;
 
     auto textureHandles = holder.create<Texture, 5>();
+    m_textures.resize(textureHandles.size());
 
-    m_texture0 = std::make_unique<Texture>(textureHandles[0]);
-    m_texture1 = std::make_unique<Texture>(textureHandles[1]);
-    m_texture2 = std::make_unique<Texture>(textureHandles[2]);
-    m_texture3 = std::make_unique<Texture>(textureHandles[3]);
-    m_texture4 = std::make_unique<Texture>(textureHandles[4]);
+    for(size_t i = 0; i < textureHandles.size(); ++i)
+        m_textures[i].handle = textureHandles[i];  
 
-    m_texture0->loadFromImage(*m_mapMask, false, true);
-    m_texture1->loadFromImage(imgSand, true, true);
-    m_texture2->loadFromImage(imgSpace, true, true);
-    m_texture3->loadFromImage(imgStone, true, true);
-    m_texture4->loadFromImage(imgRock, true, true);
+    m_textures[0].loadFromImage(*m_mapMask, false, true);
+    m_textures[1].loadFromImage(imgSand, true, true);
+    m_textures[2].loadFromImage(imgSpace, true, true);
+    m_textures[3].loadFromImage(imgStone, true, true);
+    m_textures[4].loadFromImage(imgRock, true, true);
 
     auto [width, height] = m_window.getSize();
 
@@ -77,8 +75,8 @@ bool DuneDemo::init() noexcept
     GlBuffer vbo(buffers[0], GL_ARRAY_BUFFER);
     vbo.create(sizeof(float), vertices.size(), static_cast<const void*>(vertices.data()), GL_STATIC_DRAW);
 
-    m_vao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
-    m_vao->addVertexBuffer(vbo, attributes);
+    VertexArrayObject vao(vertexArrays[0]);
+    vao.addVertexBuffer(vbo, attributes);
 
     std::array<Shader, 2> shaders;
     if(!shaders[0].loadFromFile(FileProvider::findPathToFile("dune.vert"), GL_VERTEX_SHADER))   return false;
@@ -103,6 +101,9 @@ bool DuneDemo::init() noexcept
 
     m_camera = std::make_unique<OrthogonalCamera>();
     m_camera->setupProjectionMatrix(width, height);
+
+    m_mesh.vao = vao.getHandle();
+    m_mesh.textures = m_textures;
 
     return true;
 }
@@ -154,21 +155,15 @@ void DuneDemo::draw() noexcept
 
     glUseProgram(m_program->getHandle());
 
-    glBindTextureUnit(0, m_texture0->handle);
-    glBindTextureUnit(1, m_texture1->handle);
-    glBindTextureUnit(2, m_texture2->handle);
-    glBindTextureUnit(3, m_texture3->handle);
-    glBindTextureUnit(4, m_texture4->handle);
+    for(size_t i = 0; i < m_mesh.textures.size(); ++i)
+        glBindTextureUnit(i, m_mesh.textures[i].handle);
 
-    glBindVertexArray(m_vao->getHandle());
+    glBindVertexArray(m_mesh.vao);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glBindVertexArray(0);
 
-    glBindTextureUnit(0, 0);
-    glBindTextureUnit(1, 0);
-    glBindTextureUnit(2, 0);
-    glBindTextureUnit(3, 0);
-    glBindTextureUnit(4, 0);
+    for(size_t i = 0; i < m_mesh.textures.size(); ++i)
+        glBindTextureUnit(i, 0);
 
     glUseProgram(0);
 }

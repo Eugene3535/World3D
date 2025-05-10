@@ -28,7 +28,7 @@ private:
     template<size_t N>
     std::array<GLuint, N> createResources(std::vector<GLuint>& handles, void(*)(int32_t, GLuint*)) noexcept;
     
-    void destroyResources(const std::span<GLuint> objects, std::vector<GLuint>& handles, void(*)(int32_t, const GLuint*)) noexcept;
+    void destroyResources(std::span<const GLuint> objects, std::vector<GLuint>& handles, void(*)(int32_t, const GLuint*)) noexcept;
 
     std::vector<GLuint> m_buffers;
     std::vector<GLuint> m_arrays;

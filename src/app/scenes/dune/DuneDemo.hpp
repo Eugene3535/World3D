@@ -2,7 +2,9 @@
 #define DUNE_DEMO_HPP
 
 #include <memory>
+#include <vector>
 
+#include "graphics/meshes/Mesh.hpp"
 #include "scenes/DemoScene.hpp"
 
 
@@ -18,18 +20,13 @@ public:
     void draw() noexcept override;
 
 private:
+    Mesh m_mesh;
+    std::vector<class Texture> m_textures;
     std::unique_ptr<class StbImage> m_mapMask;
 
-    std::unique_ptr<class Texture> m_texture0;
-    std::unique_ptr<class Texture> m_texture1;
-    std::unique_ptr<class Texture> m_texture2;
-    std::unique_ptr<class Texture> m_texture3;
-    std::unique_ptr<class Texture> m_texture4;
-
-    std::unique_ptr<class ShaderProgram>     m_program;
-    std::unique_ptr<class VertexArrayObject> m_vao;
-    std::unique_ptr<class OrthogonalCamera>  m_camera;
-    std::unique_ptr<class GlBuffer>          m_uniformBuffer;
+    std::unique_ptr<class ShaderProgram>    m_program;
+    std::unique_ptr<class OrthogonalCamera> m_camera;
+    std::unique_ptr<class GlBuffer>         m_uniformBuffer;
 };
 
 

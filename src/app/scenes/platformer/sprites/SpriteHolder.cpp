@@ -28,7 +28,7 @@ void SpriteHolder::createSingleAnimation(const std::string& name, const Texture*
 }
 
 
-void SpriteHolder::createLinearAnimaton(const std::string& name, const Texture* texture, GLuint duration) noexcept
+void SpriteHolder::createLinearAnimaton(const std::string& name, const Texture* texture, int duration) noexcept
 {
 	if(auto it = m_animations.find(name); it == m_animations.end())
 	{
@@ -37,10 +37,10 @@ void SpriteHolder::createLinearAnimaton(const std::string& name, const Texture* 
 
 		const ivec2 size  = { texture->width, texture->height };
 		const vec2 ratio = { 1.f / size[0], 1.f / size[1] };
-		const GLuint frameWidth = texture->width / duration;
+		const int frameWidth = texture->width / duration;
 		const GLuint handle = texture->handle;
 	
-		for (GLuint i = 0; i < duration; ++i)
+		for (int i = 0; i < duration; ++i)
 		{
 			ivec4s frame = { i * frameWidth, 0, frameWidth, size[1] };
 			addSprite(handle, frame, ratio);
@@ -51,7 +51,7 @@ void SpriteHolder::createLinearAnimaton(const std::string& name, const Texture* 
 }
 
 
-void SpriteHolder::createGridAnimaton(const std::string& name, const Texture* texture, GLuint columns, GLuint rows) noexcept
+void SpriteHolder::createGridAnimaton(const std::string& name, const Texture* texture, int columns, int rows) noexcept
 {
 	if(auto it = m_animations.find(name); it == m_animations.end())
 	{
@@ -66,8 +66,8 @@ void SpriteHolder::createGridAnimaton(const std::string& name, const Texture* te
 		const int32_t height = size[1] / static_cast<float>(rows);
 		const GLuint handle = texture->handle;
 	
-		for (GLuint y = 0; y < rows; ++y)
-			for (GLuint x = 0; x < columns; ++x)
+		for (int y = 0; y < rows; ++y)
+			for (int x = 0; x < columns; ++x)
 			{
 				ivec4s frame = { x * width, y * height, width, height };
 				addSprite(handle, frame, ratio);
