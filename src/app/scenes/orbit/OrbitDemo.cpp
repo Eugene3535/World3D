@@ -49,7 +49,9 @@ bool OrbitDemo::init() noexcept
     m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_camera = std::make_unique<OrbitCamera>();
-    m_camera->setup((vec3){ 0, 0, 0 }, (vec3){ 100, 0, 100 });
+    vec3 minPoint = {};
+    vec3 maxPoint = { 100, 0, 100 };
+    m_camera->setup(minPoint, maxPoint);
     m_camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
 
     m_texture = std::make_unique<Texture>(textureHandles[0]);
@@ -59,10 +61,10 @@ bool OrbitDemo::init() noexcept
 
     std::array<float, 20> vertices = 
     {
-        0.0f,   0.0f, 0.0f,   0.0f, 0.0f,
-        100.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-        100.0f, 0.0f, 100.0f, 1.0f, 1.0f,
-        0.0f,   0.0f, 100.0f, 0.0f, 1.0f
+        0.f,   0.f, 0.f,   0.f, 0.f,
+        100.f, 0.f, 0.f,   1.f, 0.f,
+        100.f, 0.f, 100.f, 1.f, 1.f,
+        0.f,   0.f, 100.f, 0.f, 1.f
     };
 
     std::array<VertexBufferLayout::Attribute, 2> attributes
@@ -81,9 +83,7 @@ bool OrbitDemo::init() noexcept
     if(!shaders[0].loadFromFile(FileProvider::findPathToFile("orbit.vert"), GL_VERTEX_SHADER))   return false;
     if(!shaders[1].loadFromFile(FileProvider::findPathToFile("orbit.frag"), GL_FRAGMENT_SHADER)) return false;
 
-    m_program = std::make_unique<ShaderProgram>();
-
-    if(!m_program->link(shaders)) 
+    if(m_program = std::make_unique<ShaderProgram>(); !m_program->link(shaders))
         return false;
 
     glUseProgram(m_program->getHandle());

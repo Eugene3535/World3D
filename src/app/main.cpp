@@ -41,12 +41,7 @@ int main()
     window.setVerticalSyncEnabled(true);
 
     if (!gladLoadGL()) 
-    {
-#ifdef DEBUG
-        printf("Failed to initialize GLAD\n");
-#endif
         return -1;
-    }
 
 #ifdef DEBUG
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
