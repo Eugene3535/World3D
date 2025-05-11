@@ -43,6 +43,7 @@ int main()
 
     if (!gladLoadGL()) 
         return -1;
+
     
 #ifdef DEBUG
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
