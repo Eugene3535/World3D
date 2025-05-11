@@ -96,7 +96,7 @@ bool OrbitDemo::init() noexcept
 
 void OrbitDemo::update(const sf::Time& dt) noexcept
 {
-    if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
     {
         if (!m_isRotationMode && !m_isMovementMode)
         {
@@ -106,7 +106,7 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
     }
     else m_isRotationMode = false;
 
-    if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
     {
         if (!m_isRotationMode && !m_isMovementMode)
         {

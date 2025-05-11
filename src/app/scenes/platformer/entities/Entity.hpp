@@ -17,8 +17,8 @@ public:
 		Transform2D()
 	{
 		anim = a;
-		hitbox.left = x;
-		hitbox.top = y;
+		hitbox.position.x = x;
+		hitbox.position.y = y;
 		looksToTheRight = false;
 		Health = 0;
 
@@ -37,8 +37,8 @@ public:
 	{
 		anim.setAnimation(startAnim);
 
-		hitbox.width = anim.getWidth();
-		hitbox.height = anim.getHeight();
+		hitbox.size.x = anim.getWidth();
+		hitbox.size.y = anim.getHeight();
 		dx = speed;
 		Health = hp;
 	}

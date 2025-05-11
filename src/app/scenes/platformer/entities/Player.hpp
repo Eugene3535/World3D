@@ -125,7 +125,7 @@ public:
 	void update(float dt) noexcept
 	{
 		Keyboard();
-		setPosition(hitbox.left, hitbox.top);
+		setPosition(hitbox.position.x, hitbox.position.y);
 
 		Animation(dt);
 
@@ -133,10 +133,10 @@ public:
 		if (state != climb) dy += 1000.0f * dt;
 		onLadder = false;
 
-		hitbox.left += dx * dt;
+		hitbox.position.x += dx * dt;
 		Collision(0);
 
-		hitbox.top += dy * dt;
+		hitbox.position.y += dy * dt;
 		Collision(1);
 	}
 
@@ -145,28 +145,28 @@ public:
 		const auto& bounds = hitbox;
 
 		for (int i = 0; i < objects.size(); i++)
-			if (bounds.intersects(objects[i].bounds))
+			if (bounds.findIntersection(objects[i].bounds))
 			{
 				if (objects[i].name == "solid")
 				{
-					if (dy > 0 && num == 1) { hitbox.top  = objects[i].bounds.top - hitbox.height;  dy = 0;   state = stay; }
-					if (dy < 0 && num == 1) { hitbox.top  = objects[i].bounds.top + objects[i].bounds.height;   dy = 0; }
-					if (dx > 0 && num == 0) { hitbox.left = objects[i].bounds.left - hitbox.width; }
-					if (dx < 0 && num == 0) { hitbox.left = objects[i].bounds.left + objects[i].bounds.width; }
+					if (dy > 0 && num == 1) { hitbox.position.y  = objects[i].bounds.position.y - hitbox.size.y;  dy = 0;   state = stay; }
+					if (dy < 0 && num == 1) { hitbox.position.y  = objects[i].bounds.position.y + objects[i].bounds.size.y;   dy = 0; }
+					if (dx > 0 && num == 0) { hitbox.position.x = objects[i].bounds.position.x - hitbox.size.x; }
+					if (dx < 0 && num == 0) { hitbox.position.x = objects[i].bounds.position.x + objects[i].bounds.size.x; }
 				}
 
-				if (objects[i].name == "ladder") { onLadder = true; if (state == climb) hitbox.left = objects[i].bounds.left - 10; }
+				if (objects[i].name == "ladder") { onLadder = true; if (state == climb) hitbox.position.x = objects[i].bounds.position.x - 10; }
 
 				if (objects[i].name == "SlopeLeft")
 				{
 					const sf::FloatRect& r = objects[i].bounds;
-					int y0 = (hitbox.left + hitbox.width * 0.5f - r.left) * r.height / r.width + r.top - hitbox.height;
+					int y0 = (hitbox.position.x + hitbox.size.x * 0.5f - r.position.x) * r.size.y / r.size.x + r.position.y - hitbox.size.y;
 
-					if (hitbox.top > y0)
+					if (hitbox.position.y > y0)
 					{
-						if (hitbox.left + hitbox.width * 0.5f > r.left)
+						if (hitbox.position.x + hitbox.size.x * 0.5f > r.position.x)
 						{
-							hitbox.top = y0; dy = 0; state = stay;
+							hitbox.position.y = y0; dy = 0; state = stay;
 						}
 					}
 				}
@@ -174,12 +174,12 @@ public:
 				if (objects[i].name == "SlopeRight")
 				{
 					const sf::FloatRect& r = objects[i].bounds;
-					int y0 = -(hitbox.left + hitbox.width * 0.5f - r.left) * r.height / r.width + r.top + r.height - hitbox.height;
+					int y0 = -(hitbox.position.x + hitbox.size.x * 0.5f - r.position.x) * r.size.y / r.size.x + r.position.y + r.size.y - hitbox.size.y;
 
-					if (hitbox.top > y0)
-						if (hitbox.left + hitbox.width * 0.5f < r.left + r.width)
+					if (hitbox.position.y > y0)
+						if (hitbox.position.x + hitbox.size.x * 0.5f < r.position.x + r.size.x)
 						{
-							hitbox.top = y0; 
+							hitbox.position.y = y0; 
 							dy = 0; 
 							state = stay;
 						}

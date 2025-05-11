@@ -222,13 +222,13 @@ bool PlatformerDemo::init() noexcept
     auto allObjects   = m_tilemap->getAllObjects();
 
     for (const auto& object : enemyObjects)
-        auto entity = m_entities.emplace_back(std::make_unique<Goomba>(*m_goomba, (int)object.bounds.left, (int)object.bounds.top)).get();
+        auto entity = m_entities.emplace_back(std::make_unique<Goomba>(*m_goomba, (int)object.bounds.position.x, (int)object.bounds.position.y)).get();
 
     for (const auto& object : mpObjects)
-        auto entity = m_entities.emplace_back(std::make_unique<MovingPlatform>(*m_movingPlatrorm, (int)object.bounds.left, (int)object.bounds.top)).get();
+        auto entity = m_entities.emplace_back(std::make_unique<MovingPlatform>(*m_movingPlatrorm, (int)object.bounds.position.x, (int)object.bounds.position.y)).get();
 
     auto playerObject = m_tilemap->getObject("player");
-    m_player = std::make_unique<Player>(*m_megaman, allObjects, playerObject->bounds.left, playerObject->bounds.top);
+    m_player = std::make_unique<Player>(*m_megaman, allObjects, playerObject->bounds.position.x, playerObject->bounds.position.y);
 
     return true;
 }
@@ -263,8 +263,8 @@ void PlatformerDemo::update(const sf::Time& elapsed) noexcept
         if (cooldown > 10)
         {
             bool MarioLooksToTheRight = m_player->looksToTheRight;
-            int posX = MarioLooksToTheRight ? static_cast<int>(m_player->hitbox.left - 18) : static_cast<int>(m_player->hitbox.left + 18);
-            int posY = static_cast<int>(m_player->hitbox.top + 18);
+            int posX = MarioLooksToTheRight ? static_cast<int>(m_player->hitbox.position.x - 18) : static_cast<int>(m_player->hitbox.position.x + 18);
+            int posY = static_cast<int>(m_player->hitbox.position.y + 18);
             m_entities.emplace_back(std::make_unique<Bullet>(*m_bullet, solidObjects, posX, posY, MarioLooksToTheRight));
             cooldown = 0;
         }
@@ -297,7 +297,7 @@ void PlatformerDemo::update(const sf::Time& elapsed) noexcept
             if (enemy->Health < 1)
                 continue;
 
-            if (m_player->hitbox.intersects(enemy->hitbox))
+            if (m_player->hitbox.findIntersection(enemy->hitbox))
                 if (m_player->dy > 0)
                 {
                     enemy->dx = 0;
@@ -309,16 +309,16 @@ void PlatformerDemo::update(const sf::Time& elapsed) noexcept
                     m_player->Health -= 5;
                     m_player->hit = true;
                     if (m_player->looksToTheRight)
-                        m_player->hitbox.left += 10;
+                        m_player->hitbox.position.x += 10;
                     else
-                        m_player->hitbox.left -= 10;
+                        m_player->hitbox.position.x -= 10;
                 }
 
             for (auto& it2 : m_entities)
             {
                 if(it2->is<Bullet>())
                     if (it2->Health > 0)
-                        if (it2->hitbox.intersects(enemy->hitbox))
+                        if (it2->hitbox.findIntersection(enemy->hitbox))
                         {
                             it2->Health = 0;
                             enemy->Health -= 5;
@@ -328,13 +328,13 @@ void PlatformerDemo::update(const sf::Time& elapsed) noexcept
 
         if(it->is<MovingPlatform>())
         {
-            if (m_player->hitbox.intersects(it->hitbox))
+            if (m_player->hitbox.findIntersection(it->hitbox))
                 if (m_player->dy > 0)
                 {
-                    if (m_player->hitbox.top + m_player->hitbox.height < it->hitbox.top + it->hitbox.height)
+                    if (m_player->hitbox.position.y + m_player->hitbox.size.y < it->hitbox.position.y + it->hitbox.size.y)
                     {
-                        m_player->hitbox.top = it->hitbox.top - m_player->hitbox.height + 3;
-                        m_player->hitbox.left += it->dx * dt;
+                        m_player->hitbox.position.y = it->hitbox.position.y - m_player->hitbox.size.y + 3;
+                        m_player->hitbox.position.x += it->dx * dt;
                         m_player->dy = 0;
                         m_player->state = Player::stay;
                     }

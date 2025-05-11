@@ -22,10 +22,10 @@ public:
 	{
 		if(Health > 0)
 		{
-			hitbox.left += dx * dt;
+			hitbox.position.x += dx * dt;
 
 			for (const auto& obj : objects)
-				if (hitbox.intersects(obj.bounds))	
+				if (hitbox.findIntersection(obj.bounds))	
 					Health = 0;	
 		}
 
@@ -43,7 +43,7 @@ public:
 		uint32_t oY = anim.getHeight() >> 1;
 
 		setOrigin(oX, oY);
-		setPosition(hitbox.left, hitbox.top);
+		setPosition(hitbox.position.x, hitbox.position.y);
 
 		Entity::update(dt);
 	}

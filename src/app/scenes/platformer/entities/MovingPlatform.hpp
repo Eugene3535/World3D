@@ -16,7 +16,7 @@ public:
 
 	void update(float dt) noexcept
 	{
-		hitbox.left += dx * dt;
+		hitbox.position.x += dx * dt;
 		timer += dt;
 
 		if (timer > 4.0f)
@@ -25,7 +25,7 @@ public:
 			timer = 0;
 		}
 
-		setPosition(hitbox.left, hitbox.top);
+		setPosition(hitbox.position.x, hitbox.position.y);
 		Entity::update(dt);
 	}
 };

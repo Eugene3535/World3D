@@ -267,10 +267,10 @@ bool TileMap::loadObjects(const void* node) noexcept
 
             for (auto attr = objectNode->first_attribute(); attr != nullptr; attr = attr->next_attribute())
             {
-                if (strcmp(attr->name(), "x") == 0)      object.bounds.left   = atof(attr->value());
-                if (strcmp(attr->name(), "y") == 0)      object.bounds.top    = atof(attr->value());
-                if (strcmp(attr->name(), "width") == 0)  object.bounds.width  = atof(attr->value());
-                if (strcmp(attr->name(), "height") == 0) object.bounds.height = atof(attr->value());
+                if (strcmp(attr->name(), "x") == 0)      object.bounds.position.x = atof(attr->value());
+                if (strcmp(attr->name(), "y") == 0)      object.bounds.position.y = atof(attr->value());
+                if (strcmp(attr->name(), "width") == 0)  object.bounds.size.x     = atof(attr->value());
+                if (strcmp(attr->name(), "height") == 0) object.bounds.size.y     = atof(attr->value());
                 if (strcmp(attr->name(), "name") == 0)   object.name = attr->value();
                 if (strcmp(attr->name(), "class") == 0)  object.type = attr->value();
             }

@@ -87,8 +87,8 @@ target_compile_features(${SHINY_TARGET} PRIVATE cxx_std_20)
 target_link_libraries(${SHINY_TARGET} PUBLIC
 	glad
 	cglm
-	sfml-system
-	sfml-window
+	SFML::System
+	SFML::Window
 	freetype
 	utf8cpp
 )

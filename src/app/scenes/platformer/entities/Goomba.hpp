@@ -17,7 +17,7 @@ Goomba(const Animator& a, int x, int y) noexcept:
 
 	void update(float dt) noexcept
 	{
-		hitbox.left += dx * dt;
+		hitbox.position.x += dx * dt;
 		timer += dt;
 
 		if (timer > 3.0f)
@@ -36,7 +36,7 @@ Goomba(const Animator& a, int x, int y) noexcept:
 				isAlive = false;
 		}
 
-		setPosition(hitbox.left, hitbox.top);
+		setPosition(hitbox.position.x, hitbox.position.y);
 		Entity::update(dt);
 	}
 };

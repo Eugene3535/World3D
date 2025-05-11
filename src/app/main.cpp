@@ -10,6 +10,7 @@ extern "C" __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerforma
 
 #include <glad/glad.h>
 
+#include <SFML/Window/VideoMode.hpp>
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Event.hpp>
@@ -31,23 +32,18 @@ int main()
     settings.minorVersion = 6;
     settings.depthBits = 24;
     settings.stencilBits = 8;
-    settings.antialiasingLevel = 4;
+    settings.antiAliasingLevel = 4;
     settings.attributeFlags = sf::ContextSettings::Core;
 
     const uint32_t width = 1200;
     const uint32_t height = 800;
 
-    sf::Window window(sf::VideoMode(width, height), "World3D", sf::Style::Default, settings);
+    sf::Window window(sf::VideoMode({width, height}), "World3D", sf::Style::Default, sf::State::Windowed, settings);
     window.setVerticalSyncEnabled(true);
 
     if (!gladLoadGL()) 
-    {
-#ifdef DEBUG
-        printf("Failed to initialize GLAD\n");
-#endif
         return -1;
-    }
-
+    
 #ifdef DEBUG
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
     printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -82,25 +78,24 @@ int main()
 
     sf::Clock clock;
 
-    while (window.isOpen())
+    while(window.isOpen())
     {
-        sf::Event event;
         float mouseScrollDelta = 0;
 
-        while (window.pollEvent(event))
+        while(const std::optional event = window.pollEvent())
         {
-            if (event.type == sf::Event::Closed)
+            if (event->is<sf::Event::Closed>())
                 window.close();
 
-            if(event.type == sf::Event::Resized)
-                glViewport(0, 0, width, height);
-
-            if(event.type == sf::Event::KeyPressed)
-                if(event.key.code == sf::Keyboard::Key::Escape)
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+                if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
                     window.close();
+            
+            if (const auto* resized = event->getIf<sf::Event::Resized>())
+                glViewport(0, 0, resized->size.x, resized->size.y);
 
-            if(event.type == sf::Event::MouseWheelScrolled)
-                mouseScrollDelta = event.mouseWheelScroll.delta; 
+            if(const auto* scrolled = event->getIf<sf::Event::MouseWheelScrolled>())
+                mouseScrollDelta = scrolled->delta;
         }
 
         auto dt = clock.restart();
