@@ -104,6 +104,7 @@ bool DuneDemo::init() noexcept
 
     m_mesh.vao = vao.getHandle();
     m_mesh.textures = m_textures;
+    m_mesh.vertexCount = vbo.getCount();
 
     return true;
 }

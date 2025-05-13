@@ -42,6 +42,11 @@ set(FONTS_SCENE_SRC_FILES
 	scenes/fonts/FontDemo.cpp
 )
 
+set(LIGHT_SCENE_SRC_FILES
+	scenes/light/LightDemo.cpp
+	scenes/light/LightDemo.cpp
+)
+
 set(MAIN_APP_SRC_FILES
 	${DUNE_SCENE_SRC_FILES}
 	${HEIGHTMAP_SCENE_SRC_FILES}
@@ -49,6 +54,7 @@ set(MAIN_APP_SRC_FILES
 	${PLATFORMER_SCENE_SRC_FILES}
 	${ORBIT_SCENE_SRC_FILES}
 	${FONTS_SCENE_SRC_FILES}
+	${LIGHT_SCENE_SRC_FILES}
 	main.cpp
 )
 

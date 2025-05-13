@@ -21,6 +21,7 @@ __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerformance = 0x000
 #include "scenes/orbit/OrbitDemo.hpp"
 #include "scenes/paths/PathDemo.hpp"
 #include "scenes/platformer/PlatformerDemo.hpp"
+#include "scenes/light/LightDemo.hpp"
 #include "scenes/SceneManager.hpp"
 
 
@@ -66,14 +67,14 @@ int main()
     GlResourceHolder resources;
     SceneManager sceneManager(window);
 
-    if(!sceneManager.pushScene<DuneDemo>()->init())          return -1;
+    if(!sceneManager.pushScene<LightDemo>()->init())          return -1;
     // if(!sceneManager.pushScene<FontDemo>()->init())       return -1;
     // if(!sceneManager.pushScene<HeightmapDemo>()->init())  return -1;
     // if(!sceneManager.pushScene<OrbitDemo>()->init())      return -1;
     // if(!sceneManager.pushScene<PathDemo>()->init())       return -1;
     // if(!sceneManager.pushScene<PlatformerDemo>()->init()) return -1;
 
-    DemoScene* scene = sceneManager.getScene<DuneDemo>();
+    DemoScene* scene = sceneManager.getScene<LightDemo>();
 
     sf::Clock clock;
 
