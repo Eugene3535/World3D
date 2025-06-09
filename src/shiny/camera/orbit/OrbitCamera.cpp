@@ -85,13 +85,13 @@ void OrbitCamera::moveHorizontal(float distance) noexcept
 void OrbitCamera::moveVertical(float distance) noexcept
 {
     vec3 target, eye, front, right, up;
-    vec3 vectorUp = { 0.f, 1.f, 0.f };
+    vec3 worldUp = { 0.f, 1.f, 0.f };
 
     getTarget(target);
     getEye(eye);
 
     glmc_vec3_sub(target, eye, front);
-    glmc_vec3_crossn(front, vectorUp, right);
+    glmc_vec3_crossn(front, worldUp, right);
     glmc_vec3_crossn(right, front, up);
     glmc_vec3_muladds(up, distance, m_target);
 
@@ -115,12 +115,12 @@ void OrbitCamera::getModelViewMatrix(mat4 m) noexcept
     if(m_modelViewNeedUpdate)
     {
         vec3 eye, view, center;
-        vec3 up = { 0.f, 1.f, 0.f };
+        vec3 worldUp = { 0.f, 1.f, 0.f };
         getEye(eye);
         getNormalizedViewVector(view);
         glmc_vec3_add(eye, view, center);
 
-        glmc_lookat(eye, center, up, m_modelView);
+        glmc_lookat(eye, center, worldUp, m_modelView);
         m_modelViewNeedUpdate = false;
     }
 

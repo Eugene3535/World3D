@@ -8,7 +8,7 @@ T* SceneManager::pushScene() noexcept
     if(auto it = m_scenes.find(name); it != m_scenes.end())
         return static_cast<T*>(it->second.get());
 
-    m_scenes[name] = std::make_unique<T>(m_window);
+    m_scenes[name] = std::make_shared<T>(m_window);
 
     return static_cast<T*>(m_scenes[name].get());
 }

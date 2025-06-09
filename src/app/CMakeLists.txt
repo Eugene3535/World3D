@@ -77,7 +77,7 @@ target_include_directories(${APP_TARGET} PRIVATE
 )
 
 add_custom_command(TARGET ${APP_TARGET} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:${APP_TARGET}>/res VERBATIM
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:${APP_TARGET}>/res
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_BINARY_DIR}/sfml/bin $<TARGET_FILE_DIR:${APP_TARGET}> VERBATIM
 )
 
@@ -88,5 +88,5 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 endif()
 
 if(MSVC)
-	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${MAIN_APP_SRC_FILES})
+	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${MAIN_APP_SRC_FILES})
 endif()

@@ -26,7 +26,7 @@ public:
 
 private:
     class sf::Window& m_window;
-    std::unordered_map<std::string, std::unique_ptr<class DemoScene>> m_scenes;
+    std::unordered_map<std::string, std::shared_ptr<class DemoScene>> m_scenes;
 };
 
 #include "scenes/SceneManager.inl"
