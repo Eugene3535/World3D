@@ -67,14 +67,14 @@ int main()
     GlResourceHolder resources;
     SceneManager sceneManager(window);
 
-    if(!sceneManager.pushScene<LightDemo>()->init())          return -1;
+    // if(!sceneManager.pushScene<LightDemo>()->init())          return -1;
     // if(!sceneManager.pushScene<FontDemo>()->init())       return -1;
     // if(!sceneManager.pushScene<HeightmapDemo>()->init())  return -1;
-    // if(!sceneManager.pushScene<OrbitDemo>()->init())      return -1;
+    if(!sceneManager.pushScene<OrbitDemo>()->init())      return -1;
     // if(!sceneManager.pushScene<PathDemo>()->init())       return -1;
     // if(!sceneManager.pushScene<PlatformerDemo>()->init()) return -1;
 
-    DemoScene* scene = sceneManager.getScene<LightDemo>();
+    DemoScene* scene = sceneManager.getScene<OrbitDemo>();
 
     sf::Clock clock;
 

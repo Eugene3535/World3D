@@ -2,7 +2,7 @@
 #include <memory>
 
 #include <glad/glad.h>
-
+#include <cglm/call/cam.h>
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -51,8 +51,8 @@ bool OrbitDemo::init() noexcept
     m_camera = std::make_unique<OrbitCamera>();
     vec3 minPoint = {};
     vec3 maxPoint = { 100, 0, 100 };
+
     m_camera->setup(minPoint, maxPoint);
-    m_camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
 
     m_texture = std::make_unique<Texture>(textureHandles[0]);
 
@@ -123,8 +123,8 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
 
     if (m_isRotationMode)
     {
-        m_camera->rotateAzimuth(deltaX * 0.01f);
-        m_camera->rotatePolar(deltaY * 0.01f);
+        m_camera->rotateAzimuth(deltaX * 0.1f);
+        m_camera->rotatePolar(deltaY * 0.1f);
         m_previousMouse = m_currentMouse;
     }
     else if (m_isMovementMode)
@@ -137,9 +137,16 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
     if(m_mouseScrollDelta != 0.f)
         m_camera->zoom(-m_mouseScrollDelta);
 
+    mat4 modelView;
+    mat4 projection;
     mat4 mvp;
-    m_camera->getModelViewProjectionMatrix(mvp);
 
+    auto [width, height] = m_window.getSize();
+
+    m_camera->getModelViewMatrix(modelView);
+    glmc_perspective(glm_rad(45), static_cast<float>(width) / static_cast<float>(height), 0.1f, 300, projection);
+    glmc_mat4_mul(projection, modelView, mvp);
+    
     m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 }
 

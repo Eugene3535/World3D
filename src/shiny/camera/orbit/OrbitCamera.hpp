@@ -13,19 +13,18 @@ public:
 
     void setup(const vec3 minPoint, const vec3 maxPoint) noexcept;
 
-    void updateProjectionMatrix(float aspect) noexcept;
     void setDrawDistance(float distance) noexcept;
 
-    void rotateAzimuth(float radians) noexcept;
-    void rotatePolar(float radians) noexcept;
+    void rotateAzimuth(float degrees) noexcept;
+    void rotatePolar(float degrees) noexcept;
 	void moveHorizontal(float distance) noexcept;
 	void moveVertical(float distance) noexcept;
     void zoom(float distance) noexcept;
     
-    void getModelViewProjectionMatrix(mat4 mvp) noexcept;
+    void getModelViewMatrix(mat4 m) noexcept;
 
     void getEye(vec3 eye) const noexcept;
-    void getViewPoint(vec3 point) const noexcept;
+    void getTarget(vec3 target) const noexcept;
     void getNormalizedViewVector(vec3 v) const noexcept;
 
     float getAzimuthAngle() const noexcept;
@@ -33,15 +32,12 @@ public:
     float getRadius() const noexcept;
 
 private:
-    mat4         m_projection;
     mutable mat4 m_modelView;
-    vec3         m_center;
+    mutable vec3 m_target;
     float        m_radius;
     float        m_minRadius;
     float        m_azimuth;
     float        m_polar;
-    float        m_aspect;
-    float        m_drawDistance;
     mutable bool m_modelViewNeedUpdate;
 };
 
