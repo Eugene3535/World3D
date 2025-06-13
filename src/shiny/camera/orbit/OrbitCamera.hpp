@@ -35,7 +35,6 @@ private:
     mutable mat4 m_modelView;
     mutable vec3 m_target;
     float        m_radius;
-    float        m_minRadius;
     float        m_azimuth;
     float        m_polar;
     mutable bool m_modelViewNeedUpdate;
