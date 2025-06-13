@@ -9,15 +9,25 @@
 class SHINY_API OrbitCamera
 {
 public:
+    enum Direction
+    {
+        Forward,
+        Backward,
+        Left,
+        Right,
+        Up,
+        Down
+    };
+
 	OrbitCamera() noexcept;
 
     void focusOn(vec3 target) noexcept;
     void setPosition(vec3 eye) noexcept;
 
     void rotateAroundTarget(float dx, float dy) noexcept;
-    void movePamoramic(float dx, float dy) noexcept;
+    void movePanoramic(float dx, float dy) noexcept;
 
-    void zoom(float distance)           noexcept;
+    void move(Direction direction, float distance) noexcept;
     
     void getModelViewMatrix(mat4 m) noexcept;
 

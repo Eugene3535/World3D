@@ -50,7 +50,9 @@ bool OrbitDemo::init() noexcept
 
     m_camera = std::make_unique<OrbitCamera>();
     vec3 viewPoint = { 50, 0, 50 };
+    vec3 pos = { 250, 0, 250 };
     m_camera->focusOn(viewPoint);
+    m_camera->setPosition(pos);
 
     m_texture = std::make_unique<Texture>(textureHandles[0]);
 
@@ -130,8 +132,23 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
         m_previousMouse = m_currentMouse;
     }
 
-    if(m_mouseScrollDelta != 0.f)
-        m_camera->zoom(-m_mouseScrollDelta);
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+        m_camera->move(OrbitCamera::Forward, 0.1f);
+
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+        m_camera->move(OrbitCamera::Left, 0.1f);
+
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        m_camera->move(OrbitCamera::Backward, 0.1f);
+
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+        m_camera->move(OrbitCamera::Right, 0.1f);
+
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q))
+        m_camera->move(OrbitCamera::Up, 0.1f);
+
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+        m_camera->move(OrbitCamera::Down, 0.1f);
 
     mat4 modelView;
     mat4 projection;
@@ -140,7 +157,7 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
     auto [width, height] = m_window.getSize();
 
     m_camera->getModelViewMatrix(modelView);
-    glmc_perspective(glm_rad(45), static_cast<float>(width) / static_cast<float>(height), 0.1f, 300, projection);
+    glmc_perspective(glm_rad(45), static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000, projection);
     glmc_mat4_mul(projection, modelView, mvp);
     
     m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
