@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <cglm/call/cam.h>
+#include <cglm/project.h>
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -50,7 +51,7 @@ bool OrbitDemo::init() noexcept
 
     m_camera = std::make_unique<OrbitCamera>();
     vec3 viewPoint = { 50, 0, 50 };
-    vec3 pos = { 250, 0, 250 };
+    vec3 pos = { 0, 0, 0 };
     m_camera->focusOn(viewPoint);
     m_camera->setPosition(pos);
 
@@ -128,7 +129,7 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
     }
     else if (m_isMovementMode)
     {
-        m_camera->movePamoramic(-deltaX * 0.1f, deltaY * 0.1f);
+        m_camera->movePanoramic(-deltaX * 0.1f, deltaY * 0.1f);
         m_previousMouse = m_currentMouse;
     }
 
@@ -161,6 +162,21 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
     glmc_mat4_mul(projection, modelView, mvp);
     
     m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
+
+    if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+    {
+        auto cursor = sf::Mouse::getPosition(m_window);
+
+        float z;
+        glReadPixels(cursor.x, cursor.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+
+        vec3 pos = { (float)cursor.x, (float)cursor.y, z };
+        vec4 vp = { 0, 0, (float)width, (float)height };
+        vec3 dest;
+
+        glm_unproject(pos, mvp, vp, dest);
+        printf("World: [%f, %f, %f]\n", dest[0], dest[1], dest[2]);
+    }
 }
 
 
