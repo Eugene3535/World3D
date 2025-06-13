@@ -123,14 +123,12 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
 
     if (m_isRotationMode)
     {
-        m_camera->rotateAzimuth(deltaX * 0.1f);
-        m_camera->rotatePolar(deltaY * 0.1f);
+        m_camera->rotate(deltaX * 0.1f, deltaY * 0.1f);
         m_previousMouse = m_currentMouse;
     }
     else if (m_isMovementMode)
     {
-        m_camera->moveHorizontal(-deltaX * 0.25f);
-        m_camera->moveVertical(deltaY * 0.25f);
+        m_camera->movePamoramic(-deltaX * 0.25f, deltaY * 0.25f);
         m_previousMouse = m_currentMouse;
     }
 

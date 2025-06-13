@@ -34,53 +34,28 @@ void OrbitCamera::setup(const vec3 minPoint, const vec3 maxPoint) noexcept
 }
 
 
-void OrbitCamera::rotateAzimuth(float degrees) noexcept
+void OrbitCamera::rotate(float dx, float dy) noexcept
 {
-    m_azimuth = fmodf(m_azimuth + degrees, 360.f);
-
-    if (m_azimuth < 0.f) 
-        m_azimuth = 360.f;
-
-    m_modelViewNeedUpdate = true;
-}
-
-
-void OrbitCamera::rotatePolar(float degrees) noexcept
-{
-    m_polar += degrees;
     constexpr auto polarCap = 90.f - 0.001f;
-    m_polar = glm_clamp(m_polar, -polarCap, polarCap);
-    m_modelViewNeedUpdate = true;
-}
 
-
-void OrbitCamera::moveHorizontal(float distance) noexcept
-{
-    vec3 position, view, strafe;
-    vec3 worldUp = { 0.f, 1.f, 0.f };
-
-    getEye(position);
-    getNormalizedViewVector(view);
-
-    glmc_vec3_crossn(view, worldUp, strafe);
-    glmc_vec3_muladds(strafe, distance, m_target);
+    m_polar   = glm_clamp(m_polar + dy, -polarCap, polarCap);
+    m_azimuth = fmodf(m_azimuth + dx, 360.f);
 
     m_modelViewNeedUpdate = true;
 }
 
 
-void OrbitCamera::moveVertical(float distance) noexcept
+void OrbitCamera::movePamoramic(float dx, float dy) noexcept
 {
-    vec3 target, eye, front, right, up;
+    vec3 front, right, up;
     vec3 worldUp = { 0.f, 1.f, 0.f };
 
-    getTarget(target);
-    getEye(eye);
-
-    glmc_vec3_sub(target, eye, front);
+    getViewVector(front);
     glmc_vec3_crossn(front, worldUp, right);
     glmc_vec3_crossn(right, front, up);
-    glmc_vec3_muladds(up, distance, m_target);
+
+    glmc_vec3_muladds(right, dx, m_target);
+    glmc_vec3_muladds(up, dy, m_target);
 
     m_modelViewNeedUpdate = true;
 }
@@ -101,7 +76,9 @@ void OrbitCamera::getModelViewMatrix(mat4 m) noexcept
         vec3 eye, view, center;
         vec3 worldUp = { 0.f, 1.f, 0.f };
         getEye(eye);
-        getNormalizedViewVector(view);
+        getViewVector(view);
+
+        glmc_vec3_normalize(view);
         glmc_vec3_add(eye, view, center);
 
         glmc_lookat(eye, center, worldUp, m_modelView);
@@ -133,23 +110,22 @@ void OrbitCamera::getTarget(vec3 target) const noexcept
 }
 
 
-void OrbitCamera::getNormalizedViewVector(vec3 v) const noexcept
+void OrbitCamera::getViewVector(vec3 v) const noexcept
 {
     vec3 target, eye;
     getTarget(target);
     getEye(eye);
     glmc_vec3_sub(target, eye, v);
-    glmc_vec3_normalize(v);
 }
 
 
-float OrbitCamera::getAzimuthAngle() const noexcept
+float OrbitCamera::getAzimuth() const noexcept
 {
     return m_azimuth;
 }
 
 
-float OrbitCamera::getPolarAngle() const noexcept
+float OrbitCamera::getPolar() const noexcept
 {
     return m_polar;
 }
