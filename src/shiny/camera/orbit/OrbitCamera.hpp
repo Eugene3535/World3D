@@ -11,11 +11,10 @@ class SHINY_API OrbitCamera
 public:
 	OrbitCamera() noexcept;
 
-    void setup(const vec3 minPoint, const vec3 maxPoint) noexcept;
+    void focusOn(vec3 target) noexcept;
+    void setPosition(vec3 eye) noexcept;
 
-    void setDrawDistance(float distance) noexcept;
-
-    void rotate(float dx, float dy) noexcept;
+    void rotateAroundTarget(float dx, float dy) noexcept;
     void movePamoramic(float dx, float dy) noexcept;
 
     void zoom(float distance)           noexcept;
@@ -31,9 +30,11 @@ public:
     float getRadius()  const noexcept;
 
 private:
-    mutable mat4 m_modelView;
-    mutable vec3 m_target;
-    float        m_radius;
+    mutable mat4  m_modelView;
+    mutable vec3  m_eye;
+    mutable vec3  m_target;
+    mutable float m_radius;
+
     float        m_azimuth;
     float        m_polar;
     mutable bool m_modelViewNeedUpdate;

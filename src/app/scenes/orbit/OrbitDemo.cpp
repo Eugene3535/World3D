@@ -49,10 +49,8 @@ bool OrbitDemo::init() noexcept
     m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_camera = std::make_unique<OrbitCamera>();
-    vec3 minPoint = {};
-    vec3 maxPoint = { 100, 0, 100 };
-
-    m_camera->setup(minPoint, maxPoint);
+    vec3 viewPoint = { 50, 0, 50 };
+    m_camera->focusOn(viewPoint);
 
     m_texture = std::make_unique<Texture>(textureHandles[0]);
 
@@ -123,12 +121,12 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
 
     if (m_isRotationMode)
     {
-        m_camera->rotate(deltaX * 0.1f, deltaY * 0.1f);
+        m_camera->rotateAroundTarget(deltaX * 0.1f, deltaY * 0.1f);
         m_previousMouse = m_currentMouse;
     }
     else if (m_isMovementMode)
     {
-        m_camera->movePamoramic(-deltaX * 0.25f, deltaY * 0.25f);
+        m_camera->movePamoramic(-deltaX * 0.1f, deltaY * 0.1f);
         m_previousMouse = m_currentMouse;
     }
 

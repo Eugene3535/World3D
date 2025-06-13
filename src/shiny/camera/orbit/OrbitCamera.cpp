@@ -7,34 +7,30 @@
 OrbitCamera::OrbitCamera() noexcept:
     m_radius(0.f),
     m_azimuth(0.f),
-    m_polar(45.f),
+    m_polar(30.f),
     m_modelViewNeedUpdate(true)
 {
     glmc_mat4_identity(m_modelView);
+    glmc_vec3_zero(m_eye);
     glmc_vec3_zero(m_target);
 }
 
 
-void OrbitCamera::setup(const vec3 minPoint, const vec3 maxPoint) noexcept
+void OrbitCamera::focusOn(vec3 target) noexcept
 {
-    m_target[0] = (minPoint[0] + maxPoint[0]) * 0.5f;
-    m_target[1] = (minPoint[1] + maxPoint[1]) * 0.5f;
-    m_target[2] = (minPoint[2] + maxPoint[2]) * 0.5f;
-
-    vec3 halfSize;
-    halfSize[0] = fabs(maxPoint[0] - minPoint[0]) * 0.5f;
-    halfSize[1] = fabs(maxPoint[1] - minPoint[1]) * 0.5f;
-    halfSize[2] = fabs(maxPoint[2] - minPoint[2]) * 0.5f;
-
-    m_radius = glmc_vec3_norm(halfSize) * 1.5f;
-
-    m_azimuth = 0;
-    m_polar = GLM_PI_4f;
+    glmc_vec3_copy(target, m_target);
     m_modelViewNeedUpdate = true;
 }
 
 
-void OrbitCamera::rotate(float dx, float dy) noexcept
+void OrbitCamera::setPosition(vec3 eye) noexcept
+{
+    glmc_vec3_copy(m_eye, eye);
+    m_modelViewNeedUpdate = true;
+}
+
+
+void OrbitCamera::rotateAroundTarget(float dx, float dy) noexcept
 {
     constexpr auto polarCap = 90.f - 0.001f;
 
@@ -97,6 +93,12 @@ void OrbitCamera::getEye(vec3 eye) const noexcept
     const float cosineAzimuth = cos(azimuth);
     const float sinePolar     = sin(polar);
     const float cosinePolar   = cos(polar);
+
+    vec3 distance;
+    distance[0] = fabs(m_target[0] - m_eye[0]);
+    distance[1] = fabs(m_target[1] - m_eye[1]);
+    distance[2] = fabs(m_target[2] - m_eye[2]);
+    m_radius = glmc_vec3_norm(distance);
 
     eye[0] = m_target[0] + m_radius * cosinePolar * cosineAzimuth;
     eye[1] = m_target[1] + m_radius * sinePolar;
