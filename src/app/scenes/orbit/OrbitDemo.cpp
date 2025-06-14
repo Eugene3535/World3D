@@ -50,7 +50,7 @@ bool OrbitDemo::init() noexcept
     m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_camera = std::make_unique<OrbitCamera>();
-    vec3 viewPoint = { 50, 0, 50 };
+    vec3 viewPoint = { 50, 0, 150 };
     vec3 pos = { 0, 0, 0 };
     m_camera->focusOn(viewPoint);
     m_camera->setPosition(pos);
@@ -129,7 +129,7 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
     }
     else if (m_isMovementMode)
     {
-        m_camera->movePanoramic(-deltaX * 0.1f, deltaY * 0.1f);
+        m_camera->movePanoramic(deltaX * 0.1f, deltaY * 0.1f);
         m_previousMouse = m_currentMouse;
     }
 

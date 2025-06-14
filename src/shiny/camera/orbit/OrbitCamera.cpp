@@ -153,7 +153,7 @@ void OrbitCamera::getViewVector(vec3 v) const noexcept
     vec3 target, eye;
     getTarget(target);
     getEye(eye);
-    glmc_vec3_sub(target, eye, v);
+    glmc_vec3_sub(eye, target, v);
 }
 
 
