@@ -9,44 +9,39 @@
 class SHINY_API OrbitCamera
 {
 public:
-    enum Direction
-    {
-        Forward,
-        Backward,
-        Left,
-        Right,
-        Up,
-        Down
-    };
-
 	OrbitCamera() noexcept;
 
-    void focusOn(vec3 target) noexcept;
-    void setPosition(vec3 eye) noexcept;
+    void setup(const vec3 minPoint, const vec3 maxPoint) noexcept;
 
-    void rotateAroundTarget(float dx, float dy) noexcept;
-    void movePanoramic(float dx, float dy) noexcept;
+    void updateProjectionMatrix(float aspect) noexcept;
+    void setDrawDistance(float distance) noexcept;
 
-    void move(Direction direction, float distance) noexcept;
+    void rotateAzimuth(float radians) noexcept;
+    void rotatePolar(float radians) noexcept;
+	void moveHorizontal(float distance) noexcept;
+	void moveVertical(float distance) noexcept;
+    void zoom(float distance) noexcept;
     
-    void getModelViewMatrix(mat4 m) noexcept;
+    void getModelViewProjectionMatrix(mat4 mvp) noexcept;
 
-    void getEye(vec3 eye)       const noexcept;
-    void getTarget(vec3 target) const noexcept;
-    void getViewVector(vec3 v)  const noexcept;
+    void getEye(vec3 eye) const noexcept;
+    void getViewPoint(vec3 point) const noexcept;
+    void getNormalizedViewVector(vec3 v) const noexcept;
 
-    float getAzimuth() const noexcept;
-    float getPolar()   const noexcept;
-    float getRadius()  const noexcept;
+    float getAzimuthAngle() const noexcept;
+    float getPolarAngle() const noexcept;
+    float getRadius() const noexcept;
 
 private:
-    mutable mat4  m_modelView;
-    mutable vec3  m_eye;
-    mutable vec3  m_target;
-    mutable float m_radius;
-
+    mat4         m_projection;
+    mutable mat4 m_modelView;
+    vec3         m_center;
+    float        m_radius;
+    float        m_minRadius;
     float        m_azimuth;
     float        m_polar;
+    float        m_aspect;
+    float        m_drawDistance;
     mutable bool m_modelViewNeedUpdate;
 };
 

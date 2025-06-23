@@ -125,9 +125,9 @@ void PerspectiveCamera::recalculateModelViewMatrix() noexcept
 {
     vec3 front = 
     {
-        cos(glm_rad(m_yaw)) * cos(glm_rad(m_pitch)),
-        sin(glm_rad(m_pitch)),
-        sin(glm_rad(m_yaw)) * cos(glm_rad(m_pitch))
+        cosf(glm_rad(m_yaw)) * cosf(glm_rad(m_pitch)),
+        sinf(glm_rad(m_pitch)),
+        sinf(glm_rad(m_yaw)) * cosf(glm_rad(m_pitch))
     };
 
     vec3 up = {0.f, 1.f, 0.f };

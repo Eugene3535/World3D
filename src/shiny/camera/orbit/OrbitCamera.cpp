@@ -6,164 +6,189 @@
 
 OrbitCamera::OrbitCamera() noexcept:
     m_radius(0.f),
+    m_minRadius(0.f),
     m_azimuth(0.f),
-    m_polar(30.f),
+    m_polar(GLM_PI_4f),
+    m_aspect(0.f),
+    m_drawDistance(3.f),
     m_modelViewNeedUpdate(true)
 {
+    glmc_vec3_zero(m_center);
+    glmc_mat4_identity(m_projection);
     glmc_mat4_identity(m_modelView);
-    glmc_vec3_zero(m_eye);
-    glmc_vec3_zero(m_target);
 }
 
 
-void OrbitCamera::focusOn(vec3 target) noexcept
+void OrbitCamera::setup(const vec3 minPoint, const vec3 maxPoint) noexcept
 {
-    glmc_vec3_copy(target, m_target);
-    m_modelViewNeedUpdate = true;
-}
+    m_center[0] = (minPoint[0] + maxPoint[0]) * 0.5f;
+    m_center[1] = (minPoint[1] + maxPoint[1]) * 0.5f;
+    m_center[2] = (minPoint[2] + maxPoint[2]) * 0.5f;
 
-
-void OrbitCamera::setPosition(vec3 eye) noexcept
-{
-    glmc_vec3_copy(eye, m_eye);
-    m_modelViewNeedUpdate = true;
-}
-
-
-void OrbitCamera::rotateAroundTarget(float dx, float dy) noexcept
-{
-    constexpr auto polarCap = 90.f - 0.001f;
-
-    m_polar   = glm_clamp(m_polar + dy, -polarCap, polarCap);
-    m_azimuth = fmod(m_azimuth + dx, 360.f);
-
-    if(m_azimuth < 0.f)
-        m_azimuth += 360.f;
-
-    m_modelViewNeedUpdate = true;
-}
-
-
-void OrbitCamera::movePanoramic(float dx, float dy) noexcept
-{
-    vec3 front, right, up;
-    vec3 worldUp = { 0.f, 1.f, 0.f };
-
-    getViewVector(front);
-    glmc_vec3_crossn(front, worldUp, right);
-    glmc_vec3_crossn(right, front, up);
-
-    glmc_vec3_muladds(right, dx, m_target);
-    glmc_vec3_muladds(up, dy, m_target);
-
-    m_modelViewNeedUpdate = true;
-}
-
-
-void OrbitCamera::move(Direction direction, float distance) noexcept
-{
-    vec3 front, right, up;
-    vec3 worldUp = { 0.f, 1.f, 0.f };
-
-    getViewVector(front);
-    glmc_vec3_crossn(front, worldUp, right);
-    glmc_vec3_crossn(right, front, up);
-
-    switch (direction)
+    vec3 halfSize = 
     {
-        case OrbitCamera::Forward:
-            if(m_radius > 10.f)
-                glmc_vec3_muladds(front, distance, m_eye);
-        break;
+        (maxPoint[0] - minPoint[0]) * 0.5f,
+        (maxPoint[1] - minPoint[1]) * 0.5f,
+        (maxPoint[2] - minPoint[2]) * 0.5f
+    };
 
-        case OrbitCamera::Backward:
-            glmc_vec3_mulsubs(front, distance, m_eye);
-        break;
+    m_radius = glmc_vec3_norm(halfSize) * 1.5f;
 
-        case OrbitCamera::Left:
-            glmc_vec3_mulsubs(right, distance, m_eye);
-        break;
+    m_minRadius = m_radius * 0.3f;
+    m_azimuth = 0;
+    m_polar = GLM_PI_4f;
+    m_drawDistance = m_radius * 2;
+    m_modelViewNeedUpdate = true;
+}
 
-        case OrbitCamera::Right:
-            glmc_vec3_muladds(right, distance, m_eye);
-        break;
 
-        case OrbitCamera::Up:
-            glmc_vec3_muladds(up, distance, m_eye);
-        break;
+void OrbitCamera::updateProjectionMatrix(float aspect) noexcept
+{
+    m_aspect = aspect;
+    glmc_perspective(glm_rad(45), m_aspect, 0.1f, m_drawDistance, m_projection);
+}
 
-        case OrbitCamera::Down:
-            glmc_vec3_mulsubs(up, distance, m_eye);
-        break;
 
-        default:
-            break;
-    }
+void OrbitCamera::setDrawDistance(float distance) noexcept
+{
+    m_drawDistance = fabs(distance);
+    updateProjectionMatrix(m_aspect);
+}
+
+
+void OrbitCamera::rotateAzimuth(float radians) noexcept
+{
+    m_azimuth += radians;
+
+    // Keep azimuth angle within range <0..2PI) - it's not necessary, just to have it nicely output
+    const auto fullCircle = GLM_PIf * 2.f;
+    m_azimuth = fmodf(m_azimuth, fullCircle);
+
+    if (m_azimuth < 0.f) 
+        m_azimuth = fullCircle + m_azimuth;
 
     m_modelViewNeedUpdate = true;
 }
 
 
-void OrbitCamera::getModelViewMatrix(mat4 m) noexcept
+void OrbitCamera::rotatePolar(float radians) noexcept
+{
+    m_polar += radians;
+
+    // Check if the angle hasn't exceeded quarter of a circle to prevent flip, add a bit of epsilon like 0.001 radians
+    const auto polarCap = GLM_PI_2f - 0.001f;
+    m_polar = glm_clamp(m_polar, -polarCap, polarCap);
+    m_modelViewNeedUpdate = true;
+}
+
+
+void OrbitCamera::moveHorizontal(float distance) noexcept
+{
+    vec3 position;
+    getEye(position);
+
+    vec3 view; 
+    getNormalizedViewVector(view);
+
+    vec3 strafe;
+    vec3 up = {0.f, 1.f, 0.f };
+    glmc_vec3_crossn(view, up, strafe);
+
+    m_center[0] += strafe[0] * distance;
+    m_center[1] += strafe[1] * distance;
+    m_center[2] += strafe[2] * distance;
+
+    m_modelViewNeedUpdate = true;
+}
+
+
+void OrbitCamera::moveVertical(float distance) noexcept
+{
+    vec3 view, eye, front, right, up;
+    vec3 vectorUp = {0.f, 1.f, 0.f };
+
+    getViewPoint(view);
+    getEye(eye);
+
+    glmc_vec3_sub(view, eye, front);
+    glmc_vec3_crossn(front, vectorUp, right);
+    glmc_vec3_crossn(right, front, up);
+
+    m_center[0] += up[0] * distance;
+    m_center[1] += up[1] * distance;
+    m_center[2] += up[2] * distance;
+
+    m_modelViewNeedUpdate = true;
+}
+
+
+void OrbitCamera::zoom(float distance) noexcept
+{
+    m_radius += distance;
+
+    if (m_radius < m_minRadius) 
+        m_radius = m_minRadius;
+
+    m_modelViewNeedUpdate = true;
+}
+
+
+void OrbitCamera::getModelViewProjectionMatrix(mat4 mvp) noexcept
 {
     if(m_modelViewNeedUpdate)
     {
-        vec3 eye, center;
-        vec3 worldUp = { 0.f, 1.f, 0.f };
+        vec3 eye, view, center;
+        vec3 up = {0.f, 1.f, 0.f };
         getEye(eye);
-        glmc_lookat(m_eye, m_target, worldUp, m_modelView);
+        getNormalizedViewVector(view);
+        glmc_vec3_add(eye, view, center);
 
+        glmc_lookat(eye, center, up, m_modelView);
         m_modelViewNeedUpdate = false;
     }
 
-    glmc_mat4_copy(m_modelView, m);
+    glmc_mat4_mul(m_projection, m_modelView, mvp);
 }
 
 
 void OrbitCamera::getEye(vec3 eye) const noexcept
 {
-    if(m_modelViewNeedUpdate)
-    {
-        const float azimuth       = glm_rad(m_azimuth);
-        const float polar         = glm_rad(m_polar);
-        const float sineAzimuth   = sin(azimuth);
-        const float cosineAzimuth = cos(azimuth);
-        const float sinePolar     = sin(polar);
-        const float cosinePolar   = cos(polar);
+    const auto sineAzimuth   = sin(m_azimuth);
+    const auto cosineAzimuth = cos(m_azimuth);
+    const auto sinePolar     = sin(m_polar);
+    const auto cosinePolar   = cos(m_polar);
 
-        m_radius = getRadius();
-
-        m_eye[0] = m_target[0] + m_radius * cosinePolar * cosineAzimuth;
-        m_eye[1] = m_target[1] + m_radius * sinePolar;
-        m_eye[2] = m_target[2] + m_radius * cosinePolar * sineAzimuth;
-    }
-
-    glm_vec3_copy(m_eye, eye);
+    eye[0] = m_center[0] + m_radius * cosinePolar * cosineAzimuth;
+    eye[1] = m_center[1] + m_radius * sinePolar;
+    eye[2] = m_center[2] + m_radius * cosinePolar * sineAzimuth;
 }
 
 
-void OrbitCamera::getTarget(vec3 target) const noexcept
+void OrbitCamera::getViewPoint(vec3 view) const noexcept
 {
-    glmc_vec3_copy(m_target, target);
+    view[0] = m_center[0];
+    view[1] = m_center[1];
+    view[2] = m_center[2];
 }
 
 
-void OrbitCamera::getViewVector(vec3 v) const noexcept
+void OrbitCamera::getNormalizedViewVector(vec3 v) const noexcept
 {
-    vec3 target, eye;
-    getTarget(target);
+    vec3 view, eye;
+    getViewPoint(view);
     getEye(eye);
-    glmc_vec3_sub(eye, target, v);
+    glmc_vec3_sub(view, eye, v);
+    glmc_vec3_normalize(v);
 }
 
 
-float OrbitCamera::getAzimuth() const noexcept
+float OrbitCamera::getAzimuthAngle() const noexcept
 {
     return m_azimuth;
 }
 
 
-float OrbitCamera::getPolar() const noexcept
+float OrbitCamera::getPolarAngle() const noexcept
 {
     return m_polar;
 }
@@ -171,14 +196,5 @@ float OrbitCamera::getPolar() const noexcept
 
 float OrbitCamera::getRadius() const noexcept
 {
-    if(m_modelViewNeedUpdate)
-    {
-        vec3 distance;
-        distance[0] = fabs(m_target[0] - m_eye[0]);
-        distance[1] = fabs(m_target[1] - m_eye[1]);
-        distance[2] = fabs(m_target[2] - m_eye[2]);
-        m_radius = glmc_vec3_norm(distance);
-    }
-
     return m_radius;
 }

@@ -2,8 +2,7 @@
 #include <memory>
 
 #include <glad/glad.h>
-#include <cglm/call/cam.h>
-#include <cglm/project.h>
+
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -50,10 +49,10 @@ bool OrbitDemo::init() noexcept
     m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
 
     m_camera = std::make_unique<OrbitCamera>();
-    vec3 viewPoint = { 50, 0, 150 };
-    vec3 pos = { 0, 0, 0 };
-    m_camera->focusOn(viewPoint);
-    m_camera->setPosition(pos);
+    vec3 minPoint = {};
+    vec3 maxPoint = { 100, 0, 100 };
+    m_camera->setup(minPoint, maxPoint);
+    m_camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
 
     m_texture = std::make_unique<Texture>(textureHandles[0]);
 
@@ -124,59 +123,24 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
 
     if (m_isRotationMode)
     {
-        m_camera->rotateAroundTarget(deltaX * 0.1f, deltaY * 0.1f);
+        m_camera->rotateAzimuth(deltaX * 0.01f);
+        m_camera->rotatePolar(deltaY * 0.01f);
         m_previousMouse = m_currentMouse;
     }
     else if (m_isMovementMode)
     {
-        m_camera->movePanoramic(deltaX * 0.1f, deltaY * 0.1f);
+        m_camera->moveHorizontal(-deltaX * 0.25f);
+        m_camera->moveVertical(deltaY * 0.25f);
         m_previousMouse = m_currentMouse;
     }
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        m_camera->move(OrbitCamera::Forward, 0.1f);
+    if(m_mouseScrollDelta != 0.f)
+        m_camera->zoom(-m_mouseScrollDelta);
 
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-        m_camera->move(OrbitCamera::Left, 0.1f);
-
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        m_camera->move(OrbitCamera::Backward, 0.1f);
-
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-        m_camera->move(OrbitCamera::Right, 0.1f);
-
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q))
-        m_camera->move(OrbitCamera::Up, 0.1f);
-
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        m_camera->move(OrbitCamera::Down, 0.1f);
-
-    mat4 modelView;
-    mat4 projection;
     mat4 mvp;
+    m_camera->getModelViewProjectionMatrix(mvp);
 
-    auto [width, height] = m_window.getSize();
-
-    m_camera->getModelViewMatrix(modelView);
-    glmc_perspective(glm_rad(45), static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000, projection);
-    glmc_mat4_mul(projection, modelView, mvp);
-    
     m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
-
-    if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-    {
-        auto cursor = sf::Mouse::getPosition(m_window);
-
-        float z;
-        glReadPixels(cursor.x, cursor.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-
-        vec3 pos = { (float)cursor.x, (float)cursor.y, z };
-        vec4 vp = { 0, 0, (float)width, (float)height };
-        vec3 dest;
-
-        glm_unproject(pos, mvp, vp, dest);
-        printf("World: [%f, %f, %f]\n", dest[0], dest[1], dest[2]);
-    }
 }
 
 
