@@ -274,14 +274,14 @@ void Camera3D::update(float dx, float dy, Camera3D::Mode mode, float dt) noexcep
         vec3 up, view;
         getUp(up);
         mat4 rotation = GLM_MAT4_IDENTITY_INIT;
-        glm_rotate_make(rotation, cameraOrbitalSpeed, up);
+        glm_rotate(rotation, cameraOrbitalSpeed, up);
         glm_vec3_sub(m_position, m_target, view);
 
         vec4 v = { view[0], view[1], view[2], 1.f };
         vec4 result;
         glm_mat4_mulv(rotation, v, result);
         glm_vec3(result, view);
-        glm_vec3_sub(m_target, view, m_position);
+        glm_vec3_add(m_target, view, m_position);
     }
     else
     {

@@ -150,7 +150,6 @@ int main()
                         glm_vec3_copy(position, camera->m_position);
                         glm_vec3_copy(target, camera->m_target);
                         glm_vec3_copy(up, camera->m_up);
-                        camera->m_fovy = 60.0f;
                     }
                 }
             }
