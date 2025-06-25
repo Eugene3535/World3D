@@ -8,6 +8,7 @@ set(SHINY_SRC_FILES
 	files/Shader.cpp
 	files/StbImage.cpp
 	camera/perspective/PerspectiveCamera.cpp
+	camera/perspective/Camera3D.cpp
 	camera/orthogonal/OrthogonalCamera.cpp
 	camera/orbit/OrbitCamera.cpp
 	resources/holder/GlResourceHolder.cpp
@@ -29,6 +30,7 @@ set(SHINY_HDR_FILES
 	files/Shader.hpp
 	files/StbImage.hpp
 	camera/perspective/PerspectiveCamera.hpp
+	camera/perspective/Camera3D.hpp
 	camera/orthogonal/OrthogonalCamera.hpp
 	camera/orbit/OrbitCamera.hpp
 	resources/holder/GlResourceHolder.hpp

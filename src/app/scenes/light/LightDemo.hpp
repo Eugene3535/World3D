@@ -8,6 +8,13 @@
 #include "scenes/DemoScene.hpp"
 
 
+#include <memory>
+
+#include <SFML/System/Vector2.hpp>
+
+#include "scenes/DemoScene.hpp"
+
+
 class LightDemo final:
     public DemoScene
 {
@@ -19,28 +26,18 @@ public:
     void update(const class sf::Time& dt) noexcept override;
     void draw() noexcept override;
 
-private:
-    Mesh m_mesh;
-    std::unique_ptr<class StbImage> m_heightmapImage;
-    std::unique_ptr<class Texture>  m_texCrackedEarth;
-    std::unique_ptr<class Texture>  m_texRock;
-    std::unique_ptr<class Texture>  m_texGrass;
-    std::unique_ptr<class Texture>  m_texClover;
-    std::unique_ptr<class Texture>  m_texCircleOff;
-    std::unique_ptr<class Texture>  m_texCircleOn;
+    void processMouseScroll(float delta) noexcept;
+    void processMouseMovement(float dx, float dy) noexcept;
 
-    std::vector<float> m_heightmap;
+public:
+    std::unique_ptr<class ShaderProgram>     m_program;
+    std::unique_ptr<class VertexArrayObject> m_vao;
+    std::unique_ptr<class Texture>           m_texture;
+    std::unique_ptr<class Camera3D>          m_camera;
+    std::unique_ptr<class GlBuffer>          m_uniformBuffer;
 
-    std::unique_ptr<class ShaderProgram> m_heightmapProgram;
-    std::unique_ptr<class ShaderProgram> m_circleProgram;
-
-    std::unique_ptr<class VertexArrayObject> m_heightmapVao;
-    std::unique_ptr<class VertexArrayObject> m_circleVao;
-
-    std::unique_ptr<class OrthogonalCamera>  m_orthoCamera;
-    std::unique_ptr<class PerspectiveCamera> m_perspectiveCamera;
-
-    std::unique_ptr<class GlBuffer> m_uniformBuffer;
+    float m_mouseScrollDelta;
+    sf::Vector2f m_mouseMovementDelta;
 };
 
 #endif // !LIGHT_DEMO_HPP

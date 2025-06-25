@@ -23,6 +23,7 @@ __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerformance = 0x000
 #include "scenes/platformer/PlatformerDemo.hpp"
 #include "scenes/light/LightDemo.hpp"
 #include "scenes/SceneManager.hpp"
+#include "camera/perspective/Camera3D.hpp"
 
 
 int main()
@@ -67,20 +68,24 @@ int main()
     GlResourceHolder resources;
     SceneManager sceneManager(window);
 
-    // if(!sceneManager.pushScene<LightDemo>()->init())          return -1;
+    if(!sceneManager.pushScene<LightDemo>()->init())          return -1;
     // if(!sceneManager.pushScene<FontDemo>()->init())       return -1;
     // if(!sceneManager.pushScene<HeightmapDemo>()->init())  return -1;
-    if(!sceneManager.pushScene<OrbitDemo>()->init())      return -1;
+    // if(!sceneManager.pushScene<OrbitDemo>()->init())      return -1;
     // if(!sceneManager.pushScene<PathDemo>()->init())       return -1;
     // if(!sceneManager.pushScene<PlatformerDemo>()->init()) return -1;
 
-    DemoScene* scene = sceneManager.getScene<OrbitDemo>();
+    DemoScene* scene = sceneManager.getScene<LightDemo>();
 
     sf::Clock clock;
+
+    sf::Vector2i mouseOldPos = sf::Mouse::getPosition(window);
 
     while(window.isOpen())
     {
         float mouseScrollDelta = 0;
+        float mouseMovementDeltaX = 0;
+        float mouseMovementDeltaY = 0;
 
         while(const std::optional event = window.pollEvent())
         {
@@ -88,20 +93,89 @@ int main()
                 window.close();
 
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+            {
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
                     window.close();
-            
+
+                if(auto* current_demo = dynamic_cast<LightDemo*>(scene); current_demo != nullptr)
+                {
+                    vec3 worldUp = { 0.0f, 1.0f, 0.0f };
+                    auto camera = current_demo->m_camera.get();
+
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Num1)
+                    {
+                        camera->m_mode = Camera3D::Free;
+                        glm_vec3_copy(worldUp, camera->m_up); // Reset roll
+                    }
+
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Num2)
+                    {
+                        camera->m_mode = Camera3D::FirstPerson;
+                        glm_vec3_copy(worldUp, camera->m_up); // Reset roll
+                    }
+
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Num3)
+                    {
+                        camera->m_mode = Camera3D::ThirdPerson;
+                        glm_vec3_copy(worldUp, camera->m_up); // Reset roll
+                    }
+
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Num4)
+                    {
+                        camera->m_mode = Camera3D::Orbital;
+                        glm_vec3_copy(worldUp, camera->m_up); // Reset roll
+                    }
+
+                    // Switch camera projection
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::P)
+                    {
+                        camera->m_mode = Camera3D::ThirdPerson;
+                        vec3 position = { 0.f, 2.f, -100.f };
+                        vec3 target   = { 0.f, 2.f, 0.f };
+                        vec3 up       = { 0.f, 1.f, 0.f };
+                        glm_vec3_copy(position, camera->m_position);
+                        glm_vec3_copy(target, camera->m_target);
+                        glm_vec3_copy(up, camera->m_up);
+
+                        camera->rotateYaw(glm_rad(-135.f), true);
+                        camera->rotatePitch(glm_rad(-45.f), true, true, false);
+                    }
+
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::I)
+                    {
+                        camera->m_mode = Camera3D::ThirdPerson;
+                        vec3 position = { 0.f, 2.f, 10.f };
+                        vec3 target   = { 0.f, 2.f, 0.f  };
+                        vec3 up       = { 0.f, 1.f, 0.f  };
+                        glm_vec3_copy(position, camera->m_position);
+                        glm_vec3_copy(target, camera->m_target);
+                        glm_vec3_copy(up, camera->m_up);
+                        camera->m_fovy = 60.0f;
+                    }
+                }
+            }
+
             if (const auto* resized = event->getIf<sf::Event::Resized>())
                 glViewport(0, 0, resized->size.x, resized->size.y);
 
             if(const auto* scrolled = event->getIf<sf::Event::MouseWheelScrolled>())
                 mouseScrollDelta = scrolled->delta;
+
+            if(const auto* mouse_moved = event->getIf<sf::Event::MouseMoved>())
+            {
+                mouseMovementDeltaX = mouse_moved->position.x - mouseOldPos.x;
+                mouseMovementDeltaY = mouse_moved->position.y - mouseOldPos.y;
+                mouseOldPos = mouse_moved->position;
+            }
         }
 
         auto dt = clock.restart();
 
-        if(auto* orbit_demo = dynamic_cast<OrbitDemo*>(scene); orbit_demo != nullptr)
-            orbit_demo->processMouseScroll(mouseScrollDelta);
+        if(auto* current_demo = dynamic_cast<LightDemo*>(scene); current_demo != nullptr)
+        {
+            current_demo->processMouseScroll(mouseScrollDelta);
+            current_demo->processMouseMovement(mouseMovementDeltaX, mouseMovementDeltaY);
+        }
 
         scene->update(dt);
         scene->draw();
