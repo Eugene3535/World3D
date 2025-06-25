@@ -36,9 +36,9 @@ bool LightDemo::init() noexcept
     
     auto [width, height] = m_window.getSize();
 
-    const auto bufferHandles  = holder.create<GlBuffer, 2>();
-    const auto vertexArrays   = holder.create<VertexArrayObject, 1>();
-    const auto textureHandles = holder.create<Texture, 1>();
+    const auto bufferHandles  = holder.create<GlBuffer, 3>();
+    const auto vertexArrays   = holder.create<VertexArrayObject, 2>();
+    const auto textureHandles = holder.create<Texture, 2>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(bufferHandles[0], GL_UNIFORM_BUFFER);
     m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
@@ -52,34 +52,93 @@ bool LightDemo::init() noexcept
     glm_vec3_copy(target, m_camera->m_target);
     glm_vec3_copy(up, m_camera->m_up);
 
-    m_texture = std::make_unique<Texture>(textureHandles[0]);
+    m_planeTexture = std::make_unique<Texture>(textureHandles[0]);
+    m_cubeTexture = std::make_unique<Texture>(textureHandles[1]);
 
-    if(!m_texture->loadFromFile(FileProvider::findPathToFile("grid.png"), true, true)) 
+    if(!m_planeTexture->loadFromFile(FileProvider::findPathToFile("grid.png"), true, true))
+        return false;
+
+    if(!m_cubeTexture->loadFromFile(FileProvider::findPathToFile("block.png"), true, true)) 
         return false;
 
     std::array<float, 20> planeVertices = 
     {
-        -50.f, 0.f,  -50.f, 0.0f, 0.0f,
-         50.f,  0.f, -50.f, 1.0f, 0.0f,
-         50.f,  0.f,  50.f, 1.0f, 1.0f,
-        -50.f, 0.f,   50.f, 0.0f, 1.0f
+        -50.f, 0.f, -50.f, 0.0f, 0.0f,
+         50.f, 0.f, -50.f, 1.0f, 0.0f,
+         50.f, 0.f,  50.f, 1.0f, 1.0f,
+        -50.f, 0.f,  50.f, 0.0f, 1.0f
     };
 
-    std::array<VertexBufferLayout::Attribute, 2> attributes
+    std::array<const VertexBufferLayout::Attribute, 2> attributes
     {
         VertexBufferLayout::Attribute::Float3,
         VertexBufferLayout::Attribute::Float2
     };
 
-    GlBuffer vbo(bufferHandles[1], GL_ARRAY_BUFFER);
-    vbo.create(sizeof(float), planeVertices.size(), static_cast<const void*>(planeVertices.data()), GL_STATIC_DRAW);
+    GlBuffer planeVbo(bufferHandles[1], GL_ARRAY_BUFFER);
+    planeVbo.create(sizeof(float), planeVertices.size(), static_cast<const void*>(planeVertices.data()), GL_STATIC_DRAW);
 
-    m_vao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
-    m_vao->addVertexBuffer(vbo, attributes);
+    m_planeVao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
+    m_planeVao->addVertexBuffer(planeVbo, attributes);
+
+    std::array<float, 180> cubeVertices = 
+    {
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };
+
+    GlBuffer cubeVbo(bufferHandles[2], GL_ARRAY_BUFFER);
+    cubeVbo.create(sizeof(float), cubeVertices.size(), static_cast<const void*>(cubeVertices.data()), GL_STATIC_DRAW);
+
+    m_cubeVao = std::make_unique<VertexArrayObject>(vertexArrays[1]);
+    m_cubeVao->addVertexBuffer(cubeVbo, attributes);
 
     std::array<Shader, 2> shaders;
-    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("orbit.vert"), GL_VERTEX_SHADER))   return false;
-    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("orbit.frag"), GL_FRAGMENT_SHADER)) return false;
+
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("orbit.vert"), GL_VERTEX_SHADER)) 
+        return false;
+
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("orbit.frag"), GL_FRAGMENT_SHADER)) 
+        return false;
 
     if(m_program = std::make_unique<ShaderProgram>(); !m_program->link(shaders))
         return false;
@@ -103,36 +162,45 @@ void LightDemo::update(const sf::Time& dt) noexcept
         deltaY = m_mouseMovementDelta.y;
     }
 
-    auto [width, height] = m_window.getSize();
-
     m_camera->update(deltaX, deltaY, m_camera->m_mode, dt.asSeconds());
-
-    mat4 projection, modelView, mvp;
-    m_camera->getProjectionMatrix(projection, (float)width / (float)height);
-    m_camera->getViewMatrix(modelView);
-    glmc_mat4_mul(projection, modelView, mvp);
-
-    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 }
 
 
 void LightDemo::draw() noexcept
 {
+    auto [width, height] = m_window.getSize();
+    mat4 projection, modelView, mvp;
+    m_camera->getProjectionMatrix(projection, (float)width / (float)height);
+    m_camera->getViewMatrix(modelView);
+    glmc_mat4_mul(projection, modelView, mvp);
+    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
+
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glUseProgram(m_program->getHandle());
 
-    glBindTextureUnit(0, m_texture->handle);
-    glBindVertexArray(m_vao->getHandle());
-
+    glBindTexture(GL_TEXTURE_2D, m_planeTexture->handle);
+    glBindVertexArray(m_planeVao->getHandle());
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
     glBindVertexArray(0);
-    glBindTextureUnit(0, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if(m_camera->m_mode == Camera3D::ThirdPerson)
+    {
+        mat4 model = GLM_MAT4_IDENTITY_INIT;
+        glm_translate(model, m_camera->m_target);
+        glmc_mat4_mul(mvp, model, modelView);
+        m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(modelView));
+
+        glBindTexture(GL_TEXTURE_2D, m_cubeTexture->handle);
+        glBindVertexArray(m_cubeVao->getHandle());
+        glDrawArrays(GL_TRIANGLES, 0, 180);
+        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     glUseProgram(0);
-    
     glDisable(GL_DEPTH_TEST);
 }
 

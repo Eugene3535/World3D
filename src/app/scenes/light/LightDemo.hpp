@@ -31,8 +31,10 @@ public:
 
 public:
     std::unique_ptr<class ShaderProgram>     m_program;
-    std::unique_ptr<class VertexArrayObject> m_vao;
-    std::unique_ptr<class Texture>           m_texture;
+    std::unique_ptr<class VertexArrayObject> m_planeVao;
+    std::unique_ptr<class VertexArrayObject> m_cubeVao;
+    std::unique_ptr<class Texture>           m_planeTexture;
+    std::unique_ptr<class Texture>           m_cubeTexture;
     std::unique_ptr<class Camera3D>          m_camera;
     std::unique_ptr<class GlBuffer>          m_uniformBuffer;
 
