@@ -23,7 +23,6 @@ __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerformance = 0x000
 #include "scenes/platformer/PlatformerDemo.hpp"
 #include "scenes/light/LightDemo.hpp"
 #include "scenes/SceneManager.hpp"
-#include "camera/perspective/Camera3D.hpp"
 
 
 int main()
@@ -96,62 +95,6 @@ int main()
             {
                 if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
                     window.close();
-
-                if(auto* current_demo = dynamic_cast<LightDemo*>(scene); current_demo != nullptr)
-                {
-                    vec3 worldUp = { 0.0f, 1.0f, 0.0f };
-                    auto camera = current_demo->m_camera.get();
-
-                    if (keyPressed->scancode == sf::Keyboard::Scancode::Num1)
-                    {
-                        camera->m_mode = Camera3D::Free;
-                        glm_vec3_copy(worldUp, camera->m_up); // Reset roll
-                    }
-
-                    if (keyPressed->scancode == sf::Keyboard::Scancode::Num2)
-                    {
-                        camera->m_mode = Camera3D::FirstPerson;
-                        glm_vec3_copy(worldUp, camera->m_up); // Reset roll
-                    }
-
-                    if (keyPressed->scancode == sf::Keyboard::Scancode::Num3)
-                    {
-                        camera->m_mode = Camera3D::ThirdPerson;
-                        glm_vec3_copy(worldUp, camera->m_up); // Reset roll
-                    }
-
-                    if (keyPressed->scancode == sf::Keyboard::Scancode::Num4)
-                    {
-                        camera->m_mode = Camera3D::Orbital;
-                        glm_vec3_copy(worldUp, camera->m_up); // Reset roll
-                    }
-
-                    // Switch camera projection
-                    if (keyPressed->scancode == sf::Keyboard::Scancode::P)
-                    {
-                        camera->m_mode = Camera3D::ThirdPerson;
-                        vec3 position = { 0.f, 2.f, -100.f };
-                        vec3 target   = { 0.f, 2.f, 0.f };
-                        vec3 up       = { 0.f, 1.f, 0.f };
-                        glm_vec3_copy(position, camera->m_position);
-                        glm_vec3_copy(target, camera->m_target);
-                        glm_vec3_copy(up, camera->m_up);
-
-                        camera->rotateYaw(glm_rad(-135.f), true);
-                        camera->rotatePitch(glm_rad(-45.f), true, true, false);
-                    }
-
-                    if (keyPressed->scancode == sf::Keyboard::Scancode::I)
-                    {
-                        camera->m_mode = Camera3D::ThirdPerson;
-                        vec3 position = { 0.f, 2.f, 10.f };
-                        vec3 target   = { 0.f, 2.f, 0.f  };
-                        vec3 up       = { 0.f, 1.f, 0.f  };
-                        glm_vec3_copy(position, camera->m_position);
-                        glm_vec3_copy(target, camera->m_target);
-                        glm_vec3_copy(up, camera->m_up);
-                    }
-                }
             }
 
             if (const auto* resized = event->getIf<sf::Event::Resized>())

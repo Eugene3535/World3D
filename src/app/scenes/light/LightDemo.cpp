@@ -186,6 +186,57 @@ void LightDemo::draw() noexcept
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    vec3 worldUp = { 0.0f, 1.0f, 0.0f };
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num1))
+    {
+        m_camera->m_mode = Camera3D::Free;
+        glm_vec3_copy(worldUp, m_camera->m_up); // Reset roll
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num2))
+    {
+        m_camera->m_mode = Camera3D::FirstPerson;
+        glm_vec3_copy(worldUp, m_camera->m_up); // Reset roll
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num3))
+    {
+        m_camera->m_mode = Camera3D::ThirdPerson;
+        glm_vec3_copy(worldUp, m_camera->m_up); // Reset roll
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num4))
+    {
+        m_camera->m_mode = Camera3D::Orbital;
+        glm_vec3_copy(worldUp, m_camera->m_up); // Reset roll
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::P))
+    {
+        m_camera->m_mode = Camera3D::ThirdPerson;
+        vec3 position = { 0.f, 2.f, -100.f };
+        vec3 target   = { 0.f, 2.f, 0.f };
+        vec3 up       = { 0.f, 1.f, 0.f };
+        glm_vec3_copy(position, m_camera->m_position);
+        glm_vec3_copy(target, m_camera->m_target);
+        glm_vec3_copy(up, m_camera->m_up);
+
+        m_camera->rotateYaw(glm_rad(-135.f), true);
+        m_camera->rotatePitch(glm_rad(-45.f), true, true, false);
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::I))
+    {
+        m_camera->m_mode = Camera3D::ThirdPerson;
+        vec3 position = { 0.f, 2.f, 10.f };
+        vec3 target   = { 0.f, 2.f, 0.f  };
+        vec3 up       = { 0.f, 1.f, 0.f  };
+        glm_vec3_copy(position, m_camera->m_position);
+        glm_vec3_copy(target, m_camera->m_target);
+        glm_vec3_copy(up, m_camera->m_up);
+    }
+
     if(m_camera->m_mode == Camera3D::ThirdPerson)
     {
         mat4 model = GLM_MAT4_IDENTITY_INIT;
