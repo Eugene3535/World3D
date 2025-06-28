@@ -67,12 +67,12 @@ int main()
     GlResourceHolder resources;
     SceneManager sceneManager(window);
 
-    if(!sceneManager.pushScene<LightDemo>()->init())          return -1;
-    // if(!sceneManager.pushScene<FontDemo>()->init())       return -1;
-    // if(!sceneManager.pushScene<HeightmapDemo>()->init())  return -1;
-    // if(!sceneManager.pushScene<OrbitDemo>()->init())      return -1;
-    // if(!sceneManager.pushScene<PathDemo>()->init())       return -1;
-    // if(!sceneManager.pushScene<PlatformerDemo>()->init()) return -1;
+    if(!sceneManager.pushScene<LightDemo>()->init(resources))          return -1;
+    // if(!sceneManager.pushScene<FontDemo>()->init(resources))       return -1;
+    // if(!sceneManager.pushScene<HeightmapDemo>()->init(resources))  return -1;
+    // if(!sceneManager.pushScene<OrbitDemo>()->init(resources))      return -1;
+    // if(!sceneManager.pushScene<PathDemo>()->init(resources))       return -1;
+    // if(!sceneManager.pushScene<PlatformerDemo>()->init(resources)) return -1;
 
     DemoScene* scene = sceneManager.getScene<LightDemo>();
 
@@ -113,10 +113,10 @@ int main()
 
         auto dt = clock.restart();
 
-        if(auto* current_demo = dynamic_cast<LightDemo*>(scene); current_demo != nullptr)
+        if(auto* light_demo = dynamic_cast<LightDemo*>(scene); light_demo != nullptr)
         {
-            current_demo->processMouseScroll(mouseScrollDelta);
-            current_demo->processMouseMovement(mouseMovementDeltaX, mouseMovementDeltaY);
+            light_demo->processMouseScroll(mouseScrollDelta);
+            light_demo->processMouseMovement(mouseMovementDeltaX, mouseMovementDeltaY);
         }
 
         scene->update(dt);

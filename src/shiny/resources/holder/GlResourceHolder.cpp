@@ -1,15 +1,9 @@
-#include <cassert>
-
 #include "resources/holder/GlResourceHolder.hpp"
-
-
-GlResourceHolder* GlResourceHolder::s_instance;
 
 
 GlResourceHolder::GlResourceHolder() noexcept
 {
-    assert(s_instance == nullptr);
-    s_instance = this;
+
 }
 
 
@@ -23,12 +17,6 @@ GlResourceHolder::~GlResourceHolder() noexcept
 
     if(!m_textures.empty())
         glDeleteTextures(static_cast<GLsizei>(m_textures.size()), m_textures.data());
-}
-
-
-GlResourceHolder* GlResourceHolder::getInstance() noexcept
-{
-    return s_instance;
 }
 
 

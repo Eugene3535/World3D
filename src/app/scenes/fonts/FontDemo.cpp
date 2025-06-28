@@ -31,10 +31,8 @@ FontDemo::~FontDemo()
 }
 
 
-bool FontDemo::init() noexcept
+bool FontDemo::init(GlResourceHolder& holder) noexcept
 {
-    auto& holder = *GlResourceHolder::getInstance();
-
     auto [wndWidth, wndHeight] = m_window.getSize();
 
     auto vboHandles = holder.create<GlBuffer, 2>();

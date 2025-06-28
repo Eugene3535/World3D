@@ -17,7 +17,7 @@ public:
     DemoScene(class sf::Window& window) noexcept;
     virtual ~DemoScene();
 
-    virtual bool init() noexcept;
+    virtual bool init(class GlResourceHolder& holder) noexcept;
     virtual void update(const class sf::Time& dt) noexcept;
     virtual void draw() noexcept;
 

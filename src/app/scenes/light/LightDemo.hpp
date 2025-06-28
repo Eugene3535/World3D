@@ -22,14 +22,14 @@ public:
     LightDemo(class sf::Window& window) noexcept;
     ~LightDemo();
 
-    bool init() noexcept override;
+    bool init(class GlResourceHolder& holder) noexcept override;
     void update(const class sf::Time& dt) noexcept override;
     void draw() noexcept override;
 
     void processMouseScroll(float delta) noexcept;
     void processMouseMovement(float dx, float dy) noexcept;
 
-public:
+private:
     std::unique_ptr<class ShaderProgram>     m_program;
     std::unique_ptr<class VertexArrayObject> m_planeVao;
     std::unique_ptr<class VertexArrayObject> m_cubeVao;

@@ -67,6 +67,8 @@ set(SHADER_FILES
 	${PROJECT_SOURCE_DIR}/res/shaders/platformer/tilemap.frag
 	${PROJECT_SOURCE_DIR}/res/shaders/fonts/text.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/fonts/text.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/light/light_plane.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/light/light_plane.frag
 )
 
 source_group("shaders" FILES ${SHADER_FILES})

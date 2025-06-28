@@ -14,7 +14,7 @@ public:
     HeightmapDemo(class sf::Window& window) noexcept;
     ~HeightmapDemo();
 
-    bool init() noexcept override;
+    bool init(class GlResourceHolder& holder) noexcept override;
     void update(const class sf::Time& dt) noexcept override;
     void draw() noexcept override;
 

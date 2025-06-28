@@ -26,10 +26,8 @@ PathDemo::~PathDemo()
 }
 
 
-bool PathDemo::init() noexcept
+bool PathDemo::init(GlResourceHolder& holder) noexcept
 {
-    auto& holder = *GlResourceHolder::getInstance();
-    
     m_window.setMouseCursorVisible(false);
     
     StbImage imgSnow;     imgSnow.loadFromFile(FileProvider::findPathToFile("snow.png"));

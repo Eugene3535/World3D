@@ -16,8 +16,6 @@ public:
     GlResourceHolder() noexcept;
     ~GlResourceHolder() noexcept;
 
-    static GlResourceHolder* getInstance() noexcept; 
-
 	template<class T, size_t N>
     std::array<GLuint, N> create() noexcept;
     
@@ -33,11 +31,7 @@ private:
     std::vector<GLuint> m_buffers;
     std::vector<GLuint> m_arrays;
     std::vector<GLuint> m_textures;
-
-    static GlResourceHolder* s_instance;
 };
-
-// typedef GlResourceHolder::getInstance() GlResources;
 
 #include "resources/holder/GlResourceHolder.inl"
 

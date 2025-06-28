@@ -30,10 +30,8 @@ LightDemo::~LightDemo()
 }
 
 
-bool LightDemo::init() noexcept
+bool LightDemo::init(GlResourceHolder& holder) noexcept
 {
-    auto& holder = *GlResourceHolder::getInstance();
-    
     auto [width, height] = m_window.getSize();
 
     const auto bufferHandles  = holder.create<GlBuffer, 3>();
@@ -134,10 +132,10 @@ bool LightDemo::init() noexcept
 
     std::array<Shader, 2> shaders;
 
-    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("orbit.vert"), GL_VERTEX_SHADER)) 
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("light_plane.vert"), GL_VERTEX_SHADER)) 
         return false;
 
-    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("orbit.frag"), GL_FRAGMENT_SHADER)) 
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("light_plane.frag"), GL_FRAGMENT_SHADER)) 
         return false;
 
     if(m_program = std::make_unique<ShaderProgram>(); !m_program->link(shaders))

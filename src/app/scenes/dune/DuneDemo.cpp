@@ -25,10 +25,8 @@ DuneDemo::~DuneDemo()
 }
 
 
-bool DuneDemo::init() noexcept
+bool DuneDemo::init(GlResourceHolder& holder) noexcept
 {
-    auto& holder = *GlResourceHolder::getInstance();
-
     StbImage imgSand;
     StbImage imgSpace;
     StbImage imgRock;
