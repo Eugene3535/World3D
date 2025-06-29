@@ -30,7 +30,8 @@ public:
     void processMouseMovement(float dx, float dy) noexcept;
 
 private:
-    std::unique_ptr<class ShaderProgram>     m_program;
+    std::unique_ptr<class ShaderProgram>     m_planeProgram;
+    std::unique_ptr<class ShaderProgram>     m_cubeProgram;
     std::unique_ptr<class VertexArrayObject> m_planeVao;
     std::unique_ptr<class VertexArrayObject> m_cubeVao;
     std::unique_ptr<class Texture>           m_planeTexture;

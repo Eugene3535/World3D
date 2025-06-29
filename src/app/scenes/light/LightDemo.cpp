@@ -59,25 +59,26 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
     if(!m_cubeTexture->loadFromFile(FileProvider::findPathToFile("block.png"), true, true)) 
         return false;
 
-    std::array<float, 20> planeVertices = 
+    std::array<float, 36> planeVertices = 
     {
-        -50.f, 0.f, -50.f, 0.0f, 0.0f,
-         50.f, 0.f, -50.f, 1.0f, 0.0f,
-         50.f, 0.f,  50.f, 1.0f, 1.0f,
-        -50.f, 0.f,  50.f, 0.0f, 1.0f
+        -50.f, 0.f, -50.f, 0.0f, 0.0f, 0.f,  1.f,  0.f,
+         50.f, 0.f, -50.f, 1.0f, 0.0f, 0.f,  1.f,  0.f,
+         50.f, 0.f,  50.f, 1.0f, 1.0f, 0.f,  1.f,  0.f,
+        -50.f, 0.f,  50.f, 0.0f, 1.0f, 0.f,  1.f,  0.f
     };
 
-    std::array<const VertexBufferLayout::Attribute, 2> attributes
+    std::array<const VertexBufferLayout::Attribute, 3> planeAttributes
     {
         VertexBufferLayout::Attribute::Float3,
-        VertexBufferLayout::Attribute::Float2
+        VertexBufferLayout::Attribute::Float2,
+        VertexBufferLayout::Attribute::Float3
     };
 
     GlBuffer planeVbo(bufferHandles[1], GL_ARRAY_BUFFER);
     planeVbo.create(sizeof(float), planeVertices.size(), static_cast<const void*>(planeVertices.data()), GL_STATIC_DRAW);
 
     m_planeVao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
-    m_planeVao->addVertexBuffer(planeVbo, attributes);
+    m_planeVao->addVertexBuffer(planeVbo, planeAttributes);
 
     std::array<float, 180> cubeVertices = 
     {
@@ -124,11 +125,17 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
+    std::array<const VertexBufferLayout::Attribute, 2> cubeAttributes
+    {
+        VertexBufferLayout::Attribute::Float3,
+        VertexBufferLayout::Attribute::Float2
+    };
+
     GlBuffer cubeVbo(bufferHandles[2], GL_ARRAY_BUFFER);
     cubeVbo.create(sizeof(float), cubeVertices.size(), static_cast<const void*>(cubeVertices.data()), GL_STATIC_DRAW);
 
     m_cubeVao = std::make_unique<VertexArrayObject>(vertexArrays[1]);
-    m_cubeVao->addVertexBuffer(cubeVbo, attributes);
+    m_cubeVao->addVertexBuffer(cubeVbo, cubeAttributes);
 
     std::array<Shader, 2> shaders;
 
@@ -138,11 +145,26 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
     if(!shaders[1].loadFromFile(FileProvider::findPathToFile("light_plane.frag"), GL_FRAGMENT_SHADER)) 
         return false;
 
-    if(m_program = std::make_unique<ShaderProgram>(); !m_program->link(shaders))
+    if(m_planeProgram = std::make_unique<ShaderProgram>(); !m_planeProgram->link(shaders))
         return false;
 
-    glUseProgram(m_program->getHandle());
-    glUniform1i(m_program->getUniformLocation("texture0"), 0);
+    glUseProgram(m_planeProgram->getHandle());
+    if(int uniform = m_planeProgram->getUniformLocation("texture0"); uniform != -1)
+        glUniform1i(uniform, 0);
+    glUseProgram(0);
+
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("light_cube.vert"), GL_VERTEX_SHADER)) 
+        return false;
+
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("light_cube.frag"), GL_FRAGMENT_SHADER)) 
+        return false;
+
+    if(m_cubeProgram = std::make_unique<ShaderProgram>(); !m_cubeProgram->link(shaders))
+        return false;
+
+    glUseProgram(m_cubeProgram->getHandle());
+    if(int uniform = m_cubeProgram->getUniformLocation("texture0"); uniform != -1)
+        glUniform1i(uniform, 0);
     glUseProgram(0);
 
     return true;
@@ -176,13 +198,29 @@ void LightDemo::draw() noexcept
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(m_program->getHandle());
+    glUseProgram(m_planeProgram->getHandle());
+
+    const vec3 light_color = { 1, 1, 1 };
+    const float ambient_factor = 0.1f;
+
+    if(int uniform = m_planeProgram->getUniformLocation("model_view_matrix"); uniform != -1)
+        glUniformMatrix4fv(uniform, 1, GL_FALSE, (const float*)modelView);
+
+    if(int uniform = m_planeProgram->getUniformLocation("light_position"); uniform != -1)
+        glUniform3fv(uniform, 1, m_camera->m_target);
+
+    if(int uniform = m_planeProgram->getUniformLocation("light_color"); uniform != -1)
+        glUniform3fv(uniform, 1, light_color);
+
+    if(int uniform = m_planeProgram->getUniformLocation("ambient_factor"); uniform != -1)
+        glUniform1f(uniform, ambient_factor);
 
     glBindTexture(GL_TEXTURE_2D, m_planeTexture->handle);
     glBindVertexArray(m_planeVao->getHandle());
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glUseProgram(0);
 
     vec3 worldUp = { 0.0f, 1.0f, 0.0f };
 
@@ -242,11 +280,13 @@ void LightDemo::draw() noexcept
         glmc_mat4_mul(mvp, model, modelView);
         m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(modelView));
 
+        glUseProgram(m_cubeProgram->getHandle());
         glBindTexture(GL_TEXTURE_2D, m_cubeTexture->handle);
         glBindVertexArray(m_cubeVao->getHandle());
         glDrawArrays(GL_TRIANGLES, 0, 180);
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
     }
 
     glUseProgram(0);
