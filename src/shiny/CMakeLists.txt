@@ -90,7 +90,7 @@ target_compile_features(${SHINY_TARGET} PRIVATE cxx_std_20)
 
 target_link_libraries(${SHINY_TARGET} PUBLIC
 	glad
-	cglm
+	glm::glm
 	SFML::System
 	SFML::Window
 	freetype

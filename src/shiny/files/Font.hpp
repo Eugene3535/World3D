@@ -56,11 +56,11 @@ private:
         std::vector<Row>     rows;
         uint32_t             nextRow = 0;
         std::vector<uint8_t> image;
-        ivec2                size;
+        glm::ivec2           size;
     };
 
     void cleanup() noexcept;
-    void findGlyphRect(Page& page, uint32_t width, uint32_t height, ivec4 result) noexcept;
+    glm::ivec4 findGlyphRect(Page& page, uint32_t width, uint32_t height) noexcept;
     void writeGlyphToPage(wchar_t wc, Page& page) noexcept;
 
     static std::wstring wide_chars;

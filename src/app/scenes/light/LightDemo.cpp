@@ -61,10 +61,10 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
 
     std::array<float, 36> planeVertices = 
     {
-        -50.f, 0.f, -50.f, 0.0f, 0.0f, 0.f,  1.f,  0.f,
-         50.f, 0.f, -50.f, 1.0f, 0.0f, 0.f,  1.f,  0.f,
-         50.f, 0.f,  50.f, 1.0f, 1.0f, 0.f,  1.f,  0.f,
-        -50.f, 0.f,  50.f, 0.0f, 1.0f, 0.f,  1.f,  0.f
+        -50.f, 0.f, -50.f, 0.0f, 0.0f, 0.f, 1.f, 0.f,
+         50.f, 0.f, -50.f, 1.0f, 0.0f, 0.f, 1.f, 0.f,
+         50.f, 0.f,  50.f, 1.0f, 1.0f, 0.f, 1.f, 0.f,
+        -50.f, 0.f,  50.f, 0.0f, 1.0f, 0.f, 1.f, 0.f
     };
 
     std::array<const VertexBufferLayout::Attribute, 3> planeAttributes
@@ -196,18 +196,23 @@ void LightDemo::draw() noexcept
     m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
 
     glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.33f, 0.33f, 0.33f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(m_planeProgram->getHandle());
 
-    const vec3 light_color = { 1, 1, 1 };
-    const float ambient_factor = 0.1f;
+    vec3 light_color = { 1, 1, 1 };
+    float ambient_factor = 0.1f;
+
+    vec4 light_position;
+    vec4 target;
+    glm_vec4(m_camera->m_target, 1.f, target);
+    glm_mat4_mulv(modelView, target, light_position);
 
     if(int uniform = m_planeProgram->getUniformLocation("model_view_matrix"); uniform != -1)
         glUniformMatrix4fv(uniform, 1, GL_FALSE, (const float*)modelView);
 
     if(int uniform = m_planeProgram->getUniformLocation("light_position"); uniform != -1)
-        glUniform3fv(uniform, 1, m_camera->m_target);
+        glUniform3fv(uniform, 1, light_position);
 
     if(int uniform = m_planeProgram->getUniformLocation("light_color"); uniform != -1)
         glUniform3fv(uniform, 1, light_color);
@@ -271,6 +276,9 @@ void LightDemo::draw() noexcept
         glm_vec3_copy(position, m_camera->m_position);
         glm_vec3_copy(target, m_camera->m_target);
         glm_vec3_copy(up, m_camera->m_up);
+
+        m_camera->rotateYaw(glm_rad(-135.f), true);
+        m_camera->rotatePitch(glm_rad(-45.f), true, true, false);
     }
 
     if(m_camera->m_mode == Camera3D::ThirdPerson)

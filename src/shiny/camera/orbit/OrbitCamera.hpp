@@ -1,8 +1,8 @@
 #ifndef ORBIT_CAMERA_HPP
 #define ORBIT_CAMERA_HPP
 
-#include <cglm/types.h>
-#include <cglm/call/mat4.h>
+#include <glm/vec2.hpp> 
+#include <glm/mat4x4.hpp>
 
 #include "Export.hpp"
 
@@ -11,7 +11,7 @@ class SHINY_API OrbitCamera
 public:
 	OrbitCamera() noexcept;
 
-    void setup(const vec3 minPoint, const vec3 maxPoint) noexcept;
+    void setup(const glm::vec3& minPoint, const glm::vec3& maxPoint) noexcept;
 
     void updateProjectionMatrix(float aspect) noexcept;
     void setDrawDistance(float distance) noexcept;
@@ -22,15 +22,15 @@ public:
 	void moveVertical(float distance) noexcept;
     void zoom(float distance) noexcept;
     
-    void getModelViewProjectionMatrix(mat4 mvp) noexcept;
+    glm::mat4 getModelViewProjectionMatrix() const noexcept;
 
     void getEye(vec3 eye) const noexcept;
     void getViewPoint(vec3 point) const noexcept;
     void getNormalizedViewVector(vec3 v) const noexcept;
 
     float getAzimuthAngle() const noexcept;
-    float getPolarAngle() const noexcept;
-    float getRadius() const noexcept;
+    float getPolarAngle()   const noexcept;
+    float getRadius()       const noexcept;
 
 private:
     mat4         m_projection;

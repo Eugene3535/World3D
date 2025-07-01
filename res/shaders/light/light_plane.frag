@@ -4,6 +4,7 @@ uniform sampler2D texture0;
 
 uniform vec3 light_position;
 uniform vec3 light_color;
+
 uniform float ambient_factor;
 
 in vec2 uv;
@@ -21,7 +22,7 @@ void main()
     vec3 norm = normalize(normal);
     vec3 light_direction = normalize(light_position - fragment_position);
     float diff = max(dot(norm, light_direction), 0.f);
-    vec3 diffuse = diff * light_color;
+    vec3 diffuse = light_color * diff;
 
     FragColor = ( vec4(ambient, 1.f) + vec4(diffuse, 1.f) ) * texture(texture0, uv);
 }

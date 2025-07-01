@@ -1,3 +1,4 @@
 1) Increased stability: sfml -> glfw
 2) remove projection matrices from camera class
 3) VertexArrayObject::draw(...) (custom draw call)
+4) Global visibility src (or includes)

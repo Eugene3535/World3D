@@ -17,8 +17,8 @@ out vec3 fragment_position;
 
 void main()
 {
-    gl_Position = modelViewProjection * vec4(vertexPosition, 1.0f);
     uv = vertexUV;
     normal = vertexNormal;
-    fragment_position = vec3(model_view_matrix * vec4(vertexPosition, 1f));
+    fragment_position = vec3(model_view_matrix * vec4(vertexPosition, 1.f));
+    gl_Position = modelViewProjection * vec4(vertexPosition, 1.f);
 }

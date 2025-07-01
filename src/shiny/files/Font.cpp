@@ -118,34 +118,29 @@ bool Font::loadPage(uint32_t characterSize) noexcept
                 ++amount;
             }
 
-        vec2 size;
-        size[0] = page.size[0];
-        size[1] = page.size[1];
+        glm::vec2 size(page.size);
 
         for(auto& [wc, glyph] : page.glyphs)
         {
-            vec4 textureRect; 
-            textureRect[0] = glyph.imageRect[0];
-            textureRect[1] = glyph.imageRect[1];
-            textureRect[2] = glyph.imageRect[2];
-            textureRect[3] = glyph.imageRect[3];
+            glm::vec4 textureRect; 
+            textureRect.x = glyph.imageRect.x;
+            textureRect.y = glyph.imageRect.y;
+            textureRect.z = glyph.imageRect.z;
+            textureRect.w = glyph.imageRect.w;
 
             // padding
-            textureRect[0] -= 2.f;
-            textureRect[1] -= 2.f;
+            textureRect.x -= 2.f;
+            textureRect.y -= 2.f;
 
-            float left   = textureRect[0] / size[0];
-            float top    = textureRect[1] / size[1];
-            float right  = (textureRect[0] + textureRect[2]) / size[0];
-            float bottom = (textureRect[1] + textureRect[3]) / size[1];
+            float left   = textureRect.x / size.x;
+            float top    = textureRect.y / size.y;
+            float right  = (textureRect.x + textureRect.x) / size.x;
+            float bottom = (textureRect.y + textureRect.y) / size.y;
 
-            glyph.textureRect[0] = left;
-            glyph.textureRect[1] = top;
-            glyph.textureRect[2] = right;
-            glyph.textureRect[3] = bottom;
+            glyph.textureRect = { left, top, right, bottom };
         }
  
-        return amount > 0;
+        return (amount > 0);
     }
 
     return false;
@@ -228,10 +223,11 @@ void Font::cleanup() noexcept
 }
 
 
-void Font::findGlyphRect(Font::Page& page, uint32_t width, uint32_t height, ivec4 result) noexcept
+glm::ivec4 Font::findGlyphRect(Font::Page& page, uint32_t width, uint32_t height) noexcept
 {
     Font::Row* row = nullptr;
     float bestRatio = 0;
+    glm::ivec4 result(0);
 
     for (auto it = page.rows.begin(); it != page.rows.end() && !row; ++it)
     {
@@ -240,7 +236,7 @@ void Font::findGlyphRect(Font::Page& page, uint32_t width, uint32_t height, ivec
         if ((ratio < 0.7f) || (ratio > 1.f))
             continue;
 
-        if (width > page.size[0] - it->width)
+        if (width > page.size.x - it->width)
             continue;
 
         if (ratio < bestRatio)
@@ -254,10 +250,10 @@ void Font::findGlyphRect(Font::Page& page, uint32_t width, uint32_t height, ivec
     {
         uint32_t rowHeight = height + height / 10;
 
-        if((page.nextRow + rowHeight >= page.size[1]) || (width >= page.size[0])) // Make the image 2 times bigger
+        if((page.nextRow + rowHeight >= page.size.y) || (width >= page.size.x)) // Make the image 2 times bigger
         {
-            uint32_t imageWidth     = page.size[0];
-            uint32_t imageHeight    = page.size[1];
+            uint32_t imageWidth     = page.size.x;
+            uint32_t imageHeight    = page.size.y;
             uint32_t newImageWidth  = imageWidth << 1;
             uint32_t newImageHeight = imageHeight << 1;
 
@@ -274,8 +270,8 @@ void Font::findGlyphRect(Font::Page& page, uint32_t width, uint32_t height, ivec
             }
 
             page.image.swap(newImage);
-            page.size[0] = newImageWidth;
-            page.size[1] = newImageHeight;
+            page.size.x = newImageWidth;
+            page.size.y = newImageHeight;
         }
 
         page.rows.emplace_back(page.nextRow, rowHeight);
@@ -283,12 +279,10 @@ void Font::findGlyphRect(Font::Page& page, uint32_t width, uint32_t height, ivec
         row = &page.rows.back();
     }
 
-    result[0] = row->width;
-    result[1] = row->top;
-    result[2] = width;
-    result[3] = height;
-
+    result = { row->width, row->top, width, height };
     row->width += width;
+
+    return result;
 }
 
 
@@ -311,22 +305,17 @@ void Font::writeGlyphToPage(wchar_t wc, Font::Page& page) noexcept
         width  += (padding << 1);
         height += (padding << 1);
     
-        ivec4 imageRect;
-        findGlyphRect(page, width, height, imageRect);
+        glm::ivec4 imageRect = findGlyphRect(page, width, height);
+        glyph.imageRect = imageRect;
 
-        glyph.imageRect[0] = imageRect[0];
-        glyph.imageRect[1] = imageRect[1];
-        glyph.imageRect[2] = imageRect[2];
-        glyph.imageRect[3] = imageRect[3];
-
-        glyph.imageRect[0] += static_cast<int>(padding);
-        glyph.imageRect[1] += static_cast<int>(padding);
-        glyph.imageRect[2] -= static_cast<int>(padding << 1);
-        glyph.imageRect[3] -= static_cast<int>(padding << 1);
+        glyph.imageRect.x += static_cast<int>(padding);
+        glyph.imageRect.y += static_cast<int>(padding);
+        glyph.imageRect.z -= static_cast<int>(padding << 1);
+        glyph.imageRect.w -= static_cast<int>(padding << 1);
     
-        uint32_t stride = page.size[0];
+        uint32_t stride = page.size.x;
         const uint8_t* srcPixels = bitmap.buffer;
-        uint8_t*       dstPixels = page.image.data() + (imageRect[1] * stride + imageRect[0]);
+        uint8_t*       dstPixels = page.image.data() + (imageRect.y * stride + imageRect.x);
     
         for (uint32_t i = 0; i < rows; ++i)
         {
@@ -335,10 +324,10 @@ void Font::writeGlyphToPage(wchar_t wc, Font::Page& page) noexcept
             dstPixels += stride;
         }
 
-        glyph.bearing[0] = face->glyph->bitmap_left; 
-        glyph.bearing[1] = face->glyph->bitmap_top;
-        glyph.size[0]    = bitmap.width;
-        glyph.size[1]    = bitmap.rows;
-        glyph.advance = face->glyph->advance.x;
+        glyph.bearing.x = face->glyph->bitmap_left; 
+        glyph.bearing.y = face->glyph->bitmap_top;
+        glyph.size.x    = bitmap.width;
+        glyph.size.y    = bitmap.rows;
+        glyph.advance   = face->glyph->advance.x;
     }
 }
