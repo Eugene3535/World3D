@@ -1,23 +1,23 @@
-#include <cglm/call/cam.h>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 #include "camera/orthogonal/OrthogonalCamera.hpp"
 
 
 OrthogonalCamera::OrthogonalCamera() noexcept:
     Transform2D(),
+    m_projection(glm::identity<glm::mat4>()),
     m_modelViewNeedUpdate(true),
     m_flipVertically(true)
 {
-    glmc_mat4_identity(m_projection);
+    
 }
 
 
 void OrthogonalCamera::setupProjectionMatrix(int32_t width, int32_t height) noexcept
 {
-    if(m_flipVertically)
-        glmc_ortho(0.f, static_cast<float>(width), static_cast<float>(height), 0.f, -1.f, 1.f, m_projection);
-    else
-        glmc_ortho(0.f, static_cast<float>(width), 0.f, static_cast<float>(height), -1.f, 1.f, m_projection);
+    m_projection = m_flipVertically ? glm::ortho(0.f, static_cast<float>(width), static_cast<float>(height), 0.f):
+                                      glm::ortho(0.f, static_cast<float>(width), 0.f, static_cast<float>(height));
 }
 
 
@@ -27,11 +27,9 @@ void OrthogonalCamera::flipVertically(bool flip) noexcept
 }
 
 
-void OrthogonalCamera::getModelViewProjectionMatrix(mat4 mvp) noexcept
+glm::mat4 OrthogonalCamera::getModelViewProjectionMatrix() const noexcept
 {
-    mat4 model_view;
-    getMatrix(model_view);
-    glmc_mat4_mul(m_projection, model_view, mvp);
+    return m_projection * getMatrix();
 }
 
 

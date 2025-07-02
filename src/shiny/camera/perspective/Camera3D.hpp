@@ -1,8 +1,8 @@
 #ifndef CAMERA_3D_HPP
 #define CAMERA_3D_HPP
 
-#include <cglm/types.h>
-#include <cglm/call/mat4.h>
+#include <glm/vec3.hpp> 
+#include <glm/mat4x4.hpp>
 
 #include "Export.hpp"
 
@@ -43,19 +43,19 @@ public:
     void rotateYaw(float angle, bool rotateAroundTarget) noexcept;
     void rotatePitch(float angle, bool lockView, bool rotateAroundTarget, bool rotateUp) noexcept;
  
-    void getForward(vec3 forward) noexcept;
-    void getUp(vec3 up)           noexcept;
-    void getRight(vec3 right)     noexcept;
+    glm::vec3 getForward() const noexcept;
+    glm::vec3 getUp()      const noexcept;
+    glm::vec3 getRight()   const noexcept;
 
-    void getViewMatrix(mat4 m) noexcept;
-    void getProjectionMatrix(mat4 m, float aspect) noexcept;
+    glm::mat4 getViewMatrix() const noexcept;
+    glm::mat4 getProjectionMatrix(float aspect) const noexcept;
 
     void update(float dx, float dy, Mode mode, float dt) noexcept;
 
 public:
-    vec3 m_position;
-    vec3 m_target;  
-    vec3 m_up;    
+    glm::vec3 m_position;
+    glm::vec3 m_target;  
+    glm::vec3 m_up;    
 
     float m_fovy;
 

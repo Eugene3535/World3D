@@ -1,175 +1,167 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <cglm/call/vec3.h>
-#include <cglm/call/cam.h>
+#include <glm/gtc/constants.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 #include "camera/perspective/Camera3D.hpp"
 
 
-static void Vector3RotateByAxisAngle(vec3 v, vec3 axis, float angle, vec3 result)
+static glm::vec3 Vector3RotateByAxisAngle(glm::vec3 v, glm::vec3 axis, float angle)
 {
     // Using Euler-Rodrigues Formula
     // Ref.: https://en.wikipedia.org/w/index.php?title=Euler%E2%80%93Rodrigues_formula
 
-    vec3 res;
-    glm_vec3_copy(v, res);
+    glm::vec3 result = v;
 
-    float length = glm_vec3_norm(axis);
+    float length = glm::length(axis);
 
     if (length == 0.f) 
         length = 1.f;
 
-    float ilength = 1.f / length;
-    axis[0] *= ilength;
-    axis[1] *= ilength;
-    axis[2] *= ilength;
+    float ilength = 1.0f / length;
+    axis.x *= ilength;
+    axis.y *= ilength;
+    axis.z *= ilength;
 
     angle /= 2.f;
     float a = sinf(angle);
-    float b = axis[0] * a;
-    float c = axis[1] * a;
-    float d = axis[2] * a;
+    float b = axis.x*a;
+    float c = axis.y*a;
+    float d = axis.z*a;
     a = cosf(angle);
 
-    vec3 w = { b, c, d };
-    vec3 wv, wwv;
-    glm_vec3_cross(w, v, wv);
-    glm_vec3_cross(w, wv, wwv);
+    glm::vec3 w = { b, c, d };
+    glm::vec3 wv = glm::cross(w, v);
+    glm::vec3 wwv = glm::cross(w, wv);
 
     a = a + a;
-    glm_vec3_scale(wv, a, wv);
-    glm_vec3_add(wwv, wwv, wwv);
-    glm_vec3_add(res, wv, res);
-    glm_vec3_add(res, wwv, res);
+    wv *= a;
+    wwv = wwv + wwv;
+    result += wv;
+    result += wwv;
 
-    glm_vec3_copy(res, result);
+    return result;
 }
 
 
 Camera3D::Camera3D() noexcept:
-    m_fovy(60)
+    m_position(0),
+    m_target(0),  
+    m_up(0, 1, 0),    
+    m_fovy(60),
+    m_mode(Camera3D::FirstPerson)
 {
-    glmc_vec3_zero(m_position);
-    glmc_vec3_zero(m_target);
-    glmc_vec3_zero(m_up);
-
-    m_mode = Camera3D::FirstPerson;
+    
 }
 
 
 void Camera3D::moveForward(float distance, bool moveInWorldPlane) noexcept
 {
-    vec3 forward;
-    getForward(forward);
+    glm::vec3 forward = getForward();
 
     if (moveInWorldPlane)
     {
-//      Project vector onto world plane
-        forward[1] = 0;
-        glmc_vec3_normalize(forward);
+        // Project vector onto world plane
+        forward.y = 0;
+        forward = glm::normalize(forward);
     }
 
-//  Scale by distance
-    glmc_vec3_scale(forward, distance, forward);
+    // Scale by distance
+    forward = forward * distance;
 
-//  Move position and target
-    glmc_vec3_add(m_position, forward, m_position);
-    glmc_vec3_add(m_target, forward, m_target);
+    // Move position and target
+    m_position = m_position + forward;
+    m_target   = m_target + forward;
 }
 
 
 void Camera3D::moveUp(float distance) noexcept
 {
-    vec3 up;
-    getUp(up);
+    glm::vec3 up = getUp();
 
-//  Scale by distance
-    glmc_vec3_scale(up, distance, up);
+    // Scale by distance
+    up *= distance;
 
-//  Move position and target
-    glmc_vec3_add(m_position, up, m_position);
-    glmc_vec3_add(m_target, up, m_target);
+    // Move position and target
+    m_position = m_position + up;
+    m_target   = m_target + up;
 }
 
 
 void Camera3D::moveRight(float distance, bool moveInWorldPlane) noexcept
 {
-    vec3 right;
-    getRight(right);
+    glm::vec3 right = getRight();
 
     if (moveInWorldPlane)
     {
         // Project vector onto world plane
-        right[1] = 0;
-        glmc_vec3_normalize(right);
+        right.y = 0;
+        right = glm::normalize(right);
     }
 
-//  Scale by distance
-    glmc_vec3_scale(right, distance, right);
+    // Scale by distance
+    right *= distance;
 
-//  Move position and target
-    glmc_vec3_add(m_position, right, m_position);
-    glmc_vec3_add(m_target, right, m_target);
+    // Move position and target
+    m_position = m_position + right;
+    m_target   = m_target + right;
 }
 
 
 void Camera3D::moveToTarget(float delta) noexcept
 {
-    float distance = glmc_vec3_distance(m_position, m_target);
+    float distance = glm::distance(m_position, m_target);
+
+    // Apply delta
     distance += delta;
 
-//  Distance must be greater than 0
-    if (distance <= 0.f) 
+    // Distance must be greater than 0
+    if (distance <= 0) 
         distance = 0.001f;
 
-//  Set new distance by moving the position along the forward vector
-    vec3 forward;
-    getForward(forward);
-    glmc_vec3_scale(forward, -distance, forward);
-    glmc_vec3_add(m_target, forward, m_position);
+    // Set new distance by moving the position along the forward vector
+    glm::vec3 forward = getForward();
+    m_position = m_target + forward * (-distance);
 }
 
 
 void Camera3D::rotateYaw(float angle, bool rotateAroundTarget) noexcept
 {
     // Rotation axis
-    vec3 up;
-    getUp(up);
+    glm::vec3 up = getUp();
 
     // View vector
-    vec3 targetPosition;
-    glmc_vec3_sub(m_target, m_position, targetPosition);
+    glm::vec3 targetPosition = m_target - m_position;
 
     // Rotate view vector around up axis
-    Vector3RotateByAxisAngle(targetPosition, up, angle, targetPosition);
+    targetPosition = Vector3RotateByAxisAngle(targetPosition, up, angle);
 
     if (rotateAroundTarget)
     {
         // Move position relative to target
-        glm_vec3_sub(m_target, targetPosition, m_position);
+        m_position = m_target - targetPosition;
     }
     else // rotate around camera.position
     {
         // Move target relative to position
-        glm_vec3_add(m_position, targetPosition, m_target);
+        m_target = m_position + targetPosition;
     }
 }
 
 
 void Camera3D::rotatePitch(float angle, bool lockView, bool rotateAroundTarget, bool rotateUp) noexcept
 {
-    vec3 up, targetPosition;
-    getUp(up);
-    glm_vec3_sub(m_target, m_position, targetPosition);
+    glm::vec3 up = getUp();
+    glm::vec3 targetPosition = m_target - m_position;
 
-    auto vec3_angle = [](vec3 v1, vec3 v2) -> float
+    auto vec3_angle = [](const glm::vec3& v1, const glm::vec3& v2) -> float
     {
-        vec3 cross;
-        glm_cross(v1, v2, cross);
-        float len = glm_vec3_norm(cross);
-        float dot = glm_dot(v1, v2);
+        glm::vec3 cross = glm::cross(v1, v2);
+        float len = glm::length(cross);
+        float dot = glm::dot(v1, v2);
         
-        return atan2f(len, dot);
+        return std::atan2(len, dot);
     };
 
     if (lockView)
@@ -180,78 +172,70 @@ void Camera3D::rotatePitch(float angle, bool lockView, bool rotateAroundTarget, 
         // Clamp view up
         float maxAngleUp = vec3_angle(up, targetPosition);
         maxAngleUp -= 0.001f; // avoid numerical errors
+        if (angle > maxAngleUp) angle = maxAngleUp;
 
-        if (angle > maxAngleUp) 
-            angle = maxAngleUp;
-
-        vec3 negativeUp;
-        glm_vec3_negate_to(up, negativeUp);
         // Clamp view down
-        float maxAngleDown = vec3_angle(negativeUp, targetPosition);
-        maxAngleDown *= -1.f; // downwards angle is negative
+        float maxAngleDown = vec3_angle(-up, targetPosition);
+        maxAngleDown *= -1.0f; // downwards angle is negative
         maxAngleDown += 0.001f; // avoid numerical errors
-
-        if (angle < maxAngleDown) 
-            angle = maxAngleDown;
+        if (angle < maxAngleDown) angle = maxAngleDown;
     }
 
     // Rotation axis
-    vec3 right;
-    getRight(right);
+    glm::vec3 right = getRight();
 
     // Rotate view vector around right axis
-    Vector3RotateByAxisAngle(targetPosition, right, angle, targetPosition);
+    targetPosition = Vector3RotateByAxisAngle(targetPosition, right, angle);
 
     if (rotateAroundTarget)
     {
         // Move position relative to target
-        glm_vec3_sub(m_target, targetPosition, m_position);
+        m_position = m_target - targetPosition;
     }
     else // rotate around camera.position
     {
         // Move target relative to position
-        glm_vec3_add(m_position, targetPosition, m_target);
+        m_target = m_position + targetPosition;
     }
 
     if (rotateUp)
     {
         // Rotate up direction around right axis
-        Vector3RotateByAxisAngle(m_up, right, angle, m_up);
+        up = Vector3RotateByAxisAngle(up, right, angle);
     }
 }
 
 
-void Camera3D::getForward(vec3 forward) noexcept
+glm::vec3 Camera3D::getForward() const noexcept
 {
-    glmc_vec3_sub(m_target, m_position, forward);
-    glmc_vec3_normalize(forward);
+   return glm::normalize(m_target - m_position);
 }
 
 
-void Camera3D::getUp(vec3 up) noexcept
+glm::vec3 Camera3D::getUp() const noexcept
 {
-    glmc_vec3_normalize_to(m_up, up);
+    return glm::normalize(m_up);
 }
 
 
-void Camera3D::getRight(vec3 right) noexcept
+glm::vec3 Camera3D::getRight() const noexcept
 {
-    vec3 forward, up;
-    getForward(forward);
-    getUp(up);
-    glmc_vec3_crossn(forward, up, right);
+    glm::vec3 forward = getForward();
+    glm::vec3 up = getUp();
+
+    return glm::normalize(glm::cross(forward, up));
 }
 
 
-void Camera3D::getViewMatrix(mat4 m) noexcept
+glm::mat4 Camera3D::getViewMatrix() const noexcept
 {
-    glmc_lookat(m_position, m_target, m_up, m);
+    return glm::lookAt(m_position, m_target, m_up);
 }
 
 
-void Camera3D::getProjectionMatrix(mat4 m, float aspect) noexcept
+glm::mat4 Camera3D::getProjectionMatrix(float aspect) const noexcept
 {
-    glmc_perspective(glm_rad(m_fovy), aspect, CAMERA_CULL_DISTANCE_NEAR, CAMERA_CULL_DISTANCE_FAR, m);
+    return glm::perspective(glm::radians(m_fovy), aspect, CAMERA_CULL_DISTANCE_NEAR, CAMERA_CULL_DISTANCE_FAR);
 }
 
 
@@ -271,17 +255,10 @@ void Camera3D::update(float dx, float dy, Camera3D::Mode mode, float dt) noexcep
     if (mode == Camera3D::Orbital)
     {
         // Orbital can just orbit 
-        vec3 up, view;
-        getUp(up);
-        mat4 rotation = GLM_MAT4_IDENTITY_INIT;
-        glm_rotate(rotation, cameraOrbitalSpeed, up);
-        glm_vec3_sub(m_position, m_target, view);
-
-        vec4 v = { view[0], view[1], view[2], 1.f };
-        vec4 result;
-        glm_mat4_mulv(rotation, v, result);
-        glm_vec3(result, view);
-        glm_vec3_add(m_target, view, m_position);
+        glm::mat4 rotation = glm::rotate(glm::identity<glm::mat4>(), cameraOrbitalSpeed, getUp());
+        glm::vec3 view = m_position - m_target;
+        view = glm::vec3(rotation * glm::vec4(view, 1.f));
+        m_position = m_target + view;
     }
     else
     {

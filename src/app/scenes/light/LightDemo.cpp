@@ -2,7 +2,7 @@
 #include <memory>
 
 #include <glad/glad.h>
-
+#include <glm/gtc/type_ptr.hpp>
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -39,16 +39,13 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
     const auto textureHandles = holder.create<Texture, 2>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(bufferHandles[0], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
+    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
 
     m_camera = std::make_unique<Camera3D>();
-    vec3 position = { 0.f, 2.f, 4.f };  // Camera position
-    vec3 target   = { 0.f, 2.f, 0.f };  // Camera looking at point
-    vec3 up       = { 0.f, 1.f, 0.0f }; // Camera up vector (rotation towards target)
-    glm_vec3_copy(position, m_camera->m_position);
-    glm_vec3_copy(target, m_camera->m_target);
-    glm_vec3_copy(up, m_camera->m_up);
+    m_camera->m_position = { 0.f, 2.f, 4.f };
+    m_camera->m_target   = { 0.f, 2.f, 0.f };
+    m_camera->m_up       = { 0.f, 1.f, 0.f };
 
     m_planeTexture = std::make_unique<Texture>(textureHandles[0]);
     m_cubeTexture = std::make_unique<Texture>(textureHandles[1]);
@@ -189,33 +186,31 @@ void LightDemo::update(const sf::Time& dt) noexcept
 void LightDemo::draw() noexcept
 {
     auto [width, height] = m_window.getSize();
-    mat4 projection, modelView, mvp;
-    m_camera->getProjectionMatrix(projection, (float)width / (float)height);
-    m_camera->getViewMatrix(modelView);
-    glmc_mat4_mul(projection, modelView, mvp);
-    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
+    auto projection = m_camera->getProjectionMatrix((float)width / (float)height);
+    auto modelView = m_camera->getViewMatrix();
+    auto mvp = projection * modelView;
+    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(mvp)));
 
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.33f, 0.33f, 0.33f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(m_planeProgram->getHandle());
 
-    vec3 light_color = { 1, 1, 1 };
+    glm::vec3 light_color = { 1, 1, 1 };
     float ambient_factor = 0.1f;
-
-    vec4 light_position;
-    vec4 target;
-    glm_vec4(m_camera->m_target, 1.f, target);
-    glm_mat4_mulv(modelView, target, light_position);
+  
+    glm::vec4 target(m_camera->m_target, 1.f);
+    glm::vec4 light_position = modelView * target;
+    
 
     if(int uniform = m_planeProgram->getUniformLocation("model_view_matrix"); uniform != -1)
-        glUniformMatrix4fv(uniform, 1, GL_FALSE, (const float*)modelView);
+        glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(modelView));
 
     if(int uniform = m_planeProgram->getUniformLocation("light_position"); uniform != -1)
-        glUniform3fv(uniform, 1, light_position);
+        glUniform3fv(uniform, 1, glm::value_ptr(light_position));
 
     if(int uniform = m_planeProgram->getUniformLocation("light_color"); uniform != -1)
-        glUniform3fv(uniform, 1, light_color);
+        glUniform3fv(uniform, 1, glm::value_ptr(light_color));
 
     if(int uniform = m_planeProgram->getUniformLocation("ambient_factor"); uniform != -1)
         glUniform1f(uniform, ambient_factor);
@@ -227,66 +222,58 @@ void LightDemo::draw() noexcept
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
 
-    vec3 worldUp = { 0.0f, 1.0f, 0.0f };
+    const glm::vec3 worldUp = { 0.0f, 1.0f, 0.0f };
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num1))
     {
         m_camera->m_mode = Camera3D::Free;
-        glm_vec3_copy(worldUp, m_camera->m_up); // Reset roll
+        m_camera->m_up = worldUp; // Reset roll
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num2))
     {
         m_camera->m_mode = Camera3D::FirstPerson;
-        glm_vec3_copy(worldUp, m_camera->m_up); // Reset roll
+        m_camera->m_up = worldUp; // Reset roll
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num3))
     {
         m_camera->m_mode = Camera3D::ThirdPerson;
-        glm_vec3_copy(worldUp, m_camera->m_up); // Reset roll
+        m_camera->m_up = worldUp; // Reset roll
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num4))
     {
         m_camera->m_mode = Camera3D::Orbital;
-        glm_vec3_copy(worldUp, m_camera->m_up); // Reset roll
+        m_camera->m_up = worldUp; // Reset roll
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::P))
     {
         m_camera->m_mode = Camera3D::ThirdPerson;
-        vec3 position = { 0.f, 2.f, -100.f };
-        vec3 target   = { 0.f, 2.f, 0.f };
-        vec3 up       = { 0.f, 1.f, 0.f };
-        glm_vec3_copy(position, m_camera->m_position);
-        glm_vec3_copy(target, m_camera->m_target);
-        glm_vec3_copy(up, m_camera->m_up);
+        m_camera->m_position = { 0.f, 2.f, -100.f };
+        m_camera->m_target   = { 0.f, 2.f, 0.f };
+        m_camera->m_up       = { 0.f, 1.f, 0.f };
 
-        m_camera->rotateYaw(glm_rad(-135.f), true);
-        m_camera->rotatePitch(glm_rad(-45.f), true, true, false);
+        m_camera->rotateYaw(glm::radians(-135.f), true);
+        m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::I))
     {
         m_camera->m_mode = Camera3D::ThirdPerson;
-        vec3 position = { 0.f, 2.f, 10.f };
-        vec3 target   = { 0.f, 2.f, 0.f  };
-        vec3 up       = { 0.f, 1.f, 0.f  };
-        glm_vec3_copy(position, m_camera->m_position);
-        glm_vec3_copy(target, m_camera->m_target);
-        glm_vec3_copy(up, m_camera->m_up);
+        m_camera->m_position = { 0.f, 2.f, 10.f };
+        m_camera->m_target   = { 0.f, 2.f, 0.f };
+        m_camera->m_up       = { 0.f, 1.f, 0.f };
 
-        m_camera->rotateYaw(glm_rad(-135.f), true);
-        m_camera->rotatePitch(glm_rad(-45.f), true, true, false);
+        m_camera->rotateYaw(glm::radians(-135.f), true);
+        m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
     }
 
     if(m_camera->m_mode == Camera3D::ThirdPerson)
     {
-        mat4 model = GLM_MAT4_IDENTITY_INIT;
-        glm_translate(model, m_camera->m_target);
-        glmc_mat4_mul(mvp, model, modelView);
-        m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(modelView));
+        glm::mat4 model = glm::translate(glm::identity<glm::mat4>(), m_camera->m_target) * mvp;
+        m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(model)));
 
         glUseProgram(m_cubeProgram->getHandle());
         glBindTexture(GL_TEXTURE_2D, m_cubeTexture->handle);

@@ -5,6 +5,8 @@
 
 #include <glad/glad.h>
 #include <SFML/Window/Window.hpp>
+#include <glm/vec4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <stb_image_write.h>
 #include <utf8.h>
 
@@ -39,11 +41,11 @@ bool FontDemo::init(GlResourceHolder& holder) noexcept
     auto vaoHandle = holder.create<VertexArrayObject, 1>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(vboHandles[0], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
+    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
 
     m_vbo = std::make_unique<GlBuffer>(vboHandles[1], GL_ARRAY_BUFFER);
-    m_vbo->create(sizeof(vec4), 4, nullptr, GL_DYNAMIC_DRAW);
+    m_vbo->create(sizeof(glm::vec4), 4, nullptr, GL_DYNAMIC_DRAW);
 
     m_vao = std::make_unique<VertexArrayObject>(vaoHandle[0]);
 
@@ -130,9 +132,8 @@ bool FontDemo::init(GlResourceHolder& holder) noexcept
 
 void FontDemo::update(const sf::Time& dt) noexcept
 {
-    mat4 mvp;
-    m_camera->getModelViewProjectionMatrix(mvp);
-    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
+    glm::mat4 mvp = m_camera->getModelViewProjectionMatrix();
+    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(mvp)));
 }
 
 
@@ -146,8 +147,8 @@ void FontDemo::draw() noexcept
 
     glUseProgram(m_program->getHandle());
     
-    vec3 color = { 0.5, 0.8f, 0.2f };
-    renderText(m_text, color, 250.0f, 370.0f);
+    glm::vec3 color = { 0.5, 0.8f, 0.2f };
+    renderText(m_text, color, 250.f, 370.f);
 
     glUseProgram(0);
 
@@ -156,10 +157,10 @@ void FontDemo::draw() noexcept
 }
 
 
-void FontDemo::renderText(const std::wstring& text, const vec3 color, float x, float y) noexcept
+void FontDemo::renderText(const std::wstring& text, const glm::vec3& color, float x, float y) noexcept
 {
     if(auto uniform = glGetUniformLocation(m_program->getHandle(), "textColor"); uniform != -1)
-        glUniform3f(uniform, color[0], color[1], color[2]);
+        glUniform3fv(uniform, 1, glm::value_ptr(color));
 
     glBindTextureUnit(0, m_fontTexture);
     glBindVertexArray(m_vao->getHandle());
@@ -170,15 +171,15 @@ void FontDemo::renderText(const std::wstring& text, const vec3 color, float x, f
         const Glyph& glyph = m_glyphs[wc];
 
         float xpos = x + glyph.bearing[0];
-        float ypos = y - (glyph.size[1] - glyph.bearing[1]);
+        float ypos = y - (glyph.size.y - glyph.bearing.y);
 
-        float w = glyph.size[0];
-        float h = glyph.size[1];
+        float w = glyph.size.x;
+        float h = glyph.size.y;
 
-        float left   = glyph.textureRect[0];
-        float top    = glyph.textureRect[1];
-        float right  = glyph.textureRect[2];
-        float bottom = glyph.textureRect[3];
+        float left   = glyph.textureRect.x;
+        float top    = glyph.textureRect.y;
+        float right  = glyph.textureRect.z;
+        float bottom = glyph.textureRect.w;
 
         // update VBO for each character
         float vertices[16] = 
@@ -190,7 +191,7 @@ void FontDemo::renderText(const std::wstring& text, const vec3 color, float x, f
         };
 
         // update content of VBO memory
-        m_vbo->update(0, sizeof(vec4), 4, vertices);
+        m_vbo->update(0, sizeof(glm::vec4), 4, vertices);
 
         // render quad
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

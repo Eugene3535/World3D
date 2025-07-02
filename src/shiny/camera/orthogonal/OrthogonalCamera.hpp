@@ -12,12 +12,12 @@ public:
     void setupProjectionMatrix(int32_t width, int32_t height) noexcept;
     void flipVertically(bool flip) noexcept; // If false, the coordinates are counted in OpenGL space - (0, 0) in the lower left corner
 
-    void getModelViewProjectionMatrix(mat4 mvp) noexcept;
+    glm::mat4 getModelViewProjectionMatrix() const noexcept;
     bool isUpsideDown() const noexcept;
 
 private:
-    mat4 m_projection;
-    bool m_modelViewNeedUpdate;
+    glm::mat4 m_projection;
+    mutable bool m_modelViewNeedUpdate;
     bool m_flipVertically;
 };
 

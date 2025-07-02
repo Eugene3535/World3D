@@ -13,14 +13,14 @@ SpriteHolder::SpriteHolder(const GLuint bufferHandle) noexcept:
 }
 
 
-void SpriteHolder::createSingleAnimation(const std::string& name, const Texture* texture, const ivec4s& frame) noexcept
+void SpriteHolder::createSingleAnimation(const std::string& name, const Texture* texture, const glm::ivec4& frame) noexcept
 {
 	if(auto it = m_animations.find(name); it == m_animations.end())
 	{
 		const GLuint id = m_sprites.size();
 		m_animations.emplace(name, sprite_range(id, 1));
 
-		const vec2 ratio = { 1.f / texture->width, 1.f / texture->height };
+		const glm::vec2 ratio = { 1.f / texture->width, 1.f / texture->height };
 		addSprite(texture->handle, frame, ratio);
 
 		m_vertexBufferObject.update(0, sizeof(float), m_vertices.size(), static_cast<const void*>(m_vertices.data()));
@@ -35,14 +35,14 @@ void SpriteHolder::createLinearAnimaton(const std::string& name, const Texture* 
 		const GLuint id = m_sprites.size();
 		m_animations.emplace(name, sprite_range(id, duration));
 
-		const ivec2 size  = { texture->width, texture->height };
-		const vec2 ratio = { 1.f / size[0], 1.f / size[1] };
+		const glm::ivec2 size  = { texture->width, texture->height };
+		const glm::vec2 ratio = 1.f / glm::vec2(size);
 		const int frameWidth = texture->width / duration;
 		const GLuint handle = texture->handle;
 	
 		for (int i = 0; i < duration; ++i)
 		{
-			ivec4s frame = { i * frameWidth, 0, frameWidth, size[1] };
+			glm::ivec4 frame = { i * frameWidth, 0, frameWidth, size.y };
 			addSprite(handle, frame, ratio);
 		}
 
@@ -59,8 +59,8 @@ void SpriteHolder::createGridAnimaton(const std::string& name, const Texture* te
 		const GLuint duration = columns * rows;
 		m_animations.emplace(name, sprite_range(id, duration));
 
-		const ivec2 size  = { texture->width, texture->height };
-		const vec2 ratio = { 1.f / size[0], 1.f / size[1] };
+		const glm::ivec2 size  = { texture->width, texture->height };
+		const glm::vec2 ratio = 1.f / glm::vec2(size);
 
 		const int32_t width  = size[0] / static_cast<float>(columns);
 		const int32_t height = size[1] / static_cast<float>(rows);
@@ -69,7 +69,7 @@ void SpriteHolder::createGridAnimaton(const std::string& name, const Texture* te
 		for (int y = 0; y < rows; ++y)
 			for (int x = 0; x < columns; ++x)
 			{
-				ivec4s frame = { x * width, y * height, width, height };
+				glm::ivec4 frame = { x * width, y * height, width, height };
 				addSprite(handle, frame, ratio);
 			}
 
@@ -78,14 +78,14 @@ void SpriteHolder::createGridAnimaton(const std::string& name, const Texture* te
 }
 
 
-void SpriteHolder::createCustomAnimaton(const std::string& name, const class Texture* texture, std::span<const ivec4s> frames) noexcept
+void SpriteHolder::createCustomAnimaton(const std::string& name, const class Texture* texture, std::span<const glm::ivec4> frames) noexcept
 {
 	if(auto it = m_animations.find(name); it == m_animations.end())
 	{
 		const GLuint id = m_sprites.size();
 		m_animations.emplace(name, sprite_range(id, static_cast<GLuint>(frames.size())));
 
-		const vec2 ratio = { 1.f / texture->width, 1.f / texture->height };
+		const glm::vec2 ratio = { 1.f / texture->width, 1.f / texture->height };
 		const GLuint handle = texture->handle;
 	
 		for (const auto& frame : frames)	
@@ -103,8 +103,8 @@ void SpriteHolder::loadSpriteSheet(const std::filesystem::path& filePath, const 
 	document->parse<0>(xmlFile.data());
 	const auto spriteNode = document->first_node("sprites");
 
-	const ivec2 size = { texture->width, texture->height };
-	const vec2 ratio = { 1.f / size[0], 1.f / size[1] };
+	const glm::ivec2 size = { texture->width, texture->height };
+	const glm::vec2 ratio = 1.f / glm::vec2(size);
 	const GLuint handle = texture->handle;
 
 	for(auto animNode = spriteNode->first_node("animation");
@@ -114,7 +114,7 @@ void SpriteHolder::loadSpriteSheet(const std::filesystem::path& filePath, const 
 		const std::string title = animNode->first_attribute("title")->value();
 		const GLuint id = m_sprites.size();
 
-		std::vector<ivec4s> frames;
+		std::vector<glm::ivec4> frames;
 
 		if(auto it = m_animations.find(title); it == m_animations.end())
 		{
@@ -172,7 +172,7 @@ std::span<const Sprite2D> SpriteHolder::getSprites(const std::string& name) cons
 }
 
 
-void SpriteHolder::addSprite(GLuint texture, const ivec4s& frame, const vec2 ratio) noexcept
+void SpriteHolder::addSprite(GLuint texture, const glm::ivec4& frame, const glm::vec2& ratio) noexcept
 {
 	auto& sprite   = m_sprites.emplace_back();
 	sprite.frame   = m_vertices.size() >> 2;

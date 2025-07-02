@@ -2,7 +2,7 @@
 #include <memory>
 
 #include <glad/glad.h>
-
+#include <glm/gtc/type_ptr.hpp>
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
@@ -43,12 +43,12 @@ bool OrbitDemo::init(GlResourceHolder& holder) noexcept
     const auto textureHandles = holder.create<Texture, 1>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(bufferHandles[0], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
+    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
 
     m_camera = std::make_unique<OrbitCamera>();
-    vec3 minPoint = {};
-    vec3 maxPoint = { 100, 0, 100 };
+    glm::vec3 minPoint = {};
+    glm::vec3 maxPoint = { 100, 0, 100 };
     m_camera->setup(minPoint, maxPoint);
     m_camera->updateProjectionMatrix(static_cast<float>(width) / static_cast<float>(height));
 
@@ -135,10 +135,8 @@ void OrbitDemo::update(const sf::Time& dt) noexcept
     if(m_mouseScrollDelta != 0.f)
         m_camera->zoom(-m_mouseScrollDelta);
 
-    mat4 mvp;
-    m_camera->getModelViewProjectionMatrix(mvp);
-
-    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
+    glm::mat4 mvp = m_camera->getModelViewProjectionMatrix();
+    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(mvp)));
 }
 
 

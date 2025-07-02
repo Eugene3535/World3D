@@ -2,7 +2,7 @@
 #include <memory>
 
 #include <glad/glad.h>
-
+#include <glm/gtc/type_ptr.hpp>
 #include <SFML/Window.hpp>
 
 #include "files/StbImage.hpp"
@@ -95,8 +95,8 @@ bool PathDemo::init(GlResourceHolder& holder) noexcept
     glUseProgram(0);
 
     m_uniformBuffer = std::make_unique<GlBuffer>(buffers[1], GL_UNIFORM_BUFFER);
-    m_uniformBuffer->create(sizeof(mat4), 1, nullptr, GL_DYNAMIC_DRAW);
-    m_uniformBuffer->bindBufferRange(0, 0, sizeof(mat4));
+    m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
+    m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
 
     auto [width, height] = m_window.getSize();
     m_camera = std::make_unique<PerspectiveCamera>();
@@ -122,9 +122,8 @@ void PathDemo::update(const sf::Time& dt) noexcept
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         m_camera->processKeyboard(PerspectiveCamera::Right, 1);
 
-    vec3 playerPos;
-    m_camera->getPosition(playerPos);
-    playerPos[1] = 30;
+    glm::vec3 playerPos = m_camera->getPosition();
+    playerPos.y = 30;
     m_camera->setPosition(playerPos);
 
     const auto [xpos, ypos] = sf::Mouse::getPosition();
@@ -138,10 +137,9 @@ void PathDemo::update(const sf::Time& dt) noexcept
 
     sf::Mouse::setPosition({xt, yt});
 
-    mat4 mvp;
-    m_camera->getModelViewProjectionMatrix(mvp);
+    auto mvp = m_camera->getModelViewProjectionMatrix();
 
-    m_uniformBuffer->update(0, sizeof(mat4), 1, static_cast<const void*>(mvp));
+    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(mvp)));
 }
 
 
