@@ -106,8 +106,7 @@ bool Font::loadPage(uint32_t characterSize) noexcept
 
         auto& page = m_pages[characterSize]; 
         page.image.resize(128 * 128);
-        page.size[0] = 128;
-        page.size[1] = 128;
+        page.size = {128, 128 };
 
         int amount = 0;
     
@@ -122,11 +121,7 @@ bool Font::loadPage(uint32_t characterSize) noexcept
 
         for(auto& [wc, glyph] : page.glyphs)
         {
-            glm::vec4 textureRect; 
-            textureRect.x = glyph.imageRect.x;
-            textureRect.y = glyph.imageRect.y;
-            textureRect.z = glyph.imageRect.z;
-            textureRect.w = glyph.imageRect.w;
+            glm::vec4 textureRect(glyph.imageRect); 
 
             // padding
             textureRect.x -= 2.f;
@@ -134,8 +129,8 @@ bool Font::loadPage(uint32_t characterSize) noexcept
 
             float left   = textureRect.x / size.x;
             float top    = textureRect.y / size.y;
-            float right  = (textureRect.x + textureRect.x) / size.x;
-            float bottom = (textureRect.y + textureRect.y) / size.y;
+            float right  = (textureRect.x + textureRect.z) / size.x;
+            float bottom = (textureRect.y + textureRect.w) / size.y;
 
             glyph.textureRect = { left, top, right, bottom };
         }
@@ -159,9 +154,9 @@ Font::Image Font::getImage(uint32_t characterSize) const noexcept
 
     if(auto it = m_pages.find(characterSize); it != m_pages.end())
     {
-        image.pixels = it->second.image.data();
-        image.width = it->second.size[0];
-        image.height = it->second.size[1];
+        image.pixels        = it->second.image.data();
+        image.width         = it->second.size.x;
+        image.height        = it->second.size.y;
         image.characterSize = it->first;
     }
         

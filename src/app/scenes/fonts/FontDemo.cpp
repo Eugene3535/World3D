@@ -170,7 +170,7 @@ void FontDemo::renderText(const std::wstring& text, const glm::vec3& color, floa
     {
         const Glyph& glyph = m_glyphs[wc];
 
-        float xpos = x + glyph.bearing[0];
+        float xpos = x + glyph.bearing.x;
         float ypos = y - (glyph.size.y - glyph.bearing.y);
 
         float w = glyph.size.x;

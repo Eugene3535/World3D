@@ -272,7 +272,7 @@ void LightDemo::draw() noexcept
 
     if(m_camera->m_mode == Camera3D::ThirdPerson)
     {
-        glm::mat4 model = glm::translate(glm::identity<glm::mat4>(), m_camera->m_target) * mvp;
+        glm::mat4 model = mvp * glm::translate(glm::identity<glm::mat4>(), m_camera->m_target);
         m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(model)));
 
         glUseProgram(m_cubeProgram->getHandle());
@@ -284,7 +284,6 @@ void LightDemo::draw() noexcept
         glUseProgram(0);
     }
 
-    glUseProgram(0);
     glDisable(GL_DEPTH_TEST);
 }
 

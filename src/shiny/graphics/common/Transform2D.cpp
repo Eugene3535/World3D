@@ -1,4 +1,5 @@
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "graphics/common/Transform2D.hpp"
 
@@ -106,12 +107,14 @@ const glm::vec2& Transform2D::getOrigin() const noexcept
 void Transform2D::move(const glm::vec2& offset) noexcept
 {
     m_position += offset;
+    m_transformNeedUpdate = true;
 }
 
 
 void Transform2D::rotate(float angle) noexcept
 {
     setRotation(m_rotation + angle);
+    m_transformNeedUpdate = true;
 }
 
 
@@ -130,19 +133,12 @@ const glm::mat4& Transform2D::getMatrix() const noexcept
         float tx     = -m_origin[0] * sxc - m_origin[1] * sys + m_position[0];
         float ty     =  m_origin[0] * sxs - m_origin[1] * syc + m_position[1];
 
-        // auto m = static_cast<float*>(&m_matrix[0][0]);
+        auto m = static_cast<float*>(glm::value_ptr(m_matrix));
 
-        // m[0] = sxc;  m[4] = sys; m[8] = 0.f;  m[12] = tx;
-        // m[1] = -sxs; m[5] = syc; m[9] = 0.f;  m[13] = ty;
-        // m[2] = 0.f;  m[6] = 0.f; m[10] = 1.f; m[14] = 0.f;
-        // m[3] = 0.f;  m[7] = 0.f; m[11] = 0.f; m[15] = 1.f;
-
-        m_matrix = glm::mat4(
-            sxc,  sys, 0.f, tx,
-            -sxs, syc, 0.f, ty,
-            0.f,  0.f, 1.f, 0.f,
-            0.f,  0.f, 0.f, 1.f
-        );
+        m[0] = sxc;  m[4] = sys; m[8] = 0.f;  m[12] = tx;
+        m[1] = -sxs; m[5] = syc; m[9] = 0.f;  m[13] = ty;
+        m[2] = 0.f;  m[6] = 0.f; m[10] = 1.f; m[14] = 0.f;
+        m[3] = 0.f;  m[7] = 0.f; m[11] = 0.f; m[15] = 1.f;
 
         m_transformNeedUpdate = false;
     }
