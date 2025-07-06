@@ -46,6 +46,8 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
     m_camera->m_position = { 0.f, 2.f, 4.f };
     m_camera->m_target   = { 0.f, 2.f, 0.f };
     m_camera->m_up       = { 0.f, 1.f, 0.f };
+    m_camera->rotateYaw(glm::radians(-135.f), true);
+    m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
 
     m_planeTexture = std::make_unique<Texture>(textureHandles[0]);
     m_cubeTexture = std::make_unique<Texture>(textureHandles[1]);
@@ -56,7 +58,7 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
     if(!m_cubeTexture->loadFromFile(FileProvider::findPathToFile("block.png"), true, true)) 
         return false;
 
-    std::array<float, 36> planeVertices = 
+    std::array<float, 36> planeVertices =
     {
         0.f,   0.f, 0.f,   0.f, 0.f, 0.f, 1.f, 0.f,
         100.f, 0.f, 0.f,   1.f, 0.f, 0.f, 1.f, 0.f,
@@ -255,8 +257,8 @@ void LightDemo::draw() noexcept
     {
         m_camera->m_mode = Camera3D::ThirdPerson;
         m_camera->m_position = { 0.f, 2.f, -50.f };
-        m_camera->m_target   = { 50.f, 2.f, 50.f  };
-        m_camera->m_up       = { 0.f, 1.f, 0.f    };
+        m_camera->m_target   = { 50.f, 2.f, 50.f };
+        m_camera->m_up       = { 0.f, 1.f, 0.f   };
 
         m_camera->rotateYaw(glm::radians(-135.f), true);
         m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
