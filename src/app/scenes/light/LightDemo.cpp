@@ -58,10 +58,10 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
 
     std::array<float, 36> planeVertices = 
     {
-        -50.f, 0.f, -50.f, 0.0f, 0.0f, 0.f, 1.f, 0.f,
-         50.f, 0.f, -50.f, 1.0f, 0.0f, 0.f, 1.f, 0.f,
-         50.f, 0.f,  50.f, 1.0f, 1.0f, 0.f, 1.f, 0.f,
-        -50.f, 0.f,  50.f, 0.0f, 1.0f, 0.f, 1.f, 0.f
+        0.f,   0.f, 0.f,   0.f, 0.f, 0.f, 1.f, 0.f,
+        100.f, 0.f, 0.f,   1.f, 0.f, 0.f, 1.f, 0.f,
+        100.f, 0.f, 100.f, 1.f, 1.f, 0.f, 1.f, 0.f,
+        0.f,   0.f, 100.f, 0.f, 1.f, 0.f, 1.f, 0.f
     };
 
     std::array<const VertexBufferLayout::Attribute, 3> planeAttributes
@@ -201,10 +201,13 @@ void LightDemo::draw() noexcept
   
     glm::vec4 target(m_camera->m_target, 1.f);
     glm::vec4 light_position = modelView * target;
+    // glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(modelView)));
     
-
     if(int uniform = m_planeProgram->getUniformLocation("model_view_matrix"); uniform != -1)
         glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(modelView));
+
+    // if(int uniform = m_planeProgram->getUniformLocation("normal_matrix"); uniform != -1)
+    //     glUniformMatrix3fv(uniform, 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
     if(int uniform = m_planeProgram->getUniformLocation("light_position"); uniform != -1)
         glUniform3fv(uniform, 1, glm::value_ptr(light_position));
@@ -224,47 +227,47 @@ void LightDemo::draw() noexcept
 
     const glm::vec3 worldUp = { 0.0f, 1.0f, 0.0f };
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num1))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1))
     {
         m_camera->m_mode = Camera3D::Free;
         m_camera->m_up = worldUp; // Reset roll
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num2))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2))
     {
         m_camera->m_mode = Camera3D::FirstPerson;
         m_camera->m_up = worldUp; // Reset roll
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num3))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3))
     {
         m_camera->m_mode = Camera3D::ThirdPerson;
         m_camera->m_up = worldUp; // Reset roll
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num4))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4))
     {
         m_camera->m_mode = Camera3D::Orbital;
         m_camera->m_up = worldUp; // Reset roll
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::P))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
     {
         m_camera->m_mode = Camera3D::ThirdPerson;
-        m_camera->m_position = { 0.f, 2.f, -100.f };
-        m_camera->m_target   = { 0.f, 2.f, 0.f };
-        m_camera->m_up       = { 0.f, 1.f, 0.f };
+        m_camera->m_position = { 0.f, 2.f, -50.f };
+        m_camera->m_target   = { 50.f, 2.f, 50.f  };
+        m_camera->m_up       = { 0.f, 1.f, 0.f    };
 
         m_camera->rotateYaw(glm::radians(-135.f), true);
         m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::I))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::I))
     {
         m_camera->m_mode = Camera3D::ThirdPerson;
-        m_camera->m_position = { 0.f, 2.f, 10.f };
-        m_camera->m_target   = { 0.f, 2.f, 0.f };
-        m_camera->m_up       = { 0.f, 1.f, 0.f };
+        m_camera->m_position = { 0.f, 2.f, 10.f  };
+        m_camera->m_target   = { 50.f, 2.f, 50.f };
+        m_camera->m_up       = { 0.f, 1.f, 0.f   };
 
         m_camera->rotateYaw(glm::radians(-135.f), true);
         m_camera->rotatePitch(glm::radians(-45.f), true, true, false);

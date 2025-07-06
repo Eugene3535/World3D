@@ -6,10 +6,10 @@ layout(location = 2) in vec3 vertexNormal;
 
 layout (std140) uniform Matrices
 {
-    mat4 modelViewProjection;
+    mat4 model_view_projection;
 };
 
-uniform mat4 model_view_matrix = mat4(1);
+uniform mat4 model_view_matrix;
 
 out vec2 uv;
 out vec3 normal;
@@ -20,5 +20,5 @@ void main()
     uv = vertexUV;
     normal = vertexNormal;
     fragment_position = vec3(model_view_matrix * vec4(vertexPosition, 1.f));
-    gl_Position = modelViewProjection * vec4(vertexPosition, 1.f);
+    gl_Position = model_view_projection * vec4(vertexPosition, 1.f);
 }
