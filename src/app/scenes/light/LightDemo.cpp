@@ -200,6 +200,7 @@ void LightDemo::draw() noexcept
 
     const glm::vec3 light_color = { 1, 1, 1 };
     const float ambient_factor = 0.1f;
+    const float diffuse_factor = 1.0f;
     const float specular_factor = 0.5f;
     const float shininess = 32.f;
   
@@ -221,6 +222,9 @@ void LightDemo::draw() noexcept
 
     if(int uniform = m_planeProgram->getUniformLocation("ambient_factor"); uniform != -1)
         glUniform1f(uniform, ambient_factor);
+
+    if(int uniform = m_planeProgram->getUniformLocation("diffuse_factor"); uniform != -1)
+        glUniform1f(uniform, diffuse_factor);
 
     if(int uniform = m_planeProgram->getUniformLocation("specular_factor"); uniform != -1)
         glUniform1f(uniform, specular_factor);

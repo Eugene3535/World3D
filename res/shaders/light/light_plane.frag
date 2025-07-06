@@ -6,6 +6,7 @@ uniform vec3 light_position;
 uniform vec3 light_color;
 
 uniform float ambient_factor;
+uniform float diffuse_factor;
 uniform float specular_factor;
 uniform float shininess;
 
@@ -21,13 +22,12 @@ void main()
     vec3 ambient = ambient_factor * light_color;
 
 //  diffuse
-    vec3 norm = normalize(normal);
     vec3 light_dir = normalize(light_position - fragment_position);
-    vec3 diffuse = light_color * max(dot(norm, light_dir), 0.f);
+    vec3 diffuse = diffuse_factor * light_color * max(dot(normal, light_dir), 0.f);
 
 //  specular
     vec3 view_dir = normalize(-fragment_position);
-    vec3 reflect_dir = reflect(-light_dir, norm);
+    vec3 reflect_dir = reflect(-light_dir, normal);
     float specular_value = pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
     vec3 specular = specular_factor * specular_value * light_color;
 

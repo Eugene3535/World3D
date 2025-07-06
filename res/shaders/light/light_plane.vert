@@ -19,7 +19,7 @@ out vec3 fragment_position;
 void main()
 {
     uv = vertexUV;
-    normal = normal_matrix * vertexNormal;
+    normal = normalize(normal_matrix * vertexNormal);
     fragment_position = vec3(model_view_matrix * vec4(vertexPosition, 1.f));
     gl_Position = model_view_projection * vec4(vertexPosition, 1.f);
 }
