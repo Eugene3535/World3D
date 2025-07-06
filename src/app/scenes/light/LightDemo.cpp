@@ -189,8 +189,8 @@ void LightDemo::draw() noexcept
 {
     auto [width, height] = m_window.getSize();
     auto projection = m_camera->getProjectionMatrix((float)width / (float)height);
-    auto modelView = m_camera->getViewMatrix();
-    auto mvp = projection * modelView;
+    auto model_view_matrix = m_camera->getViewMatrix();
+    auto mvp = projection * model_view_matrix;
     m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(mvp)));
 
     glEnable(GL_DEPTH_TEST);
@@ -198,18 +198,20 @@ void LightDemo::draw() noexcept
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(m_planeProgram->getHandle());
 
-    glm::vec3 light_color = { 1, 1, 1 };
-    float ambient_factor = 0.1f;
+    const glm::vec3 light_color = { 1, 1, 1 };
+    const float ambient_factor = 0.1f;
+    const float specular_factor = 0.5f;
+    const float shininess = 32.f;
   
     glm::vec4 target(m_camera->m_target, 1.f);
-    glm::vec4 light_position = modelView * target;
-    // glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(modelView)));
+    glm::vec4 light_position = model_view_matrix * target;
+    glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(model_view_matrix)));
     
     if(int uniform = m_planeProgram->getUniformLocation("model_view_matrix"); uniform != -1)
-        glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(modelView));
+        glUniformMatrix4fv(uniform, 1, GL_FALSE, glm::value_ptr(model_view_matrix));
 
-    // if(int uniform = m_planeProgram->getUniformLocation("normal_matrix"); uniform != -1)
-    //     glUniformMatrix3fv(uniform, 1, GL_FALSE, glm::value_ptr(normal_matrix));
+    if(int uniform = m_planeProgram->getUniformLocation("normal_matrix"); uniform != -1)
+        glUniformMatrix3fv(uniform, 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
     if(int uniform = m_planeProgram->getUniformLocation("light_position"); uniform != -1)
         glUniform3fv(uniform, 1, glm::value_ptr(light_position));
@@ -219,6 +221,12 @@ void LightDemo::draw() noexcept
 
     if(int uniform = m_planeProgram->getUniformLocation("ambient_factor"); uniform != -1)
         glUniform1f(uniform, ambient_factor);
+
+    if(int uniform = m_planeProgram->getUniformLocation("specular_factor"); uniform != -1)
+        glUniform1f(uniform, specular_factor);
+
+    if(int uniform = m_planeProgram->getUniformLocation("shininess"); uniform != -1)
+        glUniform1f(uniform, shininess);
 
     glBindTexture(GL_TEXTURE_2D, m_planeTexture->handle);
     glBindVertexArray(m_planeVao->getHandle());
