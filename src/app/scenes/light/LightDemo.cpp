@@ -43,9 +43,9 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
     m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
 
     m_camera = std::make_unique<Camera3D>();
-    m_camera->m_position = { 0.f, 2.f, 4.f };
-    m_camera->m_target   = { 0.f, 2.f, 0.f };
-    m_camera->m_up       = { 0.f, 1.f, 0.f };
+    m_camera->setPosition({ 0.f, 2.f, 4.f });
+    m_camera->focusOn({ 0.f, 2.f, 0.f });
+    m_camera->setWorldUp({ 0.f, 1.f, 0.f });
     m_camera->rotateYaw(glm::radians(-135.f), true);
     m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
 
@@ -181,7 +181,7 @@ void LightDemo::update(const sf::Time& dt) noexcept
         deltaY = m_mouseMovementDelta.y;
     }
 
-    m_camera->update(deltaX, deltaY, m_camera->m_mode, dt.asSeconds());
+    m_camera->update(deltaX, deltaY, m_camera->getMode(), dt.asSeconds());
 }
 
 
@@ -204,7 +204,7 @@ void LightDemo::draw() noexcept
     const float specular_factor = 0.5f;
     const float shininess = 32.f;
   
-    glm::vec4 target(m_camera->m_target, 1.f);
+    glm::vec4 target(m_camera->getTarget(), 1.f);
     glm::vec4 light_position = model_view_matrix * target;
     glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(model_view_matrix)));
     
@@ -239,38 +239,38 @@ void LightDemo::draw() noexcept
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
 
-    const glm::vec3 worldUp = { 0.0f, 1.0f, 0.0f };
+    const glm::vec3 worldUp = { 0.f, 1.f, 0.f };
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1))
     {
-        m_camera->m_mode = Camera3D::Free;
-        m_camera->m_up = worldUp; // Reset roll
+        m_camera->setMode(Camera3D::Free);
+        m_camera->setWorldUp(worldUp); // Reset roll
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2))
     {
-        m_camera->m_mode = Camera3D::FirstPerson;
-        m_camera->m_up = worldUp; // Reset roll
+        m_camera->setMode(Camera3D::FirstPerson);
+        m_camera->setWorldUp(worldUp); // Reset roll
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3))
     {
-        m_camera->m_mode = Camera3D::ThirdPerson;
-        m_camera->m_up = worldUp; // Reset roll
+        m_camera->setMode(Camera3D::ThirdPerson);
+        m_camera->setWorldUp(worldUp); // Reset roll
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4))
     {
-        m_camera->m_mode = Camera3D::Orbital;
-        m_camera->m_up = worldUp; // Reset roll
+        m_camera->setMode(Camera3D::Orbital);
+        m_camera->setWorldUp(worldUp); // Reset roll
     }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P))
     {
-        m_camera->m_mode = Camera3D::ThirdPerson;
-        m_camera->m_position = { 0.f, 2.f, -50.f };
-        m_camera->m_target   = { 50.f, 2.f, 50.f };
-        m_camera->m_up       = { 0.f, 1.f, 0.f   };
+        m_camera->setMode(Camera3D::ThirdPerson);
+        m_camera->setPosition({0.f, 2.f, -50.f});
+        m_camera->focusOn({50.f, 2.f, 50.f });
+        m_camera->setWorldUp(worldUp);
 
         m_camera->rotateYaw(glm::radians(-135.f), true);
         m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
@@ -278,18 +278,18 @@ void LightDemo::draw() noexcept
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::I))
     {
-        m_camera->m_mode = Camera3D::ThirdPerson;
-        m_camera->m_position = { 0.f, 2.f, 10.f  };
-        m_camera->m_target   = { 50.f, 2.f, 50.f };
-        m_camera->m_up       = { 0.f, 1.f, 0.f   };
+        m_camera->setMode(Camera3D::ThirdPerson);
+        m_camera->setPosition({0.f, 2.f, 10.f});
+        m_camera->focusOn({50.f, 2.f, 50.f});
+        m_camera->setWorldUp(worldUp);
 
         m_camera->rotateYaw(glm::radians(-135.f), true);
         m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
     }
 
-    if(m_camera->m_mode == Camera3D::ThirdPerson)
+    if(m_camera->getMode() == Camera3D::ThirdPerson)
     {
-        glm::mat4 model = mvp * glm::translate(glm::identity<glm::mat4>(), m_camera->m_target);
+        glm::mat4 model = mvp * glm::translate(glm::identity<glm::mat4>(), m_camera->getTarget());
         m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(model)));
 
         glUseProgram(m_cubeProgram->getHandle());

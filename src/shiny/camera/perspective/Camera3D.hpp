@@ -33,6 +33,11 @@ public:
 
     Camera3D() noexcept;
 
+    void setPosition(const glm::vec3& position) noexcept;
+    void focusOn(const glm::vec3& target)       noexcept;
+    void setWorldUp(const glm::vec3& up)        noexcept;
+    void setMode(Mode mode)                     noexcept;
+
     // Camera movement
     void moveForward(float distance, bool moveInWorldPlane) noexcept;
     void moveUp(float distance) noexcept;
@@ -42,17 +47,20 @@ public:
     // Camera rotation
     void rotateYaw(float angle, bool rotateAroundTarget) noexcept;
     void rotatePitch(float angle, bool lockView, bool rotateAroundTarget, bool rotateUp) noexcept;
- 
-    glm::vec3 getForward() const noexcept;
-    glm::vec3 getUp()      const noexcept;
-    glm::vec3 getRight()   const noexcept;
 
     glm::mat4 getViewMatrix() const noexcept;
     glm::mat4 getProjectionMatrix(float aspect) const noexcept;
 
+    const glm::vec3& getPosition() const noexcept;
+    const glm::vec3& getTarget()   const noexcept;
+    Mode getMode()                 const noexcept;
+
     void update(float dx, float dy, Mode mode, float dt) noexcept;
 
-public:
+private:
+    glm::vec3 getForward() const noexcept;
+    glm::vec3 getRight()   const noexcept;
+    
     glm::vec3 m_position;
     glm::vec3 m_target;  
     glm::vec3 m_up;    
