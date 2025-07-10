@@ -69,6 +69,10 @@ set(SHADER_FILES
 	${PROJECT_SOURCE_DIR}/res/shaders/fonts/text.frag
 	${PROJECT_SOURCE_DIR}/res/shaders/light/light_plane.vert
 	${PROJECT_SOURCE_DIR}/res/shaders/light/light_plane.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/light/light_cube.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/light/light_cube.frag
+	${PROJECT_SOURCE_DIR}/res/shaders/light/skybox.vert
+	${PROJECT_SOURCE_DIR}/res/shaders/light/skybox.frag
 )
 
 source_group("shaders" FILES ${SHADER_FILES})

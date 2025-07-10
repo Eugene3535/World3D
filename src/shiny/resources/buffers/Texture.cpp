@@ -5,14 +5,16 @@
 #include "files/StbImage.hpp"
 #include "resources/buffers/Texture.hpp"
 
+
 bool Texture::loadFromImage(const StbImage& image, bool repeat, bool smooth) noexcept
 {
     if(handle)
     {
-        width  = static_cast<GLuint>(image.width);
-        height = static_cast<GLuint>(image.height);
+        width  = image.width;
+        height = image.height;
+        type   = GL_TEXTURE_2D;
 
-        GLint format = GL_RGBA;
+        format = GL_RGBA;
         if(image.bytePerPixel == 1) format = GL_RED;
         if(image.bytePerPixel == 3) format = GL_RGB;
 
@@ -26,7 +28,7 @@ bool Texture::loadFromImage(const StbImage& image, bool repeat, bool smooth) noe
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMode);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, format, GL_UNSIGNED_BYTE, reinterpret_cast<const void*>(image.pixels.get()));
+        glTexImage2D(GL_TEXTURE_2D, 0, format, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, format, GL_UNSIGNED_BYTE, static_cast<const void*>(image.pixels.get()));
         glGenerateMipmap(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -35,6 +37,7 @@ bool Texture::loadFromImage(const StbImage& image, bool repeat, bool smooth) noe
 
     return false;
 }
+
 
 bool Texture::loadFromFile(const std::filesystem::path& filePath, bool repeat, bool smooth) noexcept
 {
@@ -45,6 +48,43 @@ bool Texture::loadFromFile(const std::filesystem::path& filePath, bool repeat, b
     
     return false;
 }
+
+
+bool Texture::loadCubeMap(const std::array<std::filesystem::path, 6>& facePaths) noexcept
+{
+    if(handle)
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, handle);
+        type = GL_TEXTURE_CUBE_MAP;
+
+        for (size_t i = 0; i < facePaths.size(); ++i)
+        {
+            if(StbImage image; image.loadFromFile(facePaths[i]))
+            {
+                width  += image.width;
+                height += image.height;
+
+                format = GL_RGBA;
+                if(image.bytePerPixel == 1) format = GL_RED;
+                if(image.bytePerPixel == 3) format = GL_RGB;
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, image.width, image.height, 0, format, GL_UNSIGNED_BYTE, static_cast<const void*>(image.pixels.get()));
+            }
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+        return true;
+    }
+
+    return false;
+}
+
 
 void Texture::setSmooth(bool smooth) noexcept
 {
@@ -61,6 +101,7 @@ void Texture::setSmooth(bool smooth) noexcept
         }
     }
 }
+
 
 void Texture::setRepeated(bool repeate) noexcept
 {

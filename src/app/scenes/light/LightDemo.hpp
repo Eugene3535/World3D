@@ -32,10 +32,13 @@ public:
 private:
     std::unique_ptr<class ShaderProgram>     m_planeProgram;
     std::unique_ptr<class ShaderProgram>     m_cubeProgram;
+    std::unique_ptr<class ShaderProgram>     m_skyboxProgram;
     std::unique_ptr<class VertexArrayObject> m_planeVao;
     std::unique_ptr<class VertexArrayObject> m_cubeVao;
+    std::unique_ptr<class VertexArrayObject> m_skyboxVao;
     std::unique_ptr<class Texture>           m_planeTexture;
     std::unique_ptr<class Texture>           m_cubeTexture;
+    std::unique_ptr<class Texture>           m_skyboxTexture;
     std::unique_ptr<class Camera3D>          m_camera;
     std::unique_ptr<class GlBuffer>          m_uniformBuffer;
 

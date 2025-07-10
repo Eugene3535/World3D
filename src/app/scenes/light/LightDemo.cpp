@@ -34,28 +34,41 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
 {
     auto [width, height] = m_window.getSize();
 
-    const auto bufferHandles  = holder.create<GlBuffer, 3>();
-    const auto vertexArrays   = holder.create<VertexArrayObject, 2>();
-    const auto textureHandles = holder.create<Texture, 2>();
+    const auto bufferHandles  = holder.create<GlBuffer, 4>();
+    const auto vertexArrays   = holder.create<VertexArrayObject, 3>();
+    const auto textureHandles = holder.create<Texture, 3>();
 
     m_uniformBuffer = std::make_unique<GlBuffer>(bufferHandles[0], GL_UNIFORM_BUFFER);
     m_uniformBuffer->create(sizeof(glm::mat4), 1, nullptr, GL_DYNAMIC_DRAW);
     m_uniformBuffer->bindBufferRange(0, 0, sizeof(glm::mat4));
 
     m_camera = std::make_unique<Camera3D>();
-    m_camera->setPosition({ 0.f, 2.f, 4.f });
-    m_camera->focusOn({ 0.f, 2.f, 0.f });
+    m_camera->setMode(Camera3D::ThirdPerson);
+    m_camera->setPosition({0.f, 2.f, 10.f});
+    m_camera->focusOn({50.f, 2.f, 50.f});
     m_camera->setWorldUp({ 0.f, 1.f, 0.f });
     m_camera->rotateYaw(glm::radians(-135.f), true);
     m_camera->rotatePitch(glm::radians(-45.f), true, true, false);
 
-    m_planeTexture = std::make_unique<Texture>(textureHandles[0]);
-    m_cubeTexture = std::make_unique<Texture>(textureHandles[1]);
+    m_planeTexture  = std::make_unique<Texture>(textureHandles[0]);
+    m_cubeTexture   = std::make_unique<Texture>(textureHandles[1]);
+    m_skyboxTexture = std::make_unique<Texture>(textureHandles[2]);
 
     if(!m_planeTexture->loadFromFile(FileProvider::findPathToFile("grid.png"), true, true))
         return false;
 
     if(!m_cubeTexture->loadFromFile(FileProvider::findPathToFile("block.png"), true, true)) 
+        return false;
+
+    std::array<std::filesystem::path, 6> facePaths;   
+    facePaths[0] = FileProvider::findPathToFile("right.jpg");
+    facePaths[1] = FileProvider::findPathToFile("left.jpg");
+    facePaths[2] = FileProvider::findPathToFile("top.jpg");
+    facePaths[3] = FileProvider::findPathToFile("bottom.jpg");
+    facePaths[4] = FileProvider::findPathToFile("front.jpg");
+    facePaths[5] = FileProvider::findPathToFile("back.jpg");
+
+    if(!m_skyboxTexture->loadCubeMap(facePaths))
         return false;
 
     std::array<float, 36> planeVertices =
@@ -66,7 +79,7 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
         0.f,   0.f, 100.f, 0.f, 1.f, 0.f, 1.f, 0.f
     };
 
-    std::array<const VertexBufferLayout::Attribute, 3> planeAttributes
+    const std::array<const VertexBufferLayout::Attribute, 3> planeAttributes
     {
         VertexBufferLayout::Attribute::Float3,
         VertexBufferLayout::Attribute::Float2,
@@ -79,7 +92,7 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
     m_planeVao = std::make_unique<VertexArrayObject>(vertexArrays[0]);
     m_planeVao->addVertexBuffer(planeVbo, planeAttributes);
 
-    std::array<float, 180> cubeVertices = 
+    const std::array<float, 180> cubeVertices = 
     {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -136,6 +149,62 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
     m_cubeVao = std::make_unique<VertexArrayObject>(vertexArrays[1]);
     m_cubeVao->addVertexBuffer(cubeVbo, cubeAttributes);
 
+    const std::array<float, 108> skyboxVertices = 
+    {
+        -1.f,  1.f, -1.f,
+        -1.f, -1.f, -1.f,
+         1.f, -1.f, -1.f,
+         1.f, -1.f, -1.f,
+         1.f,  1.f, -1.f,
+        -1.f,  1.f, -1.f,
+
+        -1.f, -1.f,  1.f,
+        -1.f, -1.f, -1.f,
+        -1.f,  1.f, -1.f,
+        -1.f,  1.f, -1.f,
+        -1.f,  1.f,  1.f,
+        -1.f, -1.f,  1.f,
+
+         1.f, -1.f, -1.f,
+         1.f, -1.f,  1.f,
+         1.f,  1.f,  1.f,
+         1.f,  1.f,  1.f,
+         1.f,  1.f, -1.f,
+         1.f, -1.f, -1.f,
+
+        -1.f, -1.f,  1.f,
+        -1.f,  1.f,  1.f,
+         1.f,  1.f,  1.f,
+         1.f,  1.f,  1.f,
+         1.f, -1.f,  1.f,
+        -1.f, -1.f,  1.f,
+
+        -1.f,  1.f, -1.f,
+         1.f,  1.f, -1.f,
+         1.f,  1.f,  1.f,
+         1.f,  1.f,  1.f,
+        -1.f,  1.f,  1.f,
+        -1.f,  1.f, -1.f,
+
+        -1.f, -1.f, -1.f,
+        -1.f, -1.f,  1.f,
+         1.f, -1.f, -1.f,
+         1.f, -1.f, -1.f,
+        -1.f, -1.f,  1.f,
+         1.f, -1.f,  1.f
+    };
+
+    std::array<const VertexBufferLayout::Attribute, 1> skyboxAttributes
+    {
+        VertexBufferLayout::Attribute::Float3
+    };
+
+    GlBuffer skyboxVbo(bufferHandles[3], GL_ARRAY_BUFFER);
+    skyboxVbo.create(sizeof(float), skyboxVertices.size(), static_cast<const void*>(skyboxVertices.data()), GL_STATIC_DRAW);
+
+    m_skyboxVao = std::make_unique<VertexArrayObject>(vertexArrays[2]);
+    m_skyboxVao->addVertexBuffer(skyboxVbo, skyboxAttributes);
+
     std::array<Shader, 2> shaders;
 
     if(!shaders[0].loadFromFile(FileProvider::findPathToFile("light_plane.vert"), GL_VERTEX_SHADER)) 
@@ -163,6 +232,20 @@ bool LightDemo::init(GlResourceHolder& holder) noexcept
 
     glUseProgram(m_cubeProgram->getHandle());
     if(int uniform = m_cubeProgram->getUniformLocation("texture0"); uniform != -1)
+        glUniform1i(uniform, 0);
+    glUseProgram(0);
+
+    if(!shaders[0].loadFromFile(FileProvider::findPathToFile("skybox.vert"), GL_VERTEX_SHADER)) 
+        return false;
+
+    if(!shaders[1].loadFromFile(FileProvider::findPathToFile("skybox.frag"), GL_FRAGMENT_SHADER)) 
+        return false;
+
+    if(m_skyboxProgram = std::make_unique<ShaderProgram>(); !m_skyboxProgram->link(shaders))
+        return false;
+
+    glUseProgram(m_skyboxProgram->getHandle());
+    if(int uniform = m_skyboxProgram->getUniformLocation("skybox"); uniform != -1)
         glUniform1i(uniform, 0);
     glUseProgram(0);
 
@@ -300,6 +383,22 @@ void LightDemo::draw() noexcept
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
     }
+
+    // draw skybox as last
+    glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+    glUseProgram(m_skyboxProgram->getHandle());
+    model_view_matrix = glm::mat4(glm::mat3(model_view_matrix)); // remove translation from the view matrix
+    mvp = projection * model_view_matrix;
+    m_uniformBuffer->update(0, sizeof(glm::mat4), 1, static_cast<const void*>(glm::value_ptr(mvp)));
+
+    // skybox cube
+    glBindVertexArray(m_skyboxVao->getHandle());
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_skyboxTexture->handle);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    glDepthFunc(GL_LESS); // set depth function back to default
 
     glDisable(GL_DEPTH_TEST);
 }
