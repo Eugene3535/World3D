@@ -3,8 +3,9 @@
 
 #include <vulkan/vulkan.h>
 
+#include "vulkan_api/Export.hpp"
 
-struct Texture2D
+struct VK_API Texture2D
 {
     bool loadFromFile(const char* filepath, const struct VulkanContext* context, VkCommandPool pool) noexcept;
     void destroy(VkDevice device) noexcept;

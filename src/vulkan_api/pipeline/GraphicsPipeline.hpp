@@ -10,9 +10,9 @@
 #include "vulkan_api/pipeline/stages/uniform/DescriptorSetLayout.hpp"
 
 
-struct GraphicsPipeline
+struct VK_API GraphicsPipeline
 {
-    struct State
+    struct VK_API State
     {
         void setupShaderStages(std::span<const Shader> shaders, std::span<const VertexInputState::AttributeType> attributes) noexcept;
         void setupInputAssembler(const VkPrimitiveTopology primitive)                                                        noexcept;

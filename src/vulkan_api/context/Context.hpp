@@ -3,8 +3,9 @@
 
 #include <vulkan/vulkan.h>
 
+#include "vulkan_api/Export.hpp"
 
-struct VulkanContext
+struct VK_API VulkanContext
 {
     bool create()  noexcept;
     void destroy() noexcept;

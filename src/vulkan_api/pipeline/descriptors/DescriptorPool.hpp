@@ -7,7 +7,7 @@
 #include "vulkan_api/utils/Tools.hpp"
 
 
-struct DescriptorPool
+struct VK_API DescriptorPool
 {
     bool create(std::span<const VkDescriptorPoolSize> poolSizes, VkDevice device) noexcept;
     bool allocateDescriptorSets(VkDescriptorSet* descriptorSets, const VkDescriptorSetLayout* layouts, VkDevice device) noexcept;

@@ -3,10 +3,11 @@
 
 #include <array>
 
+#include "vulkan_api/Export.hpp"
 #include "vulkan_api/utils/Tools.hpp"
 
 
-struct SyncManager
+struct VK_API SyncManager
 {
     bool create(VkDevice device) noexcept;
     void destroy(VkDevice device) noexcept;

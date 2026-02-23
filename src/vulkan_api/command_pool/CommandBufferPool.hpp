@@ -6,7 +6,7 @@
 #include "vulkan_api/utils/Tools.hpp"
 
 
-struct CommandBufferPool
+struct VK_API CommandBufferPool
 {
     bool create(VkDevice device, uint32_t queueFamilyIndex) noexcept;
     void destroy(VkDevice device) noexcept;

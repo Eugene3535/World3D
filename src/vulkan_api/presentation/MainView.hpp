@@ -8,7 +8,7 @@
 #include "vulkan_api/context/Context.hpp"
 
 
-struct MainView
+struct VK_API MainView
 {
     bool create(GLFWwindow* window) noexcept;
     bool recreate(bool useDepth) noexcept;

@@ -10,7 +10,7 @@
 
 
 static bool init_vulkan(VulkanApp* app) noexcept;
-static void update_uniform_buffer(VulkanApp* app, vec3s position, float angle) noexcept;
+static void update_matrices(VulkanApp* app, vec3s position, float angle) noexcept;
 static void write_command_buffer(VulkanApp* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept;
 static void draw_frame(VulkanApp* app) noexcept;
 
@@ -73,7 +73,7 @@ bool VulkanApp::create(const char* title, int width, int height) noexcept
 					float ypos = (float)yposIn;
 
 					float xoffset = xpos - lastX;
-					float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+					float yoffset = ypos - lastY; // reversed since y-coordinates go from bottom to top
 
 					lastX = xpos;
 					lastY = ypos;
@@ -315,7 +315,7 @@ bool init_vulkan(VulkanApp* app) noexcept
 }
 
 
-void update_uniform_buffer(VulkanApp* app, vec3s position, float angle) noexcept
+void update_matrices(VulkanApp* app, vec3s position, float angle) noexcept
 {
 	vec3s axis = { 1.0f, 0.3f, 0.5f };
 
@@ -323,7 +323,6 @@ void update_uniform_buffer(VulkanApp* app, vec3s position, float angle) noexcept
     model       = glms_rotate(model, glm_rad(angle), axis);
     mat4s modelView  = app->camera.getViewMatrix();
     mat4s projection = glms_perspective(glm_rad(60.f), app->width / (float)app->height, 0.1f, 100.f);
-    projection.col[1].y *= -1;
 
     app->modelViewProjectionMatrix = glms_mat4_mul(glms_mat4_mul(projection, modelView), model);
 }
@@ -407,7 +406,7 @@ void draw_frame(VulkanApp* app) noexcept
     for (uint32_t i = 0; i < 10; ++i)
     {
         const float angle = 20.f * i;
-        update_uniform_buffer(app, cubePositions[i], angle);
+        update_matrices(app, cubePositions[i], angle);
         write_command_buffer(app, commandBuffer, descriptorSet);
     }
 
