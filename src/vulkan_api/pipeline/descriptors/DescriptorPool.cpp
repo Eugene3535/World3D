@@ -27,18 +27,18 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes, VkD
 }
 
 
-bool DescriptorPool::allocateDescriptorSets(VkDescriptorSet* descriptorSets, const VkDescriptorSetLayout* layouts, VkDevice device) noexcept
+bool DescriptorPool::allocateDescriptorSets(std::span<VkDescriptorSet> descriptorSets, const VkDescriptorSetLayout* layouts, VkDevice device) noexcept
 {
     const VkDescriptorSetAllocateInfo allocateInfo = 
     {
         .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         .pNext              = VK_NULL_HANDLE,
         .descriptorPool     = handle,
-        .descriptorSetCount = MAX_FRAMES_IN_FLIGHT,
+        .descriptorSetCount = static_cast<uint32_t>(descriptorSets.size()),
         .pSetLayouts        = layouts
     };
 
-    return (vkAllocateDescriptorSets(device, &allocateInfo, descriptorSets) == VK_SUCCESS);
+    return (vkAllocateDescriptorSets(device, &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
 }
 
 

@@ -258,7 +258,7 @@ bool init_vulkan(VulkanApp* app) noexcept
     }
 
 	{
-	    const std::array<float, 120> vertices = 
+	    constexpr std::array<float, 120> vertices = 
         {
             -0.5f, -0.5f, 0.5f, 0.f, 0.f,
              0.5f, -0.5f, 0.5f, 1.f, 0.f,
@@ -291,7 +291,7 @@ bool init_vulkan(VulkanApp* app) noexcept
             -0.5f, -0.5f,  0.5f, 0.f, 1.f
         };
 
-        const std::array<uint32_t, 36> indices = 
+		constexpr std::array<uint32_t, 36> indices =
         {
             0,  1,  2,  2,  3,  0,   // front
             4,  5,  6,  6,  7,  4,   // left

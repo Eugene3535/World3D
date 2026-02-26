@@ -21,7 +21,7 @@ struct VulkanApp
     MainView         view;
     GraphicsPipeline pipeline;
 
-    VkDescriptorSet descriptorSets[MAX_FRAMES_IN_FLIGHT];
+    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
     DescriptorPool descriptorPool;
 
     CommandBufferPool commandPool;

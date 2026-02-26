@@ -4,13 +4,14 @@
 #include <vector>
 #include <span>
 
-#include "vulkan_api/utils/Tools.hpp"
+#include <vulkan/vulkan.h>
 
+#include "vulkan_api/utils/Tools.hpp"
 
 struct VK_API DescriptorPool
 {
     bool create(std::span<const VkDescriptorPoolSize> poolSizes, VkDevice device) noexcept;
-    bool allocateDescriptorSets(VkDescriptorSet* descriptorSets, const VkDescriptorSetLayout* layouts, VkDevice device) noexcept;
+    bool allocateDescriptorSets(std::span<VkDescriptorSet> descriptorSets, const VkDescriptorSetLayout* layouts, VkDevice device) noexcept;
     void writeCombinedImageSampler(const VkDescriptorImageInfo* imageInfo, VkDescriptorSet descriptorSet, uint32_t dstBinding, VkDevice device) noexcept;
     void destroy(VkDevice device) noexcept;
 
