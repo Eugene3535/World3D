@@ -3,10 +3,9 @@
 
 #include <array>
 
-#include "vulkan_api/utils/Tools.hpp"
+#include <vulkan/vulkan.h>
 
-
-struct VK_API CommandBufferPool
+struct CommandBufferPool
 {
     bool create(VkDevice device, uint32_t queueFamilyIndex) noexcept;
     void destroy(VkDevice device) noexcept;

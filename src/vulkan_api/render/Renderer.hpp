@@ -3,9 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "vulkan_api/Export.hpp"
-
-struct VK_API Renderer
+struct Renderer
 {
     bool begin(VkCommandBuffer cmd, const struct MainView* view, uint32_t imageIndex) noexcept;
     bool end(VkCommandBuffer cmd, const struct MainView* view, uint32_t imageIndex) noexcept;

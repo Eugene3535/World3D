@@ -1,6 +1,5 @@
-#include "vulkan_api/presentation/MainView.hpp"
-
-#include "vulkan_api/render/Renderer.hpp"
+#include "presentation/MainView.hpp"
+#include "render/Renderer.hpp"
 
 
 // TODO add clear color value

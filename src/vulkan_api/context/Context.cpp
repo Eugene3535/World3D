@@ -7,7 +7,7 @@
 #include <cstdio>
 #endif
 
-#include "vulkan_api/context/Context.hpp"
+#include "context/Context.hpp"
 
 
 #ifdef DEBUG

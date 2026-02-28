@@ -4,15 +4,15 @@
 #include <vector>
 #include <span>
 
-#include "vulkan_api/presentation/MainView.hpp"
-#include "vulkan_api/pipeline/stages/shader/Shader.hpp"
-#include "vulkan_api/pipeline/stages/shader/VertexInputState.hpp"
-#include "vulkan_api/pipeline/stages/uniform/DescriptorSetLayout.hpp"
+#include "presentation/MainView.hpp"
+#include "pipeline/stages/shader/Shader.hpp"
+#include "pipeline/stages/shader/VertexInputState.hpp"
+#include "pipeline/stages/uniform/DescriptorSetLayout.hpp"
 
 
-struct VK_API GraphicsPipeline
+struct GraphicsPipeline
 {
-    struct VK_API State
+    struct State
     {
         void setupShaderStages(std::span<const Shader> shaders, std::span<const VertexInputState::AttributeType> attributes) noexcept;
         void setupInputAssembler(const VkPrimitiveTopology primitive)                                                        noexcept;

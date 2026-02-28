@@ -3,9 +3,9 @@
 
 #include <cglm/struct/mat4.h>
 
-#include "vulkan_api/utils/Tools.hpp"
-#include "vulkan_api/presentation/MainView.hpp"
-#include "vulkan_api/pipeline/GraphicsPipeline.hpp"
+#include "utils/Tools.hpp"
+#include "presentation/MainView.hpp"
+#include "pipeline/GraphicsPipeline.hpp"
 
 
 void GraphicsPipeline::State::setupShaderStages(std::span<const Shader> shaders, std::span<const VertexInputState::AttributeType> attributes) noexcept

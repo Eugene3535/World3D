@@ -1,4 +1,4 @@
-#include "vulkan_api/sync/SyncManager.hpp"
+#include "sync/SyncManager.hpp"
 
 
 bool SyncManager::create(VkDevice device) noexcept

@@ -3,9 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "vulkan_api/Export.hpp"
-
-class VK_API Shader
+class Shader
 {
 public:
     Shader()                           noexcept;

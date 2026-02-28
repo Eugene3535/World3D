@@ -5,10 +5,10 @@
 
 #include <GLFW/glfw3.h>
 
-#include "vulkan_api/context/Context.hpp"
+#include "context/Context.hpp"
 
 
-struct VK_API MainView
+struct MainView
 {
     bool create(GLFWwindow* window) noexcept;
     bool recreate(bool useDepth) noexcept;

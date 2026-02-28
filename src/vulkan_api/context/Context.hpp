@@ -3,9 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "vulkan_api/Export.hpp"
-
-struct VK_API VulkanContext
+struct VulkanContext
 {
     bool create()  noexcept;
     void destroy() noexcept;
@@ -17,4 +15,4 @@ struct VK_API VulkanContext
     uint32_t         mainQueueFamilyIndex = 0;
 };
 
-#endif // !VULKAN_CONTEXT_H
+#endif // !VULKAN_CONTEXT_HPP

@@ -6,9 +6,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "vulkan_api/Export.hpp"
-
-struct VK_API VertexInputState
+struct VertexInputState
 {
     enum AttributeType : uint32_t
     {

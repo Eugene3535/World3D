@@ -5,11 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "vulkan_api/Export.hpp"
-
-#define MAX_FRAMES_IN_FLIGHT 2U
-
-struct VK_API vktools
+struct vktools
 {
     static uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice gpu) noexcept;
 

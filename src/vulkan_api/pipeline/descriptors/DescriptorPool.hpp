@@ -4,11 +4,9 @@
 #include <vector>
 #include <span>
 
-#include <vulkan/vulkan.h>
+#include "utils/Tools.hpp"
 
-#include "vulkan_api/utils/Tools.hpp"
-
-struct VK_API DescriptorPool
+struct DescriptorPool
 {
     bool create(std::span<const VkDescriptorPoolSize> poolSizes, VkDevice device) noexcept;
     bool allocateDescriptorSets(std::span<VkDescriptorSet> descriptorSets, const VkDescriptorSetLayout* layouts, VkDevice device) noexcept;

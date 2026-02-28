@@ -4,7 +4,7 @@ __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 __declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerformance = 0x00000001;
 #endif
 
-#include "app/application.hpp"
+#include "VulkanApi.hpp"
 
 int main()
 {
@@ -12,14 +12,12 @@ int main()
     const int width = 800;
     const int height = 600;
 
-    VulkanApp app = {};
+    VulkanApi app = {};
 
     if(!app.create(title, width, height))
         return 1;
 
     int retCode = app.run();
-
-    app.destroy();
 
     return retCode;
 }

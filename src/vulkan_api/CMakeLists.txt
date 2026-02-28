@@ -21,10 +21,12 @@ set(SRC_FILES
 	texture/Texture2D.cpp
 	buffers/BufferHolder.cpp
 	render/Renderer.cpp
+	camera/Camera.cpp
+	app/Application.cpp
+	include/VulkanApi.cpp
 )
 
 set(HDR_FILES
-	Export.hpp
 	utils/Tools.hpp
 	context/Context.hpp
 	presentation/MainView.hpp
@@ -38,6 +40,10 @@ set(HDR_FILES
 	texture/Texture2D.hpp
 	buffers/BufferHolder.hpp
 	render/Renderer.hpp
+	camera/Camera.hpp
+	app/Application.hpp
+	include/Export.hpp
+	include/VulkanApi.hpp
 )
 
 set(SHADER_FILES
@@ -58,25 +64,29 @@ include(GenerateExportHeader)
 generate_export_header(${VULKAN_API_TARGET_NAME}
     BASE_NAME VULKAN_API
     EXPORT_MACRO_NAME VK_API
-    EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/Export.hpp
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/include/Export.hpp
     STATIC_DEFINE VK_API_STATIC_DEFINE
 )
 
-target_include_directories(${VULKAN_API_TARGET_NAME} PUBLIC
+target_include_directories(${VULKAN_API_TARGET_NAME}
+PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+PRIVATE
 	${Vulkan_INCLUDE_DIRS}
-	${CMAKE_SOURCE_DIR}/src
 	${EXTERNAL_SOURCE_DIR}/stb
+	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(${VULKAN_API_TARGET_NAME} PUBLIC
-	${Vulkan_LIBRARIES}
+target_link_libraries(${VULKAN_API_TARGET_NAME} PRIVATE
 	glfw
 	cglm
+	${Vulkan_LIBRARIES}
 	$<$<BOOL:${UNIX}>:xcb>
 	$<$<BOOL:${UNIX}>:m>
 )
 
 target_compile_definitions(${VULKAN_API_TARGET_NAME} PRIVATE
+	MAX_FRAMES_IN_FLIGHT=2
     $<$<CONFIG:Debug>:DEBUG>
 	CGLM_USE_ANONYMOUS_STRUCT
 	$<$<BOOL:${WIN32}>:VK_USE_PLATFORM_WIN32_KHR>
@@ -91,11 +101,8 @@ else()
     target_compile_options(${VULKAN_API_TARGET_NAME} PRIVATE -fno-rtti)  
 endif()
 
-target_compile_definitions(${VULKAN_API_TARGET_NAME} PRIVATE $<$<CONFIG:Debug>:DEBUG> CGLM_USE_ANONYMOUS_STRUCT)
 target_compile_features(${VULKAN_API_TARGET_NAME} PUBLIC cxx_std_20)
 
 if(MSVC)
 	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC_FILES} ${HDR_FILES} ${SHADER_FILES})
-	set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${VULKAN_API_TARGET_NAME})	
-	set_target_properties(${VULKAN_API_TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/bin/$<CONFIG>)
 endif()

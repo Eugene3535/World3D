@@ -6,9 +6,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "vulkan_api/Export.hpp"
-
-struct VK_API DescriptorSetLayout
+struct DescriptorSetLayout
 {
 public:
     void addDescriptor(VkDescriptorType type, VkShaderStageFlagBits shaderStage) noexcept;
@@ -17,9 +15,5 @@ public:
 private:
     std::vector<VkDescriptorSetLayoutBinding> m_bindings;
 };
-
-
-
-
 
 #endif // !DESCRIPTOR_SET_LAYOUT_HPP

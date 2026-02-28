@@ -1,14 +1,14 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
-#include "vulkan_api/pipeline/descriptors/DescriptorPool.hpp"
-#include "vulkan_api/pipeline/GraphicsPipeline.hpp"
-#include "vulkan_api/command_pool/CommandBufferPool.hpp"
-#include "vulkan_api/sync/SyncManager.hpp"
-#include "vulkan_api/texture/texture2D.hpp"
-#include "vulkan_api/buffers/BufferHolder.hpp"
-#include "vulkan_api/render/Renderer.hpp"
-#include "app/camera/camera.hpp"
+#include "pipeline/descriptors/DescriptorPool.hpp"
+#include "pipeline/GraphicsPipeline.hpp"
+#include "command_pool/CommandBufferPool.hpp"
+#include "sync/SyncManager.hpp"
+#include "texture/texture2D.hpp"
+#include "buffers/BufferHolder.hpp"
+#include "render/Renderer.hpp"
+#include "camera/camera.hpp"
 
 
 struct VulkanApp

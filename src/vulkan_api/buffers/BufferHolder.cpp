@@ -1,4 +1,4 @@
-#include "vulkan_api/buffers/BufferHolder.hpp"
+#include "buffers/BufferHolder.hpp"
 
 
 void BufferHolder::destroy(VkDevice device) noexcept

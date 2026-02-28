@@ -1,4 +1,4 @@
-#include "app/camera/Camera.hpp"
+#include "camera/Camera.hpp"
 
 
 // Default camera values

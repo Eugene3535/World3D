@@ -1,9 +1,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#include "vulkan_api/utils/Tools.hpp"
-#include "vulkan_api/context/Context.hpp"
-#include "vulkan_api/texture/Texture2D.hpp"
+#include "utils/Tools.hpp"
+#include "context/Context.hpp"
+#include "texture/Texture2D.hpp"
 
 
 namespace

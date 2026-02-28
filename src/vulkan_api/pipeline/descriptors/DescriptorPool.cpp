@@ -1,4 +1,4 @@
-#include "vulkan_api/pipeline/descriptors/DescriptorPool.hpp"
+#include "pipeline/descriptors/DescriptorPool.hpp"
 
 
 bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes, VkDevice device) noexcept

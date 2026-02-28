@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "vulkan_api/pipeline/stages/uniform/DescriptorSetLayout.hpp"
+#include "pipeline/stages/uniform/DescriptorSetLayout.hpp"
 
 
 void DescriptorSetLayout::addDescriptor(VkDescriptorType type, VkShaderStageFlagBits shaderStage) noexcept

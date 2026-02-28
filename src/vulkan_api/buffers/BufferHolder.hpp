@@ -4,18 +4,18 @@
 #include <vector>
 #include <span>
 
-#include "vulkan_api/utils/Tools.hpp"
-#include "vulkan_api/context/Context.hpp"
+#include "utils/Tools.hpp"
+#include "context/Context.hpp"
 
 
-struct VK_API Buffer
+struct Buffer
 {
     VkBuffer handle = VK_NULL_HANDLE;
     uint32_t size = 0;
 };
 
 
-struct VK_API BufferHolder
+struct BufferHolder
 {
     template<class T>
     Buffer allocate(std::span<const T> rawData, VkBufferUsageFlagBits flag, const VulkanContext* context, VkCommandPool pool) noexcept
@@ -76,7 +76,7 @@ struct VK_API BufferHolder
 
     void destroy(VkDevice device) noexcept;
 
-    struct VK_API Data
+    struct Data
     {
         VkBuffer       handle = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;

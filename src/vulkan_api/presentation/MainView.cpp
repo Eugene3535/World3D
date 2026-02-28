@@ -4,8 +4,8 @@
 #include <GLFW/glfw3native.h>
 #include <cglm/util.h>
 
-#include "vulkan_api/utils/Tools.hpp"
-#include "vulkan_api/presentation/MainView.hpp"
+#include "utils/Tools.hpp"
+#include "presentation/MainView.hpp"
 
 
 struct SwapChainSupportDetails

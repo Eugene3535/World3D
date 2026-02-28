@@ -1,4 +1,4 @@
-#include "vulkan_api/command_pool/CommandBufferPool.hpp"
+#include "command_pool/CommandBufferPool.hpp"
 
 
 bool CommandBufferPool::create(VkDevice device, uint32_t queueFamilyIndex) noexcept

@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "vulkan_api/pipeline/stages/shader/Shader.hpp"
+#include "pipeline/stages/shader/Shader.hpp"
 
 
 // Helper function to read a file into a buffer
