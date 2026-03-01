@@ -1,4 +1,5 @@
 #include <string>
+#include <cstring>
 #include <array>
 #include <vector>
 #include <unordered_set>

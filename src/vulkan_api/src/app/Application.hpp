@@ -5,10 +5,10 @@
 #include "pipeline/GraphicsPipeline.hpp"
 #include "command_pool/CommandBufferPool.hpp"
 #include "sync/SyncManager.hpp"
-#include "texture/texture2D.hpp"
+#include "texture/Texture2D.hpp"
 #include "buffers/BufferHolder.hpp"
 #include "render/Renderer.hpp"
-#include "camera/camera.hpp"
+#include "camera/Camera.hpp"
 
 
 struct VulkanApp

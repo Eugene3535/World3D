@@ -1,6 +1,7 @@
 #ifndef BUFFER_HOLDER_HPP
 #define BUFFER_HOLDER_HPP
 
+#include <cstring>
 #include <vector>
 #include <span>
 

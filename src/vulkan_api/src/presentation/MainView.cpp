@@ -1,4 +1,5 @@
 #include <memory>
+#include <cstring>
 
 #include <cglm/util.h>
 
@@ -130,13 +131,18 @@ bool MainView::create(uint64_t windowHandle) noexcept
 #endif
 
 #ifdef __linux__
+	xcb_connection_t* connection = xcb_connect(VK_NULL_HANDLE, VK_NULL_HANDLE);
+
+    if (xcb_connection_has_error(connection))
+        return false;
+        
     const VkXcbSurfaceCreateInfoKHR surfaceInfo =
     {
         .sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
         .pNext      = VK_NULL_HANDLE,
         .flags      = 0,
         .connection = connection,
-        .window     = reinterpret_cast<xcb_window_t>(windowHandle)
+        .window     = static_cast<xcb_window_t>(windowHandle)
     };
 
     if (vkCreateXcbSurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS)

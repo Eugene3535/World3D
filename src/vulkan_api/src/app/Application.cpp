@@ -185,12 +185,7 @@ bool init_vulkan(VulkanApp* app) noexcept
 #endif
 
 #ifdef __linux__
-	xcb_connection_t* connection = xcb_connect(VK_NULL_HANDLE, VK_NULL_HANDLE);
-
-    if (xcb_connection_has_error(connection))
-        return false;
-
-	windowHandle = reinterpret_cast<uint64_t>(glfwGetX11Window(window));
+	windowHandle = reinterpret_cast<uint64_t>(glfwGetX11Window(app->window));
 #endif
 
 	if(!windowHandle)

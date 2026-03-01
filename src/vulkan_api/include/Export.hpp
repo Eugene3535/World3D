@@ -9,20 +9,20 @@
 #  ifndef VK_API
 #    ifdef vulkan_api_EXPORTS
         /* We are building this library */
-#      define VK_API __declspec(dllexport)
+#      define VK_API __attribute__((visibility("default")))
 #    else
         /* We are using this library */
-#      define VK_API __declspec(dllimport)
+#      define VK_API __attribute__((visibility("default")))
 #    endif
 #  endif
 
 #  ifndef VULKAN_API_NO_EXPORT
-#    define VULKAN_API_NO_EXPORT 
+#    define VULKAN_API_NO_EXPORT __attribute__((visibility("hidden")))
 #  endif
 #endif
 
 #ifndef VULKAN_API_DEPRECATED
-#  define VULKAN_API_DEPRECATED __declspec(deprecated)
+#  define VULKAN_API_DEPRECATED __attribute__ ((__deprecated__))
 #endif
 
 #ifndef VULKAN_API_DEPRECATED_EXPORT
