@@ -16,7 +16,7 @@ public:
     int run() noexcept;
 
 private:
-    std::shared_ptr<void> m_api;
+    std::shared_ptr<void> m_engine;
 };
 
 #endif // !VULKAN_API_HPP

@@ -22,7 +22,7 @@ set(SRC_FILES
 	src/buffers/BufferHolder.cpp
 	src/render/Renderer.cpp
 	src/camera/Camera.cpp
-	src/app/Application.cpp
+	src/engine/Engine.cpp
 	include/VulkanApi.cpp
 )
 
@@ -41,7 +41,7 @@ set(HDR_FILES
 	src/buffers/BufferHolder.hpp
 	src/render/Renderer.hpp
 	src/camera/Camera.hpp
-	src/app/Application.hpp
+	src/engine/Engine.hpp
 	include/Export.hpp
 	include/VulkanApi.hpp
 )

@@ -9,13 +9,13 @@
 #include <cglm/struct/affine-pre.h>
 
 #include "context/Context.hpp"
-#include "app/Application.hpp"
+#include "engine/Engine.hpp"
 
 
-static bool init_vulkan(VulkanApp* app) noexcept;
-static void update_matrices(VulkanApp* app, vec3s position, float angle) noexcept;
-static void write_command_buffer(VulkanApp* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept;
-static void draw_frame(VulkanApp* app) noexcept;
+static bool init_vulkan(Engine* app) noexcept;
+static void update_matrices(Engine* app, vec3s position, float angle) noexcept;
+static void write_command_buffer(Engine* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept;
+static void draw_frame(Engine* app) noexcept;
 
 
 #define FPS_MEASUREMENT
@@ -41,7 +41,7 @@ static const vec3s cubePositions[10] =
 };
 
 
-bool VulkanApp::create(const char* title, int width, int height) noexcept
+bool Engine::create(const char* title, int width, int height) noexcept
 {
 	if(glfwInit() == GLFW_TRUE)
 	{
@@ -54,11 +54,9 @@ bool VulkanApp::create(const char* title, int width, int height) noexcept
 
 			glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
 			{
-				if(auto app = static_cast<VulkanApp*>(glfwGetWindowUserPointer(window)))
+				if(auto engine = static_cast<Engine*>(glfwGetWindowUserPointer(window)))
 				{
-					app->width = width;
-					app->height = height;
-					app->framebufferResized = true;
+					engine->resize(width, height);
 				}
 			});
 
@@ -70,13 +68,13 @@ bool VulkanApp::create(const char* title, int width, int height) noexcept
 
 			glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xposIn, double yposIn)
 			{
-				if(auto app = static_cast<VulkanApp*>(glfwGetWindowUserPointer(window)))
+				if(auto app = static_cast<Engine*>(glfwGetWindowUserPointer(window)))
 				{
 					float xpos = (float)xposIn;
 					float ypos = (float)yposIn;
 
 					float xoffset = xpos - lastX;
-					float yoffset = ypos - lastY; // reversed since y-coordinates go from bottom to top
+					float yoffset = ypos - lastY;
 
 					lastX = xpos;
 					lastY = ypos;
@@ -93,7 +91,7 @@ bool VulkanApp::create(const char* title, int width, int height) noexcept
 }
 
 
-int VulkanApp::run() noexcept
+int Engine::run() noexcept
 {
 	modelViewProjectionMatrix = glms_mat4_identity();
 
@@ -150,7 +148,7 @@ int VulkanApp::run() noexcept
 }
 
 
-void VulkanApp::destroy() noexcept
+void Engine::destroy() noexcept
 {
 	VkDevice device = context.device;
 
@@ -169,9 +167,19 @@ void VulkanApp::destroy() noexcept
 }
 
 
-bool init_vulkan(VulkanApp* app) noexcept
+void Engine::resize(int width, int height) noexcept
 {
-    glfwGetFramebufferSize(app->window, &app->width, &app->height);
+	m_width = width;
+	m_height = height;
+	m_framebufferResized = true;
+}
+
+
+
+
+bool init_vulkan(Engine* app) noexcept
+{
+    glfwGetFramebufferSize(app->window, &app->m_width, &app->m_height);
 
 	if(!app->context.create())
 		return false;
@@ -331,20 +339,20 @@ bool init_vulkan(VulkanApp* app) noexcept
 }
 
 
-void update_matrices(VulkanApp* app, vec3s position, float angle) noexcept
+void update_matrices(Engine* app, vec3s position, float angle) noexcept
 {
 	vec3s axis = { 1.0f, 0.3f, 0.5f };
 
     mat4s model = glms_translate(glms_mat4_identity(), position);
     model       = glms_rotate(model, glm_rad(angle), axis);
     mat4s modelView  = app->camera.getViewMatrix();
-    mat4s projection = glms_perspective(glm_rad(60.f), app->width / (float)app->height, 0.1f, 100.f);
+    mat4s projection = glms_perspective(glm_rad(60.f), app->m_width / (float)app->m_height, 0.1f, 100.f);
 
     app->modelViewProjectionMatrix = glms_mat4_mul(glms_mat4_mul(projection, modelView), model);
 }
 
 
-void write_command_buffer(VulkanApp* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept
+void write_command_buffer(Engine* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept
 {
     VkDeviceSize offsets[] = {0};
     VkBuffer vertexBuffers[] = {app->vertices.handle};
@@ -356,7 +364,7 @@ void write_command_buffer(VulkanApp* app, VkCommandBuffer cmd, VkDescriptorSet d
 }
 
 
-void draw_frame(VulkanApp* app) noexcept
+void draw_frame(Engine* app) noexcept
 {
     uint32_t frame  = app->sync.currentFrame;
     VkDevice device = app->context.device;
@@ -468,9 +476,9 @@ void draw_frame(VulkanApp* app) noexcept
 
     result = vkQueuePresentKHR(queue, &presentInfo);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || app->framebufferResized)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || app->m_framebufferResized)
     {
-        app->framebufferResized = false;
+        app->m_framebufferResized = false;
         vkDeviceWaitIdle(app->context.device);
 		app->view.recreate(true);
     }

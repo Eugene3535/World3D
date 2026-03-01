@@ -1,5 +1,5 @@
-#ifndef APPLICATION_HPP
-#define APPLICATION_HPP
+#ifndef ENGINE_HPP
+#define ENGINE_HPP
 
 #include "pipeline/descriptors/DescriptorPool.hpp"
 #include "pipeline/GraphicsPipeline.hpp"
@@ -11,11 +11,12 @@
 #include "camera/Camera.hpp"
 
 
-struct VulkanApp
+struct Engine
 {
     bool create(const char* title, int width, int height) noexcept;
     int  run() noexcept;
     void destroy() noexcept;
+    void resize(int width, int height) noexcept;
 
     VulkanContext    context;
     MainView         view;
@@ -35,9 +36,9 @@ struct VulkanApp
 
     Renderer renderer;
 
-    bool framebufferResized;
-    int32_t width;
-    int32_t height;
+    bool    m_framebufferResized;
+    int32_t m_width;
+    int32_t m_height;
 
     Camera camera;
     mat4s modelViewProjectionMatrix;
@@ -45,4 +46,4 @@ struct VulkanApp
     struct GLFWwindow* window;
 };
 
-#endif // !APPLICATION_H
+#endif // !ENGINE_HPP
