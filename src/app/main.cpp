@@ -1,10 +1,5 @@
-#ifdef _WIN32
-#include <windows.h>
-__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
-__declspec(dllexport) unsigned long AmdPowerXpressRequestHighPerformance = 0x00000001;
-#endif
-
 #include "VulkanApi.hpp"
+
 
 int main()
 {

@@ -42,7 +42,7 @@ struct VulkanApp
     Camera camera;
     mat4s modelViewProjectionMatrix;
 
-    GLFWwindow* window;
+    struct GLFWwindow* window;
 };
 
 #endif // !APPLICATION_H

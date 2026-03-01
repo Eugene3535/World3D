@@ -3,14 +3,12 @@
 
 #include <vector>
 
-#include <GLFW/glfw3.h>
-
 #include "context/Context.hpp"
 
 
 struct MainView
 {
-    bool create(GLFWwindow* window) noexcept;
+    bool create(uint64_t windowHandle) noexcept;
     bool recreate(bool useDepth) noexcept;
     void destroy() noexcept;
 

@@ -27,7 +27,7 @@ bool VulkanApi::create(const char* title, int width, int height) noexcept
 
     if(api->create(title, width, height))
     {
-        m_api = api;
+        m_api = std::static_pointer_cast<void>(api);
 
         return true;
     }

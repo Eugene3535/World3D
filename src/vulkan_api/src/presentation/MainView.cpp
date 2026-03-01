@@ -1,7 +1,5 @@
 #include <memory>
 
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
 #include <cglm/util.h>
 
 #include "utils/Tools.hpp"
@@ -112,7 +110,7 @@ namespace
 
 
 
-bool MainView::create(GLFWwindow* window) noexcept
+bool MainView::create(uint64_t windowHandle) noexcept
 {
     if(surface)
         return recreate(true);
@@ -124,7 +122,7 @@ bool MainView::create(GLFWwindow* window) noexcept
         .pNext     = VK_NULL_HANDLE,
         .flags     = 0,
         .hinstance = GetModuleHandle(VK_NULL_HANDLE),
-        .hwnd      = glfwGetWin32Window(window)
+        .hwnd      = reinterpret_cast<HWND>(windowHandle)
     };
 
     if(vkCreateWin32SurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS)
@@ -132,18 +130,13 @@ bool MainView::create(GLFWwindow* window) noexcept
 #endif
 
 #ifdef __linux__
-    xcb_connection_t* connection = xcb_connect(VK_NULL_HANDLE, VK_NULL_HANDLE);
-
-    if (xcb_connection_has_error(connection))
-        return false;
-
     const VkXcbSurfaceCreateInfoKHR surfaceInfo =
     {
         .sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
         .pNext      = VK_NULL_HANDLE,
         .flags      = 0,
         .connection = connection,
-        .window     = (xcb_window_t)glfwGetX11Window(window)
+        .window     = reinterpret_cast<xcb_window_t>(windowHandle)
     };
 
     if (vkCreateXcbSurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS)

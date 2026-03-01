@@ -3,6 +3,9 @@
 #endif
 #include <array>
 
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 #include <cglm/struct/affine-pre.h>
 
 #include "context/Context.hpp"
@@ -174,8 +177,26 @@ bool init_vulkan(VulkanApp* app) noexcept
 		return false;
 
 	app->view.context = &app->context;
+
+	uint64_t windowHandle = 0;
 	
-	if(!app->view.create(app->window))
+#ifdef _WIN32
+	windowHandle = reinterpret_cast<uint64_t>(glfwGetWin32Window(app->window));
+#endif
+
+#ifdef __linux__
+	xcb_connection_t* connection = xcb_connect(VK_NULL_HANDLE, VK_NULL_HANDLE);
+
+    if (xcb_connection_has_error(connection))
+        return false;
+
+	windowHandle = reinterpret_cast<uint64_t>(glfwGetX11Window(window));
+#endif
+
+	if(!windowHandle)
+		return false;
+
+	if(!app->view.create(windowHandle))
 		return false;
 
 	VkDevice device = app->context.device;

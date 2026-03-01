@@ -8,47 +8,47 @@ include(${CMAKE_SOURCE_DIR}/src/cmake/compile_shaders.cmake)
 compile_shaders(${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_BINARY_DIR}/shaders)
 
 set(SRC_FILES
-	utils/Tools.cpp
-	context/Context.cpp
-	presentation/MainView.cpp
-	pipeline/stages/shader/Shader.cpp
-	pipeline/stages/shader/VertexInputState.cpp
-	pipeline/stages/uniform/DescriptorSetLayout.cpp
-	pipeline/descriptors/DescriptorPool.cpp
-	pipeline/GraphicsPipeline.cpp
-	command_pool/CommandBufferPool.cpp
-	sync/SyncManager.cpp
-	texture/Texture2D.cpp
-	buffers/BufferHolder.cpp
-	render/Renderer.cpp
-	camera/Camera.cpp
-	app/Application.cpp
+	src/utils/Tools.cpp
+	src/context/Context.cpp
+	src/presentation/MainView.cpp
+	src/pipeline/stages/shader/Shader.cpp
+	src/pipeline/stages/shader/VertexInputState.cpp
+	src/pipeline/stages/uniform/DescriptorSetLayout.cpp
+	src/pipeline/descriptors/DescriptorPool.cpp
+	src/pipeline/GraphicsPipeline.cpp
+	src/command_pool/CommandBufferPool.cpp
+	src/sync/SyncManager.cpp
+	src/texture/Texture2D.cpp
+	src/buffers/BufferHolder.cpp
+	src/render/Renderer.cpp
+	src/camera/Camera.cpp
+	src/app/Application.cpp
 	include/VulkanApi.cpp
 )
 
 set(HDR_FILES
-	utils/Tools.hpp
-	context/Context.hpp
-	presentation/MainView.hpp
-	pipeline/stages/shader/Shader.hpp
-	pipeline/stages/shader/VertexInputState.hpp
-	pipeline/stages/uniform/DescriptorSetLayout.hpp
-	pipeline/descriptors/DescriptorPool.hpp
-	pipeline/GraphicsPipeline.hpp
-	command_pool/CommandBufferPool.hpp
-	sync/SyncManager.hpp
-	texture/Texture2D.hpp
-	buffers/BufferHolder.hpp
-	render/Renderer.hpp
-	camera/Camera.hpp
-	app/Application.hpp
+	src/utils/Tools.hpp
+	src/context/Context.hpp
+	src/presentation/MainView.hpp
+	src/pipeline/stages/shader/Shader.hpp
+	src/pipeline/stages/shader/VertexInputState.hpp
+	src/pipeline/stages/uniform/DescriptorSetLayout.hpp
+	src/pipeline/descriptors/DescriptorPool.hpp
+	src/pipeline/GraphicsPipeline.hpp
+	src/command_pool/CommandBufferPool.hpp
+	src/sync/SyncManager.hpp
+	src/texture/Texture2D.hpp
+	src/buffers/BufferHolder.hpp
+	src/render/Renderer.hpp
+	src/camera/Camera.hpp
+	src/app/Application.hpp
 	include/Export.hpp
 	include/VulkanApi.hpp
 )
 
 set(SHADER_FILES
-	shaders/vertex_shader.vert
-	shaders/fragment_shader.frag
+	src/shaders/vertex_shader.vert
+	src/shaders/fragment_shader.frag
 )
 
 source_group("shaders" FILES ${SHADER_FILES})
@@ -74,7 +74,7 @@ PUBLIC
 PRIVATE
 	${Vulkan_INCLUDE_DIRS}
 	${EXTERNAL_SOURCE_DIR}/stb
-	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(${VULKAN_API_TARGET_NAME} PRIVATE
