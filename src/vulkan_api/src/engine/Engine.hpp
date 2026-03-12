@@ -13,8 +13,8 @@
 
 struct Engine
 {
-    bool create(const char* title, int width, int height) noexcept;
-    int  run() noexcept;
+    bool init(uint64_t windowHandle) noexcept;
+    void drawFrame() noexcept;
     void destroy() noexcept;
     void resize(int width, int height) noexcept;
 
@@ -42,8 +42,6 @@ struct Engine
 
     Camera camera;
     mat4s modelViewProjectionMatrix;
-
-    struct GLFWwindow* window;
 };
 
 #endif // !ENGINE_HPP

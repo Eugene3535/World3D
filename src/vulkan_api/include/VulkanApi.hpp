@@ -12,8 +12,13 @@ public:
     VulkanApi() noexcept;
     ~VulkanApi();
 
-    bool create(const char* title, int width, int height) noexcept;
-    int run() noexcept;
+    bool init(uint64_t windowHandle) noexcept;
+    void drawFrame() const noexcept;
+
+    void processMouseMovement(float xpos, float ypos) const noexcept;
+    void processKeyboard(int direction, float deltaTime) const noexcept;
+
+    void resize(int width, int height) const noexcept;
 
 private:
     std::shared_ptr<void> m_engine;

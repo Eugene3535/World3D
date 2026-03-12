@@ -3,12 +3,16 @@ set(MAIN_APP_TARGET_NAME star_dust)
 add_executable(${MAIN_APP_TARGET_NAME} main.cpp)
 
 target_link_libraries(${MAIN_APP_TARGET_NAME} PRIVATE
+	glfw
 	vulkan_api
 )
 
 target_compile_definitions(${MAIN_APP_TARGET_NAME} PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
+	$<$<BOOL:${WIN32}>:GLFW_EXPOSE_NATIVE_WIN32>
+	$<$<BOOL:${UNIX}>:GLFW_EXPOSE_NATIVE_X11>
 )
+
 
 if(MSVC)
     target_compile_options(${MAIN_APP_TARGET_NAME} PRIVATE /GR-)

@@ -12,10 +12,10 @@ static size_t read_shader_file(const char* filename, char** buffer) noexcept;
 static VkShaderModule create_shader_module(VkDevice device, const char* filename) noexcept;
 
 
-Shader::Shader() noexcept:
+Shader::Shader(VkDevice device) noexcept:
+    m_device(device),
     m_module(VK_NULL_HANDLE),
-    m_stage(VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM),
-    m_device(VK_NULL_HANDLE)
+    m_stage(VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM)
 {
     
 }
@@ -28,13 +28,12 @@ Shader::~Shader()
 }
 
 
-bool Shader::loadFromFile(const char* filePath, VkShaderStageFlagBits stage, VkDevice device) noexcept
+bool Shader::loadFromFile(const char* filePath, VkShaderStageFlagBits stage) noexcept
 {
-    if(auto shaderModule = create_shader_module(device, filePath))
+    if(auto shaderModule = create_shader_module(m_device, filePath))
     {
         m_module = shaderModule;
         m_stage = stage;
-        m_device = device;
 
         return true;
     }

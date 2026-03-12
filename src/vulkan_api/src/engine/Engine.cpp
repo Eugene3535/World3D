@@ -3,22 +3,17 @@
 #endif
 #include <array>
 
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
-
 #include <cglm/struct/affine-pre.h>
 
 #include "context/Context.hpp"
 #include "engine/Engine.hpp"
 
 
-static bool init_vulkan(Engine* app) noexcept;
+static bool init_vulkan(Engine* app, uint64_t windowHandle) noexcept;
 static void update_matrices(Engine* app, vec3s position, float angle) noexcept;
 static void write_command_buffer(Engine* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept;
 static void draw_frame(Engine* app) noexcept;
 
-
-#define FPS_MEASUREMENT
 
 // TODO remove magic numbers
 static float lastX = 400;
@@ -41,110 +36,18 @@ static const vec3s cubePositions[10] =
 };
 
 
-bool Engine::create(const char* title, int width, int height) noexcept
-{
-	if(glfwInit() == GLFW_TRUE)
-	{
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-		if(window = glfwCreateWindow(width, height, title, nullptr, nullptr))
-		{
-			glfwSetWindowUserPointer(window, this);
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-			glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
-			{
-				if(auto engine = static_cast<Engine*>(glfwGetWindowUserPointer(window)))
-				{
-					engine->resize(width, height);
-				}
-			});
-
-			glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-			{
-				if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-					glfwSetWindowShouldClose(window, GLFW_TRUE);
-			});
-
-			glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xposIn, double yposIn)
-			{
-				if(auto app = static_cast<Engine*>(glfwGetWindowUserPointer(window)))
-				{
-					float xpos = (float)xposIn;
-					float ypos = (float)yposIn;
-
-					float xoffset = xpos - lastX;
-					float yoffset = ypos - lastY;
-
-					lastX = xpos;
-					lastY = ypos;
-
-					app->camera.processMouseMovement(xoffset, yoffset);
-				}
-			});
-			
-			return init_vulkan(this);
-		}
-	}
-
-	return false;
-}
-
-
-int Engine::run() noexcept
+bool Engine::init(uint64_t windowHandle) noexcept
 {
 	modelViewProjectionMatrix = glms_mat4_identity();
 
-	float deltaTime = 0.f;
-	float lastFrame = 0.f;
+	return init_vulkan(this, windowHandle);
+}
 
-#ifdef FPS_MEASUREMENT
-    float timer = 0;
-    int fps = 0;
-#endif
-    
-	while(!glfwWindowShouldClose(window))
-	{
-		float currentFrame = (float)glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
 
-#ifdef FPS_MEASUREMENT
-        timer += deltaTime;
-        ++fps;
-
-        if (timer > 1.f)
-        {
-            printf("FPS: %i\n", fps);
-            timer = 0;
-            fps = 0;
-
-        }
-#endif
-
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        	glfwSetWindowShouldClose(window, true);
-
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			camera.processKeyboard(Camera::FORWARD, deltaTime);
-
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			camera.processKeyboard(Camera::BACKWARD, deltaTime);
-
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			camera.processKeyboard(Camera::LEFT, deltaTime);
-
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			camera.processKeyboard(Camera::RIGHT, deltaTime);
-
-		draw_frame(this);
-
-		glfwPollEvents();
-	}
-
+void Engine::drawFrame() noexcept
+{
+	draw_frame(this);
 	vkDeviceWaitIdle(context.device);
-
-	return 0;
 }
 
 
@@ -161,9 +64,6 @@ void Engine::destroy() noexcept
 
 	view.destroy();
 	context.destroy();
-	
-	glfwDestroyWindow(window);
-	glfwTerminate();
 }
 
 
@@ -175,29 +75,12 @@ void Engine::resize(int width, int height) noexcept
 }
 
 
-
-
-bool init_vulkan(Engine* app) noexcept
+bool init_vulkan(Engine* app, uint64_t windowHandle) noexcept
 {
-    glfwGetFramebufferSize(app->window, &app->m_width, &app->m_height);
-
 	if(!app->context.create())
 		return false;
 
 	app->view.context = &app->context;
-
-	uint64_t windowHandle = 0;
-	
-#ifdef _WIN32
-	windowHandle = reinterpret_cast<uint64_t>(glfwGetWin32Window(app->window));
-#endif
-
-#ifdef __linux__
-	windowHandle = reinterpret_cast<uint64_t>(glfwGetX11Window(app->window));
-#endif
-
-	if(!windowHandle)
-		return false;
 
 	if(!app->view.create(windowHandle))
 		return false;
@@ -205,12 +88,12 @@ bool init_vulkan(Engine* app) noexcept
 	VkDevice device = app->context.device;
 
 	{// Pipeline
-		std::array<Shader, 2> shaders;
+		std::array<Shader, 2> shaders = { Shader(device), Shader(device) };
 
-		if(!shaders[0].loadFromFile("res/shaders/vertex_shader.spv", VK_SHADER_STAGE_VERTEX_BIT, device))
+		if(!shaders[0].loadFromFile("res/shaders/vertex_shader.spv", VK_SHADER_STAGE_VERTEX_BIT))
 			return false;
 
-		if(!shaders[1].loadFromFile("res/shaders/fragment_shader.spv", VK_SHADER_STAGE_FRAGMENT_BIT, device))
+		if(!shaders[1].loadFromFile("res/shaders/fragment_shader.spv", VK_SHADER_STAGE_FRAGMENT_BIT))
 			return false;
 
         std::array<const VertexInputState::AttributeType, 2> attributes =

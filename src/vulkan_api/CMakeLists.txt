@@ -5,7 +5,7 @@ find_program(glslc_executable NAMES glslc HINTS Vulkan::glslc)
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
 include(${CMAKE_SOURCE_DIR}/src/cmake/compile_shaders.cmake)
-compile_shaders(${CMAKE_CURRENT_SOURCE_DIR}/shaders ${CMAKE_BINARY_DIR}/shaders)
+compile_shaders(${CMAKE_CURRENT_SOURCE_DIR}/src/shaders ${CMAKE_BINARY_DIR}/shaders)
 
 set(SRC_FILES
 	src/utils/Tools.cpp
@@ -78,11 +78,8 @@ PRIVATE
 )
 
 target_link_libraries(${VULKAN_API_TARGET_NAME} PRIVATE
-	glfw
-	cglm
 	${Vulkan_LIBRARIES}
-	$<$<BOOL:${UNIX}>:xcb>
-	$<$<BOOL:${UNIX}>:m>
+	cglm
 )
 
 target_compile_definitions(${VULKAN_API_TARGET_NAME} PRIVATE
@@ -90,9 +87,7 @@ target_compile_definitions(${VULKAN_API_TARGET_NAME} PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
 	CGLM_USE_ANONYMOUS_STRUCT
 	$<$<BOOL:${WIN32}>:VK_USE_PLATFORM_WIN32_KHR>
-	$<$<BOOL:${WIN32}>:GLFW_EXPOSE_NATIVE_WIN32>
 	$<$<BOOL:${UNIX}>:VK_USE_PLATFORM_XCB_KHR>
-	$<$<BOOL:${UNIX}>:GLFW_EXPOSE_NATIVE_X11>
 )
 
 if(MSVC)
