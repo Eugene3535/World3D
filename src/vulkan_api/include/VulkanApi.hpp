@@ -12,6 +12,8 @@ public:
     VulkanApi() noexcept;
     ~VulkanApi();
 
+    bool createContext() noexcept;
+
     bool init(uint64_t windowHandle) noexcept;
     void drawFrame() const noexcept;
 

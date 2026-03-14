@@ -36,6 +36,21 @@ static const vec3s cubePositions[10] =
 };
 
 
+bool Engine::createContext() noexcept
+{
+    if (!context.createInstance())
+        return false;
+
+    if (!context.selectVideoCard())
+        return false;
+
+    if (!context.createDevice())
+        return false;
+
+    return true;
+}
+
+
 bool Engine::init(uint64_t windowHandle) noexcept
 {
 	modelViewProjectionMatrix = glms_mat4_identity();
@@ -77,9 +92,6 @@ void Engine::resize(int width, int height) noexcept
 
 bool init_vulkan(Engine* app, uint64_t windowHandle) noexcept
 {
-	if(!app->context.create())
-		return false;
-
 	app->view.context = &app->context;
 
 	if(!app->view.create(windowHandle))

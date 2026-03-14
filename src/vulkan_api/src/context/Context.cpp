@@ -53,40 +53,10 @@ namespace
 
 #endif // !DEBUG
 
-namespace
-{
-    bool create_instance(VulkanContext* context) noexcept;
-    bool select_videocard(VulkanContext* context) noexcept;
-    bool create_device(VulkanContext* context) noexcept;
-}
 
 
 
-bool VulkanContext::create() noexcept
-{
-    if(create_instance(this))
-        if(select_videocard(this))
-            if(create_device(this))
-                return true;
-
-    return false;
-}
-
-
-void VulkanContext::destroy() noexcept
-{
-    if(device)
-        vkDestroyDevice(device, VK_NULL_HANDLE);
-
-    if(instance)
-        vkDestroyInstance(instance, VK_NULL_HANDLE);
-}
-
-
-namespace
-{
-
-bool create_instance(VulkanContext* context) noexcept
+bool VulkanContext::createInstance() noexcept
 {
 #ifdef DEBUG
     if (check_validation_layer_support() != VK_SUCCESS)
@@ -171,19 +141,19 @@ bool create_instance(VulkanContext* context) noexcept
     instanceInfo.pNext = (const void*)(&debugInfo);
 #endif // !DEBUG
 
-    return (vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &context->instance) == VK_SUCCESS);
+    return (vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &instance) == VK_SUCCESS);
 }
 
 
-bool select_videocard(VulkanContext* context) noexcept
+bool VulkanContext::selectVideoCard() noexcept
 {    
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(context->instance, &deviceCount, VK_NULL_HANDLE);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, VK_NULL_HANDLE);
 
     if (deviceCount)
     {
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(context->instance, &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
         for(uint32_t i = 0; i < deviceCount; ++i)
         {
@@ -191,27 +161,27 @@ bool select_videocard(VulkanContext* context) noexcept
             vkGetPhysicalDeviceProperties(devices[i], &properties);
 
             if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
-                context->GPU = devices[i];
+                GPU = devices[i];
 
             if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
             {
-                context->GPU = devices[i];
+                GPU = devices[i];
                 
                 return true;
             }
         }
     }
 
-    return context->GPU ? true : false;
+    return GPU ? true : false;
 }
 
 
-bool create_device(VulkanContext* context) noexcept
+bool VulkanContext::createDevice() noexcept
 {
     VkPhysicalDeviceFeatures supportedFeatures;
     VkPhysicalDeviceFeatures enabledFeatures = {};
 
-    vkGetPhysicalDeviceFeatures(context->GPU, &supportedFeatures);
+    vkGetPhysicalDeviceFeatures(GPU, &supportedFeatures);
 
     if (supportedFeatures.samplerAnisotropy)
         enabledFeatures.samplerAnisotropy = VK_TRUE;
@@ -221,24 +191,24 @@ bool create_device(VulkanContext* context) noexcept
 
     {// Find main queue family index
         uint32_t queueFamilyCount;
-        vkGetPhysicalDeviceQueueFamilyProperties(context->GPU, &queueFamilyCount, VK_NULL_HANDLE);
+        vkGetPhysicalDeviceQueueFamilyProperties(GPU, &queueFamilyCount, VK_NULL_HANDLE);
 
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(context->GPU, &queueFamilyCount, queueFamilies.data());
+        vkGetPhysicalDeviceQueueFamilyProperties(GPU, &queueFamilyCount, queueFamilies.data());
 
-        context->mainQueueFamilyIndex = UINT32_MAX;
+        mainQueueFamilyIndex = UINT32_MAX;
 
         for (uint32_t i = 0; i < queueFamilyCount; ++i)
         {
             if (queueFamilies[i].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
             {
-                context->mainQueueFamilyIndex = i;
+                mainQueueFamilyIndex = i;
                 break;
             }
         }
     }
 
-	if(context->mainQueueFamilyIndex != UINT32_MAX)
+	if(mainQueueFamilyIndex != UINT32_MAX)
     {
         const float queuePriority = 1.0f;
 
@@ -247,7 +217,7 @@ bool create_device(VulkanContext* context) noexcept
             .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
             .pNext            = VK_NULL_HANDLE,
             .flags            = 0,
-            .queueFamilyIndex = context->mainQueueFamilyIndex,
+            .queueFamilyIndex = mainQueueFamilyIndex,
             .queueCount       = 1,
             .pQueuePriorities = &queuePriority
         };
@@ -259,10 +229,10 @@ bool create_device(VulkanContext* context) noexcept
         };
 
         uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(context->GPU, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
+        vkEnumerateDeviceExtensionProperties(GPU, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
 
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(context->GPU, VK_NULL_HANDLE, &extensionCount, availableExtensions.data());
+        vkEnumerateDeviceExtensionProperties(GPU, VK_NULL_HANDLE, &extensionCount, availableExtensions.data());
 
         std::unordered_set<std::string> deviceExtensions;
 
@@ -297,9 +267,9 @@ bool create_device(VulkanContext* context) noexcept
     	deviceInfo.ppEnabledLayerNames = validation_layers.data();
 #endif
 
-        if(vkCreateDevice(context->GPU, &deviceInfo, VK_NULL_HANDLE, &context->device) == VK_SUCCESS)
+        if(vkCreateDevice(GPU, &deviceInfo, VK_NULL_HANDLE, &device) == VK_SUCCESS)
         {
-            vkGetDeviceQueue(context->device, context->mainQueueFamilyIndex, 0, &context->queue);
+            vkGetDeviceQueue(device, mainQueueFamilyIndex, 0, &queue);
 
             return true;
         }
@@ -308,4 +278,12 @@ bool create_device(VulkanContext* context) noexcept
     return false;
 }
 
+
+void VulkanContext::destroy() noexcept
+{
+    if(device)
+        vkDestroyDevice(device, VK_NULL_HANDLE);
+
+    if(instance)
+        vkDestroyInstance(instance, VK_NULL_HANDLE);
 }

@@ -15,15 +15,31 @@ VulkanApi::~VulkanApi()
 }
 
 
-bool VulkanApi::init(uint64_t windowHandle) noexcept
+bool VulkanApi::createContext() noexcept
 {
+    if(m_engine)
+        return true;
+
     auto engine = std::make_shared<Engine>();
 
-    if(engine->init(windowHandle))
+    if(engine->createContext())
     {
         m_engine = std::static_pointer_cast<void>(engine);
 
         return true;
+    }
+
+    return false;
+}
+
+
+bool VulkanApi::init(uint64_t windowHandle) noexcept
+{
+    if (m_engine)
+    {
+        auto engine = std::static_pointer_cast<Engine>(m_engine);
+
+        return engine->init(windowHandle);
     }
 
     return false;

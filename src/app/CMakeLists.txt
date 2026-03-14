@@ -1,6 +1,10 @@
 set(MAIN_APP_TARGET_NAME star_dust)
 
-add_executable(${MAIN_APP_TARGET_NAME} main.cpp)
+add_executable(${MAIN_APP_TARGET_NAME}
+	VulkanApp.cpp
+	VulkanApp.hpp
+	main.cpp
+)
 
 target_link_libraries(${MAIN_APP_TARGET_NAME} PRIVATE
 	glfw

@@ -3,10 +3,13 @@
 
 #include <vulkan/vulkan.h>
 
-struct VulkanContext
+class VulkanContext
 {
-    bool create()  noexcept;
-    void destroy() noexcept;
+public:
+    bool createInstance()  noexcept;
+    bool selectVideoCard() noexcept;
+    bool createDevice()    noexcept;
+    void destroy()         noexcept;
 
     VkInstance       instance             = nullptr;
     VkPhysicalDevice GPU                  = nullptr;

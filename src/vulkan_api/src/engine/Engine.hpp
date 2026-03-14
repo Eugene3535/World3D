@@ -11,8 +11,12 @@
 #include "camera/Camera.hpp"
 
 
-struct Engine
+class Engine
 {
+public:
+    bool createContext() noexcept;
+
+
     bool init(uint64_t windowHandle) noexcept;
     void drawFrame() noexcept;
     void destroy() noexcept;
