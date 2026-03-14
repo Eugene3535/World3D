@@ -9,7 +9,7 @@
 #include "engine/Engine.hpp"
 
 
-static bool init_vulkan(Engine* app, uint64_t windowHandle) noexcept;
+static bool init_vulkan(Engine* app) noexcept;
 static void update_matrices(Engine* app, vec3s position, float angle) noexcept;
 static void write_command_buffer(Engine* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept;
 static void draw_frame(Engine* app) noexcept;
@@ -51,11 +51,25 @@ bool Engine::createContext() noexcept
 }
 
 
-bool Engine::init(uint64_t windowHandle) noexcept
+bool Engine::createMainView(uint64_t windowHandle) noexcept
+{
+    view.context = &context;
+    
+	if (!view.createSurface(windowHandle))
+		return false;
+
+    if (!view.recreate(true))
+        return false;
+
+    return true;
+}
+
+
+bool Engine::init() noexcept
 {
 	modelViewProjectionMatrix = glms_mat4_identity();
 
-	return init_vulkan(this, windowHandle);
+	return init_vulkan(this);
 }
 
 
@@ -90,13 +104,8 @@ void Engine::resize(int width, int height) noexcept
 }
 
 
-bool init_vulkan(Engine* app, uint64_t windowHandle) noexcept
+bool init_vulkan(Engine* app) noexcept
 {
-	app->view.context = &app->context;
-
-	if(!app->view.create(windowHandle))
-		return false;
-
 	VkDevice device = app->context.device;
 
 	{// Pipeline

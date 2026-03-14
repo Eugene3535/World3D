@@ -14,10 +14,11 @@
 class Engine
 {
 public:
-    bool createContext() noexcept;
+    bool createContext()                       noexcept;
+    bool createMainView(uint64_t windowHandle) noexcept;
 
 
-    bool init(uint64_t windowHandle) noexcept;
+    bool init() noexcept;
     void drawFrame() noexcept;
     void destroy() noexcept;
     void resize(int width, int height) noexcept;

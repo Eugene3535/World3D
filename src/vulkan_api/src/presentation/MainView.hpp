@@ -6,25 +6,26 @@
 #include "context/Context.hpp"
 
 
-struct MainView
+class MainView
 {
-    bool create(uint64_t windowHandle) noexcept;
+public:
+    bool createSurface(uint64_t windowHandle) noexcept;
     bool recreate(bool useDepth) noexcept;
     void destroy() noexcept;
 
-    const VulkanContext* context = VK_NULL_HANDLE;
+    const VulkanContext* context = nullptr;
 
-    VkSurfaceKHR   surface   = VK_NULL_HANDLE;
-    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+    VkSurfaceKHR   surface   = nullptr;
+    VkSwapchainKHR swapchain = nullptr;
 
     std::vector<VkImage>     images;
     std::vector<VkImageView> imageViews;
 
     struct
     {
-        VkImage        image       = VK_NULL_HANDLE;
-        VkDeviceMemory imageMemory = VK_NULL_HANDLE;
-        VkImageView    imageView   = VK_NULL_HANDLE;
+        VkImage        image       = nullptr;
+        VkDeviceMemory imageMemory = nullptr;
+        VkImageView    imageView   = nullptr;
     } depth;
 
     VkFormat   format;

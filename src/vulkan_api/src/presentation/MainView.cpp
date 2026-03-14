@@ -111,10 +111,10 @@ namespace
 
 
 
-bool MainView::create(uint64_t windowHandle) noexcept
+bool MainView::createSurface(uint64_t windowHandle) noexcept
 {
     if(surface)
-        return recreate(true);
+        return true;
 
 #ifdef _WIN32
     const VkWin32SurfaceCreateInfoKHR surfaceInfo = 
@@ -126,8 +126,7 @@ bool MainView::create(uint64_t windowHandle) noexcept
         .hwnd      = reinterpret_cast<HWND>(windowHandle)
     };
 
-    if(vkCreateWin32SurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS)
-        return recreate(true);
+    return (vkCreateWin32SurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS);
 #endif
 
 #ifdef __linux__
@@ -145,8 +144,7 @@ bool MainView::create(uint64_t windowHandle) noexcept
         .window     = static_cast<xcb_window_t>(windowHandle)
     };
 
-    if (vkCreateXcbSurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS)
-        return recreate(true);
+    return (vkCreateXcbSurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS);
 #endif
 
     return false;

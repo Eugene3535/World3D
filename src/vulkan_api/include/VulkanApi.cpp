@@ -33,13 +33,26 @@ bool VulkanApi::createContext() noexcept
 }
 
 
-bool VulkanApi::init(uint64_t windowHandle) noexcept
+bool VulkanApi::createMainView(uint64_t windowHandle) noexcept
 {
     if (m_engine)
     {
         auto engine = std::static_pointer_cast<Engine>(m_engine);
 
-        return engine->init(windowHandle);
+        return engine->createMainView(windowHandle);
+    }
+
+    return false;
+}
+
+
+bool VulkanApi::init() noexcept
+{
+    if (m_engine)
+    {
+        auto engine = std::static_pointer_cast<Engine>(m_engine);
+
+        return engine->init();
     }
 
     return false;

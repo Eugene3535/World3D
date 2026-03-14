@@ -40,7 +40,10 @@ bool VulkanApp::init() noexcept
     if(!m_api.createContext())
         return false;
 
-    if (!m_api.init(windowHandle))
+    if (!m_api.createMainView(windowHandle))
+        return false;
+
+    if (!m_api.init())
         return false;
 
     int width, height;
