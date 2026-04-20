@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.31.10)
 
-project(Star-Dust LANGUAGES C CXX)
+project(World3D LANGUAGES C CXX)
 
 set(BUILD_SHARED_LIBS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
