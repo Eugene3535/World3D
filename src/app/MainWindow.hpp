@@ -7,17 +7,17 @@
 #include "VulkanApi.hpp"
 
 
-class VulkanApp
+class MainWindow
 {
 public:
-    VulkanApp() noexcept;
-    ~VulkanApp();
+    MainWindow() noexcept;
+    ~MainWindow();
 
-    bool init() noexcept;
+    bool create(const char* title, int32_t width, int32_t height) noexcept;
     int run() noexcept;
 
 private:
-    bool createWindow() noexcept;
+    void initCallbacks() noexcept;
 
     GLFWwindow* m_window;
 	VulkanApi m_api;

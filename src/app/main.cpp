@@ -2,15 +2,19 @@
 #include <cstdio>
 #endif
 
-#include "VulkanApp.hpp"
+#include "MainWindow.hpp"
 
 
 int main()
 {
-	VulkanApp app;
+	const char title[] = "Star Dust";
+    const int width = 800;
+    const int height = 600;
+
+	MainWindow app;
 	int retCode = -1;
 
-	if (app.init())
+	if (app.create(title, width, height))
 		retCode = app.run();
 
     return retCode;

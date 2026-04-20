@@ -99,6 +99,4 @@ endif()
 
 target_compile_features(${VULKAN_API_TARGET_NAME} PUBLIC cxx_std_20)
 
-if(MSVC)
-	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC_FILES} ${HDR_FILES} ${SHADER_FILES})
-endif()
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC_FILES} ${HDR_FILES} ${SHADER_FILES})
