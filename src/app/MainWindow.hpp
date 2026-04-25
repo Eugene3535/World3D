@@ -1,9 +1,6 @@
 #ifndef VULKAN_APP_HPP
 #define VULKAN_APP_HPP
 
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
-
 #include "VulkanApi.hpp"
 
 
@@ -19,7 +16,7 @@ public:
 private:
     void initCallbacks() noexcept;
 
-    GLFWwindow* m_window;
+    struct GLFWwindow* m_window;
 	VulkanApi m_api;
 };
 

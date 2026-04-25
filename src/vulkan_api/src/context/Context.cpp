@@ -55,7 +55,6 @@ namespace
 
 
 
-
 bool VulkanContext::createInstance() noexcept
 {
 #ifdef DEBUG
@@ -96,7 +95,7 @@ bool VulkanContext::createInstance() noexcept
     {
         .sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
         .pNext              = VK_NULL_HANDLE,
-        .pApplicationName   = "Star Dust",
+        .pApplicationName   = "World3D",
         .applicationVersion = 1,
         .pEngineName        = "Shining Engine",
         .engineVersion      = 1,
@@ -135,7 +134,7 @@ bool VulkanContext::createInstance() noexcept
 
                                 return VK_FALSE;
                             },
-       .pUserData       = VK_NULL_HANDLE
+       .pUserData = VK_NULL_HANDLE
     };
 
     instanceInfo.pNext = (const void*)(&debugInfo);

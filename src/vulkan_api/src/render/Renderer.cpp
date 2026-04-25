@@ -39,18 +39,46 @@ bool Renderer::begin(VkCommandBuffer cmd, const MainView* view, uint32_t imageIn
         }
     };
 
-    vkCmdPipelineBarrier(
-                            cmd,
-                            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,             // srcStageMask
-                            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, // dstStageMask
-                            0,
-                            0,
-                            VK_NULL_HANDLE,
-                            0,
-                            VK_NULL_HANDLE,
-                            1,                                             // imageMemoryBarrierCount
-                            &imageMemoryBarrier                            // pImageMemoryBarriers
+    vkCmdPipelineBarrier(cmd,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,             // srcStageMask
+                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, // dstStageMask
+                         0,
+                         0,
+                         VK_NULL_HANDLE,
+                         0,
+                         VK_NULL_HANDLE,
+                         1,                                             // imageMemoryBarrierCount
+                         &imageMemoryBarrier                            // pImageMemoryBarriers
     );
+
+    VkImageMemoryBarrier depthBufferBarrier = 
+    {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .srcAccessMask = 0,
+        .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+        .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+        .newLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image = view->depth.image,
+        .subresourceRange = 
+        {
+            .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+            .levelCount = 1,
+            .layerCount = 1
+        }
+    };
+
+    vkCmdPipelineBarrier(cmd,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                         0, 
+                         0, 
+                         VK_NULL_HANDLE, 
+                         0, 
+                         VK_NULL_HANDLE, 
+                         1, 
+                         &depthBufferBarrier);
 
     VkExtent2D extent = view->extent;
 
@@ -147,17 +175,16 @@ bool Renderer::end(VkCommandBuffer cmd, const MainView* view, uint32_t imageInde
         }
     };
 
-    vkCmdPipelineBarrier(
-                            cmd,
-                            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,   // srcStageMask
-                            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,            // dstStageMask
-                            0,
-                            0,
-                            VK_NULL_HANDLE,
-                            0,
-                            VK_NULL_HANDLE,
-                            1,                                               // imageMemoryBarrierCount
-                            &imageMemoryBarrier                              // pImageMemoryBarriers
+    vkCmdPipelineBarrier(cmd,
+                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,   // srcStageMask
+                         VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,            // dstStageMask
+                         0,
+                         0,
+                         VK_NULL_HANDLE,
+                         0,
+                         VK_NULL_HANDLE,
+                         1,                                               // imageMemoryBarrierCount
+                         &imageMemoryBarrier                              // pImageMemoryBarriers
     );
 
     return (vkEndCommandBuffer(cmd) == VK_SUCCESS);

@@ -90,8 +90,7 @@ namespace
 
         if(depthFormat != VK_FORMAT_UNDEFINED)
         {
-            result = vktools::create_image_2D(
-                                              view->extent, 
+            result = vktools::create_image_2D(view->extent, 
                                               depthFormat, 
                                               VK_IMAGE_TILING_OPTIMAL, 
                                               VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
@@ -101,8 +100,8 @@ namespace
                                               view->context->GPU, 
                                               device);
 
-            if(result)
-                return vktools::create_image_view_2D(device, view->depth.image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, &view->depth.imageView);
+            if (result)
+                result = vktools::create_image_view_2D(device, view->depth.image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, &view->depth.imageView);
         }
 
         return result;

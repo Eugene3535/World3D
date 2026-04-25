@@ -1,3 +1,6 @@
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 #include "MainWindow.hpp"
 
 // TODO remove magic numbers
@@ -21,6 +24,9 @@ MainWindow::~MainWindow()
 
 bool MainWindow::create(const char* title, int32_t width, int32_t height) noexcept
 {
+    if(!m_api.createContext())
+        return false;
+
     if (glfwInit() == GLFW_TRUE)
     {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -44,9 +50,6 @@ bool MainWindow::create(const char* title, int32_t width, int32_t height) noexce
 #endif
 
     if (!windowHandle)
-        return false;
-
-    if(!m_api.createContext())
         return false;
 
     if (!m_api.createMainView(windowHandle))
