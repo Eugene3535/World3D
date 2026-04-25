@@ -26,8 +26,8 @@ bool Renderer::begin(VkCommandBuffer cmd, const MainView* view, uint32_t imageIn
         .dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
         .oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED,
         .newLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-        .srcQueueFamilyIndex = 0,
-        .dstQueueFamilyIndex = 0,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = view->images[imageIndex],
         .subresourceRange =     
         {
@@ -53,18 +53,21 @@ bool Renderer::begin(VkCommandBuffer cmd, const MainView* view, uint32_t imageIn
 
     VkImageMemoryBarrier depthBufferBarrier = 
     {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .srcAccessMask = 0,
-        .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .newLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+        .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        .pNext               = VK_NULL_HANDLE,
+        .srcAccessMask       = VK_ACCESS_NONE,
+        .dstAccessMask       = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+        .oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED,
+        .newLayout           = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = view->depth.image,
-        .subresourceRange = 
+        .image               = view->depth.image,
+        .subresourceRange    = 
         {
             .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+            .baseMipLevel   = 0,
             .levelCount = 1,
+            .baseArrayLayer = 0,
             .layerCount = 1
         }
     };
