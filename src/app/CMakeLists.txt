@@ -1,6 +1,12 @@
-set(MAIN_APP_TARGET_NAME star_dust)
+set(MAIN_APP_TARGET_NAME main_app)
 
 add_executable(${MAIN_APP_TARGET_NAME}
+	MainWindow.cpp
+	MainWindow.hpp
+	main.cpp
+)
+
+source_group("main_app" FILES 
 	MainWindow.cpp
 	MainWindow.hpp
 	main.cpp
@@ -41,10 +47,4 @@ add_custom_command(TARGET ${MAIN_APP_TARGET_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_SOURCE_DIR}/res"     "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/res"
 	COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${CMAKE_BINARY_DIR}/shaders" "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/res/shaders"
 	VERBATIM
-)
-
-source_group("main_app" FILES 
-	VulkanApp.cpp
-	VulkanApp.hpp
-	main.cpp
 )

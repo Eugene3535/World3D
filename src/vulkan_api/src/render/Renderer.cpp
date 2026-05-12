@@ -64,11 +64,11 @@ bool Renderer::begin(VkCommandBuffer cmd, const MainView* view, uint32_t imageIn
         .image               = view->depth.image,
         .subresourceRange    = 
         {
-            .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+            .aspectMask     = VK_IMAGE_ASPECT_DEPTH_BIT,
             .baseMipLevel   = 0,
-            .levelCount = 1,
+            .levelCount     = 1,
             .baseArrayLayer = 0,
-            .layerCount = 1
+            .layerCount     = 1
         }
     };
 
