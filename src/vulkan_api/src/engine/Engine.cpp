@@ -9,12 +9,6 @@
 #include "engine/Engine.hpp"
 
 
-static bool init_vulkan(Engine* app) noexcept;
-static void update_matrices(Engine* app, vec3s position, float angle) noexcept;
-static void write_command_buffer(Engine* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept;
-static void draw_frame(Engine* app) noexcept;
-
-
 // TODO remove magic numbers
 static float lastX = 400;
 static float lastY = 300;
@@ -69,52 +63,15 @@ bool Engine::init() noexcept
 {
 	modelViewProjectionMatrix = glms_mat4_identity();
 
-	return init_vulkan(this);
-}
-
-
-void Engine::drawFrame() noexcept
-{
-	draw_frame(this);
-	vkDeviceWaitIdle(context.device);
-}
-
-
-void Engine::destroy() noexcept
-{
 	VkDevice device = context.device;
-
-	bufferHolder.destroy(device);
-	texture.destroy(device);
-	sync.destroy(device);
-	commandPool.destroy(device);
-	descriptorPool.destroy(device);
-	pipeline.destroy(device);
-
-	view.destroy();
-	context.destroy();
-}
-
-
-void Engine::resize(int width, int height) noexcept
-{
-	m_width = width;
-	m_height = height;
-	m_framebufferResized = true;
-}
-
-
-bool init_vulkan(Engine* app) noexcept
-{
-	VkDevice device = app->context.device;
 
 	{// Pipeline
 		std::array<Shader, 2> shaders = { Shader(device), Shader(device) };
 
-		if(!shaders[0].loadFromFile("res/shaders/vertex_shader.spv", VK_SHADER_STAGE_VERTEX_BIT))
+		if (!shaders[0].loadFromFile("res/shaders/vertex_shader.spv", VK_SHADER_STAGE_VERTEX_BIT))
 			return false;
 
-		if(!shaders[1].loadFromFile("res/shaders/fragment_shader.spv", VK_SHADER_STAGE_FRAGMENT_BIT))
+		if (!shaders[1].loadFromFile("res/shaders/fragment_shader.spv", VK_SHADER_STAGE_FRAGMENT_BIT))
 			return false;
 
         std::array<const VertexInputState::AttributeType, 2> attributes =
@@ -135,9 +92,9 @@ bool init_vulkan(Engine* app) noexcept
         pipelineState.setupColorBlending(VK_FALSE);
         pipelineState.layoutInfo = uniformDescriptors;
 
-        bool result = app->pipeline.create(pipelineState, app->view);
+        bool result = pipeline.create(pipelineState, view);
             
-		if(!result)
+		if (!result)
 			return false;
 	}
 
@@ -151,38 +108,38 @@ bool init_vulkan(Engine* app) noexcept
 			}
 		};
 
-		if(!app->descriptorPool.create(poolSizes, device))
+		if (!descriptorPool.create(poolSizes, device))
 			return false;
 
 		VkDescriptorSetLayout layouts[MAX_FRAMES_IN_FLIGHT] = 
 		{ 
-			app->pipeline.descriptorSetLayout, 
-			app->pipeline.descriptorSetLayout 
+			pipeline.descriptorSetLayout, 
+			pipeline.descriptorSetLayout 
 		};
 
-		if(!app->descriptorPool.allocateDescriptorSets(app->descriptorSets, layouts, device))
+		if(!descriptorPool.allocateDescriptorSets(descriptorSets, layouts, device))
 			return false;	
 	}
 
-	if(!app->commandPool.create(device, app->context.mainQueueFamilyIndex))
+	if (!commandPool.create(device, context.mainQueueFamilyIndex))
         return false;
 
-	if(!app->sync.create(device))
+	if (!sync.create(device))
 		return false;
 
 	{
-        if(!app->texture.loadFromFile("res/textures/container.jpg", &app->context, app->commandPool.handle))
+        if(!texture.loadFromFile("res/textures/container.jpg", &context, commandPool.handle))
             return false;
                 
         const VkDescriptorImageInfo imageInfo = 
         {
-            .sampler     = app->texture.sampler,
-            .imageView   = app->texture.imageView,
+            .sampler     = texture.sampler,
+            .imageView   = texture.imageView,
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 
-		app->descriptorPool.writeCombinedImageSampler(&imageInfo, app->descriptorSets[0], 0, device);
-		app->descriptorPool.writeCombinedImageSampler(&imageInfo, app->descriptorSets[1], 0, device);
+		descriptorPool.writeCombinedImageSampler(&imageInfo, descriptorSets[0], 0, device);
+		descriptorPool.writeCombinedImageSampler(&imageInfo, descriptorSets[1], 0, device);
     }
 
 	{
@@ -229,13 +186,13 @@ bool init_vulkan(Engine* app) noexcept
             20, 21, 22, 22, 23, 20   // bottom
         };
 
-		app->vertices = app->bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, &app->context, app->commandPool.handle);
-		app->indices = app->bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, &app->context, app->commandPool.handle);
+		vertexBuffer = bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, &context, commandPool.handle);
+		indexBuffer = bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, &context, commandPool.handle);
 
-		if(!app->vertices.handle)
+		if(!vertexBuffer.handle)
 			return false;
 
-		if(!app->indices.handle)
+		if(!indexBuffer.handle)
 			return false;
 	}
 
@@ -243,38 +200,13 @@ bool init_vulkan(Engine* app) noexcept
 }
 
 
-void update_matrices(Engine* app, vec3s position, float angle) noexcept
+void Engine::drawFrame() noexcept
 {
-	vec3s axis = { 1.0f, 0.3f, 0.5f };
+	uint32_t frame  = sync.currentFrame;
+    VkDevice device = context.device;
+    VkQueue  queue  = context.queue;
 
-    mat4s model = glms_translate(glms_mat4_identity(), position);
-    model       = glms_rotate(model, glm_rad(angle), axis);
-    mat4s modelView  = app->camera.getViewMatrix();
-    mat4s projection = glms_perspective(glm_rad(60.f), app->m_width / (float)app->m_height, 0.1f, 100.f);
-
-    app->modelViewProjectionMatrix = glms_mat4_mul(glms_mat4_mul(projection, modelView), model);
-}
-
-
-void write_command_buffer(Engine* app, VkCommandBuffer cmd, VkDescriptorSet descriptorSet) noexcept
-{
-    VkDeviceSize offsets[] = {0};
-    VkBuffer vertexBuffers[] = {app->vertices.handle};
-
-    vkCmdBindVertexBuffers(cmd, 0, 1, vertexBuffers, offsets);
-    vkCmdBindIndexBuffer(cmd, app->indices.handle, 0, VK_INDEX_TYPE_UINT32);
-    vkCmdPushConstants(cmd, app->pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), app->modelViewProjectionMatrix.raw);
-    vkCmdDrawIndexed(cmd, app->indices.size, 1, 0, 0, 0);
-}
-
-
-void draw_frame(Engine* app) noexcept
-{
-    uint32_t frame  = app->sync.currentFrame;
-    VkDevice device = app->context.device;
-    VkQueue  queue  = app->context.queue;
-
-    VkResult result = vkWaitForFences(device, 1, &app->sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
+    VkResult result = vkWaitForFences(device, 1, &sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
 
 	if (result != VK_SUCCESS)
     {
@@ -285,12 +217,12 @@ void draw_frame(Engine* app) noexcept
     }
 
     uint32_t imageIndex;
-    result = vkAcquireNextImageKHR(device, app->view.swapchain, UINT64_MAX, app->sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
+    result = vkAcquireNextImageKHR(device, view.swapchain, UINT64_MAX, sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        vkDeviceWaitIdle(app->context.device);
-		app->view.recreate(true);
+        vkDeviceWaitIdle(context.device);
+		view.recreate(true);
 
         return;
     }
@@ -302,7 +234,7 @@ void draw_frame(Engine* app) noexcept
 		return;
     }
 
-    result = vkResetFences(device, 1, &app->sync.inFlightFences[frame]);
+    result = vkResetFences(device, 1, &sync.inFlightFences[frame]);
 
 	if (result != VK_SUCCESS)
     {
@@ -312,8 +244,8 @@ void draw_frame(Engine* app) noexcept
 		return;
     }
 
-    VkCommandBuffer commandBuffer = app->commandPool.commandBuffers[frame];
-    VkDescriptorSet descriptorSet = app->descriptorSets[frame];
+    VkCommandBuffer commandBuffer = commandPool.commandBuffers[frame];
+    VkDescriptorSet descriptorSet = descriptorSets[frame];
 
     result = vkResetCommandBuffer(commandBuffer, /*VkCommandBufferResetFlagBits*/ 0);
 
@@ -325,20 +257,37 @@ void draw_frame(Engine* app) noexcept
 		return;
     }
 
-    if(!app->renderer.begin(commandBuffer, &app->view, imageIndex))
+    if(!renderer.begin(commandBuffer, &view, imageIndex))
         return;
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, app->pipeline.handle);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, app->pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.handle);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
 
     for (uint32_t i = 0; i < 10; ++i)
     {
         const float angle = 20.f * i;
-        update_matrices(app, cubePositions[i], angle);
-        write_command_buffer(app, commandBuffer, descriptorSet);
+
+//      update matrices
+        vec3s axis = { 1.0f, 0.3f, 0.5f };
+
+        mat4s model = glms_translate(glms_mat4_identity(), cubePositions[i]);
+        model       = glms_rotate(model, glm_rad(angle), axis);
+        mat4s modelView  = camera.getViewMatrix();
+        mat4s projection = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
+
+        modelViewProjectionMatrix = glms_mat4_mul(glms_mat4_mul(projection, modelView), model);
+
+//  write command buffer
+        VkDeviceSize offsets[] = {0};
+        VkBuffer vertexBuffers[] = {vertexBuffer.handle};
+
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffer, indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdPushConstants(commandBuffer, pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), modelViewProjectionMatrix.raw);
+        vkCmdDrawIndexed(commandBuffer, indexBuffer.size, 1, 0, 0, 0);
     }
 
-    if(!app->renderer.end(commandBuffer, &app->view, imageIndex))
+    if(!renderer.end(commandBuffer, &view, imageIndex))
         return;
 
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -348,15 +297,15 @@ void draw_frame(Engine* app) noexcept
 		.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
 		.pNext                = VK_NULL_HANDLE,
 		.waitSemaphoreCount   = 1,
-		.pWaitSemaphores      = app->sync.imageAvailableSemaphores.data() + frame,
+		.pWaitSemaphores      = sync.imageAvailableSemaphores.data() + frame,
 		.pWaitDstStageMask    = waitStages,
 		.commandBufferCount   = 1,
-		.pCommandBuffers      = &app->commandPool.commandBuffers[frame],
+		.pCommandBuffers      = &commandPool.commandBuffers[frame],
 		.signalSemaphoreCount = 1,
-		.pSignalSemaphores    = &app->sync.renderFinishedSemaphores[frame]
+		.pSignalSemaphores    = &sync.renderFinishedSemaphores[frame]
 	};
 
-	result = vkQueueSubmit(queue, 1, &submitInfo, app->sync.inFlightFences[frame]);
+	result = vkQueueSubmit(queue, 1, &submitInfo, sync.inFlightFences[frame]);
 
     if (result != VK_SUCCESS)
     {
@@ -371,20 +320,20 @@ void draw_frame(Engine* app) noexcept
 		.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		.pNext              = VK_NULL_HANDLE,
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores    = &app->sync.renderFinishedSemaphores[frame],
+		.pWaitSemaphores    = &sync.renderFinishedSemaphores[frame],
 		.swapchainCount     = 1,
-		.pSwapchains        = &app->view.swapchain,
+		.pSwapchains        = &view.swapchain,
 		.pImageIndices      = &imageIndex,
 		.pResults           = VK_NULL_HANDLE
 	};
 
     result = vkQueuePresentKHR(queue, &presentInfo);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || app->m_framebufferResized)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
     {
-        app->m_framebufferResized = false;
-        vkDeviceWaitIdle(app->context.device);
-		app->view.recreate(true);
+        m_framebufferResized = false;
+        vkDeviceWaitIdle(context.device);
+		view.recreate(true);
     }
     else if (result != VK_SUCCESS)
     {
@@ -394,5 +343,31 @@ void draw_frame(Engine* app) noexcept
 		return;
     }
 
-    app->sync.currentFrame = (frame + 1) % MAX_FRAMES_IN_FLIGHT;
+    sync.currentFrame = (frame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+	vkDeviceWaitIdle(context.device);
+}
+
+
+void Engine::destroy() noexcept
+{
+	VkDevice device = context.device;
+
+	bufferHolder.destroy(device);
+	texture.destroy(device);
+	sync.destroy(device);
+	commandPool.destroy(device);
+	descriptorPool.destroy(device);
+	pipeline.destroy(device);
+
+	view.destroy();
+	context.destroy();
+}
+
+
+void Engine::resize(int width, int height) noexcept
+{
+	m_width = width;
+	m_height = height;
+	m_framebufferResized = true;
 }

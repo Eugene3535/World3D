@@ -36,8 +36,8 @@ public:
     Texture2D texture;
 
     BufferHolder bufferHolder;
-    Buffer vertices;
-    Buffer indices;
+    Buffer vertexBuffer;
+    Buffer indexBuffer;
 
     Renderer renderer;
 

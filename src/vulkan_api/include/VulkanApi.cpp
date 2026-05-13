@@ -10,19 +10,19 @@ VulkanApi::VulkanApi() noexcept
 
 VulkanApi::~VulkanApi()
 {
-    if(m_engine)
+    if (m_engine)
         std::static_pointer_cast<Engine>(m_engine)->destroy();
 }
 
 
 bool VulkanApi::createContext() noexcept
 {
-    if(m_engine)
+    if (m_engine)
         return true;
 
     auto engine = std::make_shared<Engine>();
 
-    if(engine->createContext())
+    if (engine->createContext())
     {
         m_engine = std::static_pointer_cast<void>(engine);
 
