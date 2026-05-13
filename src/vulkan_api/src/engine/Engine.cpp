@@ -61,8 +61,6 @@ bool Engine::createMainView(uint64_t windowHandle) noexcept
 
 bool Engine::init() noexcept
 {
-	modelViewProjectionMatrix = glms_mat4_identity();
-
 	VkDevice device = context.device;
 
 	{// Pipeline
@@ -263,19 +261,18 @@ void Engine::drawFrame() noexcept
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.handle);
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
 
+    mat4s projection = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
+    mat4s viewMatrix  = camera.getViewMatrix();
+    vec3s axis = { 1.0f, 0.3f, 0.5f };
+
     for (uint32_t i = 0; i < 10; ++i)
     {
         const float angle = 20.f * i;
 
 //      update matrices
-        vec3s axis = { 1.0f, 0.3f, 0.5f };
-
         mat4s model = glms_translate(glms_mat4_identity(), cubePositions[i]);
         model       = glms_rotate(model, glm_rad(angle), axis);
-        mat4s modelView  = camera.getViewMatrix();
-        mat4s projection = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
-
-        modelViewProjectionMatrix = glms_mat4_mul(glms_mat4_mul(projection, modelView), model);
+        mat4s modelViewProjection = glms_mat4_mul(glms_mat4_mul(projection, viewMatrix), model);
 
 //  write command buffer
         VkDeviceSize offsets[] = {0};
@@ -283,7 +280,7 @@ void Engine::drawFrame() noexcept
 
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdPushConstants(commandBuffer, pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), modelViewProjectionMatrix.raw);
+        vkCmdPushConstants(commandBuffer, pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), modelViewProjection.raw);
         vkCmdDrawIndexed(commandBuffer, indexBuffer.size, 1, 0, 0, 0);
     }
 

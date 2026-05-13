@@ -46,7 +46,6 @@ public:
     int32_t m_height;
 
     Camera camera;
-    mat4s modelViewProjectionMatrix;
 };
 
 #endif // !ENGINE_HPP
