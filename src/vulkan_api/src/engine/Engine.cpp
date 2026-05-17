@@ -269,7 +269,7 @@ void Engine::drawFrame() noexcept
     {
         const float angle = 20.f * i;
 
-//      update matrices
+//  update matrices
         mat4s model = glms_translate(glms_mat4_identity(), cubePositions[i]);
         model       = glms_rotate(model, glm_rad(angle), axis);
         mat4s modelViewProjection = glms_mat4_mul(glms_mat4_mul(projection, viewMatrix), model);
@@ -287,7 +287,7 @@ void Engine::drawFrame() noexcept
     if(!renderer.end(commandBuffer, &view, imageIndex))
         return;
 
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	
     const VkSubmitInfo submitInfo = 
 	{

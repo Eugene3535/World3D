@@ -156,12 +156,13 @@ bool MainView::recreate(bool useDepth) noexcept
     {
         VkDevice device = context->device;
 
+        VkSwapchainKHR oldSwapchain = swapchain;
+
         if (swapchain)
         {
             for(const auto imageView : imageViews)
                 vkDestroyImageView(device, imageView, VK_NULL_HANDLE);
 
-            vkDestroySwapchainKHR(device, swapchain, VK_NULL_HANDLE);
             swapchain = VK_NULL_HANDLE;
         }
 
@@ -190,20 +191,23 @@ bool MainView::recreate(bool useDepth) noexcept
             .compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
             .presentMode           = swapChainSupport->getPresentMode(),
             .clipped               = VK_TRUE,
-            .oldSwapchain          = swapchain
+            .oldSwapchain          = oldSwapchain
         };
 
         if (vkCreateSwapchainKHR(device, &swapchainInfo, VK_NULL_HANDLE, &swapchain) == VK_SUCCESS)
         {
+            if (oldSwapchain)
+                vkDestroySwapchainKHR(device, oldSwapchain, VK_NULL_HANDLE);
+
             uint32_t imageCount = 0;
             
-            if(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, VK_NULL_HANDLE) != VK_SUCCESS)
+            if (vkGetSwapchainImagesKHR(device, swapchain, &imageCount, VK_NULL_HANDLE) != VK_SUCCESS)
                 return false;
 
-            if(images.empty())
+            if (images.empty())
                 images.resize(imageCount);
             
-            if(imageViews.empty())
+            if (imageViews.empty())
                 imageViews.resize(imageCount);
             
             if (vkGetSwapchainImagesKHR(device, swapchain, &imageCount, images.data()) == VK_SUCCESS)
@@ -229,10 +233,14 @@ bool MainView::recreate(bool useDepth) noexcept
                         return false;
                 }
             }
+
+            return true;
         }
+
+        return false;
     }
 
-    return true;
+    return false;
 }
 
 
