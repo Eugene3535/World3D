@@ -34,5 +34,11 @@ set(CGLM_USE_TESTS OFF CACHE BOOL "Enable tests" FORCE)
 
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/glfw glfw)
 add_subdirectory(${EXTERNAL_SOURCE_DIR}/cglm cglm)
+add_subdirectory(${EXTERNAL_SOURCE_DIR}/spdlog spdlog)
+add_subdirectory(${EXTERNAL_SOURCE_DIR}/magic_enum magic_enum)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/vulkan_api)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/app)
+
+if(MSVC)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT main_app)
+endif()

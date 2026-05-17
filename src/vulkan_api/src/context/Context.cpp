@@ -29,7 +29,7 @@ namespace
         std::vector<VkLayerProperties> availableLayers(layerCount);
         vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-        for(uint32_t i = 0; i < validation_layers.size(); ++i)
+        for (uint32_t i = 0; i < validation_layers.size(); ++i)
         {
             const char* layerName = validation_layers[i];
             bool layerFound = false;
@@ -43,7 +43,7 @@ namespace
                 }
             }
 
-            if(!layerFound)
+            if (!layerFound)
                 allLayersFound = VK_ERROR_LAYER_NOT_PRESENT;
         }
 
@@ -97,7 +97,7 @@ bool VulkanContext::createInstance() noexcept
         .pNext              = VK_NULL_HANDLE,
         .pApplicationName   = "World3D",
         .applicationVersion = 1,
-        .pEngineName        = "Shining Engine",
+        .pEngineName        = "3D Engine",
         .engineVersion      = 1,
         .apiVersion         = VK_API_VERSION_1_3
     };
