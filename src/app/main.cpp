@@ -1,13 +1,9 @@
-#ifdef DEBUG
-#include <cstdio>
-#endif
-
 #include "MainWindow.hpp"
 
 
 int main()
 {
-	const char title[] = "Star Dust";
+	const char title[] = "World 3D";
     const int width = 800;
     const int height = 600;
 

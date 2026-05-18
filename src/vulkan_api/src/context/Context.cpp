@@ -4,9 +4,8 @@
 #include <vector>
 #include <unordered_set>
 
-#ifdef DEBUG
-#include <cstdio>
-#endif
+#include "spdlog/spdlog.h"
+#include <magic_enum/magic_enum.hpp>
 
 #include "context/Context.hpp"
 
@@ -34,7 +33,7 @@ namespace
             const char* layerName = validation_layers[i];
             bool layerFound = false;
 
-            for(uint32_t j = 0; j < layerCount; ++j)
+            for (uint32_t j = 0; j < layerCount; ++j)
             {
                 if (strcmp(layerName, availableLayers[j].layerName) == 0)
                 {
@@ -47,6 +46,9 @@ namespace
                 allLayersFound = VK_ERROR_LAYER_NOT_PRESENT;
         }
 
+        const auto result = magic_enum::enum_name(allLayersFound);
+        spdlog::info("VK_LAYER_KHRONOS_validation: {}", result);
+
         return allLayersFound;
     }
 }
@@ -57,6 +59,8 @@ namespace
 
 bool VulkanContext::createInstance() noexcept
 {
+    spdlog::info("Starting instance initialization");
+
 #ifdef DEBUG
     if (check_validation_layer_support() != VK_SUCCESS)
         return false;
@@ -76,6 +80,11 @@ bool VulkanContext::createInstance() noexcept
     requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
+    for (const auto extensionName : requiredExtensions)
+    {
+        spdlog::info("Required extension: {}", extensionName);
+    }
+
     uint32_t availableExtensionCount;
     vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, VK_NULL_HANDLE);
 
@@ -83,13 +92,22 @@ bool VulkanContext::createInstance() noexcept
     vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, availableExtensions.data());
 
     std::unordered_set<std::string> deviceExtensions;
-
+    
     for (const auto& it : availableExtensions)
+    {
         deviceExtensions.insert(it.extensionName);
+        spdlog::info("Available extension: {}", it.extensionName);
+    }
 
     for (const auto it : requiredExtensions)
-        if (deviceExtensions.find(it) == deviceExtensions.end())	
+    {
+        if (deviceExtensions.find(it) == deviceExtensions.end())
+        {
+            spdlog::error("The extension is not available: {}", it);
+
             return false;
+        }	
+    }
 
     const VkApplicationInfo appInfo = 
     {
@@ -101,6 +119,12 @@ bool VulkanContext::createInstance() noexcept
         .engineVersion      = 1,
         .apiVersion         = VK_API_VERSION_1_3
     };
+
+    {
+        spdlog::info("Application name: {}", appInfo.pApplicationName);
+        spdlog::info("Engine name: {}", appInfo.pEngineName);
+        spdlog::info("Api version: {:.1f}", 1.3f);
+    }
 
     VkInstanceCreateInfo instanceInfo = 
     {
@@ -140,12 +164,17 @@ bool VulkanContext::createInstance() noexcept
     instanceInfo.pNext = (const void*)(&debugInfo);
 #endif // !DEBUG
 
-    return (vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &instance) == VK_SUCCESS);
+    const auto result = vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &instance);
+    spdlog::info("Completing instance initialization: {}", magic_enum::enum_name(result));
+
+    return (result == VK_SUCCESS);
 }
 
 
 bool VulkanContext::selectVideoCard() noexcept
-{    
+{
+    spdlog::info("Start selecting a physical device");
+
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, VK_NULL_HANDLE);
 
@@ -177,6 +206,8 @@ bool VulkanContext::selectVideoCard() noexcept
 
 bool VulkanContext::createDevice() noexcept
 {
+    spdlog::info("Starting the creation of a logical device");
+
     VkPhysicalDeviceFeatures supportedFeatures;
     VkPhysicalDeviceFeatures enabledFeatures = {};
 

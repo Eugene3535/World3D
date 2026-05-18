@@ -15,21 +15,25 @@ VulkanApi::~VulkanApi()
 }
 
 
-bool VulkanApi::createContext() noexcept
+bool VulkanApi::init() noexcept
 {
     if (m_engine)
         return true;
 
-    auto engine = std::make_shared<Engine>();
+    m_engine = std::make_shared<Engine>();
 
-    if (engine->createContext())
-    {
-        m_engine = std::static_pointer_cast<void>(engine);
+    return true;
+}
 
+
+bool VulkanApi::createContext() noexcept
+{
+    if (!m_engine)
         return true;
-    }
 
-    return false;
+    auto engine = std::static_pointer_cast<Engine>(m_engine);
+
+    return engine->createContext();
 }
 
 
@@ -39,20 +43,8 @@ bool VulkanApi::createMainView(uint64_t windowHandle) noexcept
     {
         auto engine = std::static_pointer_cast<Engine>(m_engine);
 
-        return engine->createMainView(windowHandle);
-    }
-
-    return false;
-}
-
-
-bool VulkanApi::init() noexcept
-{
-    if (m_engine)
-    {
-        auto engine = std::static_pointer_cast<Engine>(m_engine);
-
-        return engine->init();
+        if (engine->createMainView(windowHandle))
+            return engine->createPipeline(); // tmp solution
     }
 
     return false;

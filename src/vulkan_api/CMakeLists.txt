@@ -81,6 +81,8 @@ target_link_libraries(${VULKAN_API_TARGET_NAME} PRIVATE
 	$<$<BOOL:${UNIX}>:xcb>
 	${Vulkan_LIBRARIES}
 	cglm
+	spdlog
+	magic_enum::magic_enum
 )
 
 target_compile_definitions(${VULKAN_API_TARGET_NAME} PRIVATE

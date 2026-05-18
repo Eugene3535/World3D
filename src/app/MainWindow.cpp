@@ -24,7 +24,10 @@ MainWindow::~MainWindow()
 
 bool MainWindow::create(const char* title, int32_t width, int32_t height) noexcept
 {
-    if(!m_api.createContext())
+    if (!m_api.init())
+        return false;
+
+    if (!m_api.createContext())
         return false;
 
     if (glfwInit() == GLFW_TRUE)

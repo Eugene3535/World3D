@@ -18,7 +18,7 @@ public:
     bool createMainView(uint64_t windowHandle) noexcept;
 
 
-    bool init() noexcept;
+    bool createPipeline() noexcept;
     void drawFrame() noexcept;
     void destroy() noexcept;
     void resize(int width, int height) noexcept;

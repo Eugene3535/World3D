@@ -1,9 +1,8 @@
-#ifdef DEBUG
-#include <cstdio>
-#endif
 #include <array>
 
 #include <cglm/struct/affine-pre.h>
+#include "spdlog/spdlog.h"
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include "context/Context.hpp"
 #include "engine/Engine.hpp"
@@ -32,6 +31,11 @@ static const vec3s cubePositions[10] =
 
 bool Engine::createContext() noexcept
 {
+    auto logger = spdlog::basic_logger_mt("logger", "logs/log.txt", true);
+    logger->set_level(spdlog::level::debug);
+    spdlog::set_default_logger(logger);
+    spdlog::info("Start logging messages");
+
     if (!context.createInstance())
         return false;
 
@@ -59,7 +63,7 @@ bool Engine::createMainView(uint64_t windowHandle) noexcept
 }
 
 
-bool Engine::init() noexcept
+bool Engine::createPipeline() noexcept
 {
 	VkDevice device = context.device;
 

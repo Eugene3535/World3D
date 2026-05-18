@@ -12,11 +12,10 @@ public:
     VulkanApi() noexcept;
     ~VulkanApi();
 
-    bool createContext() noexcept;
-    bool createMainView(uint64_t windowHandle) noexcept;
-
     bool init() noexcept;
 
+    bool createContext() noexcept;
+    bool createMainView(uint64_t windowHandle) noexcept;
     void drawFrame() const noexcept;
 
     void processMouseMovement(float xpos, float ypos) const noexcept;
