@@ -82,7 +82,7 @@ bool VulkanContext::createInstance() noexcept
 
     for (const auto extensionName : requiredExtensions)
     {
-        spdlog::info("Required extension: {}", extensionName);
+        spdlog::info("Required vulkan API extension: {}", extensionName);
     }
 
     uint32_t availableExtensionCount;
@@ -96,14 +96,14 @@ bool VulkanContext::createInstance() noexcept
     for (const auto& it : availableExtensions)
     {
         deviceExtensions.insert(it.extensionName);
-        spdlog::info("Available extension: {}", it.extensionName);
+        spdlog::info("Available vulkan API extension: {}", it.extensionName);
     }
 
     for (const auto it : requiredExtensions)
     {
         if (deviceExtensions.find(it) == deviceExtensions.end())
         {
-            spdlog::error("The extension is not available: {}", it);
+            spdlog::error("The vulkan API extension is not available: {}", it);
 
             return false;
         }	
@@ -161,7 +161,7 @@ bool VulkanContext::createInstance() noexcept
        .pUserData = VK_NULL_HANDLE
     };
 
-    instanceInfo.pNext = (const void*)(&debugInfo);
+    instanceInfo.pNext = static_cast<const void*>(&debugInfo);
 #endif // !DEBUG
 
     const auto result = vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &instance);
@@ -183,10 +183,15 @@ bool VulkanContext::selectVideoCard() noexcept
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-        for(uint32_t i = 0; i < deviceCount; ++i)
+        spdlog::info("Physical devices found: {}", deviceCount);
+        uint32_t i = 0;
+
+        for(; i < deviceCount; ++i)
         {
             VkPhysicalDeviceProperties properties;
             vkGetPhysicalDeviceProperties(devices[i], &properties);
+
+            spdlog::info("Physical device available: {}, type: {}", properties.deviceName, magic_enum::enum_name(properties.deviceType));
 
             if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
                 GPU = devices[i];
@@ -194,10 +199,14 @@ bool VulkanContext::selectVideoCard() noexcept
             if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
             {
                 GPU = devices[i];
-                
-                return true;
+
+                break;
             }
         }
+
+        VkPhysicalDeviceProperties properties;
+        vkGetPhysicalDeviceProperties(devices[i], &properties);
+        spdlog::info("The physical device is selected: {}, type: {}", properties.deviceName, magic_enum::enum_name(properties.deviceType));
     }
 
     return GPU ? true : false;
@@ -232,6 +241,9 @@ bool VulkanContext::createDevice() noexcept
         {
             if (queueFamilies[i].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
             {
+                spdlog::info("The main queue family index with flags is selected: {} | {}", 
+                    magic_enum::enum_name(VK_QUEUE_GRAPHICS_BIT), magic_enum::enum_name(VK_QUEUE_TRANSFER_BIT));
+
                 mainQueueFamilyIndex = i;
                 break;
             }
@@ -258,6 +270,9 @@ bool VulkanContext::createDevice() noexcept
             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
         };
 
+        for (const char* ext : requiredExtensions)
+            spdlog::info("Required device extension: {}", ext);
+        
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(GPU, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
 
@@ -267,11 +282,20 @@ bool VulkanContext::createDevice() noexcept
         std::unordered_set<std::string> deviceExtensions;
 
         for (const auto& it : availableExtensions)
+        {
             deviceExtensions.insert(it.extensionName);
+            spdlog::info("An extension for the device is available: {}", it.extensionName);
+        }
 
         for (const auto& extension : requiredExtensions)
+        {
             if(deviceExtensions.find(extension) == deviceExtensions.end())
+            {
+                spdlog::error("The device extension is not available: {}", extension);
+
                 return false;
+            }
+        }
 
         const VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature = 
         {
@@ -297,13 +321,22 @@ bool VulkanContext::createDevice() noexcept
     	deviceInfo.ppEnabledLayerNames = validation_layers.data();
 #endif
 
-        if(vkCreateDevice(GPU, &deviceInfo, VK_NULL_HANDLE, &device) == VK_SUCCESS)
+        const auto result = vkCreateDevice(GPU, &deviceInfo, VK_NULL_HANDLE, &device);
+
+        if (result == VK_SUCCESS)
         {
+            spdlog::info("Initialization of the device has been completed with the result: {}", magic_enum::enum_name(result));
             vkGetDeviceQueue(device, mainQueueFamilyIndex, 0, &queue);
 
             return true;
         }
+   
+        spdlog::error("Initialization of the device has been failed with the result: {}", magic_enum::enum_name(result));
+        
+        return false;
     }
+
+    spdlog::error("A suitable graphics queue was not found.");
 
     return false;
 }
