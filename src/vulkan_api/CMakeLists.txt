@@ -10,7 +10,9 @@ compile_shaders(${CMAKE_CURRENT_SOURCE_DIR}/src/shaders ${CMAKE_BINARY_DIR}/shad
 set(SRC_FILES
 	src/utils/Tools.cpp
 	src/context/Context.cpp
-	src/presentation/MainView.cpp
+	src/context/Context.cpp
+	src/surface/Surface.cpp
+	src/swapchain/Swapchain.cpp
 	src/pipeline/stages/shader/Shader.cpp
 	src/pipeline/stages/shader/VertexInputState.cpp
 	src/pipeline/stages/uniform/DescriptorSetLayout.cpp
@@ -29,7 +31,8 @@ set(SRC_FILES
 set(HDR_FILES
 	src/utils/Tools.hpp
 	src/context/Context.hpp
-	src/presentation/MainView.hpp
+	src/surface/Surface.hpp
+	src/swapchain/Swapchain.hpp
 	src/pipeline/stages/shader/Shader.hpp
 	src/pipeline/stages/shader/VertexInputState.hpp
 	src/pipeline/stages/uniform/DescriptorSetLayout.hpp

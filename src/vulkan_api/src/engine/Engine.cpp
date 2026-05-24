@@ -24,7 +24,7 @@ static const vec3s cubePositions[10] =
 
 
 Engine::Engine() noexcept:
-    view(context)
+    swapchain(context)
 {
 
 }
@@ -52,10 +52,10 @@ bool Engine::createContext() noexcept
 
 bool Engine::createMainView(uint64_t windowHandle) noexcept
 {
-	if (!view.createSurface(windowHandle))
-		return false;
+    if (!surface.create(context.instance, windowHandle))
+        return false;
 
-    if (!view.recreate())
+    if (!swapchain.create(surface.handle))
         return false;
 
     return true;
@@ -93,7 +93,7 @@ bool Engine::createPipeline() noexcept
         pipelineState.setupColorBlending(VK_FALSE);
         pipelineState.layoutInfo = uniformDescriptors;
 
-        bool result = pipeline.create(pipelineState, view);
+        bool result = pipeline.create(pipelineState, swapchain);
             
 		if (!result)
 			return false;
@@ -218,12 +218,12 @@ void Engine::drawFrame() noexcept
     }
 
     uint32_t imageIndex;
-    result = vkAcquireNextImageKHR(device, view.swapchain, UINT64_MAX, sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
+    result = vkAcquireNextImageKHR(device, swapchain.handle, UINT64_MAX, sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         vkDeviceWaitIdle(context.device);
-		view.recreate();
+		swapchain.create(surface.handle);
 
         return;
     }
@@ -258,7 +258,7 @@ void Engine::drawFrame() noexcept
 		return;
     }
 
-    if(!renderer.begin(commandBuffer, &view, imageIndex))
+    if(!renderer.begin(commandBuffer, &swapchain, imageIndex))
         return;
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.handle);
@@ -287,7 +287,7 @@ void Engine::drawFrame() noexcept
         vkCmdDrawIndexed(commandBuffer, indexBuffer.size, 1, 0, 0, 0);
     }
 
-    if(!renderer.end(commandBuffer, &view, imageIndex))
+    if(!renderer.end(commandBuffer, &swapchain, imageIndex))
         return;
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -322,7 +322,7 @@ void Engine::drawFrame() noexcept
 		.waitSemaphoreCount = 1,
 		.pWaitSemaphores    = &sync.renderFinishedSemaphores[frame],
 		.swapchainCount     = 1,
-		.pSwapchains        = &view.swapchain,
+		.pSwapchains        = &swapchain.handle,
 		.pImageIndices      = &imageIndex,
 		.pResults           = VK_NULL_HANDLE
 	};
@@ -333,7 +333,7 @@ void Engine::drawFrame() noexcept
     {
         m_framebufferResized = false;
         vkDeviceWaitIdle(context.device);
-		view.recreate();
+		swapchain.create(surface.handle);
     }
     else if (result != VK_SUCCESS)
     {
@@ -360,7 +360,8 @@ void Engine::destroy() noexcept
 	descriptorPool.destroy(device);
 	pipeline.destroy(device);
 
-	view.destroy();
+	swapchain.destroy();
+    surface.destroy(context.instance);
 	context.destroy();
 }
 

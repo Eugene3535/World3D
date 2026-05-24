@@ -4,7 +4,6 @@
 #include <cglm/struct/mat4.h>
 
 #include "utils/Tools.hpp"
-#include "presentation/MainView.hpp"
 #include "pipeline/GraphicsPipeline.hpp"
 
 
@@ -84,13 +83,13 @@ void GraphicsPipeline::State::setupColorBlending(VkBool32 enabled) noexcept
 }
 
 
-bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const MainView& view) noexcept
+bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const Swapchain& swapchain) noexcept
 {
-    VkPhysicalDevice GPU    = view.context.GPU;
-    VkDevice         device = view.context.device;
+    VkPhysicalDevice GPU    = swapchain.context.GPU;
+    VkDevice         device = swapchain.context.device;
     destroy(device); // for recreate case
 
-    const VkFormat colorFormat = view.format;
+    const VkFormat colorFormat = swapchain.format;
     const VkFormat depthFormat = vktools::find_depth_format(GPU);
 
     const VkPipelineVertexInputStateCreateInfo vertexInput = state.vertexInputState.getInfo();

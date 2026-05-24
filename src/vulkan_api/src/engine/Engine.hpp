@@ -1,6 +1,7 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
+#include "surface/Surface.hpp"
 #include "pipeline/descriptors/DescriptorPool.hpp"
 #include "pipeline/GraphicsPipeline.hpp"
 #include "command_pool/CommandBufferPool.hpp"
@@ -25,7 +26,8 @@ public:
     void resize(int width, int height) noexcept;
 
     VulkanContext    context;
-    MainView         view;
+    Surface          surface;
+    Swapchain        swapchain;
     GraphicsPipeline pipeline;
 
     std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;

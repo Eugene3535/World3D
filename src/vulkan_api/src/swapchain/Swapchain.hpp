@@ -6,20 +6,17 @@
 #include "context/Context.hpp"
 
 
-class MainView
+class Swapchain
 {
 public:
-    MainView(const class VulkanContext& ctx) noexcept;
+    Swapchain(const VulkanContext& ctx) noexcept;
 
-    bool createSurface(uint64_t windowHandle) noexcept;
-    bool recreate() noexcept;
+    bool create(VkSurfaceKHR surface) noexcept;
     void destroy() noexcept;
 
     const VulkanContext& context;
 
-    VkSurfaceKHR   surface   = nullptr;
-    VkSwapchainKHR swapchain = nullptr;
-
+    VkSwapchainKHR           handle;
     std::vector<VkImage>     images;
     std::vector<VkImageView> imageViews;
 
