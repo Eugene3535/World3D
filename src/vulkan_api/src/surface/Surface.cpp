@@ -1,3 +1,4 @@
+#include "context/Context.hpp"
 #include "surface/Surface.hpp"
 
 
@@ -8,10 +9,12 @@ Surface::Surface() noexcept:
 }
 
 
-bool Surface::create(VkInstance instance, uint64_t windowHandle) noexcept
+bool Surface::create(uint64_t windowHandle) noexcept
 {
     if (handle)
         return true;
+
+    VkInstance instance = vkContext->instance;
 
 #ifdef _WIN32
     const VkWin32SurfaceCreateInfoKHR surfaceInfo = 
@@ -48,10 +51,11 @@ bool Surface::create(VkInstance instance, uint64_t windowHandle) noexcept
 }
 
 
-void Surface::destroy(VkInstance instance) noexcept
+void Surface::destroy() noexcept
 {
     if (handle)
     {
+        VkInstance instance = vkContext->instance;
         vkDestroySurfaceKHR(instance, handle, VK_NULL_HANDLE);
         handle = nullptr;
     }

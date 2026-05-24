@@ -1,20 +1,18 @@
-#ifndef MAIN_VIEW_HPP
-#define MAIN_VIEW_HPP
+#ifndef SWAPCHAIN_HPP
+#define SWAPCHAIN_HPP
 
 #include <vector>
 
-#include "context/Context.hpp"
+#include <vulkan/vulkan.h>
 
 
 class Swapchain
 {
 public:
-    Swapchain(const VulkanContext& ctx) noexcept;
+    Swapchain() noexcept;
 
     bool create(VkSurfaceKHR surface) noexcept;
     void destroy() noexcept;
-
-    const VulkanContext& context;
 
     VkSwapchainKHR           handle;
     std::vector<VkImage>     images;
@@ -31,4 +29,4 @@ public:
     VkExtent2D extent;
 };
 
-#endif // !MAIN_VIEW_HPP
+#endif // !SWAPCHAIN_HPP

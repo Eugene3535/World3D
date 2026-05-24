@@ -9,8 +9,8 @@ class Surface
 public:
     Surface() noexcept;
 
-    bool create(VkInstance instance, uint64_t windowHandle) noexcept;
-    void destroy(VkInstance instance) noexcept;
+    bool create(uint64_t windowHandle) noexcept;
+    void destroy() noexcept;
 
     VkSurfaceKHR handle;
 };

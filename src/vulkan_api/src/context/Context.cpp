@@ -1,5 +1,6 @@
 #include <string>
 #include <cstring>
+#include <cassert>
 #include <array>
 #include <vector>
 #include <unordered_set>
@@ -8,6 +9,8 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "context/Context.hpp"
+
+static VulkanContext* g_vulkanContext;
 
 
 #ifdef DEBUG
@@ -55,6 +58,24 @@ namespace
 
 #endif // !DEBUG
 
+
+
+VulkanContext::VulkanContext() noexcept:
+    instance(nullptr),
+    GPU(nullptr),
+    device(nullptr),
+    queue(nullptr),
+    mainQueueFamilyIndex(0)
+{
+    assert(g_vulkanContext == nullptr);
+    g_vulkanContext = this;
+}
+
+
+VulkanContext* VulkanContext::getInstance() noexcept
+{
+    return g_vulkanContext;
+}
 
 
 bool VulkanContext::createInstance() noexcept

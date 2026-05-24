@@ -23,8 +23,7 @@ static const vec3s cubePositions[10] =
 };
 
 
-Engine::Engine() noexcept:
-    swapchain(context)
+Engine::Engine() noexcept
 {
 
 }
@@ -52,11 +51,14 @@ bool Engine::createContext() noexcept
 
 bool Engine::createMainView(uint64_t windowHandle) noexcept
 {
-    if (!surface.create(context.instance, windowHandle))
+    if (!surface.create(windowHandle))
         return false;
 
     if (!swapchain.create(surface.handle))
         return false;
+
+    if (!sync.create(context.device))
+		return false;
 
     return true;
 }
@@ -125,11 +127,8 @@ bool Engine::createPipeline() noexcept
 	if (!commandPool.create(device, context.mainQueueFamilyIndex))
         return false;
 
-	if (!sync.create(device))
-		return false;
-
 	{
-        if(!texture.loadFromFile("res/textures/container.jpg", &context, commandPool.handle))
+        if(!texture.loadFromFile("res/textures/container.jpg", commandPool.handle))
             return false;
                 
         const VkDescriptorImageInfo imageInfo = 
@@ -248,17 +247,7 @@ void Engine::drawFrame() noexcept
     VkCommandBuffer commandBuffer = commandPool.commandBuffers[frame];
     VkDescriptorSet descriptorSet = descriptorSets[frame];
 
-    result = vkResetCommandBuffer(commandBuffer, /*VkCommandBufferResetFlagBits*/ 0);
-
-	if (result != VK_SUCCESS)
-    {
-#ifdef DEBUG
-        printf("failed to reset command buffers!\n");
-#endif
-		return;
-    }
-
-    if(!renderer.begin(commandBuffer, &swapchain, imageIndex))
+    if (!renderer.begin(commandBuffer, &swapchain, imageIndex))
         return;
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.handle);
@@ -359,9 +348,8 @@ void Engine::destroy() noexcept
 	commandPool.destroy(device);
 	descriptorPool.destroy(device);
 	pipeline.destroy(device);
-
 	swapchain.destroy();
-    surface.destroy(context.instance);
+    surface.destroy();
 	context.destroy();
 }
 

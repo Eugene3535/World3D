@@ -6,16 +6,23 @@
 class VulkanContext
 {
 public:
+    VulkanContext() noexcept;
+
+    static VulkanContext* getInstance() noexcept;
+    
     bool createInstance()  noexcept;
     bool selectVideoCard() noexcept;
     bool createDevice()    noexcept;
     void destroy()         noexcept;
 
-    VkInstance       instance             = nullptr;
-    VkPhysicalDevice GPU                  = nullptr;
-    VkDevice         device               = nullptr;
-    VkQueue          queue                = nullptr;
-    uint32_t         mainQueueFamilyIndex = 0;
+    VkInstance       instance;
+    VkPhysicalDevice GPU;
+    VkDevice         device;
+    VkQueue          queue;
+    uint32_t         mainQueueFamilyIndex;
 };
+
+
+#define vkContext VulkanContext::getInstance()
 
 #endif // !VULKAN_CONTEXT_HPP

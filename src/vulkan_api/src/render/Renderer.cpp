@@ -5,6 +5,9 @@
 // TODO add clear color value
 bool Renderer::begin(VkCommandBuffer cmd, const Swapchain* swapchain, uint32_t imageIndex) noexcept
 {
+    if (vkResetCommandBuffer(cmd, /*VkCommandBufferResetFlagBits*/ 0) != VK_SUCCESS)
+        return false;
+
     const VkCommandBufferBeginInfo beginInfo = 
     {
         .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,

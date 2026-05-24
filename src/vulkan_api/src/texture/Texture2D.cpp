@@ -47,8 +47,10 @@ namespace
 
 
 
-bool Texture2D::loadFromFile(const char* filepath, const VulkanContext* context, VkCommandPool pool) noexcept
+bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
 {
+    auto context = vkContext;
+
     StbImage stbImage(filepath, STBI_rgb_alpha);
 
     if ( ! stbImage.pixels )
