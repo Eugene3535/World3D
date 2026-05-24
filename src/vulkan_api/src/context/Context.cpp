@@ -344,9 +344,9 @@ bool VulkanContext::createDevice() noexcept
 
 void VulkanContext::destroy() noexcept
 {
-    if(device)
+    if (device)
         vkDestroyDevice(device, VK_NULL_HANDLE);
 
-    if(instance)
+    if (instance)
         vkDestroyInstance(instance, VK_NULL_HANDLE);
 }

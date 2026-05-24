@@ -86,8 +86,8 @@ void GraphicsPipeline::State::setupColorBlending(VkBool32 enabled) noexcept
 
 bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const MainView& view) noexcept
 {
-    VkPhysicalDevice GPU    = view.context->GPU;
-    VkDevice         device = view.context->device;
+    VkPhysicalDevice GPU    = view.context.GPU;
+    VkDevice         device = view.context.device;
     destroy(device); // for recreate case
 
     const VkFormat colorFormat = view.format;
@@ -203,13 +203,13 @@ bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const MainVi
 
 void GraphicsPipeline::destroy(VkDevice device) noexcept
 {
-    if(handle)
+    if (handle)
         vkDestroyPipeline(device, handle, VK_NULL_HANDLE);
 
-    if(layout)
+    if (layout)
         vkDestroyPipelineLayout(device, layout, VK_NULL_HANDLE);
 
-    if(descriptorSetLayout)
+    if (descriptorSetLayout)
         vkDestroyDescriptorSetLayout(device, descriptorSetLayout, VK_NULL_HANDLE);
 
     handle              = VK_NULL_HANDLE;

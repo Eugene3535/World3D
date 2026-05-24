@@ -9,11 +9,13 @@
 class MainView
 {
 public:
+    MainView(const class VulkanContext& ctx) noexcept;
+
     bool createSurface(uint64_t windowHandle) noexcept;
-    bool recreate(bool useDepth) noexcept;
+    bool recreate() noexcept;
     void destroy() noexcept;
 
-    const VulkanContext* context = nullptr;
+    const VulkanContext& context;
 
     VkSurfaceKHR   surface   = nullptr;
     VkSwapchainKHR swapchain = nullptr;
@@ -26,7 +28,7 @@ public:
         VkImage        image       = nullptr;
         VkDeviceMemory imageMemory = nullptr;
         VkImageView    imageView   = nullptr;
-    } depth;
+    } depthBuffer;
 
     VkFormat   format;
     VkExtent2D extent;

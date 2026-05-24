@@ -1,118 +1,20 @@
 #include <memory>
 #include <cstring>
 
-#include <cglm/util.h>
-
 #include "utils/Tools.hpp"
 #include "presentation/MainView.hpp"
 
 
-struct SwapChainSupportDetails
+MainView::MainView(const VulkanContext& ctx) noexcept:
+    context(ctx)
 {
-    VkPresentModeKHR getPresentMode() noexcept
-    {
-        for (const auto mode : presentModes)
-            if (mode == VK_PRESENT_MODE_MAILBOX_KHR)
-                return mode;
-    
-        return VK_PRESENT_MODE_FIFO_KHR;
-    }
 
-    VkSurfaceFormatKHR getSurfaceFormat() noexcept
-    {
-        if(surfaceFormats.empty())
-            return {};
-
-        for (const auto& surfaceFmt : surfaceFormats)
-            if (surfaceFmt.format == VK_FORMAT_B8G8R8A8_SRGB &&
-                surfaceFmt.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-                    return surfaceFmt;
-        
-        return surfaceFormats[0];
-    }
-
-    VkSurfaceCapabilitiesKHR        capabilities;
-    std::vector<VkSurfaceFormatKHR> surfaceFormats;
-    std::vector<VkPresentModeKHR>   presentModes;
-};
-
-
-namespace
-{
-    std::unique_ptr<SwapChainSupportDetails> query_swapchain_support(MainView* view) noexcept
-    {
-        VkPhysicalDevice gpu = view->context->GPU;
-        VkSurfaceKHR surface = view->surface;
-
-        auto details = std::make_unique<SwapChainSupportDetails>();
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface, &details->capabilities);
-
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, VK_NULL_HANDLE);
-
-        details->surfaceFormats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, details->surfaceFormats.data());
-        
-        uint32_t presentModeCount = 0;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, VK_NULL_HANDLE);
-
-        details->presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount, details->presentModes.data());
-        
-        return details;
-    }
-
-
-    VkExtent2D choose_swap_extent(const SwapChainSupportDetails* details, const VkExtent2D* currentExtent)
-    {
-        VkExtent2D actualExtent = { 0, 0 };
-
-        if (details->capabilities.currentExtent.width != UINT_MAX)
-        {
-            return details->capabilities.currentExtent;
-        }
-        else
-        {
-            memcpy(&actualExtent, currentExtent, sizeof(VkExtent2D));
-            actualExtent.width  = glm_clamp(actualExtent.width, details->capabilities.minImageExtent.width, details->capabilities.maxImageExtent.width);
-            actualExtent.height = glm_clamp(actualExtent.height, details->capabilities.minImageExtent.height, details->capabilities.maxImageExtent.height);
-        }
-
-        return actualExtent;
-    }
-
-
-    bool create_depth_resources(MainView* view)
-    {
-        bool result = false;
-        VkDevice device = view->context->device;
-        VkFormat depthFormat = vktools::find_depth_format(view->context->GPU);
-
-        if(depthFormat != VK_FORMAT_UNDEFINED)
-        {
-            result = vktools::create_image_2D(view->extent, 
-                                              depthFormat, 
-                                              VK_IMAGE_TILING_OPTIMAL, 
-                                              VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
-                                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-                                              &view->depth.image, 
-                                              &view->depth.imageMemory, 
-                                              view->context->GPU, 
-                                              device);
-
-            if (result)
-                result = vktools::create_image_view_2D(device, view->depth.image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, &view->depth.imageView);
-        }
-
-        return result;
-    }
 }
-
 
 
 bool MainView::createSurface(uint64_t windowHandle) noexcept
 {
-    if(surface)
+    if (surface)
         return true;
 
 #ifdef _WIN32
@@ -125,7 +27,7 @@ bool MainView::createSurface(uint64_t windowHandle) noexcept
         .hwnd      = reinterpret_cast<HWND>(windowHandle)
     };
 
-    return (vkCreateWin32SurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS);
+    return (vkCreateWin32SurfaceKHR(context.instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS);
 #endif
 
 #ifdef __linux__
@@ -143,18 +45,18 @@ bool MainView::createSurface(uint64_t windowHandle) noexcept
         .window     = static_cast<xcb_window_t>(windowHandle)
     };
 
-    return (vkCreateXcbSurfaceKHR(context->instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS);
+    return (vkCreateXcbSurfaceKHR(context.instance, &surfaceInfo, VK_NULL_HANDLE, &surface) == VK_SUCCESS);
 #endif
 
     return false;
 }
 
 
-bool MainView::recreate(bool useDepth) noexcept
+bool MainView::recreate() noexcept
 {
     if (surface)
     {
-        VkDevice device = context->device;
+        VkDevice device = context.device;
 
         VkSwapchainKHR oldSwapchain = swapchain;
 
@@ -166,11 +68,11 @@ bool MainView::recreate(bool useDepth) noexcept
             swapchain = VK_NULL_HANDLE;
         }
 
-        auto swapChainSupport = query_swapchain_support(this);
+        auto swapChainSupport = vktools::SwapChainSupportDetails::querySupport(context.GPU, surface);
         const uint32_t minImageCount = swapChainSupport->capabilities.minImageCount;
 
         format = swapChainSupport->getSurfaceFormat().format;
-        extent = choose_swap_extent(swapChainSupport.get(), &extent);
+        extent = vktools::SwapChainSupportDetails::chooseSwapExtent(swapChainSupport.get(), &extent);
 
         const VkSwapchainCreateInfoKHR swapchainInfo = 
         {
@@ -217,24 +119,34 @@ bool MainView::recreate(bool useDepth) noexcept
                     if (!vktools::create_image_view_2D(device, images[i], format, VK_IMAGE_ASPECT_COLOR_BIT, &imageViews[i]))
                         return false;  
                 }
+//  Depth buffering
+                if (depthBuffer.imageView)
+                    vkDestroyImageView(device, depthBuffer.imageView, VK_NULL_HANDLE);
 
-                if (useDepth)
+                if (depthBuffer.image)
+                    vkDestroyImage(device, depthBuffer.image, VK_NULL_HANDLE);
+
+                if (depthBuffer.imageMemory)
+                    vkFreeMemory(device, depthBuffer.imageMemory, VK_NULL_HANDLE);
+
+                if (const VkFormat depthFormat = vktools::find_depth_format(context.GPU); depthFormat != VK_FORMAT_UNDEFINED)
                 {
-                    if (depth.imageView)
-                        vkDestroyImageView(device, depth.imageView, VK_NULL_HANDLE);
+                    bool result = vktools::create_image_2D(extent, 
+                                                           depthFormat, 
+                                                           VK_IMAGE_TILING_OPTIMAL, 
+                                                           VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+                                                           VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                                                           &depthBuffer.image, 
+                                                           &depthBuffer.imageMemory, 
+                                                           context.GPU, 
+                                                           device);
 
-                    if (depth.image)
-                        vkDestroyImage(device, depth.image, VK_NULL_HANDLE);
-
-                    if (depth.imageMemory)
-                        vkFreeMemory(device, depth.imageMemory, VK_NULL_HANDLE);
-
-                    if(!create_depth_resources(this))
-                        return false;
+                    if (result)
+                        result = vktools::create_image_view_2D(device, depthBuffer.image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, &depthBuffer.imageView);
                 }
-            }
 
-            return true;
+                return true;
+            }
         }
 
         return false;
@@ -246,7 +158,7 @@ bool MainView::recreate(bool useDepth) noexcept
 
 void MainView::destroy() noexcept
 {
-    VkDevice device = context->device;
+    VkDevice device = context.device;
 
     if(swapchain)
     {
@@ -256,15 +168,15 @@ void MainView::destroy() noexcept
         vkDestroySwapchainKHR(device, swapchain, VK_NULL_HANDLE);
     }
 
-    if (depth.imageView)
-        vkDestroyImageView(device, depth.imageView, VK_NULL_HANDLE);
+    if (depthBuffer.imageView)
+        vkDestroyImageView(device, depthBuffer.imageView, VK_NULL_HANDLE);
 
-    if (depth.image)
-        vkDestroyImage(device, depth.image, VK_NULL_HANDLE);
+    if (depthBuffer.image)
+        vkDestroyImage(device, depthBuffer.image, VK_NULL_HANDLE);
 
-    if (depth.imageMemory)
-        vkFreeMemory(device, depth.imageMemory, VK_NULL_HANDLE);
+    if (depthBuffer.imageMemory)
+        vkFreeMemory(device, depthBuffer.imageMemory, VK_NULL_HANDLE);
 
     if(surface)
-        vkDestroySurfaceKHR(context->instance, surface, VK_NULL_HANDLE);
+        vkDestroySurfaceKHR(context.instance, surface, VK_NULL_HANDLE);
 }

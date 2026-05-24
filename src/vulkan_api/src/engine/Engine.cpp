@@ -4,13 +4,7 @@
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/basic_file_sink.h>
 
-#include "context/Context.hpp"
 #include "engine/Engine.hpp"
-
-
-// TODO remove magic numbers
-static float lastX = 400;
-static float lastY = 300;
 
 
 // world space positions of our cubes
@@ -27,6 +21,13 @@ static const vec3s cubePositions[10] =
     {  1.5f,  0.2f, -1.5f  },
     { -1.3f,  1.0f, -1.5f  }
 };
+
+
+Engine::Engine() noexcept:
+    view(context)
+{
+
+}
 
 
 bool Engine::createContext() noexcept
@@ -51,12 +52,10 @@ bool Engine::createContext() noexcept
 
 bool Engine::createMainView(uint64_t windowHandle) noexcept
 {
-    view.context = &context;
-    
 	if (!view.createSurface(windowHandle))
 		return false;
 
-    if (!view.recreate(true))
+    if (!view.recreate())
         return false;
 
     return true;
@@ -224,7 +223,7 @@ void Engine::drawFrame() noexcept
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         vkDeviceWaitIdle(context.device);
-		view.recreate(true);
+		view.recreate();
 
         return;
     }
@@ -334,7 +333,7 @@ void Engine::drawFrame() noexcept
     {
         m_framebufferResized = false;
         vkDeviceWaitIdle(context.device);
-		view.recreate(true);
+		view.recreate();
     }
     else if (result != VK_SUCCESS)
     {

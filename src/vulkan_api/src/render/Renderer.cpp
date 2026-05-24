@@ -61,7 +61,7 @@ bool Renderer::begin(VkCommandBuffer cmd, const MainView* view, uint32_t imageIn
         .newLayout           = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image               = view->depth.image,
+        .image               = view->depthBuffer.image,
         .subresourceRange    = 
         {
             .aspectMask     = VK_IMAGE_ASPECT_DEPTH_BIT,
@@ -103,7 +103,7 @@ bool Renderer::begin(VkCommandBuffer cmd, const MainView* view, uint32_t imageIn
     {
         .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
         .pNext              = VK_NULL_HANDLE,
-        .imageView          = view->depth.imageView,
+        .imageView          = view->depthBuffer.imageView,
         .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
         .resolveMode        = VK_RESOLVE_MODE_NONE,
         .resolveImageView   = VK_NULL_HANDLE,

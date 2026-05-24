@@ -34,9 +34,9 @@ struct GraphicsPipeline
     bool create(const State& state, const MainView& view) noexcept;
     void destroy(VkDevice device) noexcept;
 
-    VkDescriptorSetLayout descriptorSetLayout;
-    VkPipelineLayout      layout;
-    VkPipeline            handle;
+    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+    VkPipelineLayout      layout              = VK_NULL_HANDLE;
+    VkPipeline            handle              = VK_NULL_HANDLE;
 };
 
 #endif // !GRAPHICS_PIPELINE_HPP
