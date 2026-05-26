@@ -3,7 +3,9 @@
 
 #include <cstdint>
 #include <memory>
+#include <array>
 #include <vector>
+#include <span>
 
 #include <vulkan/vulkan.h>
 
@@ -13,6 +15,12 @@
 
 
 BEGIN_NAMESPACE_VKTOOLS
+
+#ifdef DEBUG
+    extern std::array<const char*, 1> validation_layers;
+    VkResult check_validation_layer_support() noexcept;
+#endif // !DEBUG
+
 
 uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice gpu) noexcept;
 
@@ -46,7 +54,7 @@ bool create_image_2D(VkExtent2D extent, VkFormat format, VkImageTiling tiling, V
 bool create_image_view_2D(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView) noexcept;
 
 
-VkFormat find_supported_format(const VkFormat* formats, uint32_t count, VkImageTiling tiling, VkFormatFeatureFlags features, VkPhysicalDevice gpu) noexcept;
+VkFormat find_supported_format(std::span<const VkFormat> formats, VkImageTiling tiling, VkFormatFeatureFlags features, VkPhysicalDevice gpu) noexcept;
 VkFormat find_depth_format(VkPhysicalDevice gpu) noexcept;
 bool has_stencil_component(VkFormat format) noexcept;
 

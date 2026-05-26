@@ -1,8 +1,53 @@
+#include <array>
+
 #include <cglm/util.h>
+#include "spdlog/spdlog.h"
+#include <magic_enum/magic_enum.hpp>
 
 #include "utils/Tools.hpp"
 
 BEGIN_NAMESPACE_VKTOOLS
+
+#ifdef DEBUG
+    std::array<const char*, 1> validation_layers = 
+    {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
+    VkResult check_validation_layer_support() noexcept
+    {
+        VkResult allLayersFound = VK_SUCCESS;
+
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, VK_NULL_HANDLE);
+
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+        for (uint32_t i = 0; i < validation_layers.size(); ++i)
+        {
+            const char* layerName = validation_layers[i];
+            bool layerFound = false;
+
+            for (uint32_t j = 0; j < layerCount; ++j)
+            {
+                if (strcmp(layerName, availableLayers[j].layerName) == 0)
+                {
+                    layerFound = true;
+                    break;
+                }
+            }
+
+            if (!layerFound)
+                allLayersFound = VK_ERROR_LAYER_NOT_PRESENT;
+        }
+
+        const auto result = magic_enum::enum_name(allLayersFound);
+        spdlog::info("VK_LAYER_KHRONOS_validation: {}", result);
+
+        return allLayersFound;
+    }
+#endif // !DEBUG
 
 
 uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice gpu) noexcept
@@ -423,20 +468,20 @@ bool create_image_view_2D(VkDevice device, VkImage image, VkFormat format, VkIma
 }
 
 
-VkFormat find_supported_format(const VkFormat* formats, uint32_t count, VkImageTiling tiling, VkFormatFeatureFlags features, VkPhysicalDevice gpu) noexcept
+VkFormat find_supported_format(std::span<const VkFormat> formats, VkImageTiling tiling, VkFormatFeatureFlags features, VkPhysicalDevice gpu) noexcept
 {
-    for (uint32_t i = 0; i < count; ++i)
+    for (const auto format : formats)
     {
         VkFormatProperties props;
-        vkGetPhysicalDeviceFormatProperties(gpu, formats[i], &props);
+        vkGetPhysicalDeviceFormatProperties(gpu, format, &props);
 
         if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
         {
-            return formats[i];
+            return format;
         }
         else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
         {
-            return formats[i];
+            return format;
         }
     }
 
@@ -446,9 +491,9 @@ VkFormat find_supported_format(const VkFormat* formats, uint32_t count, VkImageT
 
 VkFormat find_depth_format(VkPhysicalDevice gpu) noexcept
 {
-    const VkFormat formats[] = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
+    std::array<const VkFormat, 3> formats = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
 
-    return find_supported_format(formats, 3, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpu);
+    return find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpu);
 }
 
 
