@@ -16,7 +16,7 @@ Swapchain::Swapchain() noexcept:
 bool Swapchain::create(VkSurfaceKHR surface) noexcept
 {
     auto context = vkContext;
-    VkDevice device = context->device;
+    VkDevice device = context->getLogicalDevice();
 
     VkSwapchainKHR oldSwapchain = handle;
 
@@ -28,7 +28,7 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
         handle = VK_NULL_HANDLE;
     }
 
-    auto swapChainSupport = vktools::SwapChainSupportDetails::querySupport(context->GPU, surface);
+    auto swapChainSupport = vktools::SwapChainSupportDetails::querySupport(context->getPhysicalDevice(), surface);
     const uint32_t minImageCount = swapChainSupport->capabilities.minImageCount;
 
     format = swapChainSupport->getSurfaceFormat().format;
@@ -89,7 +89,7 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
             if (depthBuffer.imageMemory)
                 vkFreeMemory(device, depthBuffer.imageMemory, VK_NULL_HANDLE);
 
-            if (const VkFormat depthFormat = vktools::find_depth_format(context->GPU); depthFormat != VK_FORMAT_UNDEFINED)
+            if (const VkFormat depthFormat = vktools::find_depth_format(context->getPhysicalDevice()); depthFormat != VK_FORMAT_UNDEFINED)
             {
                 bool result = vktools::create_image_2D(extent, 
                                                         depthFormat, 
@@ -98,7 +98,7 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
                                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
                                                         &depthBuffer.image, 
                                                         &depthBuffer.imageMemory, 
-                                                        context->GPU, 
+                                                        context->getPhysicalDevice(), 
                                                         device);
 
                 if (result)
@@ -115,7 +115,7 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
 
 void Swapchain::destroy() noexcept
 {
-    VkDevice device = vkContext->device;
+    VkDevice device = vkContext->getLogicalDevice();
 
     if(handle)
     {

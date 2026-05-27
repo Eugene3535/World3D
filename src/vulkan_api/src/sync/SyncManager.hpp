@@ -8,8 +8,8 @@
 
 struct SyncManager
 {
-    bool create(VkDevice device) noexcept;
-    void destroy(VkDevice device) noexcept;
+    bool create() noexcept;
+    void destroy() noexcept;
 
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> imageAvailableSemaphores = { VK_NULL_HANDLE, VK_NULL_HANDLE };
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> renderFinishedSemaphores = { VK_NULL_HANDLE, VK_NULL_HANDLE };

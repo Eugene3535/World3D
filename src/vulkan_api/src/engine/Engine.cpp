@@ -36,13 +36,7 @@ bool Engine::createContext() noexcept
     spdlog::set_default_logger(logger);
     spdlog::info("Start logging messages");
 
-    if (!context.createInstance())
-        return false;
-
-    if (!context.selectVideoCard())
-        return false;
-
-    if (!context.createDevice())
+    if (!context.create())
         return false;
 
     return true;
@@ -57,7 +51,7 @@ bool Engine::createMainView(uint64_t windowHandle) noexcept
     if (!swapchain.create(surface.handle))
         return false;
 
-    if (!sync.create(context.device))
+    if (!sync.create())
 		return false;
 
     return true;
@@ -66,7 +60,7 @@ bool Engine::createMainView(uint64_t windowHandle) noexcept
 
 bool Engine::createPipeline() noexcept
 {
-	VkDevice device = context.device;
+	VkDevice device = context.getLogicalDevice();
 
 	{// Pipeline
 		std::array<Shader, 2> shaders = { Shader(device), Shader(device) };
@@ -111,7 +105,7 @@ bool Engine::createPipeline() noexcept
 			}
 		};
 
-		if (!descriptorPool.create(poolSizes, device))
+		if (!descriptorPool.create(poolSizes))
 			return false;
 
 		VkDescriptorSetLayout layouts[MAX_FRAMES_IN_FLIGHT] = 
@@ -120,11 +114,11 @@ bool Engine::createPipeline() noexcept
 			pipeline.descriptorSetLayout 
 		};
 
-		if(!descriptorPool.allocateDescriptorSets(descriptorSets, layouts, device))
+		if(!descriptorPool.allocateDescriptorSets(descriptorSets, layouts))
 			return false;	
 	}
 
-	if (!commandPool.create(device, context.mainQueueFamilyIndex))
+	if (!commandPool.create())
         return false;
 
 	{
@@ -138,8 +132,8 @@ bool Engine::createPipeline() noexcept
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 
-		descriptorPool.writeCombinedImageSampler(&imageInfo, descriptorSets[0], 0, device);
-		descriptorPool.writeCombinedImageSampler(&imageInfo, descriptorSets[1], 0, device);
+		descriptorPool.writeCombinedImageSampler(&imageInfo, descriptorSets[0], 0);
+		descriptorPool.writeCombinedImageSampler(&imageInfo, descriptorSets[1], 0);
     }
 
 	{
@@ -186,8 +180,8 @@ bool Engine::createPipeline() noexcept
             20, 21, 22, 22, 23, 20   // bottom
         };
 
-		vertexBuffer = bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, &context, commandPool.handle);
-		indexBuffer = bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, &context, commandPool.handle);
+		vertexBuffer = bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, commandPool.handle);
+		indexBuffer = bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, commandPool.handle);
 
 		if(!vertexBuffer.handle)
 			return false;
@@ -203,10 +197,10 @@ bool Engine::createPipeline() noexcept
 void Engine::drawFrame() noexcept
 {
 	uint32_t frame  = sync.currentFrame;
-    VkDevice device = context.device;
-    VkQueue  queue  = context.queue;
+    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto queue = vkContext->getQueue();
 
-    VkResult result = vkWaitForFences(device, 1, &sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
+    VkResult result = vkWaitForFences(logicalDevice, 1, &sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
 
 	if (result != VK_SUCCESS)
     {
@@ -217,11 +211,11 @@ void Engine::drawFrame() noexcept
     }
 
     uint32_t imageIndex;
-    result = vkAcquireNextImageKHR(device, swapchain.handle, UINT64_MAX, sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
+    result = vkAcquireNextImageKHR(logicalDevice, swapchain.handle, UINT64_MAX, sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        vkDeviceWaitIdle(context.device);
+        vkDeviceWaitIdle(logicalDevice);
 		swapchain.create(surface.handle);
 
         return;
@@ -234,7 +228,7 @@ void Engine::drawFrame() noexcept
 		return;
     }
 
-    result = vkResetFences(device, 1, &sync.inFlightFences[frame]);
+    result = vkResetFences(logicalDevice, 1, &sync.inFlightFences[frame]);
 
 	if (result != VK_SUCCESS)
     {
@@ -321,7 +315,7 @@ void Engine::drawFrame() noexcept
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
     {
         m_framebufferResized = false;
-        vkDeviceWaitIdle(context.device);
+        vkDeviceWaitIdle(logicalDevice);
 		swapchain.create(surface.handle);
     }
     else if (result != VK_SUCCESS)
@@ -334,20 +328,20 @@ void Engine::drawFrame() noexcept
 
     sync.currentFrame = (frame + 1) % MAX_FRAMES_IN_FLIGHT;
 
-	vkDeviceWaitIdle(context.device);
+	vkDeviceWaitIdle(logicalDevice);
 }
 
 
 void Engine::destroy() noexcept
 {
-	VkDevice device = context.device;
+	const auto logicalDevice = vkContext->getLogicalDevice();
 
-	bufferHolder.destroy(device);
-	texture.destroy(device);
-	sync.destroy(device);
-	commandPool.destroy(device);
-	descriptorPool.destroy(device);
-	pipeline.destroy(device);
+	bufferHolder.destroy();
+	texture.destroy();
+	sync.destroy();
+	commandPool.destroy();
+	descriptorPool.destroy();
+	pipeline.destroy();
 	swapchain.destroy();
     surface.destroy();
 	context.destroy();

@@ -6,7 +6,7 @@
 struct Texture2D
 {
     bool loadFromFile(const char* filepath, VkCommandPool pool) noexcept;
-    void destroy(VkDevice device) noexcept;
+    void destroy() noexcept;
 
     VkDeviceMemory imageMemory = VK_NULL_HANDLE;
     VkImage        image       = VK_NULL_HANDLE;

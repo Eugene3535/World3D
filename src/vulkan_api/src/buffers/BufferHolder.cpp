@@ -1,11 +1,13 @@
 #include "buffers/BufferHolder.hpp"
 
 
-void BufferHolder::destroy(VkDevice device) noexcept
+void BufferHolder::destroy() noexcept
 {
+    const auto logicalDevice = vkContext->getLogicalDevice();
+
     for(const auto& data : m_buffers)
     {
-        vkDestroyBuffer(device, data.handle, VK_NULL_HANDLE);
-        vkFreeMemory(device, data.memory, VK_NULL_HANDLE);
+        vkDestroyBuffer(logicalDevice, data.handle, VK_NULL_HANDLE);
+        vkFreeMemory(logicalDevice, data.memory, VK_NULL_HANDLE);
     }
 }

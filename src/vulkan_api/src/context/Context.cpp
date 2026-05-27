@@ -15,18 +15,69 @@ static VulkanContext* g_vulkanContext;
 
 
 VulkanContext::VulkanContext() noexcept:
-    instance(nullptr),
-    GPU(nullptr),
-    device(nullptr),
-    queue(nullptr),
-    mainQueueFamilyIndex(0)
+    m_context{}
 {
     assert(g_vulkanContext == nullptr);
     g_vulkanContext = this;
 }
 
 
-VulkanContext* VulkanContext::getInstance() noexcept
+bool VulkanContext::create() noexcept
+{
+    if (!createInstance())
+        return false;
+
+    if (!selectVideoCard())
+        return false;
+
+    if (!createDevice())
+        return false;
+
+    return true;
+}
+
+
+void VulkanContext::destroy() noexcept
+{
+    if (m_context.logicalDevice)
+        vkDestroyDevice(m_context.logicalDevice, VK_NULL_HANDLE);
+
+    if (m_context.instance)
+        vkDestroyInstance(m_context.instance, VK_NULL_HANDLE);
+}
+
+
+VkInstance VulkanContext::getInstance() const noexcept
+{
+    return m_context.instance;
+}
+
+
+VkPhysicalDevice VulkanContext::getPhysicalDevice() const noexcept
+{
+    return m_context.physicalDevice;
+}
+
+
+VkDevice VulkanContext::getLogicalDevice() const noexcept
+{
+    return m_context.logicalDevice;
+}
+
+
+VkQueue VulkanContext::getQueue() const noexcept
+{
+    return m_context.queue;
+}
+
+
+uint32_t VulkanContext::getQueueFamilyIndex() const noexcept
+{
+    return m_context.queueFamilyIndex;
+}
+
+
+VulkanContext* VulkanContext::getContext() noexcept
 {
     return g_vulkanContext;
 }
@@ -139,7 +190,7 @@ bool VulkanContext::createInstance() noexcept
     instanceInfo.pNext = static_cast<const void*>(&debugInfo);
 #endif // !DEBUG
 
-    const auto result = vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &instance);
+    const auto result = vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &m_context.instance);
     spdlog::info("Completing instance initialization: {}", magic_enum::enum_name(result));
 
     return (result == VK_SUCCESS);
@@ -151,12 +202,12 @@ bool VulkanContext::selectVideoCard() noexcept
     spdlog::info("Start selecting a physical device");
 
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, VK_NULL_HANDLE);
+    vkEnumeratePhysicalDevices(m_context.instance, &deviceCount, VK_NULL_HANDLE);
 
     if (deviceCount)
     {
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(m_context.instance, &deviceCount, devices.data());
 
         spdlog::info("Physical devices found: {}", deviceCount);
         uint32_t i = 0;
@@ -169,11 +220,11 @@ bool VulkanContext::selectVideoCard() noexcept
             spdlog::info("Physical device available: {}, type: {}", properties.deviceName, magic_enum::enum_name(properties.deviceType));
 
             if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
-                GPU = devices[i];
+                m_context.physicalDevice = devices[i];
 
             if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
             {
-                GPU = devices[i];
+                m_context.physicalDevice = devices[i];
 
                 break;
             }
@@ -184,7 +235,7 @@ bool VulkanContext::selectVideoCard() noexcept
         spdlog::info("The physical device is selected: {}, type: {}", properties.deviceName, magic_enum::enum_name(properties.deviceType));
     }
 
-    return GPU ? true : false;
+    return (m_context.physicalDevice ? true : false);
 }
 
 
@@ -195,19 +246,19 @@ bool VulkanContext::createDevice() noexcept
     VkPhysicalDeviceFeatures supportedFeatures;
     VkPhysicalDeviceFeatures enabledFeatures = {};
 
-    vkGetPhysicalDeviceFeatures(GPU, &supportedFeatures);
+    vkGetPhysicalDeviceFeatures(m_context.physicalDevice, &supportedFeatures);
 
     enabledFeatures.samplerAnisotropy = supportedFeatures.samplerAnisotropy;
     enabledFeatures.fillModeNonSolid = supportedFeatures.fillModeNonSolid;
 
     {// Find main queue family index
         uint32_t queueFamilyCount;
-        vkGetPhysicalDeviceQueueFamilyProperties(GPU, &queueFamilyCount, VK_NULL_HANDLE);
+        vkGetPhysicalDeviceQueueFamilyProperties(m_context.physicalDevice, &queueFamilyCount, VK_NULL_HANDLE);
 
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(GPU, &queueFamilyCount, queueFamilies.data());
+        vkGetPhysicalDeviceQueueFamilyProperties(m_context.physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        mainQueueFamilyIndex = UINT32_MAX;
+        m_context.queueFamilyIndex = UINT32_MAX;
 
         for (uint32_t i = 0; i < queueFamilyCount; ++i)
         {
@@ -216,13 +267,13 @@ bool VulkanContext::createDevice() noexcept
                 spdlog::info("The main queue family index with flags is selected: {} | {}", 
                     magic_enum::enum_name(VK_QUEUE_GRAPHICS_BIT), magic_enum::enum_name(VK_QUEUE_TRANSFER_BIT));
 
-                mainQueueFamilyIndex = i;
+                m_context.queueFamilyIndex = i;
                 break;
             }
         }
     }
 
-	if(mainQueueFamilyIndex != UINT32_MAX)
+	if(m_context.queueFamilyIndex != UINT32_MAX)
     {
         const float queuePriority = 1.0f;
 
@@ -231,7 +282,7 @@ bool VulkanContext::createDevice() noexcept
             .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
             .pNext            = VK_NULL_HANDLE,
             .flags            = 0,
-            .queueFamilyIndex = mainQueueFamilyIndex,
+            .queueFamilyIndex = m_context.queueFamilyIndex,
             .queueCount       = 1,
             .pQueuePriorities = &queuePriority
         };
@@ -246,10 +297,10 @@ bool VulkanContext::createDevice() noexcept
             spdlog::info("Required device extension: {}", ext);
         
         uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(GPU, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
+        vkEnumerateDeviceExtensionProperties(m_context.physicalDevice, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
 
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(GPU, VK_NULL_HANDLE, &extensionCount, availableExtensions.data());
+        vkEnumerateDeviceExtensionProperties(m_context.physicalDevice, VK_NULL_HANDLE, &extensionCount, availableExtensions.data());
 
         std::unordered_set<std::string> deviceExtensions;
 
@@ -293,12 +344,12 @@ bool VulkanContext::createDevice() noexcept
     	deviceInfo.ppEnabledLayerNames = vktools::validation_layers.data();
 #endif
 
-        const auto result = vkCreateDevice(GPU, &deviceInfo, VK_NULL_HANDLE, &device);
+        const auto result = vkCreateDevice(m_context.physicalDevice, &deviceInfo, VK_NULL_HANDLE, &m_context.logicalDevice);
 
         if (result == VK_SUCCESS)
         {
             spdlog::info("Initialization of the device has been completed with the result: {}", magic_enum::enum_name(result));
-            vkGetDeviceQueue(device, mainQueueFamilyIndex, 0, &queue);
+            vkGetDeviceQueue(m_context.logicalDevice, m_context.queueFamilyIndex, 0, &m_context.queue);
 
             return true;
         }
@@ -311,14 +362,4 @@ bool VulkanContext::createDevice() noexcept
     spdlog::error("A suitable graphics queue was not found.");
 
     return false;
-}
-
-
-void VulkanContext::destroy() noexcept
-{
-    if (device)
-        vkDestroyDevice(device, VK_NULL_HANDLE);
-
-    if (instance)
-        vkDestroyInstance(instance, VK_NULL_HANDLE);
 }

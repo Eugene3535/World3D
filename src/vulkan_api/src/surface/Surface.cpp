@@ -14,7 +14,7 @@ bool Surface::create(uint64_t windowHandle) noexcept
     if (handle)
         return true;
 
-    VkInstance instance = vkContext->instance;
+    VkInstance instance = vkContext->getInstance();
 
 #ifdef _WIN32
     const VkWin32SurfaceCreateInfoKHR surfaceInfo = 
@@ -55,7 +55,7 @@ void Surface::destroy() noexcept
 {
     if (handle)
     {
-        VkInstance instance = vkContext->instance;
+        VkInstance instance = vkContext->getInstance();
         vkDestroySurfaceKHR(instance, handle, VK_NULL_HANDLE);
         handle = nullptr;
     }

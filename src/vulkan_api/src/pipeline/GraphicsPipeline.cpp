@@ -86,12 +86,11 @@ void GraphicsPipeline::State::setupColorBlending(VkBool32 enabled) noexcept
 
 bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const Swapchain& swapchain) noexcept
 {
-    VkPhysicalDevice GPU    = vkContext->GPU;
-    VkDevice         device = vkContext->device;
-    destroy(device); // for recreate case
+    const auto physicalDevice = vkContext->getPhysicalDevice(); 
+    const auto logicalDevice = vkContext->getLogicalDevice();
 
     const VkFormat colorFormat = swapchain.format;
-    const VkFormat depthFormat = vktools::find_depth_format(GPU);
+    const VkFormat depthFormat = vktools::find_depth_format(physicalDevice);
 
     const VkPipelineVertexInputStateCreateInfo vertexInput = state.vertexInputState.getInfo();
 
@@ -134,7 +133,7 @@ bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const Swapch
 
     const VkDescriptorSetLayoutCreateInfo layoutInfo = state.layoutInfo.getInfo();
 
-    if (vkCreateDescriptorSetLayout(device, &layoutInfo, VK_NULL_HANDLE, &descriptorSetLayout) != VK_SUCCESS)
+    if (vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, VK_NULL_HANDLE, &descriptorSetLayout) != VK_SUCCESS)
         return false;
 
     const VkPushConstantRange pushConstantRange = 
@@ -155,7 +154,7 @@ bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const Swapch
         .pPushConstantRanges    = &pushConstantRange
     };
 
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, VK_NULL_HANDLE, &layout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, VK_NULL_HANDLE, &layout) != VK_SUCCESS)
         return false;
 
     const VkPipelineDepthStencilStateCreateInfo depthStencil = 
@@ -197,20 +196,22 @@ bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const Swapch
         .basePipelineIndex   = 0
     };
 
-    return (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS);
+    return (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS);
 }
 
 
-void GraphicsPipeline::destroy(VkDevice device) noexcept
+void GraphicsPipeline::destroy() noexcept
 {
+    const auto logicalDevice = vkContext->getLogicalDevice();
+
     if (handle)
-        vkDestroyPipeline(device, handle, VK_NULL_HANDLE);
+        vkDestroyPipeline(logicalDevice, handle, VK_NULL_HANDLE);
 
     if (layout)
-        vkDestroyPipelineLayout(device, layout, VK_NULL_HANDLE);
+        vkDestroyPipelineLayout(logicalDevice, layout, VK_NULL_HANDLE);
 
     if (descriptorSetLayout)
-        vkDestroyDescriptorSetLayout(device, descriptorSetLayout, VK_NULL_HANDLE);
+        vkDestroyDescriptorSetLayout(logicalDevice, descriptorSetLayout, VK_NULL_HANDLE);
 
     handle              = VK_NULL_HANDLE;
     layout              = VK_NULL_HANDLE;

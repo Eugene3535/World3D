@@ -49,7 +49,10 @@ namespace
 
 bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
 {
-    auto context = vkContext;
+    const auto context = vkContext;
+    const auto physicalDevice = vkContext->getPhysicalDevice(); 
+    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto queue = vkContext->getQueue();
 
     StbImage stbImage(filepath, STBI_rgb_alpha);
 
@@ -64,18 +67,18 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
                                                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
                                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
                                                     &stagingBufferMemory, 
-                                                    context->device, 
-                                                    context->GPU);
+                                                    logicalDevice, 
+                                                    physicalDevice);
 
     if(!stagingBuffer)
         return false;
 
-    BufferMemoryDeleter guard = { stagingBufferMemory, stagingBuffer, context->device };
+    BufferMemoryDeleter guard = { stagingBufferMemory, stagingBuffer, logicalDevice };
 
-    if (void* data; vkMapMemory(context->device, stagingBufferMemory, 0, imageSize, 0, &data) == VK_SUCCESS)
+    if (void* data; vkMapMemory(logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data) == VK_SUCCESS)
     {
         memcpy(data, stbImage.pixels, static_cast<size_t>(imageSize));
-        vkUnmapMemory(context->device, stagingBufferMemory);
+        vkUnmapMemory(logicalDevice, stagingBufferMemory);
     }
     else return false;
 
@@ -89,8 +92,8 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
                                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
                                  &image, 
                                  &imageMemory, 
-                                 context->GPU, 
-                                 context->device))
+                                 physicalDevice, 
+                                 logicalDevice))
         return false;
         
     if ( ! vktools::transition_image_layout(
@@ -98,8 +101,8 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
                                             VK_FORMAT_R8G8B8A8_SRGB, 
                                             VK_IMAGE_LAYOUT_UNDEFINED, 
                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
-                                            context->device, pool, 
-                                            context->queue))
+                                            logicalDevice, pool, 
+                                            queue))
         return false;
 
     if ( ! vktools::copy_buffer_to_image(
@@ -107,9 +110,9 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
                                          image, 
                                          static_cast<uint32_t>(stbImage.width), 
                                          static_cast<uint32_t>(stbImage.height), 
-                                         context->device, 
+                                         logicalDevice, 
                                          pool, 
-                                         context->queue) )
+                                         queue) )
         return false;
 
     if ( ! vktools::transition_image_layout(
@@ -117,32 +120,34 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
                                             VK_FORMAT_R8G8B8A8_SRGB, 
                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
                                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
-                                            context->device, 
+                                            logicalDevice, 
                                             pool, 
-                                            context->queue) )
+                                            queue) )
         return false;
 
     if( ! vktools::create_image_view_2D(
-                                        context->device, 
+                                        logicalDevice, 
                                         image, 
                                         VK_FORMAT_R8G8B8A8_SRGB, 
                                         VK_IMAGE_ASPECT_COLOR_BIT, 
                                         &imageView))
         return false;
     
-    if ( ! create_sampler(this, context->GPU, context->device) )
+    if ( ! create_sampler(this, physicalDevice, logicalDevice) )
         return false;
 
     return true;
 }
 
 
-void Texture2D::destroy(VkDevice device) noexcept
+void Texture2D::destroy() noexcept
 {
-    vkDestroySampler(device, sampler, VK_NULL_HANDLE);
-    vkDestroyImageView(device, imageView, VK_NULL_HANDLE);
-    vkDestroyImage(device, image, VK_NULL_HANDLE);
-    vkFreeMemory(device, imageMemory, VK_NULL_HANDLE);
+    const auto logicalDevice = vkContext->getLogicalDevice();
+
+    vkDestroySampler(logicalDevice, sampler, VK_NULL_HANDLE);
+    vkDestroyImageView(logicalDevice, imageView, VK_NULL_HANDLE);
+    vkDestroyImage(logicalDevice, image, VK_NULL_HANDLE);
+    vkFreeMemory(logicalDevice, imageMemory, VK_NULL_HANDLE);
 }
 
 namespace

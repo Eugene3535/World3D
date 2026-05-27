@@ -32,7 +32,7 @@ struct GraphicsPipeline
     };
 
     bool create(const State& state, const Swapchain& swapchain) noexcept;
-    void destroy(VkDevice device) noexcept;
+    void destroy() noexcept;
 
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout      layout              = VK_NULL_HANDLE;

@@ -19,8 +19,12 @@ struct Buffer
 struct BufferHolder
 {
     template<class T>
-    Buffer allocate(std::span<const T> rawData, VkBufferUsageFlagBits flag, const VulkanContext* context, VkCommandPool pool) noexcept
+    Buffer allocate(std::span<const T> rawData, VkBufferUsageFlagBits flag, VkCommandPool pool) noexcept
     {
+        const auto context = vkContext;
+        const auto physicalDevice = context->getPhysicalDevice();
+        const auto logicalDevice = context->getLogicalDevice();
+
         BufferHolder::Data bufferData = { VK_NULL_HANDLE, VK_NULL_HANDLE, static_cast<uint32_t>(rawData.size()) };
         VkDeviceSize bufferSize = sizeof(T) * rawData.size();
 
@@ -30,8 +34,8 @@ struct BufferHolder
                                                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
                                                         &stagingBufferMemory, 
-                                                        context->device, 
-                                                        context->GPU);
+                                                        logicalDevice, 
+                                                        physicalDevice);
 
         if(!stagingBuffer)
             return {};
@@ -47,12 +51,12 @@ struct BufferHolder
             VkDeviceMemory memory = VK_NULL_HANDLE;
             VkBuffer buffer       = VK_NULL_HANDLE;
             VkDevice device       = VK_NULL_HANDLE;
-        } guard = { stagingBufferMemory, stagingBuffer, context->device }; 
+        } guard = { stagingBufferMemory, stagingBuffer, logicalDevice }; 
 
-        if (void* ptr; vkMapMemory(context->device, stagingBufferMemory, 0, bufferSize, 0, &ptr) == VK_SUCCESS)
+        if (void* ptr; vkMapMemory(logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &ptr) == VK_SUCCESS)
         {
             memcpy(ptr, rawData.data(), static_cast<size_t>(bufferSize));
-            vkUnmapMemory(context->device, stagingBufferMemory);
+            vkUnmapMemory(logicalDevice, stagingBufferMemory);
         }
         else return {};
 
@@ -61,12 +65,12 @@ struct BufferHolder
                                                    VK_BUFFER_USAGE_TRANSFER_DST_BIT | flag, 
                                                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
                                                    &bufferData.memory, 
-                                                   context->device, 
-                                                   context->GPU);
+                                                   logicalDevice, 
+                                                   physicalDevice);
 
         if(bufferData.handle)
         {
-            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, context->device, pool, context->queue);
+            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, logicalDevice, pool, context->getQueue());
             m_buffers.push_back(bufferData);
 
             return { bufferData.handle, bufferData.size };
@@ -75,7 +79,7 @@ struct BufferHolder
         return {};
     }
 
-    void destroy(VkDevice device) noexcept;
+    void destroy() noexcept;
 
     struct Data
     {
