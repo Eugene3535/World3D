@@ -84,16 +84,13 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
 
     const VkExtent2D extent = { static_cast<uint32_t>(stbImage.width), static_cast<uint32_t>(stbImage.height) };
 
-    if(!vktools::create_image_2D(
-                                 extent, 
-                                 VK_FORMAT_R8G8B8A8_SRGB, 
-                                 VK_IMAGE_TILING_OPTIMAL, 
-                                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
-                                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-                                 &image, 
-                                 &imageMemory, 
-                                 physicalDevice, 
-                                 logicalDevice))
+    if(image = vktools::create_image_2D(
+                                        extent, 
+                                        VK_FORMAT_R8G8B8A8_SRGB, 
+                                        VK_IMAGE_TILING_OPTIMAL, 
+                                        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+                                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                                        &imageMemory); !image)
         return false;
         
     if ( ! vktools::transition_image_layout(
@@ -101,8 +98,7 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
                                             VK_FORMAT_R8G8B8A8_SRGB, 
                                             VK_IMAGE_LAYOUT_UNDEFINED, 
                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
-                                            logicalDevice, pool, 
-                                            queue))
+                                            pool))
         return false;
 
     if ( ! vktools::copy_buffer_to_image(
@@ -110,9 +106,7 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
                                          image, 
                                          static_cast<uint32_t>(stbImage.width), 
                                          static_cast<uint32_t>(stbImage.height), 
-                                         logicalDevice, 
-                                         pool, 
-                                         queue) )
+                                         pool) )
         return false;
 
     if ( ! vktools::transition_image_layout(
@@ -120,17 +114,12 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
                                             VK_FORMAT_R8G8B8A8_SRGB, 
                                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
                                             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
-                                            logicalDevice, 
-                                            pool, 
-                                            queue) )
+                                            pool) )
         return false;
 
-    if( ! vktools::create_image_view_2D(
-                                        logicalDevice, 
-                                        image, 
-                                        VK_FORMAT_R8G8B8A8_SRGB, 
-                                        VK_IMAGE_ASPECT_COLOR_BIT, 
-                                        &imageView))
+    if(imageView = vktools::create_image_view_2D(image, 
+                                                 VK_FORMAT_R8G8B8A8_SRGB, 
+                                                 VK_IMAGE_ASPECT_COLOR_BIT); !imageView)
         return false;
     
     if ( ! create_sampler(this, physicalDevice, logicalDevice) )

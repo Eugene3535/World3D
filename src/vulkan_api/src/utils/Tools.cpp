@@ -1,53 +1,12 @@
 #include <array>
 
-#include <cglm/util.h>
 #include "spdlog/spdlog.h"
 #include <magic_enum/magic_enum.hpp>
 
+#include "context/Context.hpp"
 #include "utils/Tools.hpp"
 
 BEGIN_NAMESPACE_VKTOOLS
-
-#ifdef DEBUG
-    std::array<const char*, 1> validation_layers = 
-    {
-        "VK_LAYER_KHRONOS_validation"
-    };
-
-    VkResult check_validation_layer_support() noexcept
-    {
-        VkResult allLayersFound = VK_SUCCESS;
-
-        uint32_t layerCount;
-        vkEnumerateInstanceLayerProperties(&layerCount, VK_NULL_HANDLE);
-
-        std::vector<VkLayerProperties> availableLayers(layerCount);
-        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-        for (uint32_t i = 0; i < validation_layers.size(); ++i)
-        {
-            const char* layerName = validation_layers[i];
-            bool layerFound = false;
-
-            for (uint32_t j = 0; j < layerCount; ++j)
-            {
-                if (strcmp(layerName, availableLayers[j].layerName) == 0)
-                {
-                    layerFound = true;
-                    break;
-                }
-            }
-
-            if (!layerFound)
-                allLayersFound = VK_ERROR_LAYER_NOT_PRESENT;
-        }
-
-        const auto result = magic_enum::enum_name(allLayersFound);
-        spdlog::info("VK_LAYER_KHRONOS_validation: {}", result);
-
-        return allLayersFound;
-    }
-#endif // !DEBUG
 
 
 uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice gpu) noexcept
@@ -64,70 +23,6 @@ uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties,
     }
 
     return 0;
-}
-
-
-VkPresentModeKHR SwapChainSupportDetails::getPresentMode() const noexcept
-{
-    for (const auto mode : presentModes)
-        if (mode == VK_PRESENT_MODE_MAILBOX_KHR)
-            return mode;
-
-    return VK_PRESENT_MODE_FIFO_KHR;
-}
-
-
-VkSurfaceFormatKHR SwapChainSupportDetails::getSurfaceFormat() const noexcept
-{
-    if(surfaceFormats.empty())
-        return {};
-
-    for (const auto& surfaceFmt : surfaceFormats)
-        if (surfaceFmt.format == VK_FORMAT_B8G8R8A8_SRGB &&
-            surfaceFmt.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-                return surfaceFmt;
-    
-    return surfaceFormats[0];
-}
-
-
-std::shared_ptr<SwapChainSupportDetails> SwapChainSupportDetails::querySupport(VkPhysicalDevice GPU, VkSurfaceKHR surface) noexcept
-{
-    auto details = std::make_shared<SwapChainSupportDetails>();
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(GPU, surface, &details->capabilities);
-
-    uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(GPU, surface, &formatCount, VK_NULL_HANDLE);
-
-    details->surfaceFormats.resize(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(GPU, surface, &formatCount, details->surfaceFormats.data());
-    
-    uint32_t presentModeCount = 0;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(GPU, surface, &presentModeCount, VK_NULL_HANDLE);
-
-    details->presentModes.resize(presentModeCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(GPU, surface, &presentModeCount, details->presentModes.data());
-    
-    return details;
-}
-
-
-VkExtent2D SwapChainSupportDetails::chooseSwapExtent(const SwapChainSupportDetails* details, const VkExtent2D* currentExtent)
-{
-    VkExtent2D actualExtent = { 0, 0 };
-
-    if (details->capabilities.currentExtent.width != UINT_MAX)
-    {
-        return details->capabilities.currentExtent;
-    }
-    else
-    {
-        memcpy(&actualExtent, currentExtent, sizeof(VkExtent2D));
-        actualExtent.width  = glm_clamp(actualExtent.width, details->capabilities.minImageExtent.width, details->capabilities.maxImageExtent.width);
-        actualExtent.height = glm_clamp(actualExtent.height, details->capabilities.minImageExtent.height, details->capabilities.maxImageExtent.height);
-    }
-
-    return actualExtent;
 }
 
 
@@ -255,8 +150,11 @@ void copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDe
 }
 
 
-bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkDevice device, VkCommandPool pool, VkQueue queue) noexcept
+bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool pool) noexcept
 {
+    auto device = vkContext->getLogicalDevice();
+    auto queue = vkContext->getQueue();
+
     VkCommandBuffer cmd = begin_single_time_commands(device, pool);
 
     if(cmd)
@@ -333,9 +231,12 @@ bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLa
 }
 
 
-bool copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkDevice device, VkCommandPool pool, VkQueue queue) noexcept
+bool copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool pool) noexcept
 {
-    VkCommandBuffer cmd = begin_single_time_commands(device, pool);
+    auto logicalDevice = vkContext->getLogicalDevice();
+    auto queue = vkContext->getQueue();
+
+    VkCommandBuffer cmd = begin_single_time_commands(logicalDevice, pool);
 
     if(cmd)
     {
@@ -366,7 +267,7 @@ bool copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32
         };
 
         vkCmdCopyBufferToImage(cmd, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-        end_single_time_commands(cmd, device, pool, queue);
+        end_single_time_commands(cmd, logicalDevice, pool, queue);
 
         return true;
     }
@@ -375,18 +276,17 @@ bool copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32
 }
 
 
-bool create_image_2D(
-                    VkExtent2D extent, 
-                    VkFormat format, 
-                    VkImageTiling tiling, 
-                    VkImageUsageFlags usage, 
-                    VkMemoryPropertyFlags properties, 
-                    VkImage* image, 
-                    VkDeviceMemory* imageMemory, 
-                    VkPhysicalDevice gpu, 
-                    VkDevice device) noexcept
+VkImage create_image_2D(VkExtent2D extent, 
+                     VkFormat format, 
+                     VkImageTiling tiling, 
+                     VkImageUsageFlags usage, 
+                     VkMemoryPropertyFlags properties, 
+                     VkDeviceMemory* imageMemory) noexcept
 {
-    bool result = false;
+    auto physicalDevive = vkContext->getPhysicalDevice();
+    auto logicalDevice = vkContext->getLogicalDevice();
+
+    VkImage image = VK_NULL_HANDLE;
 
     const VkImageCreateInfo imageInfo = 
     {
@@ -412,33 +312,34 @@ bool create_image_2D(
         .initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED
     };
 
-    result = (vkCreateImage(device, &imageInfo, VK_NULL_HANDLE, image) == VK_SUCCESS);
+    if (vkCreateImage(logicalDevice, &imageInfo, VK_NULL_HANDLE, &image) != VK_SUCCESS)
+        return nullptr;
 
-    if(result)
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(logicalDevice, image, &memRequirements);
+
+    const VkMemoryAllocateInfo allocInfo = 
     {
-        VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(device, *image, &memRequirements);
+        .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+        .pNext           = VK_NULL_HANDLE,
+        .allocationSize  = memRequirements.size,
+        .memoryTypeIndex = find_memory_type(memRequirements.memoryTypeBits, properties, physicalDevive)
+    };
 
-        const VkMemoryAllocateInfo allocInfo = 
-        {
-            .sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-            .pNext           = VK_NULL_HANDLE,
-            .allocationSize  = memRequirements.size,
-            .memoryTypeIndex = find_memory_type(memRequirements.memoryTypeBits, properties, gpu)
-        };
-
-        result = (vkAllocateMemory(device, &allocInfo, VK_NULL_HANDLE, imageMemory) == VK_SUCCESS);
-
-        if (result)
-            result = (vkBindImageMemory(device, *image, *imageMemory, 0) == VK_SUCCESS);
+    if (vkAllocateMemory(logicalDevice, &allocInfo, VK_NULL_HANDLE, imageMemory) == VK_SUCCESS)
+    {
+        if ((vkBindImageMemory(logicalDevice, image, *imageMemory, 0) == VK_SUCCESS))
+            return image;
     }
 
-    return result;
+    return VK_NULL_HANDLE;
 }
 
 
-bool create_image_view_2D(VkDevice device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView) noexcept
+VkImageView create_image_view_2D(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) noexcept
 {
+    VkImageView imageView = VK_NULL_HANDLE;
+
     const VkImageViewCreateInfo viewInfo = 
     {
         .sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -464,7 +365,10 @@ bool create_image_view_2D(VkDevice device, VkImage image, VkFormat format, VkIma
         }
     };
 
-    return (vkCreateImageView(device, &viewInfo, VK_NULL_HANDLE, imageView) == VK_SUCCESS);
+    if (vkCreateImageView(vkContext->getLogicalDevice(), &viewInfo, VK_NULL_HANDLE, &imageView) == VK_SUCCESS)
+        return imageView;
+
+    return VK_NULL_HANDLE;
 }
 
 

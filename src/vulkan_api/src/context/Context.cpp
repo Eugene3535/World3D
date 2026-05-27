@@ -14,6 +14,51 @@
 static VulkanContext* g_vulkanContext;
 
 
+#ifdef DEBUG
+
+static std::array<const char*, 1> validation_layers = 
+{
+    "VK_LAYER_KHRONOS_validation"
+};
+
+static bool check_validation_layer_support() noexcept
+{
+    VkResult result = VK_SUCCESS;
+
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, VK_NULL_HANDLE);
+
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+    for (uint32_t i = 0; i < validation_layers.size(); ++i)
+    {
+        const char* layerName = validation_layers[i];
+        bool layerFound = false;
+
+        for (uint32_t j = 0; j < layerCount; ++j)
+        {
+            if (strcmp(layerName, availableLayers[j].layerName) == 0)
+            {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if (!layerFound)
+            result = VK_ERROR_LAYER_NOT_PRESENT;
+    }
+
+    const auto info = magic_enum::enum_name(result);
+    spdlog::info("VK_LAYER_KHRONOS_validation: {}", info);
+
+    return (result == VK_SUCCESS);
+}
+
+#endif // !DEBUG
+
+
+
 VulkanContext::VulkanContext() noexcept:
     m_context{}
 {
@@ -88,7 +133,7 @@ bool VulkanContext::createInstance() noexcept
     spdlog::info("Starting instance initialization");
 
 #ifdef DEBUG
-    if (vktools::check_validation_layer_support() != VK_SUCCESS)
+    if ( ! check_validation_layer_support() )
         return false;
 #endif // !DEBUG
 
@@ -165,8 +210,8 @@ bool VulkanContext::createInstance() noexcept
     };
 
 #ifdef DEBUG
-    instanceInfo.enabledLayerCount   = static_cast<uint32_t>(vktools::validation_layers.size());
-    instanceInfo.ppEnabledLayerNames = vktools::validation_layers.data();
+    instanceInfo.enabledLayerCount   = static_cast<uint32_t>(validation_layers.size());
+    instanceInfo.ppEnabledLayerNames = validation_layers.data();
 
     const VkDebugUtilsMessengerCreateInfoEXT debugInfo = 
     {
@@ -340,8 +385,8 @@ bool VulkanContext::createDevice() noexcept
             .pEnabledFeatures        = &enabledFeatures
         };
 #ifdef DEBUG
-    	deviceInfo.enabledLayerCount   = static_cast<uint32_t>(vktools::validation_layers.size());
-    	deviceInfo.ppEnabledLayerNames = vktools::validation_layers.data();
+    	deviceInfo.enabledLayerCount   = static_cast<uint32_t>(validation_layers.size());
+    	deviceInfo.ppEnabledLayerNames = validation_layers.data();
 #endif
 
         const auto result = vkCreateDevice(m_context.physicalDevice, &deviceInfo, VK_NULL_HANDLE, &m_context.logicalDevice);
