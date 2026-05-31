@@ -23,9 +23,11 @@ public:
         VkImage        image       = nullptr;
         VkDeviceMemory imageMemory = nullptr;
         VkImageView    imageView   = nullptr;
+        VkFormat       format      = VK_FORMAT_UNDEFINED;
     } depthBuffer;
 
-    VkFormat   format;
+    VkFormat imageFormat;
+
     VkExtent2D extent;
 };
 

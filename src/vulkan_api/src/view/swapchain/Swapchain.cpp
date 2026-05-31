@@ -1,11 +1,12 @@
 #include <memory>
 #include <cstring>
+#include <array>
 
 #include <cglm/util.h>
 
 #include "utils/Tools.hpp"
 #include "context/Context.hpp"
-#include "swapchain/Swapchain.hpp"
+#include "view/swapchain/Swapchain.hpp"
 
 
 struct SwapChainSupportDetails
@@ -109,7 +110,7 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
     auto swapChainSupport = SwapChainSupportDetails::querySupport(surface);
     const uint32_t minImageCount = swapChainSupport->capabilities.minImageCount;
 
-    format = swapChainSupport->getSurfaceFormat().format;
+    imageFormat = swapChainSupport->getSurfaceFormat().format;
     extent = SwapChainSupportDetails::chooseSwapExtent(swapChainSupport.get(), &extent);
 
     const VkSwapchainCreateInfoKHR swapchainInfo = 
@@ -119,7 +120,7 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
         .flags                 = 0,
         .surface               = surface,
         .minImageCount         = minImageCount,
-        .imageFormat           = format,
+        .imageFormat           = imageFormat,
         .imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
         .imageExtent           = extent,
         .imageArrayLayers      = 1,
@@ -154,7 +155,7 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
         {
             for (uint32_t i = 0; i < imageViews.size(); ++i)
             {
-                if (imageViews[i] = vktools::create_image_view_2D(images[i], format, VK_IMAGE_ASPECT_COLOR_BIT); !imageViews[i])
+                if (imageViews[i] = vktools::create_image_view_2D(images[i], imageFormat, VK_IMAGE_ASPECT_COLOR_BIT); !imageViews[i])
                     return false;  
             }
 //  Depth buffering
@@ -167,17 +168,24 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
             if (depthBuffer.imageMemory)
                 vkFreeMemory(device, depthBuffer.imageMemory, VK_NULL_HANDLE);
 
-            if (const VkFormat depthFormat = vktools::find_depth_format(context->getPhysicalDevice()); depthFormat != VK_FORMAT_UNDEFINED)
+            if (depthBuffer.format == VK_FORMAT_UNDEFINED)
+            {
+                constexpr std::array<VkFormat, 3> formats = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
+                depthBuffer.format = vktools::find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, context->getPhysicalDevice());
+            }
+                
+
+            if (depthBuffer.format != VK_FORMAT_UNDEFINED)
             {
                 depthBuffer.image = vktools::create_image_2D(extent, 
-                                                             depthFormat, 
+                                                             depthBuffer.format, 
                                                              VK_IMAGE_TILING_OPTIMAL, 
                                                              VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
                                                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
                                                              &depthBuffer.imageMemory);
 
                 if (depthBuffer.image)
-                    depthBuffer.imageView = vktools::create_image_view_2D(depthBuffer.image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+                    depthBuffer.imageView = vktools::create_image_view_2D(depthBuffer.image, depthBuffer.format, VK_IMAGE_ASPECT_DEPTH_BIT);
                 
                 if (depthBuffer.imageView)
                     return true;

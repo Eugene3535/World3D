@@ -393,14 +393,6 @@ VkFormat find_supported_format(std::span<const VkFormat> formats, VkImageTiling 
 }
 
 
-VkFormat find_depth_format(VkPhysicalDevice gpu) noexcept
-{
-    std::array<const VkFormat, 3> formats = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
-
-    return find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, gpu);
-}
-
-
 bool has_stencil_component(VkFormat format) noexcept
 {
     return ( (format == VK_FORMAT_D32_SFLOAT_S8_UINT) || (format == VK_FORMAT_D24_UNORM_S8_UINT) );

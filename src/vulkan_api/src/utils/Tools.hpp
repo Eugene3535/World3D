@@ -35,7 +35,6 @@ VkImageView create_image_view_2D(VkImage image, VkFormat format, VkImageAspectFl
 
 
 VkFormat find_supported_format(std::span<const VkFormat> formats, VkImageTiling tiling, VkFormatFeatureFlags features, VkPhysicalDevice gpu) noexcept;
-VkFormat find_depth_format(VkPhysicalDevice gpu) noexcept;
 bool has_stencil_component(VkFormat format) noexcept;
 
 

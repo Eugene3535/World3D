@@ -11,8 +11,9 @@ set(SRC_FILES
 	src/utils/Tools.cpp
 	src/context/Context.cpp
 	src/context/Context.cpp
-	src/surface/Surface.cpp
-	src/swapchain/Swapchain.cpp
+	src/view/surface/Surface.cpp
+	src/view/swapchain/Swapchain.cpp
+	src/view/View.cpp
 	src/pipeline/stages/shader/Shader.cpp
 	src/pipeline/stages/shader/VertexInputState.cpp
 	src/pipeline/stages/uniform/DescriptorSetLayout.cpp
@@ -31,8 +32,9 @@ set(SRC_FILES
 set(HDR_FILES
 	src/utils/Tools.hpp
 	src/context/Context.hpp
-	src/surface/Surface.hpp
-	src/swapchain/Swapchain.hpp
+	src/view/surface/Surface.hpp
+	src/view/swapchain/Swapchain.hpp
+	src/view/View.hpp
 	src/pipeline/stages/shader/Shader.hpp
 	src/pipeline/stages/shader/VertexInputState.hpp
 	src/pipeline/stages/uniform/DescriptorSetLayout.hpp

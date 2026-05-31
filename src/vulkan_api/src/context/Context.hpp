@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
-class VulkanContext
+class VulkanContext final
 {
 public:
     VulkanContext() noexcept;

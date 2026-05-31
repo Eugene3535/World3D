@@ -5,6 +5,7 @@
 
 #include "utils/Tools.hpp"
 #include "context/Context.hpp"
+#include "view/View.hpp"
 #include "pipeline/GraphicsPipeline.hpp"
 
 
@@ -84,13 +85,13 @@ void GraphicsPipeline::State::setupColorBlending(VkBool32 enabled) noexcept
 }
 
 
-bool GraphicsPipeline::create(const GraphicsPipeline::State& state, const Swapchain& swapchain) noexcept
+bool GraphicsPipeline::create(const GraphicsPipeline::State& state) noexcept
 {
     const auto physicalDevice = vkContext->getPhysicalDevice(); 
     const auto logicalDevice = vkContext->getLogicalDevice();
 
-    const VkFormat colorFormat = swapchain.format;
-    const VkFormat depthFormat = vktools::find_depth_format(physicalDevice);
+    const VkFormat colorFormat = vkView->getImageFormat();
+    const VkFormat depthFormat = vkView->getDepthFormat();
 
     const VkPipelineVertexInputStateCreateInfo vertexInput = state.vertexInputState.getInfo();
 

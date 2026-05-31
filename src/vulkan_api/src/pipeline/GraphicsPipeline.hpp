@@ -4,7 +4,6 @@
 #include <vector>
 #include <span>
 
-#include "swapchain/Swapchain.hpp"
 #include "pipeline/stages/shader/Shader.hpp"
 #include "pipeline/stages/shader/VertexInputState.hpp"
 #include "pipeline/stages/uniform/DescriptorSetLayout.hpp"
@@ -31,7 +30,7 @@ struct GraphicsPipeline
         DescriptorSetLayout                          layoutInfo;
     };
 
-    bool create(const State& state, const Swapchain& swapchain) noexcept;
+    bool create(const State& state) noexcept;
     void destroy() noexcept;
 
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
