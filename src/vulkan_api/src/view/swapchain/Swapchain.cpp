@@ -173,7 +173,6 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
                 constexpr std::array<VkFormat, 3> formats = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
                 depthBuffer.format = vktools::find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, context->getPhysicalDevice());
             }
-                
 
             if (depthBuffer.format != VK_FORMAT_UNDEFINED)
             {

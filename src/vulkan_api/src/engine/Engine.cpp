@@ -193,6 +193,9 @@ bool Engine::createPipeline() noexcept
 
 void Engine::drawFrame() noexcept
 {
+    if ( ! (m_width && m_height) )
+        return;
+
 	uint32_t frame  = sync.currentFrame;
     const auto logicalDevice = vkContext->getLogicalDevice();
     const auto queue = vkContext->getQueue();
