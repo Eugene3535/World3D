@@ -4,6 +4,7 @@
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/basic_file_sink.h>
 
+#include "pipeline/state/PipelineState.hpp"
 #include "engine/Engine.hpp"
 
 
@@ -77,7 +78,7 @@ bool Engine::createPipeline() noexcept
         DescriptorSetLayout uniformDescriptors;
         uniformDescriptors.addDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 
-        GraphicsPipeline::State pipelineState;
+        PipelineState pipelineState;
         pipelineState.setupShaderStages(shaders, attributes);
         pipelineState.setupInputAssembler(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         pipelineState.setupViewport();
@@ -85,10 +86,8 @@ bool Engine::createPipeline() noexcept
         pipelineState.setupMultisampling();
         pipelineState.setupColorBlending(VK_FALSE);
         pipelineState.layoutInfo = uniformDescriptors;
-
-        bool result = pipeline.create(pipelineState);
             
-		if (!result)
+		if (!pipeline.create(pipelineState))
 			return false;
 	}
 

@@ -23,14 +23,14 @@ Shader::Shader(VkDevice device) noexcept:
 
 Shader::~Shader()
 {
-    if(m_module)
+    if (m_module)
         vkDestroyShaderModule(m_device, m_module, VK_NULL_HANDLE);
 }
 
 
 bool Shader::loadFromFile(const char* filePath, VkShaderStageFlagBits stage) noexcept
 {
-    if(auto shaderModule = create_shader_module(m_device, filePath))
+    if (auto shaderModule = create_shader_module(m_device, filePath))
     {
         m_module = shaderModule;
         m_stage = stage;
@@ -78,7 +78,7 @@ size_t read_shader_file(const char* filename, char** buffer) noexcept
 
     *buffer = (char*)malloc(fileSize);
 
-    if (!*buffer) 
+    if (!(*buffer)) 
     {
         fclose(file);
 #ifdef DEBUG

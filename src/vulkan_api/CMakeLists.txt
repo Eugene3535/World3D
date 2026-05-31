@@ -18,6 +18,7 @@ set(SRC_FILES
 	src/pipeline/stages/shader/VertexInputState.cpp
 	src/pipeline/stages/uniform/DescriptorSetLayout.cpp
 	src/pipeline/descriptors/DescriptorPool.cpp
+	src/pipeline/state/PipelineState.cpp
 	src/pipeline/GraphicsPipeline.cpp
 	src/command_pool/CommandBufferPool.cpp
 	src/sync/SyncManager.cpp
@@ -39,6 +40,7 @@ set(HDR_FILES
 	src/pipeline/stages/shader/VertexInputState.hpp
 	src/pipeline/stages/uniform/DescriptorSetLayout.hpp
 	src/pipeline/descriptors/DescriptorPool.hpp
+	src/pipeline/state/PipelineState.hpp
 	src/pipeline/GraphicsPipeline.hpp
 	src/command_pool/CommandBufferPool.hpp
 	src/sync/SyncManager.hpp
