@@ -4,8 +4,6 @@
 
 bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
-
     const VkDescriptorPoolCreateInfo poolInfo = 
     {
         .sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
@@ -16,9 +14,9 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
         .pPoolSizes    = poolSizes.data()
     };
 
-    bool result = (vkCreateDescriptorPool(logicalDevice, &poolInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS);
+    bool result = (vkCreateDescriptorPool(vkContext->getLogicalDevice(), &poolInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS);
 
-    if(result)
+    if (result)
     {
         for(const auto& poolSize : poolSizes)
             types.push_back(poolSize.type);
@@ -32,8 +30,6 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
 
 bool DescriptorPool::allocateDescriptorSets(std::span<VkDescriptorSet> descriptorSets, const VkDescriptorSetLayout* layouts) noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
-
     const VkDescriptorSetAllocateInfo allocateInfo = 
     {
         .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
@@ -43,14 +39,32 @@ bool DescriptorPool::allocateDescriptorSets(std::span<VkDescriptorSet> descripto
         .pSetLayouts        = layouts
     };
 
-    return (vkAllocateDescriptorSets(logicalDevice, &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
+    return (vkAllocateDescriptorSets(vkContext->getLogicalDevice(), &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
+}
+
+
+void DescriptorPool::writeBufferInfo(const VkDescriptorBufferInfo* bufferInfo, VkDescriptorSet descriptorSet, uint32_t dstBinding) noexcept
+{
+    const VkWriteDescriptorSet descriptorWrite = 
+    {
+        .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        .pNext            = VK_NULL_HANDLE,
+        .dstSet           = descriptorSet,
+        .dstBinding       = dstBinding,
+        .dstArrayElement  = 0,
+        .descriptorCount  = 1,
+        .descriptorType   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        .pImageInfo       = VK_NULL_HANDLE,
+        .pBufferInfo      = bufferInfo,
+        .pTexelBufferView = VK_NULL_HANDLE
+    };
+
+    vkUpdateDescriptorSets(vkContext->getLogicalDevice(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
 }
 
 
 void DescriptorPool::writeCombinedImageSampler(const VkDescriptorImageInfo* imageInfo, VkDescriptorSet descriptorSet, uint32_t dstBinding) noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
-
     const VkWriteDescriptorSet descriptorWrite = 
     {
         .sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -65,12 +79,11 @@ void DescriptorPool::writeCombinedImageSampler(const VkDescriptorImageInfo* imag
         .pTexelBufferView = VK_NULL_HANDLE
     };
 
-    vkUpdateDescriptorSets(logicalDevice, 1, &descriptorWrite, 0, VK_NULL_HANDLE);
+    vkUpdateDescriptorSets(vkContext->getLogicalDevice(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
 }
 
 
 void DescriptorPool::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
-    vkDestroyDescriptorPool(logicalDevice, handle, VK_NULL_HANDLE);
+    vkDestroyDescriptorPool(vkContext->getLogicalDevice(), handle, VK_NULL_HANDLE);
 }

@@ -25,6 +25,8 @@ public:
     VkImage     getDepthImage()     const noexcept;
     VkImageView getDepthImageView() const noexcept;
 
+    size_t getImageCount() const noexcept;
+
     VkExtent2D getSize()        const noexcept;
     VkFormat   getImageFormat() const noexcept;
     VkFormat   getDepthFormat() const noexcept;

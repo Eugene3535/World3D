@@ -25,23 +25,25 @@ public:
     void destroy() noexcept;
     void resize(int width, int height) noexcept;
 
-    VulkanContext    context;
-    View             view;
-    GraphicsPipeline pipeline;
+    VulkanContext    m_context;
+    View             m_view;
+    GraphicsPipeline m_pipeline;
 
-    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
-    DescriptorPool descriptorPool;
+    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descriptorSets;
+    DescriptorPool m_descriptorPool;
 
-    CommandBufferPool commandPool;
-    SyncManager sync;
+    CommandBufferPool m_commandPool;
+    SyncManager m_sync;
 
-    Texture2D texture;
+    Texture2D m_texture;
 
-    BufferHolder bufferHolder;
-    Buffer vertexBuffer;
-    Buffer indexBuffer;
+    std::vector<Buffer> m_uniformBuffers;
 
-    Renderer renderer;
+    BufferHolder m_bufferHolder;
+    Buffer m_vertexBuffer;
+    Buffer m_indexBuffer;
+
+    Renderer m_renderer;
 
     bool    m_framebufferResized;
     int32_t m_width;

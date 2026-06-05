@@ -1,9 +1,9 @@
 #version 460
 
-layout(push_constant) uniform constants 
+layout(binding = 0) uniform UniformBufferObject 
 {
     mat4 modelViewProjection;
-} matrices;
+} ubo;
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inTexCoord;
@@ -12,6 +12,6 @@ layout(location = 0) out vec2 fragTexCoord;
 
 void main() 
 {
-    gl_Position = matrices.modelViewProjection * vec4(inPosition, 1.f);
+    gl_Position = ubo.modelViewProjection * vec4(inPosition, 1.f);
     fragTexCoord = inTexCoord;
 }

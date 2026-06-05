@@ -6,7 +6,6 @@
 
 #include "pipeline/stages/shader/Shader.hpp"
 #include "pipeline/stages/shader/VertexInputState.hpp"
-#include "pipeline/stages/uniform/DescriptorSetLayout.hpp"
 
 struct PipelineState
 {
@@ -24,7 +23,7 @@ struct PipelineState
     VkPipelineRasterizationStateCreateInfo       rasterizer;
     VkPipelineMultisampleStateCreateInfo         multisampling;
     VkPipelineColorBlendAttachmentState          colorBlending;
-    DescriptorSetLayout                          layoutInfo;
+    VkDescriptorSetLayoutCreateInfo              layoutInfo;
 };
 
 #endif // !PIPELINE_STATE_HPP

@@ -57,17 +57,8 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
         .pDynamicStates    = dynamicStates.data()
     };
 
-    const VkDescriptorSetLayoutCreateInfo layoutInfo = state.layoutInfo.getInfo();
-
-    if (vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, VK_NULL_HANDLE, &descriptorSetLayout) != VK_SUCCESS)
+    if (vkCreateDescriptorSetLayout(logicalDevice, &state.layoutInfo, VK_NULL_HANDLE, &descriptorSetLayout) != VK_SUCCESS)
         return false;
-
-    const VkPushConstantRange pushConstantRange = 
-    {
-        .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
-        .offset     = 0,
-        .size       = sizeof(mat4s)
-    };
 
     const VkPipelineLayoutCreateInfo pipelineLayoutInfo = 
     {
@@ -76,8 +67,8 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
         .flags                  = 0,
         .setLayoutCount         = 1,
         .pSetLayouts            = &descriptorSetLayout,
-        .pushConstantRangeCount = 1,
-        .pPushConstantRanges    = &pushConstantRange
+        .pushConstantRangeCount = 0,
+        .pPushConstantRanges    = nullptr
     };
 
     if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, VK_NULL_HANDLE, &layout) != VK_SUCCESS)

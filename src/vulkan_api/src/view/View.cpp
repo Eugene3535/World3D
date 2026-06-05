@@ -99,6 +99,12 @@ VkImageView View::getDepthImageView() const noexcept
 }
 
 
+size_t View::getImageCount() const noexcept
+{
+    return std::static_pointer_cast<ViewData>(m_data)->swapchain.images.size();
+}
+
+
 VkExtent2D View::getSize() const noexcept
 {
     return std::static_pointer_cast<ViewData>(m_data)->swapchain.extent;

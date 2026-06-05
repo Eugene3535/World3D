@@ -4,6 +4,7 @@
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/basic_file_sink.h>
 
+#include "pipeline/descriptors/DescriptorSetLayout.hpp"
 #include "pipeline/state/PipelineState.hpp"
 #include "engine/Engine.hpp"
 
@@ -37,7 +38,7 @@ bool Engine::createContext() noexcept
     spdlog::set_default_logger(logger);
     spdlog::info("Start logging messages");
 
-    if (!context.create())
+    if (!m_context.create())
         return false;
 
     return true;
@@ -46,10 +47,10 @@ bool Engine::createContext() noexcept
 
 bool Engine::createMainView(uint64_t windowHandle) noexcept
 {
-    if (!view.create(windowHandle))
+    if (!m_view.create(windowHandle))
         return false;
 
-    if (!sync.create())
+    if (!m_sync.create())
 		return false;
 
     return true;
@@ -58,7 +59,7 @@ bool Engine::createMainView(uint64_t windowHandle) noexcept
 
 bool Engine::createPipeline() noexcept
 {
-	VkDevice device = context.getLogicalDevice();
+	VkDevice device = m_context.getLogicalDevice();
 
 	{// Pipeline
 		std::array<Shader, 2> shaders = { Shader(device), Shader(device) };
@@ -76,6 +77,7 @@ bool Engine::createPipeline() noexcept
         };
 
         DescriptorSetLayout uniformDescriptors;
+        uniformDescriptors.addDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
         uniformDescriptors.addDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 
         PipelineState pipelineState;
@@ -85,51 +87,84 @@ bool Engine::createPipeline() noexcept
         pipelineState.setupRasterization(VK_POLYGON_MODE_FILL);
         pipelineState.setupMultisampling();
         pipelineState.setupColorBlending(VK_FALSE);
-        pipelineState.layoutInfo = uniformDescriptors;
+        pipelineState.layoutInfo = uniformDescriptors.getInfo();
             
-		if (!pipeline.create(pipelineState))
+		if (!m_pipeline.create(pipelineState))
 			return false;
 	}
 
 	{// Descriptors
-		std::array<VkDescriptorPoolSize, 1> poolSizes = 
+		const std::array<VkDescriptorPoolSize, 2> poolSizes = 
 		{
 			VkDescriptorPoolSize
+			{
+				.type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				.descriptorCount = MAX_FRAMES_IN_FLIGHT
+			},
+            VkDescriptorPoolSize
 			{
 				.type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 				.descriptorCount = MAX_FRAMES_IN_FLIGHT
 			}
 		};
 
-		if (!descriptorPool.create(poolSizes))
+		if (!m_descriptorPool.create(poolSizes))
 			return false;
 
 		VkDescriptorSetLayout layouts[MAX_FRAMES_IN_FLIGHT] = 
 		{ 
-			pipeline.descriptorSetLayout, 
-			pipeline.descriptorSetLayout 
+			m_pipeline.descriptorSetLayout, 
+			m_pipeline.descriptorSetLayout 
 		};
 
-		if(!descriptorPool.allocateDescriptorSets(descriptorSets, layouts))
+		if (!m_descriptorPool.allocateDescriptorSets(m_descriptorSets, layouts))
 			return false;	
 	}
 
-	if (!commandPool.create())
+	if (!m_commandPool.create())
         return false;
 
+    {
+        m_uniformBuffers.resize(vkView->getImageCount());
+        std::array<mat4s, 1> identity = { glms_mat4_identity() };
+
+        for (size_t i = 0; i < m_uniformBuffers.size(); ++i) 
+            m_uniformBuffers[i] = m_bufferHolder.allocate<mat4s>(identity,
+                                                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
+                                                                 m_commandPool.handle);
+    }
+
 	{
-        if(!texture.loadFromFile("res/textures/container.jpg", commandPool.handle))
+        if(!m_texture.loadFromFile("res/textures/container.jpg", m_commandPool.handle))
             return false;
+
+        const std::array<VkDescriptorBufferInfo, 2> bufferInfos = 
+        {
+            VkDescriptorBufferInfo
+            {
+                .buffer = m_uniformBuffers[0].handle,
+                .offset = 0,
+                .range = sizeof(mat4s)
+            },
+            VkDescriptorBufferInfo
+            {
+                .buffer = m_uniformBuffers[1].handle,
+                .offset = 0,
+                .range = sizeof(mat4s)
+            }
+        };
                 
         const VkDescriptorImageInfo imageInfo = 
         {
-            .sampler     = texture.sampler,
-            .imageView   = texture.imageView,
+            .sampler     = m_texture.sampler,
+            .imageView   = m_texture.imageView,
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 
-		descriptorPool.writeCombinedImageSampler(&imageInfo, descriptorSets[0], 0);
-		descriptorPool.writeCombinedImageSampler(&imageInfo, descriptorSets[1], 0);
+		m_descriptorPool.writeBufferInfo(bufferInfos.data(), m_descriptorSets[0], 0);
+		m_descriptorPool.writeBufferInfo(bufferInfos.data() + 1, m_descriptorSets[1], 0);
+		m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[0], 1);
+		m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[1], 1);
     }
 
 	{
@@ -176,13 +211,13 @@ bool Engine::createPipeline() noexcept
             20, 21, 22, 22, 23, 20   // bottom
         };
 
-		vertexBuffer = bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, commandPool.handle);
-		indexBuffer = bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, commandPool.handle);
+		m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, m_commandPool.handle);
+		m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, m_commandPool.handle);
 
-		if(!vertexBuffer.handle)
+		if (!m_vertexBuffer.handle)
 			return false;
 
-		if(!indexBuffer.handle)
+		if (!m_indexBuffer.handle)
 			return false;
 	}
 
@@ -195,11 +230,11 @@ void Engine::drawFrame() noexcept
     if ( ! (m_width && m_height) )
         return;
 
-	uint32_t frame  = sync.currentFrame;
+	uint32_t frame  = m_sync.currentFrame;
     const auto logicalDevice = vkContext->getLogicalDevice();
     const auto queue = vkContext->getQueue();
 
-    VkResult result = vkWaitForFences(logicalDevice, 1, &sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
+    VkResult result = vkWaitForFences(logicalDevice, 1, &m_sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
 
 	if (result != VK_SUCCESS)
     {
@@ -210,12 +245,12 @@ void Engine::drawFrame() noexcept
     }
 
     uint32_t imageIndex;
-    result = vkAcquireNextImageKHR(logicalDevice, view.getSwapchain(), UINT64_MAX, sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
+    result = vkAcquireNextImageKHR(logicalDevice, m_view.getSwapchain(), UINT64_MAX, m_sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         vkDeviceWaitIdle(logicalDevice);
-		view.resize();
+		m_view.resize();
 
         return;
     }
@@ -227,7 +262,7 @@ void Engine::drawFrame() noexcept
 		return;
     }
 
-    result = vkResetFences(logicalDevice, 1, &sync.inFlightFences[frame]);
+    result = vkResetFences(logicalDevice, 1, &m_sync.inFlightFences[frame]);
 
 	if (result != VK_SUCCESS)
     {
@@ -237,14 +272,14 @@ void Engine::drawFrame() noexcept
 		return;
     }
 
-    VkCommandBuffer commandBuffer = commandPool.commandBuffers[frame];
-    VkDescriptorSet descriptorSet = descriptorSets[frame];
+    VkCommandBuffer commandBuffer = m_commandPool.commandBuffers[frame];
+    VkDescriptorSet descriptorSet = m_descriptorSets[frame];
 
-    if (!renderer.begin(commandBuffer, imageIndex))
+    if (!m_renderer.begin(commandBuffer, imageIndex))
         return;
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.handle);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.handle);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
 
     mat4s projection = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
     mat4s viewMatrix  = camera.getViewMatrix();
@@ -259,17 +294,22 @@ void Engine::drawFrame() noexcept
         model       = glms_rotate(model, glm_rad(angle), axis);
         mat4s modelViewProjection = glms_mat4_mul(glms_mat4_mul(projection, viewMatrix), model);
 
+        void* data;
+        vkMapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory, 0, sizeof(mat4s), 0, &data);
+        memcpy(data, &modelViewProjection, sizeof(mat4s));
+        vkUnmapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory);
+
 //  write command buffer
         VkDeviceSize offsets[] = {0};
-        VkBuffer vertexBuffers[] = {vertexBuffer.handle};
+        VkBuffer vertexBuffers[] = { m_vertexBuffer.handle };
 
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffer, indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdPushConstants(commandBuffer, pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), modelViewProjection.raw);
-        vkCmdDrawIndexed(commandBuffer, indexBuffer.size, 1, 0, 0, 0);
+        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
+        // vkCmdPushConstants(commandBuffer, m_pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), modelViewProjection.raw);
+        vkCmdDrawIndexed(commandBuffer, m_indexBuffer.size, 1, 0, 0, 0);
     }
 
-    if(!renderer.end(commandBuffer, imageIndex))
+    if(!m_renderer.end(commandBuffer, imageIndex))
         return;
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -279,15 +319,15 @@ void Engine::drawFrame() noexcept
 		.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
 		.pNext                = VK_NULL_HANDLE,
 		.waitSemaphoreCount   = 1,
-		.pWaitSemaphores      = sync.imageAvailableSemaphores.data() + frame,
+		.pWaitSemaphores      = m_sync.imageAvailableSemaphores.data() + frame,
 		.pWaitDstStageMask    = waitStages,
 		.commandBufferCount   = 1,
-		.pCommandBuffers      = &commandPool.commandBuffers[frame],
+		.pCommandBuffers      = &m_commandPool.commandBuffers[frame],
 		.signalSemaphoreCount = 1,
-		.pSignalSemaphores    = &sync.renderFinishedSemaphores[frame]
+		.pSignalSemaphores    = &m_sync.renderFinishedSemaphores[frame]
 	};
 
-	result = vkQueueSubmit(queue, 1, &submitInfo, sync.inFlightFences[frame]);
+	result = vkQueueSubmit(queue, 1, &submitInfo, m_sync.inFlightFences[frame]);
 
     if (result != VK_SUCCESS)
     {
@@ -302,7 +342,7 @@ void Engine::drawFrame() noexcept
 		.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		.pNext              = VK_NULL_HANDLE,
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores    = &sync.renderFinishedSemaphores[frame],
+		.pWaitSemaphores    = &m_sync.renderFinishedSemaphores[frame],
 		.swapchainCount     = 1,
 		.pSwapchains        = &vkView->getSwapchain(),
 		.pImageIndices      = &imageIndex,
@@ -315,7 +355,7 @@ void Engine::drawFrame() noexcept
     {
         m_framebufferResized = false;
         vkDeviceWaitIdle(logicalDevice);
-		view.resize();
+		m_view.resize();
     }
     else if (result != VK_SUCCESS)
     {
@@ -325,7 +365,7 @@ void Engine::drawFrame() noexcept
 		return;
     }
 
-    sync.currentFrame = (frame + 1) % MAX_FRAMES_IN_FLIGHT;
+    m_sync.currentFrame = (frame + 1) % MAX_FRAMES_IN_FLIGHT;
 
 	vkDeviceWaitIdle(logicalDevice);
 }
@@ -335,14 +375,14 @@ void Engine::destroy() noexcept
 {
 	const auto logicalDevice = vkContext->getLogicalDevice();
 
-	bufferHolder.destroy();
-	texture.destroy();
-	sync.destroy();
-	commandPool.destroy();
-	descriptorPool.destroy();
-	pipeline.destroy();
-	view.destroy();
-	context.destroy();
+	m_bufferHolder.destroy();
+	m_texture.destroy();
+	m_sync.destroy();
+	m_commandPool.destroy();
+	m_descriptorPool.destroy();
+	m_pipeline.destroy();
+	m_view.destroy();
+	m_context.destroy();
 }
 
 

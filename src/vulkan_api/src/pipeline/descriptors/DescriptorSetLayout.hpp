@@ -1,12 +1,11 @@
 #ifndef DESCRIPTOR_SET_LAYOUT_HPP
 #define DESCRIPTOR_SET_LAYOUT_HPP
 
-#include <cstdint>
 #include <vector>
 
 #include <vulkan/vulkan.h>
 
-struct DescriptorSetLayout
+class DescriptorSetLayout
 {
 public:
     void addDescriptor(VkDescriptorType type, VkShaderStageFlagBits shaderStage) noexcept;
