@@ -1,6 +1,8 @@
 #ifndef VULKAN_APP_HPP
 #define VULKAN_APP_HPP
 
+#include <cstdint>
+
 #include "VulkanApi.hpp"
 
 

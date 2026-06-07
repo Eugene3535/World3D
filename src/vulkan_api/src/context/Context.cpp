@@ -9,6 +9,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "utils/Tools.hpp"
+#include "resources/ResourceManager.hpp"
 #include "context/Context.hpp"
 
 static VulkanContext* g_vulkanContext;
@@ -82,16 +83,6 @@ bool VulkanContext::create() noexcept
 }
 
 
-void VulkanContext::destroy() noexcept
-{
-    if (m_context.logicalDevice)
-        vkDestroyDevice(m_context.logicalDevice, VK_NULL_HANDLE);
-
-    if (m_context.instance)
-        vkDestroyInstance(m_context.instance, VK_NULL_HANDLE);
-}
-
-
 VkInstance VulkanContext::getInstance() const noexcept
 {
     return m_context.instance;
@@ -130,115 +121,118 @@ VulkanContext* VulkanContext::getContext() noexcept
 
 bool VulkanContext::createInstance() noexcept
 {
-    spdlog::info("Starting instance initialization");
+    return vkResource->allocateObject(VK_OBJECT_TYPE_INSTANCE, [this]() -> void*
+    {
+        spdlog::info("Starting instance initialization");
 
 #ifdef DEBUG
-    if ( ! check_validation_layer_support() )
-        return false;
+        if ( ! check_validation_layer_support() )
+            return VK_NULL_HANDLE;
 #endif // !DEBUG
 
-    std::vector<const char*> requiredExtensions = { VK_KHR_SURFACE_EXTENSION_NAME };
+        std::vector<const char*> requiredExtensions = { VK_KHR_SURFACE_EXTENSION_NAME };
 
 #ifdef _WIN32
-    requiredExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        requiredExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #endif
 
 #ifdef __linux__
-    requiredExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+        requiredExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #endif
 
 #ifdef DEBUG
-    requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
-    for (const auto extensionName : requiredExtensions)
-    {
-        spdlog::info("Required vulkan API extension: {}", extensionName);
-    }
-
-    uint32_t availableExtensionCount;
-    vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, VK_NULL_HANDLE);
-
-    std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
-    vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, availableExtensions.data());
-
-    std::unordered_set<std::string> deviceExtensions;
-    
-    for (const auto& it : availableExtensions)
-    {
-        deviceExtensions.insert(it.extensionName);
-        spdlog::info("Available vulkan API extension: {}", it.extensionName);
-    }
-
-    for (const auto it : requiredExtensions)
-    {
-        if (deviceExtensions.find(it) == deviceExtensions.end())
+        for (const auto extensionName : requiredExtensions)
         {
-            spdlog::error("The vulkan API extension is not available: {}", it);
+            spdlog::info("Required vulkan API extension: {}", extensionName);
+        }
 
-            return false;
-        }	
-    }
+        uint32_t availableExtensionCount;
+        vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, VK_NULL_HANDLE);
 
-    const VkApplicationInfo appInfo = 
-    {
-        .sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-        .pNext              = VK_NULL_HANDLE,
-        .pApplicationName   = "World3D",
-        .applicationVersion = 1,
-        .pEngineName        = "3D Engine",
-        .engineVersion      = 1,
-        .apiVersion         = VK_API_VERSION_1_3
-    };
+        std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
+        vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, availableExtensions.data());
 
-    {
-        spdlog::info("Application name: {}", appInfo.pApplicationName);
-        spdlog::info("Engine name: {}", appInfo.pEngineName);
-        spdlog::info("Api version: {:.1f}", 1.3f);
-    }
+        std::unordered_set<std::string> deviceExtensions;
+        
+        for (const auto& it : availableExtensions)
+        {
+            deviceExtensions.insert(it.extensionName);
+            spdlog::info("Available vulkan API extension: {}", it.extensionName);
+        }
 
-    VkInstanceCreateInfo instanceInfo = 
-    {
-        .sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-        .pNext                   = VK_NULL_HANDLE,
-        .flags                   = 0,
-        .pApplicationInfo        = &appInfo,
-        .enabledLayerCount       = 0,
-        .ppEnabledLayerNames     = VK_NULL_HANDLE,
-        .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
-        .ppEnabledExtensionNames = requiredExtensions.data()
-    };
+        for (const auto it : requiredExtensions)
+        {
+            if (deviceExtensions.find(it) == deviceExtensions.end())
+            {
+                spdlog::error("The vulkan API extension is not available: {}", it);
+
+                return VK_NULL_HANDLE;
+            }	
+        }
+
+        const VkApplicationInfo appInfo = 
+        {
+            .sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .pNext              = VK_NULL_HANDLE,
+            .pApplicationName   = "World3D",
+            .applicationVersion = 1,
+            .pEngineName        = "3D Engine",
+            .engineVersion      = 1,
+            .apiVersion         = VK_API_VERSION_1_3
+        };
+
+        {
+            spdlog::info("Application name: {}", appInfo.pApplicationName);
+            spdlog::info("Engine name: {}", appInfo.pEngineName);
+            spdlog::info("Api version: {:.1f}", 1.3f);
+        }
+
+        VkInstanceCreateInfo instanceInfo = 
+        {
+            .sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+            .pNext                   = VK_NULL_HANDLE,
+            .flags                   = 0,
+            .pApplicationInfo        = &appInfo,
+            .enabledLayerCount       = 0,
+            .ppEnabledLayerNames     = VK_NULL_HANDLE,
+            .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
+            .ppEnabledExtensionNames = requiredExtensions.data()
+        };
 
 #ifdef DEBUG
-    instanceInfo.enabledLayerCount   = static_cast<uint32_t>(validation_layers.size());
-    instanceInfo.ppEnabledLayerNames = validation_layers.data();
+        instanceInfo.enabledLayerCount   = static_cast<uint32_t>(validation_layers.size());
+        instanceInfo.ppEnabledLayerNames = validation_layers.data();
 
-    const VkDebugUtilsMessengerCreateInfoEXT debugInfo = 
-    {
-       .sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-       .pNext           = VK_NULL_HANDLE,
-       .flags           = 0,
-       .messageSeverity = 0,
-       .messageType     = 0,
-       .pfnUserCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
-                             VkDebugUtilsMessageTypeFlagsEXT messageType, 
-                             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, 
-                             void* pUserData)
-                            {
-                                printf("validation layer: %s\n", pCallbackData->pMessage);
+        const VkDebugUtilsMessengerCreateInfoEXT debugInfo = 
+        {
+        .sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+        .pNext           = VK_NULL_HANDLE,
+        .flags           = 0,
+        .messageSeverity = 0,
+        .messageType     = 0,
+        .pfnUserCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
+                                VkDebugUtilsMessageTypeFlagsEXT messageType, 
+                                const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, 
+                                void* pUserData)
+                                {
+                                    printf("validation layer: %s\n", pCallbackData->pMessage);
 
-                                return VK_FALSE;
-                            },
-       .pUserData = VK_NULL_HANDLE
-    };
+                                    return VK_FALSE;
+                                },
+        .pUserData = VK_NULL_HANDLE
+        };
 
-    instanceInfo.pNext = static_cast<const void*>(&debugInfo);
+        instanceInfo.pNext = static_cast<const void*>(&debugInfo);
 #endif // !DEBUG
 
-    const auto result = vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &m_context.instance);
-    spdlog::info("Completing instance initialization: {}", magic_enum::enum_name(result));
+        const auto result = vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &m_context.instance);
+        spdlog::info("Completing instance initialization: {}", magic_enum::enum_name(result));
 
-    return (result == VK_SUCCESS);
+        return (result == VK_SUCCESS) ? static_cast<void*>(m_context.instance) : VK_NULL_HANDLE;
+    });
 }
 
 
@@ -286,125 +280,128 @@ bool VulkanContext::selectVideoCard() noexcept
 
 bool VulkanContext::createDevice() noexcept
 {
-    spdlog::info("Starting the creation of a logical device");
-
-    VkPhysicalDeviceFeatures supportedFeatures;
-    VkPhysicalDeviceFeatures enabledFeatures = {};
-
-    vkGetPhysicalDeviceFeatures(m_context.physicalDevice, &supportedFeatures);
-
-    enabledFeatures.samplerAnisotropy = supportedFeatures.samplerAnisotropy;
-    enabledFeatures.fillModeNonSolid = supportedFeatures.fillModeNonSolid;
-
-    {// Find main queue family index
-        uint32_t queueFamilyCount;
-        vkGetPhysicalDeviceQueueFamilyProperties(m_context.physicalDevice, &queueFamilyCount, VK_NULL_HANDLE);
-
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(m_context.physicalDevice, &queueFamilyCount, queueFamilies.data());
-
-        m_context.queueFamilyIndex = UINT32_MAX;
-
-        for (uint32_t i = 0; i < queueFamilyCount; ++i)
-        {
-            if (queueFamilies[i].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
-            {
-                spdlog::info("The main queue family index with flags is selected: {} | {}", 
-                    magic_enum::enum_name(VK_QUEUE_GRAPHICS_BIT), magic_enum::enum_name(VK_QUEUE_TRANSFER_BIT));
-
-                m_context.queueFamilyIndex = i;
-                break;
-            }
-        }
-    }
-
-	if(m_context.queueFamilyIndex != UINT32_MAX)
+    return vkResource->allocateObject(VK_OBJECT_TYPE_DEVICE, [this]() -> void*
     {
-        const float queuePriority = 1.0f;
+        spdlog::info("Starting the creation of a logical device");
 
-    	const VkDeviceQueueCreateInfo queueInfo = 
-        {
-            .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-            .pNext            = VK_NULL_HANDLE,
-            .flags            = 0,
-            .queueFamilyIndex = m_context.queueFamilyIndex,
-            .queueCount       = 1,
-            .pQueuePriorities = &queuePriority
-        };
+        VkPhysicalDeviceFeatures supportedFeatures;
+        VkPhysicalDeviceFeatures enabledFeatures = {};
 
-        const std::array<const char*, 2> requiredExtensions = 
-        {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-            VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
-        };
+        vkGetPhysicalDeviceFeatures(m_context.physicalDevice, &supportedFeatures);
 
-        for (const char* ext : requiredExtensions)
-            spdlog::info("Required device extension: {}", ext);
-        
-        uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(m_context.physicalDevice, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
+        enabledFeatures.samplerAnisotropy = supportedFeatures.samplerAnisotropy;
+        enabledFeatures.fillModeNonSolid = supportedFeatures.fillModeNonSolid;
 
-        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(m_context.physicalDevice, VK_NULL_HANDLE, &extensionCount, availableExtensions.data());
+        {// Find main queue family index
+            uint32_t queueFamilyCount;
+            vkGetPhysicalDeviceQueueFamilyProperties(m_context.physicalDevice, &queueFamilyCount, VK_NULL_HANDLE);
 
-        std::unordered_set<std::string> deviceExtensions;
+            std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+            vkGetPhysicalDeviceQueueFamilyProperties(m_context.physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        for (const auto& it : availableExtensions)
-        {
-            deviceExtensions.insert(it.extensionName);
-            spdlog::info("An extension for the device is available: {}", it.extensionName);
-        }
+            m_context.queueFamilyIndex = UINT32_MAX;
 
-        for (const auto& extension : requiredExtensions)
-        {
-            if(deviceExtensions.find(extension) == deviceExtensions.end())
+            for (uint32_t i = 0; i < queueFamilyCount; ++i)
             {
-                spdlog::error("The device extension is not available: {}", extension);
+                if (queueFamilies[i].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
+                {
+                    spdlog::info("The main queue family index with flags is selected: {} | {}", 
+                        magic_enum::enum_name(VK_QUEUE_GRAPHICS_BIT), magic_enum::enum_name(VK_QUEUE_TRANSFER_BIT));
 
-                return false;
+                    m_context.queueFamilyIndex = i;
+                    break;
+                }
             }
         }
 
-        const VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature = 
+        if (m_context.queueFamilyIndex != UINT32_MAX)
         {
-            .sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
-            .dynamicRendering = VK_TRUE
-        };
+            const float queuePriority = 1.0f;
 
-        VkDeviceCreateInfo deviceInfo = 
-        {
-            .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-            .pNext                   = &dynamicRenderingFeature,
-            .flags                   = 0,
-            .queueCreateInfoCount    = 1,
-            .pQueueCreateInfos       = &queueInfo,
-            .enabledLayerCount       = 0,
-            .ppEnabledLayerNames     = VK_NULL_HANDLE,
-            .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
-            .ppEnabledExtensionNames = requiredExtensions.data(),
-            .pEnabledFeatures        = &enabledFeatures
-        };
+            const VkDeviceQueueCreateInfo queueInfo = 
+            {
+                .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .pNext            = VK_NULL_HANDLE,
+                .flags            = 0,
+                .queueFamilyIndex = m_context.queueFamilyIndex,
+                .queueCount       = 1,
+                .pQueuePriorities = &queuePriority
+            };
+
+            const std::array<const char*, 2> requiredExtensions = 
+            {
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
+            };
+
+            for (const char* ext : requiredExtensions)
+                spdlog::info("Required device extension: {}", ext);
+            
+            uint32_t extensionCount;
+            vkEnumerateDeviceExtensionProperties(m_context.physicalDevice, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
+
+            std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+            vkEnumerateDeviceExtensionProperties(m_context.physicalDevice, VK_NULL_HANDLE, &extensionCount, availableExtensions.data());
+
+            std::unordered_set<std::string> deviceExtensions;
+
+            for (const auto& it : availableExtensions)
+            {
+                deviceExtensions.insert(it.extensionName);
+                spdlog::info("An extension for the device is available: {}", it.extensionName);
+            }
+
+            for (const auto& extension : requiredExtensions)
+            {
+                if(deviceExtensions.find(extension) == deviceExtensions.end())
+                {
+                    spdlog::error("The device extension is not available: {}", extension);
+
+                    return VK_NULL_HANDLE;
+                }
+            }
+
+            const VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature = 
+            {
+                .sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+                .dynamicRendering = VK_TRUE
+            };
+
+            VkDeviceCreateInfo deviceInfo = 
+            {
+                .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+                .pNext                   = &dynamicRenderingFeature,
+                .flags                   = 0,
+                .queueCreateInfoCount    = 1,
+                .pQueueCreateInfos       = &queueInfo,
+                .enabledLayerCount       = 0,
+                .ppEnabledLayerNames     = VK_NULL_HANDLE,
+                .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
+                .ppEnabledExtensionNames = requiredExtensions.data(),
+                .pEnabledFeatures        = &enabledFeatures
+            };
 #ifdef DEBUG
-    	deviceInfo.enabledLayerCount   = static_cast<uint32_t>(validation_layers.size());
-    	deviceInfo.ppEnabledLayerNames = validation_layers.data();
+            deviceInfo.enabledLayerCount   = static_cast<uint32_t>(validation_layers.size());
+            deviceInfo.ppEnabledLayerNames = validation_layers.data();
 #endif
 
-        const auto result = vkCreateDevice(m_context.physicalDevice, &deviceInfo, VK_NULL_HANDLE, &m_context.logicalDevice);
+            const auto result = vkCreateDevice(m_context.physicalDevice, &deviceInfo, VK_NULL_HANDLE, &m_context.logicalDevice);
 
-        if (result == VK_SUCCESS)
-        {
-            spdlog::info("Initialization of the device has been completed with the result: {}", magic_enum::enum_name(result));
-            vkGetDeviceQueue(m_context.logicalDevice, m_context.queueFamilyIndex, 0, &m_context.queue);
+            if (result == VK_SUCCESS)
+            {
+                spdlog::info("Initialization of the device has been completed with the result: {}", magic_enum::enum_name(result));
+                vkGetDeviceQueue(m_context.logicalDevice, m_context.queueFamilyIndex, 0, &m_context.queue);
 
-            return true;
+                return static_cast<void*>(m_context.logicalDevice);
+            }
+    
+            spdlog::error("Initialization of the device has been failed with the result: {}", magic_enum::enum_name(result));
+            
+            return VK_NULL_HANDLE;
         }
-   
-        spdlog::error("Initialization of the device has been failed with the result: {}", magic_enum::enum_name(result));
-        
-        return false;
-    }
 
-    spdlog::error("A suitable graphics queue was not found.");
+        spdlog::error("A suitable graphics queue was not found.");
 
-    return false;
+        return VK_NULL_HANDLE;
+    });
 }

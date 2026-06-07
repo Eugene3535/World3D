@@ -10,6 +10,7 @@
 #include "buffers/BufferHolder.hpp"
 #include "render/Renderer.hpp"
 #include "camera/Camera.hpp"
+#include "resources/ResourceManager.hpp"
 
 
 class Engine
@@ -50,6 +51,8 @@ public:
     int32_t m_height;
 
     Camera camera;
+
+    ResourceManager m_resources;
 };
 
 #endif // !ENGINE_HPP

@@ -9,7 +9,6 @@ public:
     VulkanContext() noexcept;
 
     bool create() noexcept;
-    void destroy() noexcept;
 
     VkInstance       getInstance()         const noexcept;
     VkPhysicalDevice getPhysicalDevice()   const noexcept;
@@ -33,7 +32,6 @@ private:
         uint32_t         queueFamilyIndex;
     } m_context;
 };
-
 
 #define vkContext VulkanContext::getContext()
 

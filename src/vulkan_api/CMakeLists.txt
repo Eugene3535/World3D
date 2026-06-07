@@ -9,6 +9,7 @@ compile_shaders(${CMAKE_CURRENT_SOURCE_DIR}/src/shaders ${CMAKE_BINARY_DIR}/shad
 
 set(SRC_FILES
 	src/utils/Tools.cpp
+	src/resources/ResourceManager.cpp
 	src/context/Context.cpp
 	src/context/Context.cpp
 	src/view/surface/Surface.cpp
@@ -32,6 +33,7 @@ set(SRC_FILES
 
 set(HDR_FILES
 	src/utils/Tools.hpp
+	src/resources/ResourceManager.hpp
 	src/context/Context.hpp
 	src/view/surface/Surface.hpp
 	src/view/swapchain/Swapchain.hpp

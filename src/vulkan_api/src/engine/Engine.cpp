@@ -285,31 +285,25 @@ void Engine::drawFrame() noexcept
     mat4s viewMatrix  = camera.getViewMatrix();
     vec3s axis = { 1.0f, 0.3f, 0.5f };
 
-    for (uint32_t i = 0; i < 10; ++i)
-    {
-        const float angle = 20.f * i;
-
 //  update matrices
-        mat4s model = glms_translate(glms_mat4_identity(), cubePositions[i]);
-        model       = glms_rotate(model, glm_rad(angle), axis);
-        mat4s modelViewProjection = glms_mat4_mul(glms_mat4_mul(projection, viewMatrix), model);
+    mat4s model = glms_translate(glms_mat4_identity(), cubePositions[0]);
+    model       = glms_rotate(model, glm_rad(0), axis);
+    mat4s modelViewProjection = glms_mat4_mul(glms_mat4_mul(projection, viewMatrix), model);
 
-        void* data;
-        vkMapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory, 0, sizeof(mat4s), 0, &data);
-        memcpy(data, &modelViewProjection, sizeof(mat4s));
-        vkUnmapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory);
+    void* data;
+    vkMapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory, 0, sizeof(mat4s), 0, &data);
+    memcpy(data, &modelViewProjection, sizeof(mat4s));
+    vkUnmapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory);
 
 //  write command buffer
-        VkDeviceSize offsets[] = {0};
-        VkBuffer vertexBuffers[] = { m_vertexBuffer.handle };
+    VkDeviceSize offsets[] = {0};
+    VkBuffer vertexBuffers[] = { m_vertexBuffer.handle };
 
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
-        // vkCmdPushConstants(commandBuffer, m_pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), modelViewProjection.raw);
-        vkCmdDrawIndexed(commandBuffer, m_indexBuffer.size, 1, 0, 0, 0);
-    }
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+    vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdDrawIndexed(commandBuffer, m_indexBuffer.size, 1, 0, 0, 0);
 
-    if(!m_renderer.end(commandBuffer, imageIndex))
+    if (!m_renderer.end(commandBuffer, imageIndex))
         return;
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -382,7 +376,6 @@ void Engine::destroy() noexcept
 	m_descriptorPool.destroy();
 	m_pipeline.destroy();
 	m_view.destroy();
-	m_context.destroy();
 }
 
 

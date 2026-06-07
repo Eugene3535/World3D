@@ -24,6 +24,7 @@ struct PipelineState
     VkPipelineMultisampleStateCreateInfo         multisampling;
     VkPipelineColorBlendAttachmentState          colorBlending;
     VkDescriptorSetLayoutCreateInfo              layoutInfo;
+    std::span<const VkPushConstantRange>         constantRanges;
 };
 
 #endif // !PIPELINE_STATE_HPP

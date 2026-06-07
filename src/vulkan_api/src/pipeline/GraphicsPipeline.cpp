@@ -12,6 +12,8 @@
 
 bool GraphicsPipeline::create(const PipelineState& state) noexcept
 {
+    destroy(); // for recreate case
+
     const auto physicalDevice = vkContext->getPhysicalDevice(); 
     const auto logicalDevice = vkContext->getLogicalDevice();
 
@@ -67,8 +69,8 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
         .flags                  = 0,
         .setLayoutCount         = 1,
         .pSetLayouts            = &descriptorSetLayout,
-        .pushConstantRangeCount = 0,
-        .pPushConstantRanges    = nullptr
+        .pushConstantRangeCount = static_cast<uint32_t>(state.constantRanges.size()),
+        .pPushConstantRanges    = state.constantRanges.data()
     };
 
     if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, VK_NULL_HANDLE, &layout) != VK_SUCCESS)
