@@ -12,7 +12,6 @@ set(SRC_FILES
 	src/resources/ResourceManager.cpp
 	src/context/Context.cpp
 	src/context/Context.cpp
-	src/view/surface/Surface.cpp
 	src/view/swapchain/Swapchain.cpp
 	src/view/View.cpp
 	src/pipeline/stages/shader/Shader.cpp
@@ -35,7 +34,6 @@ set(HDR_FILES
 	src/utils/Tools.hpp
 	src/resources/ResourceManager.hpp
 	src/context/Context.hpp
-	src/view/surface/Surface.hpp
 	src/view/swapchain/Swapchain.hpp
 	src/view/View.hpp
 	src/pipeline/stages/shader/Shader.hpp

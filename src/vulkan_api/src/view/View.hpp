@@ -34,6 +34,9 @@ public:
     static View* getInstance() noexcept;
 
 private:
+    bool createSurface(uint64_t windowHandle) noexcept;
+
+    VkSurfaceKHR m_surface;
     std::shared_ptr<void> m_data;
 };
 

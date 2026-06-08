@@ -85,8 +85,7 @@ public:
     template<class Callback>
     bool allocateObject(VkObjectType type, Callback&& callback) noexcept;
 
-    template<class T>
-    T getObjectByType(VkObjectType type) const noexcept;
+    void* getObjectByType(VkObjectType type) const noexcept;
 
     std::string_view getObjectTypeAsString(VkObjectType type) const noexcept;
 

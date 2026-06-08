@@ -17,18 +17,35 @@ ResourceManager::ResourceManager() noexcept
 
 ResourceManager::~ResourceManager()
 {
+    VkInstance instance = VK_NULL_HANDLE;
     VkDevice device = VK_NULL_HANDLE;
+
+    if (auto it = m_primaryResources.find(VK_OBJECT_TYPE_INSTANCE); it != m_primaryResources.end())
+        instance = static_cast<VkInstance>(it->second);
 
     if (auto it = m_primaryResources.find(VK_OBJECT_TYPE_DEVICE); it != m_primaryResources.end())
         device = static_cast<VkDevice>(it->second);
 
-    if (device)
+    if (instance && device)
     {
+        if (auto it = m_primaryResources.find(VK_OBJECT_TYPE_SURFACE_KHR); it != m_primaryResources.end())
+            vkDestroySurfaceKHR(instance, static_cast<VkSurfaceKHR>(it->second), VK_NULL_HANDLE);
+
         vkDestroyDevice(device, VK_NULL_HANDLE);
     }
 
-    if (auto it = m_primaryResources.find(VK_OBJECT_TYPE_INSTANCE); it != m_primaryResources.end())
-        vkDestroyInstance(static_cast<VkInstance>(it->second), VK_NULL_HANDLE);
+    if (instance)
+        vkDestroyInstance(instance, VK_NULL_HANDLE);
+}
+
+
+
+void* ResourceManager::getObjectByType(VkObjectType type) const noexcept
+{
+    if (auto it = m_primaryResources.find(type); it != m_primaryResources.end())
+        return it->second;
+
+    return VK_NULL_HANDLE;
 }
 
 
