@@ -33,8 +33,6 @@ private:
     VkSurfaceKHR   m_surface;
     VkSwapchainKHR m_handle;
 
-    std::shared_ptr<void> m_swapChainSupportDetails;
-
     std::vector<Attachment> m_colorAttachments;
     struct
     {

@@ -33,7 +33,7 @@ struct SwapChainSupportDetails
     }
 
 
-    static VkExtent2D chooseSwapExtent(const SwapChainSupportDetails* details, VkExtent2D currentExtent) noexcept
+    static VkExtent2D chooseSwapExtent(const std::shared_ptr<SwapChainSupportDetails> details, VkExtent2D currentExtent) noexcept
     {
         VkExtent2D actualExtent = { 0, 0 };
 
@@ -108,14 +108,10 @@ bool Swapchain::create() noexcept
         m_handle = VK_NULL_HANDLE;
     }
 
-    if (!m_swapChainSupportDetails)
-        m_swapChainSupportDetails = SwapChainSupportDetails::querySupport(m_surface);
-
-    auto swapChainSupport = std::static_pointer_cast<SwapChainSupportDetails>(m_swapChainSupportDetails);
-
-    const uint32_t minImageCount = swapChainSupport->capabilities.minImageCount;
-    const auto imageFormat = swapChainSupport->getSurfaceFormat().format;
-    m_extent = SwapChainSupportDetails::chooseSwapExtent(swapChainSupport.get(), m_extent);
+    auto swapChainSupportDetails = SwapChainSupportDetails::querySupport(m_surface);
+    const uint32_t minImageCount = swapChainSupportDetails->capabilities.minImageCount;
+    const auto imageFormat = swapChainSupportDetails->getSurfaceFormat().format;
+    m_extent = SwapChainSupportDetails::chooseSwapExtent(swapChainSupportDetails, m_extent);
 
     const VkSwapchainCreateInfoKHR swapchainInfo = 
     {
@@ -132,9 +128,9 @@ bool Swapchain::create() noexcept
         .imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
         .pQueueFamilyIndices   = VK_NULL_HANDLE,
-        .preTransform          = swapChainSupport->capabilities.currentTransform,
+        .preTransform          = swapChainSupportDetails->capabilities.currentTransform,
         .compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-        .presentMode           = swapChainSupport->getPresentMode(),
+        .presentMode           = swapChainSupportDetails->getPresentMode(),
         .clipped               = VK_TRUE,
         .oldSwapchain          = oldSwapchain
     };
