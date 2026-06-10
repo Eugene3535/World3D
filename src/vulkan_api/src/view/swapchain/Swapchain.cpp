@@ -1,7 +1,7 @@
 #include <memory>
 #include <array>
-
-#include <cglm/util.h>
+#include <algorithm>
+#include <climits>
 
 #include "utils/Tools.hpp"
 #include "context/Context.hpp"
@@ -37,15 +37,15 @@ struct SwapChainSupportDetails
     {
         VkExtent2D actualExtent = { 0, 0 };
 
-        if (details->capabilities.currentExtent.width != UINT_MAX)
+        if (details->capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
         {
             return details->capabilities.currentExtent;
         }
         else
         {
             actualExtent = currentExtent;
-            actualExtent.width  = glm_clamp(actualExtent.width, details->capabilities.minImageExtent.width, details->capabilities.maxImageExtent.width);
-            actualExtent.height = glm_clamp(actualExtent.height, details->capabilities.minImageExtent.height, details->capabilities.maxImageExtent.height);
+            actualExtent.width  = std::clamp(actualExtent.width, details->capabilities.minImageExtent.width, details->capabilities.maxImageExtent.width);
+            actualExtent.height = std::clamp(actualExtent.height, details->capabilities.minImageExtent.height, details->capabilities.maxImageExtent.height);
         }
 
         return actualExtent;
