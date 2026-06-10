@@ -4,6 +4,7 @@
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/basic_file_sink.h>
 
+#include "view/swapchain/Swapchain.hpp"
 #include "pipeline/descriptors/DescriptorSetLayout.hpp"
 #include "pipeline/state/PipelineState.hpp"
 #include "engine/Engine.hpp"
@@ -125,7 +126,7 @@ bool Engine::createPipeline() noexcept
         return false;
 
     {
-        m_uniformBuffers.resize(vkView->getImageCount());
+        m_uniformBuffers.resize(vkView->getSwapchain()->getImageCount());
         std::array<mat4s, 1> identity = { glms_mat4_identity() };
 
         for (size_t i = 0; i < m_uniformBuffers.size(); ++i) 
@@ -245,7 +246,7 @@ void Engine::drawFrame() noexcept
     }
 
     uint32_t imageIndex;
-    result = vkAcquireNextImageKHR(logicalDevice, m_view.getSwapchain(), UINT64_MAX, m_sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
+    result = vkAcquireNextImageKHR(logicalDevice, m_view.getSwapchain()->getHandle(), UINT64_MAX, m_sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -338,7 +339,7 @@ void Engine::drawFrame() noexcept
 		.waitSemaphoreCount = 1,
 		.pWaitSemaphores    = &m_sync.renderFinishedSemaphores[frame],
 		.swapchainCount     = 1,
-		.pSwapchains        = &vkView->getSwapchain(),
+		.pSwapchains        = &vkView->getSwapchain()->getHandle(),
 		.pImageIndices      = &imageIndex,
 		.pResults           = VK_NULL_HANDLE
 	};

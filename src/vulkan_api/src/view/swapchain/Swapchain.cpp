@@ -1,5 +1,4 @@
 #include <memory>
-#include <cstring>
 #include <array>
 
 #include <cglm/util.h>
@@ -34,7 +33,7 @@ struct SwapChainSupportDetails
     }
 
 
-    static VkExtent2D chooseSwapExtent(const SwapChainSupportDetails* details, const VkExtent2D* currentExtent) noexcept
+    static VkExtent2D chooseSwapExtent(const SwapChainSupportDetails* details, VkExtent2D currentExtent) noexcept
     {
         VkExtent2D actualExtent = { 0, 0 };
 
@@ -44,7 +43,7 @@ struct SwapChainSupportDetails
         }
         else
         {
-            memcpy(&actualExtent, currentExtent, sizeof(VkExtent2D));
+            actualExtent = currentExtent;
             actualExtent.width  = glm_clamp(actualExtent.width, details->capabilities.minImageExtent.width, details->capabilities.maxImageExtent.width);
             actualExtent.height = glm_clamp(actualExtent.height, details->capabilities.minImageExtent.height, details->capabilities.maxImageExtent.height);
         }
@@ -85,44 +84,49 @@ struct SwapChainSupportDetails
 
 
 
-Swapchain::Swapchain() noexcept:
-    handle(VK_NULL_HANDLE)
+Swapchain::Swapchain(VkSurfaceKHR surface) noexcept:
+    m_surface(surface),
+    m_handle(VK_NULL_HANDLE),
+    m_depthBuffer{}
 {
 
 }
 
 
-bool Swapchain::create(VkSurfaceKHR surface) noexcept
+bool Swapchain::create() noexcept
 {
     auto context = vkContext;
     VkDevice device = context->getLogicalDevice();
 
-    VkSwapchainKHR oldSwapchain = handle;
+    VkSwapchainKHR oldSwapchain = m_handle;
 
-    if (handle)
+    if (m_handle)
     {
-        for (const auto imageView : imageViews)
-            vkDestroyImageView(device, imageView, VK_NULL_HANDLE);
+        for (const auto& attachment : m_colorAttachments)
+            vkDestroyImageView(device, attachment.imageView, VK_NULL_HANDLE);
 
-        handle = VK_NULL_HANDLE;
+        m_handle = VK_NULL_HANDLE;
     }
 
-    auto swapChainSupport = SwapChainSupportDetails::querySupport(surface);
-    const uint32_t minImageCount = swapChainSupport->capabilities.minImageCount;
+    if (!m_swapChainSupportDetails)
+        m_swapChainSupportDetails = SwapChainSupportDetails::querySupport(m_surface);
 
-    imageFormat = swapChainSupport->getSurfaceFormat().format;
-    extent = SwapChainSupportDetails::chooseSwapExtent(swapChainSupport.get(), &extent);
+    auto swapChainSupport = std::static_pointer_cast<SwapChainSupportDetails>(m_swapChainSupportDetails);
+
+    const uint32_t minImageCount = swapChainSupport->capabilities.minImageCount;
+    const auto imageFormat = swapChainSupport->getSurfaceFormat().format;
+    m_extent = SwapChainSupportDetails::chooseSwapExtent(swapChainSupport.get(), m_extent);
 
     const VkSwapchainCreateInfoKHR swapchainInfo = 
     {
         .sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .pNext                 = VK_NULL_HANDLE,
         .flags                 = 0,
-        .surface               = surface,
+        .surface               = m_surface,
         .minImageCount         = minImageCount,
         .imageFormat           = imageFormat,
         .imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
-        .imageExtent           = extent,
+        .imageExtent           = m_extent,
         .imageArrayLayers      = 1,
         .imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
         .imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE,
@@ -135,58 +139,65 @@ bool Swapchain::create(VkSurfaceKHR surface) noexcept
         .oldSwapchain          = oldSwapchain
     };
 
-    if (vkCreateSwapchainKHR(device, &swapchainInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS)
+    if (vkCreateSwapchainKHR(device, &swapchainInfo, VK_NULL_HANDLE, &m_handle) == VK_SUCCESS)
     {
         if (oldSwapchain)
             vkDestroySwapchainKHR(device, oldSwapchain, VK_NULL_HANDLE);
 
         uint32_t imageCount = 0;
         
-        if (vkGetSwapchainImagesKHR(device, handle, &imageCount, VK_NULL_HANDLE) != VK_SUCCESS)
+        if (vkGetSwapchainImagesKHR(device, m_handle, &imageCount, VK_NULL_HANDLE) != VK_SUCCESS)
             return false;
 
-        if (images.empty())
-            images.resize(imageCount);
+        auto& attachments = m_colorAttachments;
+
+        if (attachments.empty())
+            attachments.resize(imageCount);
         
-        if (imageViews.empty())
-            imageViews.resize(imageCount);
+        std::vector<VkImage> newImages(imageCount);
         
-        if (vkGetSwapchainImagesKHR(device, handle, &imageCount, images.data()) == VK_SUCCESS)
+        if (vkGetSwapchainImagesKHR(device, m_handle, &imageCount, newImages.data()) == VK_SUCCESS)
         {
-            for (uint32_t i = 0; i < imageViews.size(); ++i)
+            for (uint32_t i = 0; i < attachments.size(); ++i)
             {
-                if (imageViews[i] = vktools::create_image_view_2D(images[i], imageFormat, VK_IMAGE_ASPECT_COLOR_BIT); !imageViews[i])
+                attachments[i].image = newImages[i];
+                attachments[i].format = imageFormat;
+                
+                if (auto imageView = vktools::create_image_view_2D(newImages[i], imageFormat, VK_IMAGE_ASPECT_COLOR_BIT))
+                    attachments[i].imageView = imageView;
+                else
                     return false;  
             }
-//  Depth buffering
-            if (depthBuffer.imageView)
-                vkDestroyImageView(device, depthBuffer.imageView, VK_NULL_HANDLE);
 
-            if (depthBuffer.image)
-                vkDestroyImage(device, depthBuffer.image, VK_NULL_HANDLE);
+//          Depth buffering
+            if (m_depthBuffer.attachment.imageView)
+                vkDestroyImageView(device, m_depthBuffer.attachment.imageView, VK_NULL_HANDLE);
 
-            if (depthBuffer.imageMemory)
-                vkFreeMemory(device, depthBuffer.imageMemory, VK_NULL_HANDLE);
+            if (m_depthBuffer.attachment.image)
+                vkDestroyImage(device, m_depthBuffer.attachment.image, VK_NULL_HANDLE);
 
-            if (depthBuffer.format == VK_FORMAT_UNDEFINED)
+            if (m_depthBuffer.memory)
+                vkFreeMemory(device, m_depthBuffer.memory, VK_NULL_HANDLE);
+
+            if (m_depthBuffer.attachment.format == VK_FORMAT_UNDEFINED)
             {
                 constexpr std::array<VkFormat, 3> formats = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
-                depthBuffer.format = vktools::find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, context->getPhysicalDevice());
+                m_depthBuffer.attachment.format = vktools::find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, context->getPhysicalDevice());
             }
 
-            if (depthBuffer.format != VK_FORMAT_UNDEFINED)
+            if (m_depthBuffer.attachment.format != VK_FORMAT_UNDEFINED)
             {
-                depthBuffer.image = vktools::create_image_2D(extent, 
-                                                             depthBuffer.format, 
-                                                             VK_IMAGE_TILING_OPTIMAL, 
-                                                             VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
-                                                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-                                                             &depthBuffer.imageMemory);
+                m_depthBuffer.attachment.image = vktools::create_image_2D(m_extent, 
+                                                                          m_depthBuffer.attachment.format, 
+                                                                          VK_IMAGE_TILING_OPTIMAL, 
+                                                                          VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+                                                                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                                                                          &m_depthBuffer.memory);
 
-                if (depthBuffer.image)
-                    depthBuffer.imageView = vktools::create_image_view_2D(depthBuffer.image, depthBuffer.format, VK_IMAGE_ASPECT_DEPTH_BIT);
+                if (m_depthBuffer.attachment.image)
+                    m_depthBuffer.attachment.imageView = vktools::create_image_view_2D(m_depthBuffer.attachment.image, m_depthBuffer.attachment.format, VK_IMAGE_ASPECT_DEPTH_BIT);
                 
-                if (depthBuffer.imageView)
+                if (m_depthBuffer.attachment.imageView)
                     return true;
             }
 
@@ -202,20 +213,50 @@ void Swapchain::destroy() noexcept
 {
     VkDevice device = vkContext->getLogicalDevice();
 
-    if(handle)
+    if(m_handle)
     {
-        for(const auto imageView : imageViews)
-            vkDestroyImageView(device, imageView, VK_NULL_HANDLE);
+        for(const auto& attachment : m_colorAttachments)
+            vkDestroyImageView(device, attachment.imageView, VK_NULL_HANDLE);
 
-        vkDestroySwapchainKHR(device, handle, VK_NULL_HANDLE);
+        vkDestroySwapchainKHR(device, m_handle, VK_NULL_HANDLE);
     }
 
-    if (depthBuffer.imageView)
-        vkDestroyImageView(device, depthBuffer.imageView, VK_NULL_HANDLE);
+    if (m_depthBuffer.attachment.imageView)
+        vkDestroyImageView(device, m_depthBuffer.attachment.imageView, VK_NULL_HANDLE);
 
-    if (depthBuffer.image)
-        vkDestroyImage(device, depthBuffer.image, VK_NULL_HANDLE);
+    if (m_depthBuffer.attachment.image)
+        vkDestroyImage(device, m_depthBuffer.attachment.image, VK_NULL_HANDLE);
 
-    if (depthBuffer.imageMemory)
-        vkFreeMemory(device, depthBuffer.imageMemory, VK_NULL_HANDLE);
+    if (m_depthBuffer.memory)
+        vkFreeMemory(device, m_depthBuffer.memory, VK_NULL_HANDLE);
+}
+
+
+const VkSwapchainKHR& Swapchain::getHandle() const noexcept
+{
+    return m_handle;
+}
+
+
+const Swapchain::Attachment& Swapchain::getColorAttachment(size_t index) const noexcept
+{
+    return m_colorAttachments[index];
+}
+
+
+const Swapchain::Attachment& Swapchain::getDepthAttachment() const noexcept
+{
+    return m_depthBuffer.attachment;
+}
+
+
+size_t Swapchain::getImageCount() const noexcept
+{
+    return m_colorAttachments.size();
+}
+
+
+VkExtent2D Swapchain::getSize() const noexcept
+{
+    return m_extent;
 }

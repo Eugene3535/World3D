@@ -1,3 +1,4 @@
+#include "view/swapchain/Swapchain.hpp"
 #include "view/View.hpp"
 #include "render/Renderer.hpp"
 
@@ -5,7 +6,8 @@
 // TODO add clear color value
 bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 {
-    const auto view = vkView;
+    const auto colorAttachment = vkView->getSwapchain()->getColorAttachment(imageIndex);
+    const auto depthAttachment = vkView->getSwapchain()->getDepthAttachment();
 
     if (vkResetCommandBuffer(cmd, /*VkCommandBufferResetFlagBits*/ 0) != VK_SUCCESS)
         return false;
@@ -33,7 +35,7 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
         .newLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image               = view->getImage(imageIndex),
+        .image               = colorAttachment.image,
         .subresourceRange =     
         {
             .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -66,7 +68,7 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
         .newLayout           = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image               = view->getDepthImage(),
+        .image               = depthAttachment.image,
         .subresourceRange    = 
         {
             .aspectMask     = VK_IMAGE_ASPECT_DEPTH_BIT,
@@ -88,13 +90,13 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
                          1, 
                          &depthBufferBarrier);
 
-    const VkExtent2D extent = view->getSize();
+    const VkExtent2D extent = vkView->getSwapchain()->getSize();
 
     const VkRenderingAttachmentInfoKHR colorAttachmentInfo = 
     {
         .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
         .pNext              = VK_NULL_HANDLE,
-        .imageView          = view->getImageView(imageIndex),
+        .imageView          = colorAttachment.imageView,
         .imageLayout        = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR,
         .resolveMode        = VK_RESOLVE_MODE_NONE,
         .resolveImageView   = VK_NULL_HANDLE,
@@ -108,7 +110,7 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
     {
         .sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
         .pNext              = VK_NULL_HANDLE,
-        .imageView          = view->getDepthImageView(),
+        .imageView          = depthAttachment.imageView,
         .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
         .resolveMode        = VK_RESOLVE_MODE_NONE,
         .resolveImageView   = VK_NULL_HANDLE,
@@ -172,7 +174,7 @@ bool Renderer::end(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
         .newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
         .srcQueueFamilyIndex = 0,
         .dstQueueFamilyIndex = 0,
-        .image               = vkView->getImage(imageIndex),
+        .image               = vkView->getSwapchain()->getColorAttachment(imageIndex).image,
         .subresourceRange =     
         {
             .aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,

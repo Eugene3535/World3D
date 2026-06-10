@@ -5,6 +5,7 @@
 
 #include "utils/Tools.hpp"
 #include "context/Context.hpp"
+#include "view/swapchain/Swapchain.hpp"
 #include "view/View.hpp"
 #include "pipeline/state/PipelineState.hpp"
 #include "pipeline/GraphicsPipeline.hpp"
@@ -17,8 +18,8 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
     const auto physicalDevice = vkContext->getPhysicalDevice(); 
     const auto logicalDevice = vkContext->getLogicalDevice();
 
-    const VkFormat colorFormat = vkView->getImageFormat();
-    const VkFormat depthFormat = vkView->getDepthFormat();
+    const VkFormat colorFormat = vkView->getSwapchain()->getColorAttachment(0).format;
+    const VkFormat depthFormat = vkView->getSwapchain()->getDepthAttachment().format;
 
     const VkPipelineVertexInputStateCreateInfo vertexInput = state.vertexInputState.getInfo();
 

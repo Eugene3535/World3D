@@ -8,11 +8,6 @@
 
 static View* g_view;
 
-struct ViewData
-{
-    Swapchain swapchain;
-};
-
 
 View::View() noexcept:
     m_surface(VK_NULL_HANDLE)
@@ -27,18 +22,18 @@ View::~View() = default;
 
 bool View::create(uint64_t windowHandle) noexcept
 {
-    if (m_data)
+    if (m_surface && m_swapchain)
         return true;
-
-    auto data = std::make_shared<ViewData>();
 
     if (!createSurface(windowHandle))
         return false;
 
-    if (!data->swapchain.create(m_surface))
+    auto swapchain = std::make_unique<Swapchain>(m_surface);
+
+    if (!swapchain->create())
         return false;
 
-    m_data = data;
+    swapchain.swap(m_swapchain);
 
     return true;
 }
@@ -46,17 +41,15 @@ bool View::create(uint64_t windowHandle) noexcept
 
 void View::destroy() noexcept
 {
-    if (m_data)
-    {
-        std::static_pointer_cast<ViewData>(m_data)->swapchain.destroy();
-        m_data.reset();
-    }
+    if (m_swapchain)
+        m_swapchain->destroy();
 }
 
 
 void View::resize() noexcept
 {
-    std::static_pointer_cast<ViewData>(m_data)->swapchain.create(getSurface());
+    if (m_swapchain)
+        m_swapchain->create();
 }
 
 
@@ -66,57 +59,9 @@ VkSurfaceKHR View::getSurface() const noexcept
 }
 
 
-VkSwapchainKHR& View::getSwapchain() const noexcept
+const Swapchain* View::getSwapchain() const noexcept
 {   
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.handle;
-}
-
-
-VkImage View::getImage(size_t index) const noexcept
-{
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.images[index];
-}
-
-
-VkImageView View::getImageView(size_t index) const noexcept
-{
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.imageViews[index];
-}
-
-
-VkImage View::getDepthImage() const noexcept
-{
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.depthBuffer.image;
-}
-
-
-VkImageView View::getDepthImageView() const noexcept
-{
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.depthBuffer.imageView;
-}
-
-
-size_t View::getImageCount() const noexcept
-{
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.images.size();
-}
-
-
-VkExtent2D View::getSize() const noexcept
-{
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.extent;
-}
-
-
-VkFormat View::getImageFormat() const noexcept
-{
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.imageFormat;
-}
-
-
-VkFormat View::getDepthFormat() const noexcept
-{
-    return std::static_pointer_cast<ViewData>(m_data)->swapchain.depthBuffer.format;
+    return m_swapchain.get();
 }
 
 
