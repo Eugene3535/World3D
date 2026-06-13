@@ -20,7 +20,6 @@ set(SRC_FILES
 	src/pipeline/descriptors/DescriptorPool.cpp
 	src/pipeline/state/PipelineState.cpp
 	src/pipeline/GraphicsPipeline.cpp
-	src/command_pool/CommandBufferPool.cpp
 	src/sync/SyncManager.cpp
 	src/texture/Texture2D.cpp
 	src/buffers/BufferHolder.cpp
@@ -44,7 +43,6 @@ set(HDR_FILES
 	src/pipeline/descriptors/DescriptorPool.hpp
 	src/pipeline/state/PipelineState.hpp
 	src/pipeline/GraphicsPipeline.hpp
-	src/command_pool/CommandBufferPool.hpp
 	src/sync/SyncManager.hpp
 	src/texture/Texture2D.hpp
 	src/buffers/BufferHolder.hpp

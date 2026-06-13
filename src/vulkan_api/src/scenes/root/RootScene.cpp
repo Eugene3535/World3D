@@ -1,5 +1,6 @@
 #include <cglm/struct/affine-pre.h>
 
+#include "resources/ResourceManager.hpp"
 #include "view/swapchain/Swapchain.hpp"
 #include "view/View.hpp"
 #include "pipeline/descriptors/DescriptorSetLayout.hpp"
@@ -18,7 +19,6 @@ RootScene::~RootScene()
 {
 	m_bufferHolder.destroy();
 	m_texture.destroy();
-	m_commandPool.destroy();
 	m_descriptorPool.destroy();
 	m_pipeline.destroy();
 }
@@ -88,7 +88,9 @@ bool RootScene::create() noexcept
 			return false;	
 	}
 
-	if (!m_commandPool.create())
+    auto commandPoolHandle = static_cast<VkCommandPool>(vkResource->getObjectByType(VK_OBJECT_TYPE_COMMAND_POOL));
+
+    if (!commandPoolHandle)
         return false;
 
     {
@@ -98,11 +100,11 @@ bool RootScene::create() noexcept
         for (size_t i = 0; i < m_uniformBuffers.size(); ++i) 
             m_uniformBuffers[i] = m_bufferHolder.allocate<mat4s>(identity,
                                                                  VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
-                                                                 m_commandPool.handle);
+                                                                 commandPoolHandle);
     }
 
 	{
-        if(!m_texture.loadFromFile("res/textures/container.jpg", m_commandPool.handle))
+        if(!m_texture.loadFromFile("res/textures/container.jpg", commandPoolHandle))
             return false;
 
         const std::array<VkDescriptorBufferInfo, 2> bufferInfos = 
@@ -178,8 +180,8 @@ bool RootScene::create() noexcept
             20, 21, 22, 22, 23, 20   // bottom
         };
 
-		m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, m_commandPool.handle);
-		m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, m_commandPool.handle);
+		m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, commandPoolHandle);
+		m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, commandPoolHandle);
 
 		if (!m_vertexBuffer.handle)
 			return false;

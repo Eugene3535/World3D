@@ -49,6 +49,41 @@ bool Engine::createMainView(uint64_t windowHandle) noexcept
 
 bool Engine::createPipeline() noexcept
 {
+    if ( ! vkResource->allocateObject(VK_OBJECT_TYPE_COMMAND_POOL, []() -> void*
+    {
+        VkCommandPool handle = VK_NULL_HANDLE;
+
+        const VkCommandPoolCreateInfo poolInfo = 
+        {
+            .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .pNext            = VK_NULL_HANDLE,
+            .flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+            .queueFamilyIndex = vkContext->getQueueFamilyIndex()
+        };
+
+        if (vkCreateCommandPool(vkContext->getLogicalDevice(), &poolInfo, VK_NULL_HANDLE, &handle) != VK_SUCCESS)
+            return VK_NULL_HANDLE;
+
+        return static_cast<void*>(handle);
+    })) return false;
+
+    auto commandPoolHandle = static_cast<VkCommandPool>(vkResource->getObjectByType(VK_OBJECT_TYPE_COMMAND_POOL));
+
+    if (!commandPoolHandle)
+        return false;
+
+    const VkCommandBufferAllocateInfo allocInfo = 
+    {
+        .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .pNext              = VK_NULL_HANDLE,
+        .commandPool        = commandPoolHandle,
+        .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = static_cast<uint32_t>(m_commandBuffers.size())
+    };
+
+    if (vkAllocateCommandBuffers(vkContext->getLogicalDevice(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS)
+        return false;
+
 	auto rootScene = std::make_unique<RootScene>(nullptr);
 
     if (rootScene->create())
@@ -109,7 +144,7 @@ void Engine::drawFrame() noexcept
 		return;
     }
 
-    VkCommandBuffer commandBuffer = m_rootScene->m_commandPool.commandBuffers[frame];
+    VkCommandBuffer commandBuffer = m_commandBuffers[frame];
     VkDescriptorSet descriptorSet = m_rootScene->m_descriptorSets[frame];
 
     if (!m_renderer.begin(commandBuffer, imageIndex))
@@ -153,7 +188,7 @@ void Engine::drawFrame() noexcept
 		.pWaitSemaphores      = m_sync.imageAvailableSemaphores.data() + frame,
 		.pWaitDstStageMask    = waitStages,
 		.commandBufferCount   = 1,
-		.pCommandBuffers      = &m_rootScene->m_commandPool.commandBuffers[frame],
+		.pCommandBuffers      = &m_commandBuffers[frame],
 		.signalSemaphoreCount = 1,
 		.pSignalSemaphores    = &m_sync.renderFinishedSemaphores[frame]
 	};

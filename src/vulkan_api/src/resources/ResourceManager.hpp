@@ -92,6 +92,8 @@ public:
     static ResourceManager* getInstance() noexcept;
 
 private:
+    bool isPrimary(VkObjectType type) const noexcept;
+
     std::unordered_map<VkObjectType, void*> m_primaryResources;
     std::unordered_map<VkObjectType, void*> m_secondaryResources;
 };

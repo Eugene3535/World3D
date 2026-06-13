@@ -29,6 +29,8 @@ public:
     View          m_view;
     SyncManager   m_sync;
 
+    std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> m_commandBuffers;
+
     std::unique_ptr<RootScene> m_rootScene;
 
     Renderer m_renderer;

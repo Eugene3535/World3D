@@ -1,9 +1,10 @@
 #ifndef ROOT_SCENE_HPP
 #define ROOT_SCENE_HPP
 
+#include <array>
+
 #include "pipeline/descriptors/DescriptorPool.hpp"
 #include "pipeline/GraphicsPipeline.hpp"
-#include "command_pool/CommandBufferPool.hpp"
 #include "texture/Texture2D.hpp"
 #include "buffers/BufferHolder.hpp"
 #include "scenes/Scene.hpp"
@@ -22,8 +23,6 @@ public:
 
     std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descriptorSets;
     DescriptorPool m_descriptorPool;
-
-    CommandBufferPool m_commandPool;
 
     Texture2D m_texture;
 
