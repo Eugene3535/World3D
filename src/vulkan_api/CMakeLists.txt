@@ -27,6 +27,8 @@ set(SRC_FILES
 	src/render/Renderer.cpp
 	src/camera/Camera.cpp
 	src/engine/Engine.cpp
+	src/scenes/Scene.cpp
+	src/scenes/root/RootScene.cpp
 	include/VulkanApi.cpp
 )
 
@@ -49,6 +51,9 @@ set(HDR_FILES
 	src/render/Renderer.hpp
 	src/camera/Camera.hpp
 	src/engine/Engine.hpp
+	src/scenes/Scene.hpp
+	src/scenes/Scene.inl
+	src/scenes/root/RootScene.hpp
 	include/Export.hpp
 	include/VulkanApi.hpp
 )

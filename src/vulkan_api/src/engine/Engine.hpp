@@ -1,13 +1,12 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
+#include <memory>
+
+#include "context/Context.hpp"
 #include "view/View.hpp"
-#include "pipeline/descriptors/DescriptorPool.hpp"
-#include "pipeline/GraphicsPipeline.hpp"
-#include "command_pool/CommandBufferPool.hpp"
 #include "sync/SyncManager.hpp"
-#include "texture/Texture2D.hpp"
-#include "buffers/BufferHolder.hpp"
+#include "scenes/root/RootScene.hpp"
 #include "render/Renderer.hpp"
 #include "camera/Camera.hpp"
 #include "resources/ResourceManager.hpp"
@@ -26,23 +25,11 @@ public:
     void destroy() noexcept;
     void resize(int width, int height) noexcept;
 
-    VulkanContext    m_context;
-    View             m_view;
-    GraphicsPipeline m_pipeline;
+    VulkanContext m_context;
+    View          m_view;
+    SyncManager   m_sync;
 
-    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descriptorSets;
-    DescriptorPool m_descriptorPool;
-
-    CommandBufferPool m_commandPool;
-    SyncManager m_sync;
-
-    Texture2D m_texture;
-
-    std::vector<Buffer> m_uniformBuffers;
-
-    BufferHolder m_bufferHolder;
-    Buffer m_vertexBuffer;
-    Buffer m_indexBuffer;
+    std::unique_ptr<RootScene> m_rootScene;
 
     Renderer m_renderer;
 
