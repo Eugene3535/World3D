@@ -145,35 +145,33 @@ void Engine::drawFrame() noexcept
     }
 
     VkCommandBuffer commandBuffer = m_commandBuffers[frame];
-    VkDescriptorSet descriptorSet = m_rootScene->m_descriptorSets[frame];
+    // VkDescriptorSet descriptorSet = m_rootScene->m_descriptorSets[frame];
 
     if (!m_renderer.begin(commandBuffer, imageIndex))
         return;
-
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_rootScene->m_pipeline.handle);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_rootScene->m_pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
 
     mat4s projection = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
     mat4s viewMatrix  = camera.getViewMatrix();
     vec3s axis = { 1.0f, 0.3f, 0.5f };
 
 //  update matrices
-    mat4s model = glms_translate(glms_mat4_identity(), cubePositions[0]);
-    model       = glms_rotate(model, glm_rad(0), axis);
-    mat4s modelViewProjection = glms_mat4_mul(glms_mat4_mul(projection, viewMatrix), model);
-
+    mat4s modelViewProjection = glms_mat4_mul(projection, viewMatrix);
     void* data;
     vkMapMemory(logicalDevice, m_rootScene->m_uniformBuffers[imageIndex].memory, 0, sizeof(mat4s), 0, &data);
     memcpy(data, &modelViewProjection, sizeof(mat4s));
     vkUnmapMemory(logicalDevice, m_rootScene->m_uniformBuffers[imageIndex].memory);
 
 //  write command buffer
-    VkDeviceSize offsets[] = {0};
-    VkBuffer vertexBuffers[] = { m_rootScene->m_vertexBuffer.handle };
+    // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_rootScene->m_pipeline.handle);
+    // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_rootScene->m_pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
 
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-    vkCmdBindIndexBuffer(commandBuffer, m_rootScene->m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
-    vkCmdDrawIndexed(commandBuffer, m_rootScene->m_indexBuffer.size, 1, 0, 0, 0);
+    // VkDeviceSize offsets[] = {0};
+    // VkBuffer vertexBuffers[] = { m_rootScene->m_vertexBuffer.handle };
+
+    // vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+    // vkCmdBindIndexBuffer(commandBuffer, m_rootScene->m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
+    // vkCmdDrawIndexed(commandBuffer, m_rootScene->m_indexBuffer.size, 1, 0, 0, 0);
+    m_renderer.draw(*m_rootScene);
 
     if (!m_renderer.end(commandBuffer, imageIndex))
         return;

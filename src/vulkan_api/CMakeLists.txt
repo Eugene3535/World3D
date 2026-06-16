@@ -23,7 +23,8 @@ set(SRC_FILES
 	src/sync/SyncManager.cpp
 	src/texture/Texture2D.cpp
 	src/buffers/BufferHolder.cpp
-	src/render/Renderer.cpp
+	src/render/Drawable.cpp
+	src/render/RenderTarget.cpp
 	src/camera/Camera.cpp
 	src/engine/Engine.cpp
 	src/scenes/Scene.cpp
@@ -46,7 +47,8 @@ set(HDR_FILES
 	src/sync/SyncManager.hpp
 	src/texture/Texture2D.hpp
 	src/buffers/BufferHolder.hpp
-	src/render/Renderer.hpp
+	src/render/Drawable.hpp
+	src/render/RenderTarget.hpp
 	src/camera/Camera.hpp
 	src/engine/Engine.hpp
 	src/scenes/Scene.hpp

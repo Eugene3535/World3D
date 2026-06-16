@@ -8,9 +8,12 @@
 #include "texture/Texture2D.hpp"
 #include "buffers/BufferHolder.hpp"
 #include "scenes/Scene.hpp"
+#include "render/Drawable.hpp"
 
 
-class RootScene: public Scene
+class RootScene: 
+    public Scene,
+    public Drawable
 {
 public:
     RootScene(const Scene* parent) noexcept;
@@ -31,6 +34,9 @@ public:
     BufferHolder m_bufferHolder;
     Buffer m_vertexBuffer;
     Buffer m_indexBuffer;
+
+private:
+    void draw(class RenderTarget& target, VkCommandBuffer cmd) const noexcept override;
 };
 
 #endif // !ROOT_SCENE_HPP

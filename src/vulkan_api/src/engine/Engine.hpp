@@ -7,7 +7,7 @@
 #include "view/View.hpp"
 #include "sync/SyncManager.hpp"
 #include "scenes/root/RootScene.hpp"
-#include "render/Renderer.hpp"
+#include "render/RenderTarget.hpp"
 #include "camera/Camera.hpp"
 #include "resources/ResourceManager.hpp"
 
@@ -33,7 +33,7 @@ public:
 
     std::unique_ptr<RootScene> m_rootScene;
 
-    Renderer m_renderer;
+    RenderTarget m_renderer;
 
     bool    m_framebufferResized;
     int32_t m_width;

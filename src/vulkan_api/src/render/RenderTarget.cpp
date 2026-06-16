@@ -1,10 +1,14 @@
 #include "view/swapchain/Swapchain.hpp"
 #include "view/View.hpp"
-#include "render/Renderer.hpp"
+#include "render/Drawable.hpp"
+#include "render/RenderTarget.hpp"
+
+
+static const VkClearValue clearColor = { 0.f, 0.f, 0.f, 1.f };
 
 
 // TODO add clear color value
-bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
+bool RenderTarget::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 {
     const auto colorAttachment = vkView->getSwapchain()->getColorAttachment(imageIndex);
     const auto depthAttachment = vkView->getSwapchain()->getDepthAttachment();
@@ -21,6 +25,7 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
     };
 
     VkResult result = vkBeginCommandBuffer(cmd, &beginInfo);
+    m_commandBuffer = cmd;
 
     if (result != VK_SUCCESS)
         return false;
@@ -160,9 +165,17 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 }
 
 
-bool Renderer::end(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
+void RenderTarget::draw(Drawable& object) noexcept
+{
+    if (m_commandBuffer)
+        object.draw(*this, m_commandBuffer);
+}
+
+
+bool RenderTarget::end(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 {
     vkCmdEndRendering(cmd);
+    m_commandBuffer = VK_NULL_HANDLE;
 
     const VkImageMemoryBarrier imageMemoryBarrier =
     {

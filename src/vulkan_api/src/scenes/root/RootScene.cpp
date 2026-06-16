@@ -192,3 +192,17 @@ bool RootScene::create() noexcept
 
 	return true;
 }
+
+
+void RootScene::draw(class RenderTarget& target, VkCommandBuffer cmd) const noexcept
+{
+    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.handle);
+    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, m_descriptorSets.data(), 0, VK_NULL_HANDLE);
+
+    VkDeviceSize offsets[] = {0};
+    VkBuffer vertexBuffers[] = { m_vertexBuffer.handle };
+
+    vkCmdBindVertexBuffers(cmd, 0, 1, vertexBuffers, offsets);
+    vkCmdBindIndexBuffer(cmd, m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdDrawIndexed(cmd, m_indexBuffer.size, 1, 0, 0, 0);
+}
