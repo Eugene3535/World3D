@@ -5,6 +5,7 @@
 #include "view/View.hpp"
 #include "pipeline/descriptors/DescriptorSetLayout.hpp"
 #include "pipeline/state/PipelineState.hpp"
+#include "render/RenderTarget.hpp"
 #include "scenes/root/RootScene.hpp"
 
 
@@ -194,10 +195,10 @@ bool RootScene::create() noexcept
 }
 
 
-void RootScene::draw(class RenderTarget& target, VkCommandBuffer cmd) const noexcept
+void RootScene::draw(RenderTarget& target, VkCommandBuffer cmd) const noexcept
 {
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.handle);
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, m_descriptorSets.data(), 0, VK_NULL_HANDLE);
+    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, m_descriptorSets.data() + target.getIndex(), 0, VK_NULL_HANDLE);
 
     VkDeviceSize offsets[] = {0};
     VkBuffer vertexBuffers[] = { m_vertexBuffer.handle };

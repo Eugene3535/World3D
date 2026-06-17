@@ -7,6 +7,14 @@
 static const VkClearValue clearColor = { 0.f, 0.f, 0.f, 1.f };
 
 
+RenderTarget::RenderTarget() noexcept:
+    m_commandBuffer(VK_NULL_HANDLE),
+    m_currentFrame(0)
+{
+
+}
+
+
 // TODO add clear color value
 bool RenderTarget::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 {
@@ -26,6 +34,7 @@ bool RenderTarget::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 
     VkResult result = vkBeginCommandBuffer(cmd, &beginInfo);
     m_commandBuffer = cmd;
+    m_currentFrame = imageIndex;
 
     if (result != VK_SUCCESS)
         return false;
@@ -211,4 +220,10 @@ bool RenderTarget::end(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
     );
 
     return (vkEndCommandBuffer(cmd) == VK_SUCCESS);
+}
+
+
+uint32_t RenderTarget::getIndex() const noexcept
+{
+    return m_currentFrame;
 }
