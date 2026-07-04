@@ -223,7 +223,7 @@ bool RenderTarget::end(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 }
 
 
-uint32_t RenderTarget::getIndex() const noexcept
+uint32_t RenderTarget::getCurrentFrame() const noexcept
 {
     return m_currentFrame;
 }

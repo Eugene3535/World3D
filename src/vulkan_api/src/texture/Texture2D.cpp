@@ -50,9 +50,9 @@ namespace
 bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
 {
     const auto context = vkContext;
-    const auto physicalDevice = vkContext->getPhysicalDevice(); 
-    const auto logicalDevice = vkContext->getLogicalDevice();
-    const auto queue = vkContext->getQueue();
+    const auto physicalDevice = vkContext->getPhysicalDevice()->getHandle(); 
+    const auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
+    const auto queue = vkContext->getLogicalDevice()->getQueue();
 
     StbImage stbImage(filepath, STBI_rgb_alpha);
 
@@ -131,7 +131,7 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
 
 void Texture2D::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
 
     vkDestroySampler(logicalDevice, sampler, VK_NULL_HANDLE);
     vkDestroyImageView(logicalDevice, imageView, VK_NULL_HANDLE);

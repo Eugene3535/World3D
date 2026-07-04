@@ -9,7 +9,6 @@
 #include "scenes/root/RootScene.hpp"
 #include "render/RenderTarget.hpp"
 #include "camera/Camera.hpp"
-#include "resources/ResourceManager.hpp"
 
 
 class Engine
@@ -29,6 +28,7 @@ public:
     View          m_view;
     SyncManager   m_sync;
 
+    VkCommandPool m_commandPool;
     std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> m_commandBuffers;
 
     std::unique_ptr<RootScene> m_rootScene;
@@ -40,8 +40,6 @@ public:
     int32_t m_height;
 
     Camera camera;
-
-    ResourceManager m_resources;
 };
 
 #endif // !ENGINE_HPP

@@ -14,17 +14,14 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
         .pPoolSizes    = poolSizes.data()
     };
 
-    bool result = (vkCreateDescriptorPool(vkContext->getLogicalDevice(), &poolInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS);
+    return (vkCreateDescriptorPool(vkContext->getLogicalDevice()->getHandle(), &poolInfo, VK_NULL_HANDLE, &m_handle) == VK_SUCCESS);
+}
 
-    if (result)
-    {
-        for(const auto& poolSize : poolSizes)
-            types.push_back(poolSize.type);
 
-        return true;
-    }
-
-    return false;
+void DescriptorPool::destroy() noexcept
+{
+    auto device = vkContext->getLogicalDevice()->getHandle();
+    vkDestroyDescriptorPool(device, m_handle, VK_NULL_HANDLE);
 }
 
 
@@ -34,12 +31,12 @@ bool DescriptorPool::allocateDescriptorSets(std::span<VkDescriptorSet> descripto
     {
         .sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         .pNext              = VK_NULL_HANDLE,
-        .descriptorPool     = handle,
+        .descriptorPool     = m_handle,
         .descriptorSetCount = static_cast<uint32_t>(descriptorSets.size()),
         .pSetLayouts        = layouts
     };
 
-    return (vkAllocateDescriptorSets(vkContext->getLogicalDevice(), &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
+    return (vkAllocateDescriptorSets(vkContext->getLogicalDevice()->getHandle(), &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
 }
 
 
@@ -59,7 +56,7 @@ void DescriptorPool::writeBufferInfo(const VkDescriptorBufferInfo* bufferInfo, V
         .pTexelBufferView = VK_NULL_HANDLE
     };
 
-    vkUpdateDescriptorSets(vkContext->getLogicalDevice(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
+    vkUpdateDescriptorSets(vkContext->getLogicalDevice()->getHandle(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
 }
 
 
@@ -79,11 +76,5 @@ void DescriptorPool::writeCombinedImageSampler(const VkDescriptorImageInfo* imag
         .pTexelBufferView = VK_NULL_HANDLE
     };
 
-    vkUpdateDescriptorSets(vkContext->getLogicalDevice(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
-}
-
-
-void DescriptorPool::destroy() noexcept
-{
-    vkDestroyDescriptorPool(vkContext->getLogicalDevice(), handle, VK_NULL_HANDLE);
+    vkUpdateDescriptorSets(vkContext->getLogicalDevice()->getHandle(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
 }

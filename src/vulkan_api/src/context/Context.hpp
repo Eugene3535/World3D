@@ -1,7 +1,8 @@
-#ifndef VULKAN_CONTEXT_HPP
-#define VULKAN_CONTEXT_HPP
+#pragma once
 
-#include <vulkan/vulkan.h>
+#include "context/instance/VulkanInstance.hpp"
+#include "context/gpu/PhysicalDevice.hpp"
+#include "context/device/LogicalDevice.hpp"
 
 class VulkanContext final
 {
@@ -9,30 +10,18 @@ public:
     VulkanContext() noexcept;
 
     bool create() noexcept;
-
-    VkInstance       getInstance()         const noexcept;
-    VkPhysicalDevice getPhysicalDevice()   const noexcept;
-    VkDevice         getLogicalDevice()    const noexcept;
-    VkQueue          getQueue()            const noexcept;
-    uint32_t         getQueueFamilyIndex() const noexcept;
+    void destroy() noexcept;
 
     static VulkanContext* getContext() noexcept;
 
-private:
-    bool createInstance()  noexcept;
-    bool selectVideoCard() noexcept;
-    bool createDevice()    noexcept;
+    const VulkanInstance* getInstance()       const noexcept;
+    const PhysicalDevice* getPhysicalDevice() const noexcept;
+    const LogicalDevice*  getLogicalDevice()  const noexcept;
 
-    struct
-    {
-        VkInstance       instance;
-        VkPhysicalDevice physicalDevice;
-        VkDevice         logicalDevice;
-        VkQueue          queue;
-        uint32_t         queueFamilyIndex;
-    } m_context;
+private:
+    VulkanInstance m_instance;
+    PhysicalDevice m_physicalDevice;
+    LogicalDevice m_logicalDevice;
 };
 
 #define vkContext VulkanContext::getContext()
-
-#endif // !VULKAN_CONTEXT_HPP

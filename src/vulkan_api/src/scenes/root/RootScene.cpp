@@ -1,6 +1,5 @@
 #include <cglm/struct/affine-pre.h>
 
-#include "resources/ResourceManager.hpp"
 #include "view/swapchain/Swapchain.hpp"
 #include "view/View.hpp"
 #include "pipeline/descriptors/DescriptorSetLayout.hpp"
@@ -20,14 +19,14 @@ RootScene::~RootScene()
 {
 	m_bufferHolder.destroy();
 	m_texture.destroy();
-	m_descriptorPool.destroy();
 	m_pipeline.destroy();
+    m_descriptorPool.destroy();
 }
 
 
-bool RootScene::create() noexcept
+bool RootScene::create(void* commandPool) noexcept
 {
-	VkDevice device = vkContext->getLogicalDevice();
+	VkDevice device = vkContext->getLogicalDevice()->getHandle();
 
 	{// Pipeline
 		std::array<Shader, 2> shaders = { Shader(device), Shader(device) };
@@ -89,11 +88,6 @@ bool RootScene::create() noexcept
 			return false;	
 	}
 
-    auto commandPoolHandle = static_cast<VkCommandPool>(vkResource->getObjectByType(VK_OBJECT_TYPE_COMMAND_POOL));
-
-    if (!commandPoolHandle)
-        return false;
-
     {
         m_uniformBuffers.resize(vkView->getSwapchain()->getImageCount());
         std::array<mat4s, 1> identity = { glms_mat4_identity() };
@@ -101,11 +95,11 @@ bool RootScene::create() noexcept
         for (size_t i = 0; i < m_uniformBuffers.size(); ++i) 
             m_uniformBuffers[i] = m_bufferHolder.allocate<mat4s>(identity,
                                                                  VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
-                                                                 commandPoolHandle);
+                                                                 static_cast<VkCommandPool>(commandPool));
     }
 
 	{
-        if(!m_texture.loadFromFile("res/textures/container.jpg", commandPoolHandle))
+        if (!m_texture.loadFromFile("res/textures/container.jpg", static_cast<VkCommandPool>(commandPool)))
             return false;
 
         const std::array<VkDescriptorBufferInfo, 2> bufferInfos = 
@@ -181,8 +175,8 @@ bool RootScene::create() noexcept
             20, 21, 22, 22, 23, 20   // bottom
         };
 
-		m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, commandPoolHandle);
-		m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, commandPoolHandle);
+		m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, static_cast<VkCommandPool>(commandPool));
+		m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, static_cast<VkCommandPool>(commandPool));
 
 		if (!m_vertexBuffer.handle)
 			return false;
@@ -198,7 +192,7 @@ bool RootScene::create() noexcept
 void RootScene::draw(RenderTarget& target, VkCommandBuffer cmd) const noexcept
 {
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.handle);
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, m_descriptorSets.data() + target.getIndex(), 0, VK_NULL_HANDLE);
+    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, m_descriptorSets.data() + target.getCurrentFrame(), 0, VK_NULL_HANDLE);
 
     VkDeviceSize offsets[] = {0};
     VkBuffer vertexBuffers[] = { m_vertexBuffer.handle };

@@ -49,44 +49,32 @@ bool Engine::createMainView(uint64_t windowHandle) noexcept
 
 bool Engine::createPipeline() noexcept
 {
-    if ( ! vkResource->allocateObject(VK_OBJECT_TYPE_COMMAND_POOL, []() -> void*
+    const VkCommandPoolCreateInfo poolInfo = 
     {
-        VkCommandPool handle = VK_NULL_HANDLE;
+        .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+        .pNext            = VK_NULL_HANDLE,
+        .flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+        .queueFamilyIndex = vkContext->getLogicalDevice()->getQueueFamilyIndex()
+    };
 
-        const VkCommandPoolCreateInfo poolInfo = 
-        {
-            .sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            .pNext            = VK_NULL_HANDLE,
-            .flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-            .queueFamilyIndex = vkContext->getQueueFamilyIndex()
-        };
-
-        if (vkCreateCommandPool(vkContext->getLogicalDevice(), &poolInfo, VK_NULL_HANDLE, &handle) != VK_SUCCESS)
-            return VK_NULL_HANDLE;
-
-        return static_cast<void*>(handle);
-    })) return false;
-
-    auto commandPoolHandle = static_cast<VkCommandPool>(vkResource->getObjectByType(VK_OBJECT_TYPE_COMMAND_POOL));
-
-    if (!commandPoolHandle)
+    if (vkCreateCommandPool(vkContext->getLogicalDevice()->getHandle(), &poolInfo, VK_NULL_HANDLE, &m_commandPool) != VK_SUCCESS)
         return false;
 
     const VkCommandBufferAllocateInfo allocInfo = 
     {
         .sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
         .pNext              = VK_NULL_HANDLE,
-        .commandPool        = commandPoolHandle,
+        .commandPool        = m_commandPool,
         .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
         .commandBufferCount = static_cast<uint32_t>(m_commandBuffers.size())
     };
 
-    if (vkAllocateCommandBuffers(vkContext->getLogicalDevice(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(vkContext->getLogicalDevice()->getHandle(), &allocInfo, m_commandBuffers.data()) != VK_SUCCESS)
         return false;
 
 	auto rootScene = std::make_unique<RootScene>(nullptr);
 
-    if (rootScene->create())
+    if (rootScene->create(m_commandPool))
     {
         m_rootScene.swap(rootScene);
 
@@ -103,8 +91,8 @@ void Engine::drawFrame() noexcept
         return;
 
 	uint32_t frame  = m_sync.currentFrame;
-    const auto logicalDevice = vkContext->getLogicalDevice();
-    const auto queue = vkContext->getQueue();
+    const auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
+    const auto queue = vkContext->getLogicalDevice()->getQueue();
 
     VkResult result = vkWaitForFences(logicalDevice, 1, &m_sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
 
@@ -161,16 +149,6 @@ void Engine::drawFrame() noexcept
     memcpy(data, &modelViewProjection, sizeof(mat4s));
     vkUnmapMemory(logicalDevice, m_rootScene->m_uniformBuffers[imageIndex].memory);
 
-//  write command buffer
-    // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_rootScene->m_pipeline.handle);
-    // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_rootScene->m_pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
-
-    // VkDeviceSize offsets[] = {0};
-    // VkBuffer vertexBuffers[] = { m_rootScene->m_vertexBuffer.handle };
-
-    // vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-    // vkCmdBindIndexBuffer(commandBuffer, m_rootScene->m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
-    // vkCmdDrawIndexed(commandBuffer, m_rootScene->m_indexBuffer.size, 1, 0, 0, 0);
     m_renderer.draw(*m_rootScene);
 
     if (!m_renderer.end(commandBuffer, imageIndex))
@@ -237,11 +215,11 @@ void Engine::drawFrame() noexcept
 
 void Engine::destroy() noexcept
 {
-	const auto logicalDevice = vkContext->getLogicalDevice();
-
 	m_rootScene.reset();
+    vkDestroyCommandPool(vkContext->getLogicalDevice()->getHandle(), m_commandPool, VK_NULL_HANDLE);
 	m_sync.destroy();
 	m_view.destroy();
+    m_context.destroy();
 }
 
 

@@ -4,7 +4,7 @@
 
 bool SyncManager::create() noexcept
 {
-    auto logicalDevice = vkContext->getLogicalDevice();
+    auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
 
     const VkSemaphoreCreateInfo semaphoreInfo = 
     {
@@ -38,7 +38,7 @@ bool SyncManager::create() noexcept
 
 void SyncManager::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {

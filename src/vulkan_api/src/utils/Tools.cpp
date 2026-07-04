@@ -152,8 +152,8 @@ void copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDe
 
 bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool pool) noexcept
 {
-    auto device = vkContext->getLogicalDevice();
-    auto queue = vkContext->getQueue();
+    auto device = vkContext->getLogicalDevice()->getHandle();
+    auto queue = vkContext->getLogicalDevice()->getQueue();
 
     VkCommandBuffer cmd = begin_single_time_commands(device, pool);
 
@@ -233,8 +233,8 @@ bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLa
 
 bool copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool pool) noexcept
 {
-    auto logicalDevice = vkContext->getLogicalDevice();
-    auto queue = vkContext->getQueue();
+    auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
+    auto queue = vkContext->getLogicalDevice()->getQueue();
 
     VkCommandBuffer cmd = begin_single_time_commands(logicalDevice, pool);
 
@@ -283,8 +283,8 @@ VkImage create_image_2D(VkExtent2D extent,
                      VkMemoryPropertyFlags properties, 
                      VkDeviceMemory* imageMemory) noexcept
 {
-    auto physicalDevive = vkContext->getPhysicalDevice();
-    auto logicalDevice = vkContext->getLogicalDevice();
+    auto physicalDevive = vkContext->getPhysicalDevice()->getHandle();
+    auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
 
     VkImage image = VK_NULL_HANDLE;
 
@@ -365,7 +365,7 @@ VkImageView create_image_view_2D(VkImage image, VkFormat format, VkImageAspectFl
         }
     };
 
-    if (vkCreateImageView(vkContext->getLogicalDevice(), &viewInfo, VK_NULL_HANDLE, &imageView) == VK_SUCCESS)
+    if (vkCreateImageView(vkContext->getLogicalDevice()->getHandle(), &viewInfo, VK_NULL_HANDLE, &imageView) == VK_SUCCESS)
         return imageView;
 
     return VK_NULL_HANDLE;

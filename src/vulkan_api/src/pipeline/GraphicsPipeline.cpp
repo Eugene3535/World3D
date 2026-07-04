@@ -15,8 +15,8 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
 {
     destroy(); // for recreate case
 
-    const auto physicalDevice = vkContext->getPhysicalDevice(); 
-    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto physicalDevice = vkContext->getPhysicalDevice()->getHandle(); 
+    const auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
 
     const VkFormat colorFormat = vkView->getSwapchain()->getColorAttachment(0).format;
     const VkFormat depthFormat = vkView->getSwapchain()->getDepthAttachment().format;
@@ -122,7 +122,7 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
 
 void GraphicsPipeline::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
 
     if (handle)
         vkDestroyPipeline(logicalDevice, handle, VK_NULL_HANDLE);

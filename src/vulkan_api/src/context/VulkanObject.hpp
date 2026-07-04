@@ -1,8 +1,4 @@
-#ifndef RESOURCE_MANAGER_HPP
-#define RESOURCE_MANAGER_HPP
-
-#include <string_view>
-#include <unordered_map>
+#pragma once
 
 #include <vulkan/vulkan.h>
 
@@ -76,30 +72,20 @@
 //     VK_OBJECT_TYPE_MAX_ENUM = 0x7FFFFFFF
 
 
-class ResourceManager
+
+template<class T>
+class VulkanObject
 {
 public:
-    ResourceManager() noexcept;
-    ~ResourceManager();
+    VulkanObject(VkObjectType type) noexcept: m_type(type) {}
+    virtual ~VulkanObject() = default;
 
-    template<class Callback>
-    bool allocateObject(VkObjectType type, Callback&& callback) noexcept;
+    T getHandle() const noexcept{ return m_handle; }
+    VkObjectType getType() const noexcept { return m_type; }
 
-    void* getObjectByType(VkObjectType type) const noexcept;
-
-    std::string_view getObjectTypeAsString(VkObjectType type) const noexcept;
-
-    static ResourceManager* getInstance() noexcept;
+protected:
+    T m_handle {};
 
 private:
-    bool isPrimary(VkObjectType type) const noexcept;
-
-    std::unordered_map<VkObjectType, void*> m_primaryResources;
-    std::unordered_map<VkObjectType, void*> m_secondaryResources;
+    VkObjectType m_type;
 };
-
-#define vkResource ResourceManager::getInstance()
-
-#include "resources/ResourceManager.inl"
-
-#endif // !RESOURCE_MANAGER_HPP

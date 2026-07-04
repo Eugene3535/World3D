@@ -3,7 +3,7 @@
 
 void BufferHolder::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
 
     for(const auto& data : m_buffers)
     {

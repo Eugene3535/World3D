@@ -12,7 +12,7 @@ public:
     void draw(class Drawable& object)                    noexcept;
     bool end(VkCommandBuffer cmd, uint32_t imageIndex)   noexcept;
 
-    uint32_t getIndex() const noexcept;
+    uint32_t getCurrentFrame() const noexcept;
 
 private:
     VkCommandBuffer m_commandBuffer;

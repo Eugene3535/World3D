@@ -22,9 +22,8 @@ struct BufferHolder
     template<class T>
     Buffer allocate(std::span<const T> rawData, VkBufferUsageFlagBits flag, VkCommandPool pool) noexcept
     {
-        const auto context = vkContext;
-        const auto physicalDevice = context->getPhysicalDevice();
-        const auto logicalDevice = context->getLogicalDevice();
+        const auto physicalDevice = vkContext->getPhysicalDevice()->getHandle();
+        const auto logicalDevice = vkContext->getLogicalDevice()->getHandle();
 
         Buffer bufferData = { VK_NULL_HANDLE, VK_NULL_HANDLE, static_cast<uint32_t>(rawData.size()) };
         VkDeviceSize bufferSize = sizeof(T) * rawData.size();
@@ -81,7 +80,7 @@ struct BufferHolder
 
         if (bufferData.handle)
         {
-            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, logicalDevice, pool, context->getQueue());
+            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, logicalDevice, pool, vkContext->getLogicalDevice()->getQueue());
             m_buffers.push_back(bufferData);
 
             return bufferData;

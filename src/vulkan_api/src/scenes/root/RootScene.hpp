@@ -19,13 +19,13 @@ public:
     RootScene(const Scene* parent) noexcept;
     ~RootScene();
 
-    bool create() noexcept override;
+    bool create(void* commandPool) noexcept override;
 
 // private:
     GraphicsPipeline m_pipeline;
 
-    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descriptorSets;
     DescriptorPool m_descriptorPool;
+    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descriptorSets;
 
     Texture2D m_texture;
 

@@ -11,7 +11,7 @@ public:
     explicit Scene(const Scene* parent) noexcept;
     ~Scene();
 
-    virtual bool create() noexcept;
+    virtual bool create(void* commandPool) noexcept;
 
     template<class T>
     bool addScene() noexcept;

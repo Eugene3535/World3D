@@ -7,55 +7,9 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
 include(${CMAKE_SOURCE_DIR}/src/cmake/compile_shaders.cmake)
 compile_shaders(${CMAKE_CURRENT_SOURCE_DIR}/src/shaders ${CMAKE_BINARY_DIR}/shaders)
 
-set(SRC_FILES
-	src/utils/Tools.cpp
-	src/resources/ResourceManager.cpp
-	src/context/Context.cpp
-	src/context/Context.cpp
-	src/view/swapchain/Swapchain.cpp
-	src/view/View.cpp
-	src/pipeline/stages/shader/Shader.cpp
-	src/pipeline/stages/shader/VertexInputState.cpp
-	src/pipeline/descriptors/DescriptorSetLayout.cpp
-	src/pipeline/descriptors/DescriptorPool.cpp
-	src/pipeline/state/PipelineState.cpp
-	src/pipeline/GraphicsPipeline.cpp
-	src/sync/SyncManager.cpp
-	src/texture/Texture2D.cpp
-	src/buffers/BufferHolder.cpp
-	src/render/Drawable.cpp
-	src/render/RenderTarget.cpp
-	src/camera/Camera.cpp
-	src/engine/Engine.cpp
-	src/scenes/Scene.cpp
-	src/scenes/root/RootScene.cpp
-	include/VulkanApi.cpp
-)
-
-set(HDR_FILES
-	src/utils/Tools.hpp
-	src/resources/ResourceManager.hpp
-	src/context/Context.hpp
-	src/view/swapchain/Swapchain.hpp
-	src/view/View.hpp
-	src/pipeline/stages/shader/Shader.hpp
-	src/pipeline/stages/shader/VertexInputState.hpp
-	src/pipeline/descriptors/DescriptorSetLayout.hpp
-	src/pipeline/descriptors/DescriptorPool.hpp
-	src/pipeline/state/PipelineState.hpp
-	src/pipeline/GraphicsPipeline.hpp
-	src/sync/SyncManager.hpp
-	src/texture/Texture2D.hpp
-	src/buffers/BufferHolder.hpp
-	src/render/Drawable.hpp
-	src/render/RenderTarget.hpp
-	src/camera/Camera.hpp
-	src/engine/Engine.hpp
-	src/scenes/Scene.hpp
-	src/scenes/Scene.inl
-	src/scenes/root/RootScene.hpp
-	include/Export.hpp
-	include/VulkanApi.hpp
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS 
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp
 )
 
 set(SHADER_FILES
@@ -66,9 +20,9 @@ set(SHADER_FILES
 source_group("shaders" FILES ${SHADER_FILES})
 
 if(BUILD_SHARED_LIBS)
-	add_library(${VULKAN_API_TARGET_NAME} SHARED ${SRC_FILES} ${HDR_FILES} ${SHADER_FILES})
+	add_library(${VULKAN_API_TARGET_NAME} SHARED ${SRC_FILES} ${SHADER_FILES})
 else()
-	add_library(${VULKAN_API_TARGET_NAME} STATIC ${SRC_FILES} ${HDR_FILES} ${SHADER_FILES})
+	add_library(${VULKAN_API_TARGET_NAME} STATIC ${SRC_FILES} ${SHADER_FILES})
 endif()
 
 include(GenerateExportHeader)

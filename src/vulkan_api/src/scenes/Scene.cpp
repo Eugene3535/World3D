@@ -11,7 +11,7 @@ Scene::Scene(const Scene* parent) noexcept:
 Scene::~Scene() = default;
 
 
-bool Scene::create() noexcept
+bool Scene::create(void* commandPool) noexcept
 {
     return false;
 }   
