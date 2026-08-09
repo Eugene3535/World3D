@@ -1,5 +1,4 @@
-#ifndef GRAPHICS_PIPELINE_HPP
-#define GRAPHICS_PIPELINE_HPP
+#pragma once
 
 
 struct GraphicsPipeline
@@ -11,5 +10,3 @@ struct GraphicsPipeline
     VkPipelineLayout      layout              = VK_NULL_HANDLE;
     VkPipeline            handle              = VK_NULL_HANDLE;
 };
-
-#endif // !GRAPHICS_PIPELINE_HPP

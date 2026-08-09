@@ -14,7 +14,7 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
         .pPoolSizes    = poolSizes.data()
     };
 
-    bool result = (vkCreateDescriptorPool(vkContext->getLogicalDevice(), &poolInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS);
+    bool result = (vkCreateDescriptorPool(vkContext->get<VkDevice>(), &poolInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS);
 
     if (result)
     {
@@ -39,7 +39,7 @@ bool DescriptorPool::allocateDescriptorSets(std::span<VkDescriptorSet> descripto
         .pSetLayouts        = layouts
     };
 
-    return (vkAllocateDescriptorSets(vkContext->getLogicalDevice(), &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
+    return (vkAllocateDescriptorSets(vkContext->get<VkDevice>(), &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
 }
 
 
@@ -59,7 +59,7 @@ void DescriptorPool::writeBufferInfo(const VkDescriptorBufferInfo* bufferInfo, V
         .pTexelBufferView = VK_NULL_HANDLE
     };
 
-    vkUpdateDescriptorSets(vkContext->getLogicalDevice(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
+    vkUpdateDescriptorSets(vkContext->get<VkDevice>(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
 }
 
 
@@ -79,11 +79,11 @@ void DescriptorPool::writeCombinedImageSampler(const VkDescriptorImageInfo* imag
         .pTexelBufferView = VK_NULL_HANDLE
     };
 
-    vkUpdateDescriptorSets(vkContext->getLogicalDevice(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
+    vkUpdateDescriptorSets(vkContext->get<VkDevice>(), 1, &descriptorWrite, 0, VK_NULL_HANDLE);
 }
 
 
 void DescriptorPool::destroy() noexcept
 {
-    vkDestroyDescriptorPool(vkContext->getLogicalDevice(), handle, VK_NULL_HANDLE);
+    vkDestroyDescriptorPool(vkContext->get<VkDevice>(), handle, VK_NULL_HANDLE);
 }

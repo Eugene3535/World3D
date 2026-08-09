@@ -7,63 +7,21 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/shaders)
 include(${CMAKE_SOURCE_DIR}/src/cmake/compile_shaders.cmake)
 compile_shaders(${CMAKE_CURRENT_SOURCE_DIR}/src/shaders ${CMAKE_BINARY_DIR}/shaders)
 
-set(SRC_FILES
-	src/utils/Tools.cpp
-	src/resources/ResourceManager.cpp
-	src/context/Context.cpp
-	src/context/Context.cpp
-	src/view/swapchain/Swapchain.cpp
-	src/view/View.cpp
-	src/pipeline/stages/shader/Shader.cpp
-	src/pipeline/stages/shader/VertexInputState.cpp
-	src/pipeline/descriptors/DescriptorSetLayout.cpp
-	src/pipeline/descriptors/DescriptorPool.cpp
-	src/pipeline/state/PipelineState.cpp
-	src/pipeline/GraphicsPipeline.cpp
-	src/command_pool/CommandBufferPool.cpp
-	src/sync/SyncManager.cpp
-	src/texture/Texture2D.cpp
-	src/buffers/BufferHolder.cpp
-	src/render/Renderer.cpp
-	src/camera/Camera.cpp
-	src/engine/Engine.cpp
-	include/VulkanApi.cpp
+file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
+	${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/*.hpp
 )
 
-set(HDR_FILES
-	src/utils/Tools.hpp
-	src/resources/ResourceManager.hpp
-	src/context/Context.hpp
-	src/view/swapchain/Swapchain.hpp
-	src/view/View.hpp
-	src/pipeline/stages/shader/Shader.hpp
-	src/pipeline/stages/shader/VertexInputState.hpp
-	src/pipeline/descriptors/DescriptorSetLayout.hpp
-	src/pipeline/descriptors/DescriptorPool.hpp
-	src/pipeline/state/PipelineState.hpp
-	src/pipeline/GraphicsPipeline.hpp
-	src/command_pool/CommandBufferPool.hpp
-	src/sync/SyncManager.hpp
-	src/texture/Texture2D.hpp
-	src/buffers/BufferHolder.hpp
-	src/render/Renderer.hpp
-	src/camera/Camera.hpp
-	src/engine/Engine.hpp
-	include/Export.hpp
-	include/VulkanApi.hpp
+file(GLOB SHADER_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/*.vert
+	${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/*.frag
+	${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/*.geom
 )
-
-set(SHADER_FILES
-	src/shaders/vertex_shader.vert
-	src/shaders/fragment_shader.frag
-)
-
-source_group("shaders" FILES ${SHADER_FILES})
 
 if(BUILD_SHARED_LIBS)
-	add_library(${VULKAN_API_TARGET_NAME} SHARED ${SRC_FILES} ${HDR_FILES} ${SHADER_FILES})
+	add_library(${VULKAN_API_TARGET_NAME} SHARED ${SRC_FILES})
 else()
-	add_library(${VULKAN_API_TARGET_NAME} STATIC ${SRC_FILES} ${HDR_FILES} ${SHADER_FILES})
+	add_library(${VULKAN_API_TARGET_NAME} STATIC ${SRC_FILES})
 endif()
 
 include(GenerateExportHeader)
@@ -74,6 +32,10 @@ generate_export_header(${VULKAN_API_TARGET_NAME}
     EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/include/Export.hpp
     STATIC_DEFINE VK_API_STATIC_DEFINE
 )
+
+target_sources(${VULKAN_API_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/Export.hpp)
+target_sources(${VULKAN_API_TARGET_NAME} PRIVATE ${SHADER_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${SRC_FILES})
 
 target_include_directories(${VULKAN_API_TARGET_NAME}
 PUBLIC
@@ -108,4 +70,6 @@ endif()
 
 target_compile_features(${VULKAN_API_TARGET_NAME} PUBLIC cxx_std_20)
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC_FILES} ${HDR_FILES} ${SHADER_FILES})
+if(MSVC)
+	set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${VULKAN_API_TARGET_NAME})
+endif()

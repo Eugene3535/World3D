@@ -1,5 +1,4 @@
-#ifndef VERTEX_INPUT_STATE_HPP
-#define VERTEX_INPUT_STATE_HPP
+#pragma once
 
 #include <vector>
 #include <span>
@@ -26,5 +25,3 @@ struct VertexInputState
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
     VkVertexInputBindingDescription bindingDescription;
 };
-
-#endif // !VERTEX_INPUT_STATE_HPP

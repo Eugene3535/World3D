@@ -1,5 +1,4 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#pragma once
 
 #include <cglm/struct/vec3.h>
 #include <cglm/struct/mat4.h>
@@ -37,5 +36,3 @@ struct Camera
     float movementSpeed;
     float mouseSensitivity;
 };
-
-#endif // !CAMERA_HPP

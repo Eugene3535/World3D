@@ -12,7 +12,7 @@ struct SwapChainSupportDetails
 {
     static std::shared_ptr<SwapChainSupportDetails> querySupport(VkSurfaceKHR surface) noexcept
     {
-        const auto physicalDevice = vkContext->getPhysicalDevice(); 
+        const auto physicalDevice = vkContext->get<VkPhysicalDevice>(); 
 
         auto details = std::make_shared<SwapChainSupportDetails>();
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details->capabilities);
@@ -96,7 +96,7 @@ Swapchain::Swapchain(VkSurfaceKHR surface) noexcept:
 bool Swapchain::create() noexcept
 {
     auto context = vkContext;
-    VkDevice device = context->getLogicalDevice();
+    VkDevice device = context->get<VkDevice>();
 
     VkSwapchainKHR oldSwapchain = m_handle;
 
@@ -178,7 +178,7 @@ bool Swapchain::create() noexcept
             if (m_depthBuffer.attachment.format == VK_FORMAT_UNDEFINED)
             {
                 constexpr std::array<VkFormat, 3> formats = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
-                m_depthBuffer.attachment.format = vktools::find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, context->getPhysicalDevice());
+                m_depthBuffer.attachment.format = vktools::find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, context->get<VkPhysicalDevice>());
             }
 
             if (m_depthBuffer.attachment.format != VK_FORMAT_UNDEFINED)
@@ -207,7 +207,7 @@ bool Swapchain::create() noexcept
 
 void Swapchain::destroy() noexcept
 {
-    VkDevice device = vkContext->getLogicalDevice();
+    VkDevice device = vkContext->get<VkDevice>();
 
     if(m_handle)
     {

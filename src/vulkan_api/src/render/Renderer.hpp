@@ -1,5 +1,4 @@
-#ifndef RENDERER_HPP
-#define RENDERER_HPP
+#pragma once
 
 #include <vulkan/vulkan.h>
 
@@ -10,5 +9,3 @@ struct Renderer
 
     VkClearValue clearColor = { 0.f, 0.f, 0.f, 1.f };
 };
-
-#endif // !RENDERER_HPP

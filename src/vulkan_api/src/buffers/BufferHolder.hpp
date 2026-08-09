@@ -1,5 +1,4 @@
-#ifndef BUFFER_HOLDER_HPP
-#define BUFFER_HOLDER_HPP
+#pragma once
 
 #include <cstring>
 #include <vector>
@@ -23,8 +22,8 @@ struct BufferHolder
     Buffer allocate(std::span<const T> rawData, VkBufferUsageFlagBits flag, VkCommandPool pool) noexcept
     {
         const auto context = vkContext;
-        const auto physicalDevice = context->getPhysicalDevice();
-        const auto logicalDevice = context->getLogicalDevice();
+        const auto physicalDevice = context->get<VkPhysicalDevice>();
+        const auto logicalDevice = context->get<VkDevice>();
 
         Buffer bufferData = { VK_NULL_HANDLE, VK_NULL_HANDLE, static_cast<uint32_t>(rawData.size()) };
         VkDeviceSize bufferSize = sizeof(T) * rawData.size();
@@ -81,7 +80,7 @@ struct BufferHolder
 
         if (bufferData.handle)
         {
-            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, logicalDevice, pool, context->getQueue());
+            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, logicalDevice, pool, context->get<VkQueue>());
             m_buffers.push_back(bufferData);
 
             return bufferData;
@@ -96,5 +95,3 @@ struct BufferHolder
 private:
     std::vector<Buffer> m_buffers;
 };
-
-#endif // !BUFFER_HOLDER_HPP

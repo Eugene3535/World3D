@@ -1,5 +1,4 @@
-#ifndef VULKAN_API_HPP
-#define VULKAN_API_HPP
+#pragma once
 
 #include <memory>
 
@@ -26,5 +25,3 @@ public:
 private:
     std::shared_ptr<void> m_engine;
 };
-
-#endif // !VULKAN_API_HPP

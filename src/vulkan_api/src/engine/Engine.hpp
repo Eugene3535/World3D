@@ -1,6 +1,6 @@
-#ifndef ENGINE_HPP
-#define ENGINE_HPP
+#pragma once
 
+#include "files/FileProvider.hpp"
 #include "view/View.hpp"
 #include "pipeline/descriptors/DescriptorPool.hpp"
 #include "pipeline/GraphicsPipeline.hpp"
@@ -10,7 +10,6 @@
 #include "buffers/BufferHolder.hpp"
 #include "render/Renderer.hpp"
 #include "camera/Camera.hpp"
-#include "resources/ResourceManager.hpp"
 
 
 class Engine
@@ -52,7 +51,5 @@ public:
 
     Camera camera;
 
-    ResourceManager m_resources;
+    FileProvider m_fileProvider;
 };
-
-#endif // !ENGINE_HPP

@@ -1,5 +1,4 @@
-#ifndef DESCRIPTOR_POOL_HPP
-#define DESCRIPTOR_POOL_HPP
+#pragma once
 
 #include <vector>
 #include <span>
@@ -17,5 +16,3 @@ struct DescriptorPool
     VkDescriptorPool handle = VK_NULL_HANDLE;
     std::vector<VkDescriptorType> types;
 };
-
-#endif // !DESCRIPTOR_POOL_HPP

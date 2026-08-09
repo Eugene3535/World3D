@@ -1,5 +1,4 @@
-#ifndef PIPELINE_STATE_HPP
-#define PIPELINE_STATE_HPP
+#pragma once
 
 #include <vector>
 #include <span>
@@ -26,5 +25,3 @@ struct PipelineState
     VkDescriptorSetLayoutCreateInfo              layoutInfo;
     std::span<const VkPushConstantRange>         constantRanges;
 };
-
-#endif // !PIPELINE_STATE_HPP

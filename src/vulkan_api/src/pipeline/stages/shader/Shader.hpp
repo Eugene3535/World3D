@@ -1,5 +1,6 @@
-#ifndef SHADER_MODULE_HPP
-#define SHADER_MODULE_HPP
+#pragma once
+
+#include <filesystem>
 
 #include <vulkan/vulkan.h>
 
@@ -13,7 +14,7 @@ public:
     Shader& operator = (Shader&&)      noexcept = delete;
     ~Shader();
 
-    bool loadFromFile(const char* filePath, VkShaderStageFlagBits stage) noexcept;
+    bool loadFromFile(const std::filesystem::path& filePath, VkShaderStageFlagBits stage) noexcept;
 
     VkPipelineShaderStageCreateInfo getInfo() const noexcept;
 
@@ -22,6 +23,3 @@ private:
     VkShaderModule        m_module;
     VkShaderStageFlagBits m_stage;
 };
-
-
-#endif // !SHADER_MODULE_HPP

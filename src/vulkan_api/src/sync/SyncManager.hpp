@@ -1,5 +1,4 @@
-#ifndef SYNC_MANAGER_HPP
-#define SYNC_MANAGER_HPP
+#pragma once
 
 #include <array>
 
@@ -16,5 +15,3 @@ struct SyncManager
     std::array<VkFence, MAX_FRAMES_IN_FLIGHT>     inFlightFences           = { VK_NULL_HANDLE, VK_NULL_HANDLE };
     uint32_t currentFrame = 0;
 };
-
-#endif // !SYNC_MANAGER_HPP

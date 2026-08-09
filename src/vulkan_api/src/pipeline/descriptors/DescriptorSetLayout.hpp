@@ -1,5 +1,4 @@
-#ifndef DESCRIPTOR_SET_LAYOUT_HPP
-#define DESCRIPTOR_SET_LAYOUT_HPP
+#pragma once
 
 #include <vector>
 
@@ -14,5 +13,3 @@ public:
 private:
     std::vector<VkDescriptorSetLayoutBinding> m_bindings;
 };
-
-#endif // !DESCRIPTOR_SET_LAYOUT_HPP

@@ -1,11 +1,12 @@
-#ifndef TEXTURE2D_HPP
-#define TEXTURE2D_HPP
+#pragma once
+
+#include <filesystem>
 
 #include <vulkan/vulkan.h>
 
 struct Texture2D
 {
-    bool loadFromFile(const char* filepath, VkCommandPool pool) noexcept;
+    bool loadFromFile(const std::filesystem::path& filepath, VkCommandPool pool) noexcept;
     void destroy() noexcept;
 
     VkDeviceMemory imageMemory = VK_NULL_HANDLE;
@@ -13,5 +14,3 @@ struct Texture2D
     VkImageView    imageView   = VK_NULL_HANDLE;
     VkSampler      sampler     = VK_NULL_HANDLE;
 };
-
-#endif // !TEXTURE2D_HPP

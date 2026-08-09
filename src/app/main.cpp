@@ -1,6 +1,5 @@
 #include "MainWindow.hpp"
 
-
 int main()
 {
 	const char title[] = "World 3D";

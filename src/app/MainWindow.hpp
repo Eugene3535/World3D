@@ -1,5 +1,4 @@
-#ifndef VULKAN_APP_HPP
-#define VULKAN_APP_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -21,5 +20,3 @@ private:
     struct GLFWwindow* m_window;
 	VulkanApi m_api;
 };
-
-#endif // !VULKAN_APP_HPP

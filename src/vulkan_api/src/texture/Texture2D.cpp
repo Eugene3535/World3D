@@ -1,6 +1,4 @@
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
+#include "files/StbImage.hpp"
 #include "utils/Tools.hpp"
 #include "context/Context.hpp"
 #include "texture/Texture2D.hpp"
@@ -8,26 +6,6 @@
 
 namespace
 {
-    struct StbImage
-    {
-        StbImage(const char* filepath, int mode) noexcept:
-            pixels(nullptr), width(0), height(0), channels(0)
-        {
-            pixels = stbi_load(filepath, &width, &height, &channels, mode);
-        }
-
-        ~StbImage()
-        {
-            stbi_image_free(pixels);
-        }
-
-        stbi_uc* pixels;
-        int32_t  width;
-        int32_t  height;
-        int32_t  channels;
-    };
-
-
     struct BufferMemoryDeleter
     {
         ~BufferMemoryDeleter() 
@@ -47,16 +25,16 @@ namespace
 
 
 
-bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
+bool Texture2D::loadFromFile(const std::filesystem::path& filepath, VkCommandPool pool) noexcept
 {
     const auto context = vkContext;
-    const auto physicalDevice = vkContext->getPhysicalDevice(); 
-    const auto logicalDevice = vkContext->getLogicalDevice();
-    const auto queue = vkContext->getQueue();
+    const auto physicalDevice = vkContext->get<VkPhysicalDevice>(); 
+    const auto logicalDevice = vkContext->get<VkDevice>();
+    const auto queue = vkContext->get<VkQueue>();
 
-    StbImage stbImage(filepath, STBI_rgb_alpha);
+    StbImage stbImage;
 
-    if ( ! stbImage.pixels )
+    if (!stbImage.loadFromFile(filepath, StbImage::Alpha))
         return false;
 
     VkDeviceSize imageSize = stbImage.width * stbImage.height * 4;
@@ -77,7 +55,7 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
 
     if (void* data; vkMapMemory(logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data) == VK_SUCCESS)
     {
-        memcpy(data, stbImage.pixels, static_cast<size_t>(imageSize));
+        memcpy(data, stbImage.pixels.get(), static_cast<size_t>(imageSize));
         vkUnmapMemory(logicalDevice, stagingBufferMemory);
     }
     else return false;
@@ -131,7 +109,7 @@ bool Texture2D::loadFromFile(const char* filepath, VkCommandPool pool) noexcept
 
 void Texture2D::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto logicalDevice = vkContext->get<VkDevice>();
 
     vkDestroySampler(logicalDevice, sampler, VK_NULL_HANDLE);
     vkDestroyImageView(logicalDevice, imageView, VK_NULL_HANDLE);

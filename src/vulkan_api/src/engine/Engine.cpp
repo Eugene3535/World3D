@@ -60,15 +60,18 @@ bool Engine::createMainView(uint64_t windowHandle) noexcept
 
 bool Engine::createPipeline() noexcept
 {
-	VkDevice device = m_context.getLogicalDevice();
+	VkDevice device = m_context.get<VkDevice>();
 
 	{// Pipeline
 		std::array<Shader, 2> shaders = { Shader(device), Shader(device) };
 
-		if (!shaders[0].loadFromFile("res/shaders/vertex_shader.spv", VK_SHADER_STAGE_VERTEX_BIT))
+        const auto vertPath = m_fileProvider.findPathToFile("vertex_shader.spv");
+        const auto fragPath = m_fileProvider.findPathToFile("fragment_shader.spv");
+
+		if (!shaders[0].loadFromFile(vertPath, VK_SHADER_STAGE_VERTEX_BIT))
 			return false;
 
-		if (!shaders[1].loadFromFile("res/shaders/fragment_shader.spv", VK_SHADER_STAGE_FRAGMENT_BIT))
+		if (!shaders[1].loadFromFile(fragPath, VK_SHADER_STAGE_FRAGMENT_BIT))
 			return false;
 
         std::array<const VertexInputState::AttributeType, 2> attributes =
@@ -136,7 +139,9 @@ bool Engine::createPipeline() noexcept
     }
 
 	{
-        if(!m_texture.loadFromFile("res/textures/container.jpg", m_commandPool.handle))
+        const auto imagePath = FileProvider::findPathToFile("container.jpg");
+
+        if(!m_texture.loadFromFile(imagePath, m_commandPool.handle))
             return false;
 
         const std::array<VkDescriptorBufferInfo, 2> bufferInfos = 
@@ -232,8 +237,8 @@ void Engine::drawFrame() noexcept
         return;
 
 	uint32_t frame  = m_sync.currentFrame;
-    const auto logicalDevice = vkContext->getLogicalDevice();
-    const auto queue = vkContext->getQueue();
+    const auto logicalDevice = vkContext->get<VkDevice>();
+    const auto queue = vkContext->get<VkQueue>();
 
     VkResult result = vkWaitForFences(logicalDevice, 1, &m_sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
 
@@ -368,7 +373,7 @@ void Engine::drawFrame() noexcept
 
 void Engine::destroy() noexcept
 {
-	const auto logicalDevice = vkContext->getLogicalDevice();
+	const auto logicalDevice = vkContext->get<VkDevice>();
 
 	m_bufferHolder.destroy();
 	m_texture.destroy();
@@ -377,6 +382,7 @@ void Engine::destroy() noexcept
 	m_descriptorPool.destroy();
 	m_pipeline.destroy();
 	m_view.destroy();
+    m_context.destroy();
 }
 
 

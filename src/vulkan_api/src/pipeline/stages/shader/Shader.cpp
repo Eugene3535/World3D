@@ -28,9 +28,9 @@ Shader::~Shader()
 }
 
 
-bool Shader::loadFromFile(const char* filePath, VkShaderStageFlagBits stage) noexcept
+bool Shader::loadFromFile(const std::filesystem::path& filePath, VkShaderStageFlagBits stage) noexcept
 {
-    if (auto shaderModule = create_shader_module(m_device, filePath))
+    if (auto shaderModule = create_shader_module(m_device, filePath.string().c_str()))
     {
         m_module = shaderModule;
         m_stage = stage;

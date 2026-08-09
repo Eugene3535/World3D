@@ -1,7 +1,6 @@
 #include <cassert>
 
 #include "context/Context.hpp"
-#include "resources/ResourceManager.hpp"
 #include "view/swapchain/Swapchain.hpp"
 #include "view/View.hpp"
 
@@ -43,6 +42,8 @@ void View::destroy() noexcept
 {
     if (m_swapchain)
         m_swapchain->destroy();
+
+    vkDestroySurfaceKHR(vkContext->get<VkInstance>(), m_surface, VK_NULL_HANDLE);
 }
 
 
@@ -76,43 +77,38 @@ bool View::createSurface(uint64_t windowHandle) noexcept
     if (m_surface)
         return true;
 
-    VkInstance instance = vkContext->getInstance();
+    auto instance = vkContext->get<VkInstance>();
 
-    return vkResource->allocateObject(VK_OBJECT_TYPE_SURFACE_KHR, [this, instance, windowHandle]() -> void*
-    {
 #ifdef _WIN32
-        const VkWin32SurfaceCreateInfoKHR surfaceInfo = 
-        {
-            .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-            .pNext     = VK_NULL_HANDLE,
-            .flags     = 0,
-            .hinstance = GetModuleHandle(VK_NULL_HANDLE),
-            .hwnd      = reinterpret_cast<HWND>(windowHandle)
-        };
+    const VkWin32SurfaceCreateInfoKHR surfaceInfo = 
+    {
+        .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+        .pNext     = VK_NULL_HANDLE,
+        .flags     = 0,
+        .hinstance = GetModuleHandle(VK_NULL_HANDLE),
+        .hwnd      = reinterpret_cast<HWND>(windowHandle)
+    };
 
-        if (vkCreateWin32SurfaceKHR(instance, &surfaceInfo, VK_NULL_HANDLE, &m_surface) == VK_SUCCESS)
-            return static_cast<void*>(m_surface);
+    return (vkCreateWin32SurfaceKHR(instance, &surfaceInfo, VK_NULL_HANDLE, &m_surface) == VK_SUCCESS);
 #endif
 
 #ifdef __linux__
-        xcb_connection_t* connection = xcb_connect(VK_NULL_HANDLE, VK_NULL_HANDLE);
+    xcb_connection_t* connection = xcb_connect(VK_NULL_HANDLE, VK_NULL_HANDLE);
 
-        if (xcb_connection_has_error(connection))
-            return false;
-            
-        const VkXcbSurfaceCreateInfoKHR surfaceInfo =
-        {
-            .sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
-            .pNext      = VK_NULL_HANDLE,
-            .flags      = 0,
-            .connection = connection,
-            .window     = static_cast<xcb_window_t>(windowHandle)
-        };
+    if (xcb_connection_has_error(connection))
+        return false;
+        
+    const VkXcbSurfaceCreateInfoKHR surfaceInfo =
+    {
+        .sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
+        .pNext      = VK_NULL_HANDLE,
+        .flags      = 0,
+        .connection = connection,
+        .window     = static_cast<xcb_window_t>(windowHandle)
+    };
 
-        if (vkCreateXcbSurfaceKHR(instance, &surfaceInfo, VK_NULL_HANDLE, &m_surface) == VK_SUCCESS)
-            return static_cast<void*>(m_surface);
+    return (vkCreateXcbSurfaceKHR(instance, &surfaceInfo, VK_NULL_HANDLE, &m_surface) == VK_SUCCESS);
 #endif
 
-        return VK_NULL_HANDLE;
-    });
+    return false;
 }

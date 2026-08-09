@@ -4,7 +4,7 @@
 
 bool CommandBufferPool::create() noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto logicalDevice = vkContext->get<VkDevice>();
 
     const VkCommandPoolCreateInfo poolInfo = 
     {
@@ -32,6 +32,6 @@ bool CommandBufferPool::create() noexcept
 
 void CommandBufferPool::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->getLogicalDevice();
+    const auto logicalDevice = vkContext->get<VkDevice>();
     vkDestroyCommandPool(logicalDevice, handle, VK_NULL_HANDLE);
 }
