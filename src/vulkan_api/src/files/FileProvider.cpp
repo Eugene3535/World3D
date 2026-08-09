@@ -4,6 +4,10 @@
 #include <Windows.h>
 #endif
 
+#ifdef __linux__
+#include <unistd.h>
+#endif
+
 #include "files/FileProvider.hpp"
 
 
@@ -45,14 +49,13 @@ static std::filesystem::path get_root_path() noexcept
 
     if (count != -1) 
     {
-        size_t pos = path.find_last_of('/');
+        size_t pos = buffer.find_last_of('/');
 
         if (pos != std::string::npos)
             buffer.resize(pos);
 
         return std::filesystem::path(buffer);
     }
- 
 #endif
 
     return {};

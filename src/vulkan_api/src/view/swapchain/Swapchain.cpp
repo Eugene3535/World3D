@@ -1,7 +1,6 @@
 #include <memory>
 #include <array>
 #include <algorithm>
-#include <climits>
 
 #include "utils/Tools.hpp"
 #include "context/Context.hpp"
@@ -37,7 +36,7 @@ struct SwapChainSupportDetails
     {
         VkExtent2D actualExtent = { 0, 0 };
 
-        if (details->capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+        if (details->capabilities.currentExtent.width != UINT32_MAX)
         {
             return details->capabilities.currentExtent;
         }

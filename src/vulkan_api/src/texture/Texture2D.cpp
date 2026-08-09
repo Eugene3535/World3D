@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "files/StbImage.hpp"
 #include "utils/Tools.hpp"
 #include "context/Context.hpp"
