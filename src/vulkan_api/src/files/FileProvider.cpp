@@ -56,7 +56,7 @@ static std::filesystem::path get_root_path() noexcept
 
         return std::filesystem::path(buffer);
     }
-#endif
+#endif  // !__linux__
 
     return {};
 }
@@ -66,9 +66,6 @@ FileProvider::FileProvider() noexcept
 {
     assert(s_instance == nullptr);
     s_instance = this;
-
-    s_instance->m_exeDir = get_root_path();
-    assert(!s_instance->m_exeDir.empty());
 }
 
 
@@ -76,7 +73,12 @@ std::filesystem::path FileProvider::findPathToFile(const std::string& filename) 
 {
     if (s_instance)
     {
-        std::filesystem::path resFolder = s_instance->m_exeDir / "res";
+        auto& exeDir = s_instance->m_exeDir;
+
+        if (exeDir.empty())
+            exeDir = get_root_path();
+
+        const std::filesystem::path resFolder = exeDir / "res";
 
         if (std::filesystem::exists(resFolder))
         {

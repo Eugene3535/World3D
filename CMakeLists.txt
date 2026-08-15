@@ -28,19 +28,30 @@ else()
 endif()
 
 if(WIN32)
+	if(MSVC)
+		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/msvc")
+	elseif(MINGW)
+		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/mingw")
+	endif()
+endif()
+
+if(LINUX)
+	list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/linux")
+endif()
+
+if (MSVC)
+    add_compile_options(/utf-8)
+endif()
+
+find_package(glfw3 CONFIG REQUIRED)
+find_package(cglm CONFIG REQUIRED)
+find_package(magic_enum CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+
+if(WIN32)
 	add_definitions(-DNOMINMAX)
 endif()
 
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-set(CGLM_USE_TESTS OFF CACHE BOOL "Disable tests" FORCE)
-
-add_subdirectory(${EXTERNAL_SOURCE_DIR}/glfw glfw)
-add_subdirectory(${EXTERNAL_SOURCE_DIR}/cglm cglm)
-add_subdirectory(${EXTERNAL_SOURCE_DIR}/spdlog spdlog)
-add_subdirectory(${EXTERNAL_SOURCE_DIR}/magic_enum magic_enum)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/vulkan_api)
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/app)
 
