@@ -5,7 +5,9 @@
 #include "OpenGLApi.hpp"
 #include "VulkanApi.hpp"
 
+#include "camera/Camera.hpp"
 #include "window/MainWindow.hpp"
+
 
 // TODO remove magic numbers
 static float lastX = 400;
@@ -13,8 +15,9 @@ static float lastY = 300;
 static bool vulkanAvailable = true;
 
 
-MainWindow::MainWindow() noexcept:
-    m_glfwWindow(nullptr)
+MainWindow::MainWindow(Camera& camera) noexcept:
+    m_glfwWindow(nullptr),
+    m_camera(camera)
 {
 
 }
@@ -27,7 +30,7 @@ MainWindow::~MainWindow()
 }
 
 
-bool MainWindow::create(const char* title, int width, int height) noexcept
+bool MainWindow::open(int width, int height) noexcept
 {
     if (glfwInit() != GLFW_TRUE)
         return false;
@@ -62,45 +65,58 @@ bool MainWindow::create(const char* title, int width, int height) noexcept
 }
 
 
-int MainWindow::run() noexcept
+void MainWindow::close() const noexcept
 {
-    float deltaTime = 0.f;
-    float lastFrame = 0.f;
+    glfwSetWindowShouldClose(m_glfwWindow, GLFW_TRUE);
+}
 
-    while (!glfwWindowShouldClose(m_glfwWindow))
-    {
-        float currentFrame = (float)glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
 
-        if (glfwGetKey(m_glfwWindow, GLFW_KEY_W) == GLFW_PRESS)
-            m_camera.processKeyboard(Camera::Direction::FORWARD, deltaTime);
+void MainWindow::pollEvents() const noexcept
+{
+    glfwPollEvents();
+}
 
-        if (glfwGetKey(m_glfwWindow, GLFW_KEY_S) == GLFW_PRESS)
-            m_camera.processKeyboard(Camera::Direction::BACKWARD, deltaTime);
 
-        if (glfwGetKey(m_glfwWindow, GLFW_KEY_A) == GLFW_PRESS)
-            m_camera.processKeyboard(Camera::Direction::LEFT, deltaTime);
+void MainWindow::display() const noexcept
+{
+    m_graphicsApi->drawFrame();
 
-        if (glfwGetKey(m_glfwWindow, GLFW_KEY_D) == GLFW_PRESS)
-            m_camera.processKeyboard(Camera::Direction::RIGHT, deltaTime);
+    if (!vulkanAvailable) // TODO вынести в апи (present для вулкана)
+        glfwSwapBuffers(m_glfwWindow);
+}
 
-        m_graphicsApi->drawFrame();
 
-        glfwPollEvents();
+float MainWindow::getElapsedTime() const noexcept
+{
+    return static_cast<float>(glfwGetTime());
+}
 
-        if (!vulkanAvailable)
-            glfwSwapBuffers(m_glfwWindow);
-    }
 
-    return 0;
+ivec2s MainWindow::getSize() const noexcept
+{
+    int width, height;
+	glfwGetWindowSize(m_glfwWindow, &width, &height);
+
+    return { width, height };
+}
+
+
+bool MainWindow::isKeyPressed(int key) const noexcept
+{
+    return (glfwGetKey(m_glfwWindow, key) == GLFW_PRESS);
+}
+
+
+bool MainWindow::isOpen() const noexcept
+{
+    return (!glfwWindowShouldClose(m_glfwWindow));
 }
 
 
 bool MainWindow::createOpenGLWindow(int width, int height) noexcept
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);

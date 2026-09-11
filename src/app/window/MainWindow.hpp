@@ -2,16 +2,25 @@
 
 #include <memory>
 
-#include "camera/Camera.hpp"
+#include <cglm/struct/vec2.h>
 
 class MainWindow
 {
 public:
-    MainWindow() noexcept;
+    MainWindow(class Camera& camera) noexcept;
     ~MainWindow();
 
-    bool create(const char* title, int width, int height) noexcept;
-    int run() noexcept;
+    bool open(int width, int height) noexcept;
+    void close() const noexcept;
+
+    void pollEvents() const noexcept;
+    void display() const noexcept;
+
+    float getElapsedTime() const noexcept;
+    ivec2s getSize() const noexcept;
+
+    bool isKeyPressed(int key) const noexcept;
+    bool isOpen() const noexcept;
 
 private:
     bool createOpenGLWindow(int width, int height) noexcept;
@@ -19,6 +28,6 @@ private:
     void initCallbacks() noexcept;
 
     struct GLFWwindow* m_glfwWindow;
-    Camera m_camera;
+    class Camera& m_camera;
 	std::unique_ptr<class GraphicsApi> m_graphicsApi;
 };

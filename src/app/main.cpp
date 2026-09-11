@@ -1,5 +1,7 @@
 #include "files/FileProvider.hpp"
+#include "camera/Camera.hpp"
 #include "window/MainWindow.hpp"
+#include "loop/MainLoop.hpp"
 
 
 
@@ -7,15 +9,17 @@ int main(int argc, char* argv[])
 {
     FileProvider provider(argv[0]);
 
-	const char title[] = "World 3D";
     const int width = 800;
     const int height = 600;
 
-	MainWindow app;
-	int retCode = -1;
+    Camera hud;
+	MainWindow window(hud);
 
-	if (app.create(title, width, height))
-		retCode = app.run();
+	if (!window.open(width, height))
+		return 1;
 
-    return retCode;
+    MainLoop loop(window);
+    loop(hud);
+
+    return 0;
 }
