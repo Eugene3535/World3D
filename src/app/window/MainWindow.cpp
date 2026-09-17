@@ -4,15 +4,11 @@
 
 #include "OpenGLApi.hpp"
 #include "VulkanApi.hpp"
-
 #include "camera/Camera.hpp"
 #include "window/MainWindow.hpp"
 
 
-// TODO remove magic numbers
-static float lastX = 400;
-static float lastY = 300;
-static bool vulkanAvailable = true;
+static bool vulkanAvailable = false;
 
 
 MainWindow::MainWindow(Camera& camera) noexcept:
@@ -35,9 +31,13 @@ bool MainWindow::open(int width, int height) noexcept
     if (glfwInit() != GLFW_TRUE)
         return false;
 
-    m_graphicsApi = std::make_unique<VulkanApi>(m_camera);
+    if (vulkanAvailable)
+    {
+        m_graphicsApi = std::make_unique<VulkanApi>(m_camera);
+        vulkanAvailable = m_graphicsApi->createContext();
+    }
 
-    if (!m_graphicsApi->createContext())
+    if (!vulkanAvailable)
     {
         m_graphicsApi.reset(new OpenGLApi(m_camera));
         vulkanAvailable = false;
@@ -45,12 +45,12 @@ bool MainWindow::open(int width, int height) noexcept
     
     if (vulkanAvailable)
     {
-        if (!createVulkanWindow(width, height))
+        if (!createVulkanApi(width, height))
             return false;
     }
     else
     {
-        if (!createOpenGLWindow(width, height))
+        if (!createOpenGLApi(width, height))
             return false;
     }
 
@@ -60,6 +60,7 @@ bool MainWindow::open(int width, int height) noexcept
     initCallbacks();
 
     m_graphicsApi->resize(width, height);
+    m_data.cursor = { width * 0.5f, height * 0.5f };
 
     return true;
 }
@@ -113,7 +114,7 @@ bool MainWindow::isOpen() const noexcept
 }
 
 
-bool MainWindow::createOpenGLWindow(int width, int height) noexcept
+bool MainWindow::createOpenGLApi(int width, int height) noexcept
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -133,7 +134,7 @@ bool MainWindow::createOpenGLWindow(int width, int height) noexcept
         if (!m_graphicsApi->createView(0))
             return false;
 
-        m_graphicsApi->resize(width, height);
+        m_data.cursor = { width * 0.5f, height * 0.5f };
 
         return true;
     }
@@ -142,7 +143,7 @@ bool MainWindow::createOpenGLWindow(int width, int height) noexcept
 }
 
 
-bool MainWindow::createVulkanWindow(int width, int height) noexcept
+bool MainWindow::createVulkanApi(int width, int height) noexcept
 {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
@@ -185,19 +186,14 @@ void MainWindow::initCallbacks() noexcept
             glfwSetWindowShouldClose(window, GLFW_TRUE);
     });
 
-    glfwSetCursorPosCallback(m_glfwWindow, [](GLFWwindow* window, double xposIn, double yposIn) -> void
+    glfwSetCursorPosCallback(m_glfwWindow, [](GLFWwindow* window, double xpos, double ypos) -> void
     {
         if (auto* wnd = static_cast<MainWindow*>(glfwGetWindowUserPointer(window)))
         {
-            float xpos = (float)xposIn;
-            float ypos = (float)yposIn;
+            float xoffset = static_cast<float>(xpos) - wnd->m_data.cursor.x;
+            float yoffset = vulkanAvailable ? (static_cast<float>(ypos) - wnd->m_data.cursor.y) : (wnd->m_data.cursor.y - static_cast<float>(ypos));
 
-            float xoffset = xpos - lastX;
-            float yoffset = ypos - lastY;
-
-            lastX = xpos;
-            lastY = ypos;
-
+            wnd->m_data.cursor = { static_cast<float>(xpos), static_cast<float>(ypos) };
             wnd->m_camera.processMouseMovement(xoffset, yoffset);
         }
     });

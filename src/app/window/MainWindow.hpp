@@ -23,11 +23,16 @@ public:
     bool isOpen() const noexcept;
 
 private:
-    bool createOpenGLWindow(int width, int height) noexcept;
-    bool createVulkanWindow(int width, int height) noexcept;
+    bool createOpenGLApi(int width, int height) noexcept;
+    bool createVulkanApi(int width, int height) noexcept;
     void initCallbacks() noexcept;
 
     struct GLFWwindow* m_glfwWindow;
     class Camera& m_camera;
 	std::unique_ptr<class GraphicsApi> m_graphicsApi;
+
+    struct WindowData
+    {
+        vec2s cursor;
+    } m_data;
 };
