@@ -3,6 +3,8 @@
 #include <cstdio>
 #endif
 
+#include <glad/glad.h>
+
 #include "program/Shader.hpp"
 
 
@@ -58,7 +60,7 @@ GLuint Shader::loadFromFile(const std::filesystem::path& filepath, GLenum shader
         m_type = shaderType;
         std::string source;
 
-        if (FILE* f = fopen(filepath.string().c_str(), "r"); f != nullptr)
+        if (FILE* f = fopen(filepath.string().c_str(), "r"))
         {
             fseek(f, 0, SEEK_END);
             size_t length = ftell(f);
@@ -71,19 +73,21 @@ GLuint Shader::loadFromFile(const std::filesystem::path& filepath, GLenum shader
         if (!source.empty())
         {
             uint32_t shader = glCreateShader(shaderType);
-            const char* c_str = source.c_str();
+            const char* src = source.c_str();
 
-            glShaderSource(shader, 1, &c_str, 0);
+            glShaderSource(shader, 1, &src, 0);
             glCompileShader(shader);
 
-            int32_t success = 0;
+            GLint success;
             glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
             if (success == GL_FALSE)
             {
-                char info_log[1024]{};
-                glGetShaderInfoLog(shader, sizeof(info_log), nullptr, info_log);
-                printf("Shader compilation status: error\n%s\n ------------------------------------------------------- \n", info_log);
+                GLchar infoLog[1024]{};
+                glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
+#ifdef DEBUG
+                printf("Shader compilation status: error\n%s\n ------------------------------------------------------- \n", infoLog);
+#endif
             }
             else
             {

@@ -1,14 +1,12 @@
 #pragma once
 
-#include <vector>
+#include "GfxApiExport.hpp"
+#include "geometry/GraphicsData.hpp"
 
-#include <cglm/struct/vec3.h>
-
-
-class GeometryGenerator3D
+class GFX_API GeometryGenerator3D
 {
 public:
-
+    bool createGrid(Grid3D& grid) noexcept;
 
 private:
 

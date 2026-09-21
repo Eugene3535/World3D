@@ -45,21 +45,21 @@ add_custom_command(TARGET ${MAIN_APP_TARGET_NAME} POST_BUILD
 
 if(WIN32)
 	if(MSVC)
-		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/msvc/bin")
+		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/msvc")
 
 		add_custom_command(TARGET ${MAIN_APP_TARGET_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/cglm-0$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/cglm-0$<$<CONFIG:Debug>:d>.dll"
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/glfw3$<$<CONFIG:Debug>:d>.dll"  "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/glfw3$<$<CONFIG:Debug>:d>.dll"
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/spdlog$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/spdlog$<$<CONFIG:Debug>:d>.dll"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/cglm/bin/cglm-0$<$<CONFIG:Debug>:d>.dll"   "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/cglm-0$<$<CONFIG:Debug>:d>.dll"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/glfw3/bin/glfw3$<$<CONFIG:Debug>:d>.dll"   "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/glfw3$<$<CONFIG:Debug>:d>.dll"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/spdlog/bin/spdlog$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/spdlog$<$<CONFIG:Debug>:d>.dll"
 			VERBATIM
 		)
 	elseif(MINGW)
-		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/mingw/bin")
+		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/mingw")
 
 		add_custom_command(TARGET ${MAIN_APP_TARGET_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/libcglm-0$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/libcglm-0$<$<CONFIG:Debug>:d>.dll"
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/glfw3$<$<CONFIG:Debug>:d>.dll"     "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/glfw3$<$<CONFIG:Debug>:d>.dll"
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/libspdlog$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/libspdlog$<$<CONFIG:Debug>:d>.dll"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/cglm/bin/libcglm-0$<$<CONFIG:Debug>:d>.dll"   "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/libcglm-0$<$<CONFIG:Debug>:d>.dll"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/glfw3/bin/glfw3$<$<CONFIG:Debug>:d>.dll"      "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/glfw3$<$<CONFIG:Debug>:d>.dll"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/spdlog/bin/libspdlog$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${MAIN_APP_TARGET_NAME}>/libspdlog$<$<CONFIG:Debug>:d>.dll"
 			VERBATIM
 		)
 	endif()

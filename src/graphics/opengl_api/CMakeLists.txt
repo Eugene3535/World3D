@@ -63,17 +63,17 @@ add_custom_command(TARGET ${OPENGL_API_TARGET_NAME} POST_BUILD
 
 if(WIN32)
 	if(MSVC)
-		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/msvc/bin")
+		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/msvc")
 
 		add_custom_command(TARGET ${OPENGL_API_TARGET_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/glad$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${OPENGL_API_TARGET_NAME}>/glad$<$<CONFIG:Debug>:d>.dll"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/glad/bin/glad$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${OPENGL_API_TARGET_NAME}>/glad$<$<CONFIG:Debug>:d>.dll"
 			VERBATIM
 		)
 	elseif(MINGW)
-		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/mingw/bin")
+		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/mingw")
 
 		add_custom_command(TARGET ${OPENGL_API_TARGET_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/libglad$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${OPENGL_API_TARGET_NAME}>/libglad$<$<CONFIG:Debug>:d>.dll"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${EXTERNAL_BIN_DIR}/glad/bin/libglad$<$<CONFIG:Debug>:d>.dll" "$<TARGET_FILE_DIR:${OPENGL_API_TARGET_NAME}>/libglad$<$<CONFIG:Debug>:d>.dll"
 			VERBATIM
 		)
 	endif()

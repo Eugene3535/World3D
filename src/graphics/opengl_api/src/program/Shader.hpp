@@ -2,7 +2,6 @@
 
 #include <filesystem>
 
-#include <glad/glad.h>
 
 class Shader final
 {

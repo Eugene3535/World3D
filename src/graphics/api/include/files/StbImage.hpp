@@ -17,7 +17,7 @@ struct GFX_API StbImage
         Alpha
     };
 
-    struct StbImageDeleter 
+    struct GFX_API StbImageDeleter 
     {
         void operator()(uint8_t* src) noexcept;
     };

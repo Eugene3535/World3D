@@ -12,6 +12,7 @@
 #include "files/FileProvider.hpp"
 #include "program/Shader.hpp"
 #include "texture/Texture2D.hpp"
+#include "geometry/GeometryGenerator3D.hpp"
 #include "OpenGLApi.hpp"
 
 
@@ -110,6 +111,23 @@ bool OpenGLApi::createContext() noexcept
     Texture2D texture(m_texture);
 
     if (!texture.loadFromFile(FileProvider::findPathToFile("container.jpg")))
+        return false;
+
+    Grid3D grid = 
+    {
+        .cellCount = { 10, 10 },
+        .isTiled = true,
+        .texture =
+        {
+            .size = texture.getSize(),
+            .isEnabled = true,
+            .isRepeated = false
+        }
+    };
+
+    GeometryGenerator3D gen;
+
+    if (!gen.createGrid(grid))
         return false;
 
     const float vertices[] = 
