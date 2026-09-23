@@ -3,7 +3,7 @@
 #include <filesystem>
 
 #include <vulkan/vulkan.h>
-
+#include <cglm/struct/ivec2.h>
 struct Texture2D
 {
     bool loadFromFile(const std::filesystem::path& filepath, VkCommandPool pool) noexcept;
@@ -13,4 +13,6 @@ struct Texture2D
     VkImage        image       = VK_NULL_HANDLE;
     VkImageView    imageView   = VK_NULL_HANDLE;
     VkSampler      sampler     = VK_NULL_HANDLE;
+
+    ivec2s m_size;
 };

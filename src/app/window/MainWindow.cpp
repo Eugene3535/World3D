@@ -7,7 +7,7 @@
 #include "window/MainWindow.hpp"
 
 
-static bool vulkanAvailable = false;
+static bool vulkanAvailable = true;
 
 
 MainWindow::MainWindow(Camera& camera) noexcept:

@@ -39,6 +39,7 @@ bool Texture2D::loadFromFile(const std::filesystem::path& filepath, VkCommandPoo
     if (!stbImage.loadFromFile(filepath, StbImage::Alpha))
         return false;
 
+    m_size = { stbImage.width, stbImage.height };
     VkDeviceSize imageSize = stbImage.width * stbImage.height * 4;
 
     VkDeviceMemory stagingBufferMemory;

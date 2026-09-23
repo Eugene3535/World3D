@@ -5,6 +5,8 @@
 #include "spdlog/spdlog.h"
 #include <spdlog/sinks/basic_file_sink.h>
 
+
+#include "geometry/GeometryGenerator3D.hpp"
 #include "view/swapchain/Swapchain.hpp"
 #include "pipeline/descriptors/DescriptorSetLayout.hpp"
 #include "pipeline/state/PipelineState.hpp"
@@ -176,48 +178,25 @@ bool Engine::createPipeline() noexcept
     }
 
 	{
-	    constexpr std::array<float, 120> vertices = 
+        Grid3D grid = 
         {
-            -0.5f, -0.5f, 0.5f, 0.f, 0.f,
-             0.5f, -0.5f, 0.5f, 1.f, 0.f,
-             0.5f,  0.5f, 0.5f, 1.f, 1.f,
-            -0.5f,  0.5f, 0.5f, 0.f, 1.f,
-
-            -0.5f, -0.5f, -0.5f, 0.f, 0.f,
-            -0.5f, -0.5f,  0.5f, 1.f, 0.f,
-            -0.5f,  0.5f,  0.5f, 1.f, 1.f,
-            -0.5f,  0.5f, -0.5f, 0.f, 1.f,
-
-             0.5f, -0.5f,  0.5f, 0.f, 0.f,
-             0.5f, -0.5f, -0.5f, 1.f, 0.f,
-             0.5f,  0.5f, -0.5f, 1.f, 1.f,
-             0.5f,  0.5f,  0.5f, 0.f, 1.f,
-
-            -0.5f, -0.5f, -0.5f, 0.f, 0.f,
-             0.5f, -0.5f, -0.5f, 1.f, 0.f,
-             0.5f,  0.5f, -0.5f, 1.f, 1.f,
-            -0.5f,  0.5f, -0.5f, 0.f, 1.f,
-
-            -0.5f, 0.5f,  0.5f, 0.f, 0.f,
-             0.5f, 0.5f,  0.5f, 1.f, 0.f,
-             0.5f, 0.5f, -0.5f, 1.f, 1.f,
-            -0.5f, 0.5f, -0.5f, 0.f, 1.f,
-
-            -0.5f, -0.5f, -0.5f, 0.f, 0.f,
-             0.5f, -0.5f, -0.5f, 1.f, 0.f,
-             0.5f, -0.5f,  0.5f, 1.f, 1.f,
-            -0.5f, -0.5f,  0.5f, 0.f, 1.f
+            .cellCount = { 5, 5 },
+            .isTiled = true,
+            .texture =
+            {
+                .size = m_texture.m_size,
+                .isEnabled = true,
+                .isRepeated = false
+            }
         };
 
-		constexpr std::array<uint32_t, 36> indices =
-        {
-            0,  1,  2,  2,  3,  0,   // front
-            4,  5,  6,  6,  7,  4,   // left
-            8,  9,  10, 10, 11, 8,   // right
-            12, 13, 14, 14, 15, 12,  // back
-            16, 17, 18, 18, 19, 16,  // top
-            20, 21, 22, 22, 23, 20   // bottom
-        };
+        GeometryGenerator3D gen;
+
+        if (!gen.createGrid(grid))
+            return false;
+
+        std::span<const float> vertices = grid.vertices;
+        std::span<const uint32_t> indices = grid.indices;
 
 		m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, m_commandPool.handle);
 		m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, m_commandPool.handle);
