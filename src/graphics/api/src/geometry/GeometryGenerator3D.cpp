@@ -29,6 +29,7 @@ bool GeometryGenerator3D::createGrid(Grid3D& grid) noexcept
         float* vertices = grid.vertices.data();
         uint32_t* indices = grid.indices.data();
         uint32_t index = 0;
+        uint32_t cell = 0;
 
         for (uint32_t i = 0; i < height; ++i)
         {
@@ -58,14 +59,15 @@ bool GeometryGenerator3D::createGrid(Grid3D& grid) noexcept
                 vertices[4] = 1.f;
                 vertices += vertexComponentCount;
 
-                indices[0] = index;
-                indices[1] = index + 1;
-                indices[2] = index + 2;
-                indices[3] = index;
-                indices[4] = index + 2;
-                indices[5] = index + 3;
+                indices[index + 0] = cell;
+                indices[index + 1] = cell + 1;
+                indices[index + 2] = cell + 2;
+                indices[index + 3] = cell;
+                indices[index + 4] = cell + 2;
+                indices[index + 5] = cell + 3;
 
                 index += 6; // shift to next cell
+                cell += 4;
             }
         }
     };

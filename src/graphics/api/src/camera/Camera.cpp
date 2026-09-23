@@ -6,9 +6,9 @@
 
 // Default camera values
 static const float YAW         = -90.0f;
-static const float PITCH       =  0.0f;
-static const float SPEED       =  2.5f;
-static const float SENSITIVITY =  0.1f;
+static const float PITCH       = -45.0f;
+static const float SPEED       = 2.5f;
+static const float SENSITIVITY = 0.1f;
 
 
 static void update_camera_vectors(Camera* camera)
@@ -29,7 +29,7 @@ static void update_camera_vectors(Camera* camera)
 
 Camera::Camera() noexcept
 {
-    position = {0.f, 0.f,  3.f};
+    position = {0.f, 2.f,  3.f};
     front    = {0.f, 0.f, -1.f};
     up       = {0.f, 1.f,  0.f};
     right    = {0.f, 0.f,  0.f};

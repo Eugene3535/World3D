@@ -21,11 +21,13 @@ public:
 private:
     void initializeDebug() noexcept;
     
-    uint32_t m_uniformBuffer;
-    uint32_t m_shaderProgram;
-    uint32_t m_vertexBufferObject;
-    uint32_t m_vertexArrayObject;
-    uint32_t m_texture;
+    uint32_t m_uniformBuffer = 0;
+    uint32_t m_shaderProgram = 0;
+    uint32_t m_vertexBufferObject = 0;
+    uint32_t m_indexBufferObject = 0;
+    uint32_t m_vertexArrayObject = 0;
+    uint32_t m_texture = 0;
+    uint32_t m_indexCount = 0;
 
     int32_t m_width = 0;
     int32_t m_height = 0;

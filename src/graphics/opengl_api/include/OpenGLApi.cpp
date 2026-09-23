@@ -12,6 +12,7 @@
 #include "files/FileProvider.hpp"
 #include "program/Shader.hpp"
 #include "texture/Texture2D.hpp"
+#include "vao/VertexBufferLayout.hpp"
 #include "geometry/GeometryGenerator3D.hpp"
 #include "OpenGLApi.hpp"
 
@@ -55,12 +56,7 @@ static GLuint create_program(std::span<const Shader> shaders) noexcept
 
 
 OpenGLApi::OpenGLApi(Camera& camera) noexcept:
-    GraphicsApi(camera),
-    m_uniformBuffer(0),
-    m_shaderProgram(0),
-    m_vertexBufferObject(0),
-    m_vertexArrayObject(0),
-    m_texture(0)
+    GraphicsApi(camera)
 {
 
 }
@@ -70,6 +66,7 @@ OpenGLApi::~OpenGLApi()
 {
     glDeleteVertexArrays(1, &m_vertexArrayObject);
     glDeleteBuffers(1, &m_vertexBufferObject);
+    glDeleteBuffers(1, &m_indexBufferObject);
     glDeleteTextures(1, &m_texture);
     glDeleteProgram(m_shaderProgram);
 }
@@ -115,7 +112,7 @@ bool OpenGLApi::createContext() noexcept
 
     Grid3D grid = 
     {
-        .cellCount = { 10, 10 },
+        .cellCount = { 5, 5 },
         .isTiled = true,
         .texture =
         {
@@ -130,64 +127,27 @@ bool OpenGLApi::createContext() noexcept
     if (!gen.createGrid(grid))
         return false;
 
-    const float vertices[] = 
-    {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    std::span<float> vertices = grid.vertices;
+    std::span<uint32_t> indices = grid.indices;
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    glCreateBuffers(1, &m_vertexBufferObject);
+    glCreateBuffers(1, &m_indexBufferObject);
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    glNamedBufferStorage(m_vertexBufferObject, static_cast<GLsizeiptr>(vertices.size_bytes()), vertices.data(), 0);
+	glNamedBufferStorage(m_indexBufferObject, static_cast<GLsizeiptr>(indices.size_bytes()), indices.data(), 0);
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    glCreateVertexArrays(1, &m_vertexArrayObject);
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    const std::array<VertexBufferLayout::Attribute, 2> attributes 
+    { 
+        VertexBufferLayout::Attribute::Float3,
+        VertexBufferLayout::Attribute::Float2
     };
 
-    glGenBuffers(1, &m_vertexBufferObject);
-    glGenVertexArrays(1, &m_vertexArrayObject);
-
-    glBindVertexArray(m_vertexArrayObject);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    VertexBufferLayout layout(attributes);
+    layout.createVertexInputState(m_vertexArrayObject, m_vertexBufferObject);
+    glVertexArrayElementBuffer(m_vertexArrayObject, m_indexBufferObject);
+    m_indexCount = static_cast<uint32_t>(indices.size());
 
     glCreateBuffers(1, &m_uniformBuffer);
     glNamedBufferData(m_uniformBuffer, sizeof(mat4s), nullptr, GL_DYNAMIC_DRAW);
@@ -212,17 +172,15 @@ void OpenGLApi::drawFrame() const noexcept
 {
     mat4s projection = glms_perspective(glm_rad(60.f), (float)m_width / (float)m_height, 0.1f, 100.f);
     const auto modelView = m_camera.getViewMatrix();
-    mat4s modelViewProjection = glms_mat4_mul(projection, modelView);
+    const mat4s modelViewProjection = glms_mat4_mul(projection, modelView);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, m_uniformBuffer);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4s), static_cast<const void*>(modelViewProjection.raw));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glNamedBufferSubData(m_uniformBuffer, 0, sizeof(mat4s), static_cast<const void*>(modelViewProjection.raw));
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindVertexArray(m_vertexArrayObject);
     glBindTextureUnit(0, m_texture);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
     glBindTextureUnit(0, 0);
     glBindVertexArray(0);
 }
