@@ -227,6 +227,26 @@ void Swapchain::destroy() noexcept
 }
 
 
+VkResult Swapchain::present(const VkSemaphore semaphore, uint32_t imageIndex) const noexcept
+{
+    const VkQueue queue = vkContext->get<VkQueue>();
+
+    const VkPresentInfoKHR presentInfo = 
+	{
+		.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		.pNext              = VK_NULL_HANDLE,
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores    = &semaphore,
+		.swapchainCount     = 1,
+		.pSwapchains        = &m_handle,
+		.pImageIndices      = &imageIndex,
+		.pResults           = VK_NULL_HANDLE
+	};
+
+    return vkQueuePresentKHR(queue, &presentInfo);
+}
+
+
 const VkSwapchainKHR& Swapchain::getHandle() const noexcept
 {
     return m_handle;

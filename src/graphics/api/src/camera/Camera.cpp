@@ -29,11 +29,11 @@ static void update_camera_vectors(Camera* camera)
 
 Camera::Camera() noexcept
 {
-    position = {0.f, 2.f,  3.f};
-    front    = {0.f, 0.f, -1.f};
-    up       = {0.f, 1.f,  0.f};
-    right    = {0.f, 0.f,  0.f};
-    worldUp  = {0.f, 1.f,  0.f};
+    position = { 0.f, 2.f,  3.f };
+    front    = { 0.f, 0.f, -1.f };
+    up       = { 0.f, 1.f,  0.f };
+    right    = { 0.f, 0.f,  0.f };
+    worldUp  = { 0.f, 1.f,  0.f };
 
     yaw   = YAW;
     pitch = PITCH;

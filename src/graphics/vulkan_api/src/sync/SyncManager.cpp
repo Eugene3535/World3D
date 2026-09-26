@@ -22,13 +22,13 @@ bool SyncManager::create() noexcept
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        if(vkCreateSemaphore(logicalDevice, &semaphoreInfo, VK_NULL_HANDLE, &imageAvailableSemaphores[i]) != VK_SUCCESS)
+        if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, VK_NULL_HANDLE, &imageAvailableSemaphores[i]) != VK_SUCCESS)
             return false;
 
-        if(vkCreateSemaphore(logicalDevice, &semaphoreInfo, VK_NULL_HANDLE, &renderFinishedSemaphores[i]) != VK_SUCCESS)
+        if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, VK_NULL_HANDLE, &renderFinishedSemaphores[i]) != VK_SUCCESS)
             return false;
 
-        if(vkCreateFence(logicalDevice, &fenceInfo, VK_NULL_HANDLE, &inFlightFences[i]) != VK_SUCCESS)
+        if (vkCreateFence(logicalDevice, &fenceInfo, VK_NULL_HANDLE, &inFlightFences[i]) != VK_SUCCESS)
             return false;
     }
 

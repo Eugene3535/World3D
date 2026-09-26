@@ -22,6 +22,8 @@ public:
     bool create() noexcept;
     void destroy() noexcept;
 
+    VkResult present(const VkSemaphore semaphore, uint32_t imageIndex) const noexcept;
+
     const VkSwapchainKHR& getHandle()                      const noexcept;
     const Attachment&     getColorAttachment(size_t index) const noexcept;
     const Attachment&     getDepthAttachment()             const noexcept;

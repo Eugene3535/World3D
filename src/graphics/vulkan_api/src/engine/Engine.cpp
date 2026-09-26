@@ -251,11 +251,9 @@ void Engine::drawFrame() noexcept
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.handle);
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
 
+//  update matrices
     mat4s projection = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
     mat4s viewMatrix  = m_camera.getViewMatrix();
-    vec3s axis = { 1.0f, 0.3f, 0.5f };
-
-//  update matrices
     mat4s modelViewProjection = glms_mat4_mul(projection, viewMatrix);
 
     void* data;
@@ -264,7 +262,7 @@ void Engine::drawFrame() noexcept
     vkUnmapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory);
 
 //  write command buffer
-    VkDeviceSize offsets[1] = {0};
+    const VkDeviceSize offsets[1] = {0};
     const VkBuffer vertexBuffers[1] = { m_vertexBuffer.handle };
 
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
@@ -274,7 +272,7 @@ void Engine::drawFrame() noexcept
     if (!m_renderer.end(commandBuffer, imageIndex))
         return;
 
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    const VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	
     const VkSubmitInfo submitInfo = 
 	{
@@ -299,19 +297,8 @@ void Engine::drawFrame() noexcept
 		return;
     }
 
-    const VkPresentInfoKHR presentInfo = 
-	{
-		.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-		.pNext              = VK_NULL_HANDLE,
-		.waitSemaphoreCount = 1,
-		.pWaitSemaphores    = &m_sync.renderFinishedSemaphores[frame],
-		.swapchainCount     = 1,
-		.pSwapchains        = &vkView->getSwapchain()->getHandle(),
-		.pImageIndices      = &imageIndex,
-		.pResults           = VK_NULL_HANDLE
-	};
-
-    result = vkQueuePresentKHR(queue, &presentInfo);
+    const auto* swapchain = m_view.getSwapchain();
+    result = swapchain->present(m_sync.renderFinishedSemaphores[frame], imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
     {
