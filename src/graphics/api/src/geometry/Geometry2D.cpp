@@ -3,10 +3,10 @@
 
 #include <cglm/call/vec2.h>
 
-#include "geometry/GeometryGenerator2D.hpp"
+#include "geometry/Geometry2D.hpp"
 
 
-std::vector<float> GeometryGenerator2D::createRectWithRoundedEdges(const RoundedRect2D& info) noexcept
+std::vector<float> Geometry2D::createRectWithRoundedEdges(const RoundedRect2D& info) noexcept
 {
     const int32_t cornerSegments = 8;
 
@@ -75,7 +75,7 @@ std::vector<float> GeometryGenerator2D::createRectWithRoundedEdges(const Rounded
 
 
 
-void GeometryGenerator2D::calculateOutline(std::span<vec2s> points, std::vector<float>& result, float thickness) noexcept
+void Geometry2D::calculateOutline(std::span<vec2s> points, std::vector<float>& result, float thickness) noexcept
 {
     auto compute_normal = [](vec2 p1, vec2 p2) -> vec2s // Compute the normal of a segment
     {

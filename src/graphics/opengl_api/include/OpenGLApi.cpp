@@ -13,7 +13,7 @@
 #include "program/Shader.hpp"
 #include "texture/Texture2D.hpp"
 #include "vao/VertexBufferLayout.hpp"
-#include "geometry/GeometryGenerator3D.hpp"
+#include "geometry/Geometry3D.hpp"
 #include "OpenGLApi.hpp"
 
 
@@ -122,9 +122,7 @@ bool OpenGLApi::createContext() noexcept
         }
     };
 
-    GeometryGenerator3D gen;
-
-    if (!gen.createGrid(grid))
+    if (!grid.create())
         return false;
 
     std::span<float> vertices = grid.vertices;

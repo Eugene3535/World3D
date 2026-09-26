@@ -6,27 +6,12 @@
 #include <spdlog/sinks/basic_file_sink.h>
 
 
-#include "geometry/GeometryGenerator3D.hpp"
+#include "geometry/Geometry3D.hpp"
 #include "view/swapchain/Swapchain.hpp"
 #include "pipeline/descriptors/DescriptorSetLayout.hpp"
 #include "pipeline/state/PipelineState.hpp"
 #include "engine/Engine.hpp"
 
-
-// world space positions of our cubes
-static const vec3s cubePositions[10] = 
-{
-    {  0.0f,  0.0f,  0.0f  },
-    {  2.0f,  5.0f, -15.0f },
-    { -1.5f, -2.2f, -2.5f  },
-    { -3.8f, -2.0f, -12.3f },
-    {  2.4f, -0.4f, -3.5f  },
-    { -1.7f,  3.0f, -7.5f  },
-    {  1.3f, -2.0f, -2.5f  },
-    {  1.5f,  2.0f, -2.5f  },
-    {  1.5f,  0.2f, -1.5f  },
-    { -1.3f,  1.0f, -1.5f  }
-};
 
 
 Engine::Engine(Camera& camera) noexcept:
@@ -190,9 +175,7 @@ bool Engine::createPipeline() noexcept
             }
         };
 
-        GeometryGenerator3D gen;
-
-        if (!gen.createGrid(grid))
+        if (!grid.create())
             return false;
 
         std::span<const float> vertices = grid.vertices;
@@ -273,9 +256,7 @@ void Engine::drawFrame() noexcept
     vec3s axis = { 1.0f, 0.3f, 0.5f };
 
 //  update matrices
-    mat4s model = glms_translate(glms_mat4_identity(), cubePositions[0]);
-    model       = glms_rotate(model, glm_rad(0), axis);
-    mat4s modelViewProjection = glms_mat4_mul(glms_mat4_mul(projection, viewMatrix), model);
+    mat4s modelViewProjection = glms_mat4_mul(projection, viewMatrix);
 
     void* data;
     vkMapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory, 0, sizeof(mat4s), 0, &data);
@@ -283,8 +264,8 @@ void Engine::drawFrame() noexcept
     vkUnmapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory);
 
 //  write command buffer
-    VkDeviceSize offsets[] = {0};
-    VkBuffer vertexBuffers[] = { m_vertexBuffer.handle };
+    VkDeviceSize offsets[1] = {0};
+    const VkBuffer vertexBuffers[1] = { m_vertexBuffer.handle };
 
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);

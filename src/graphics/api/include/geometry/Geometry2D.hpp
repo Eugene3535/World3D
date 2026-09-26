@@ -7,7 +7,7 @@
 #include "geometry/GraphicsData.hpp"
 
 
-class GeometryGenerator2D
+class Geometry2D
 {
 public:
     template<class Callback>
