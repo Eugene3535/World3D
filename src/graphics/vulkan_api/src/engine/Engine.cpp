@@ -70,7 +70,6 @@ bool Engine::createPipeline() noexcept
         };
 
         DescriptorSetLayout uniformDescriptors;
-        uniformDescriptors.addDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
         uniformDescriptors.addDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 
         PipelineState pipelineState;
@@ -87,13 +86,8 @@ bool Engine::createPipeline() noexcept
 	}
 
 	{// Descriptors
-		const std::array<VkDescriptorPoolSize, 2> poolSizes = 
+		const std::array<VkDescriptorPoolSize, 1> poolSizes = 
 		{
-			VkDescriptorPoolSize
-			{
-				.type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-				.descriptorCount = MAX_FRAMES_IN_FLIGHT
-			},
             VkDescriptorPoolSize
 			{
 				.type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -117,37 +111,11 @@ bool Engine::createPipeline() noexcept
 	if (!m_commandPool.create())
         return false;
 
-    {
-        m_uniformBuffers.resize(vkView->getSwapchain()->getImageCount());
-        std::array<mat4s, 1> identity = { glms_mat4_identity() };
-
-        for (size_t i = 0; i < m_uniformBuffers.size(); ++i) 
-            m_uniformBuffers[i] = m_bufferHolder.allocate<mat4s>(identity,
-                                                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
-                                                                 m_commandPool.handle);
-    }
-
 	{
         const auto imagePath = FileProvider::findPathToFile("container.jpg");
 
         if (!m_texture.loadFromFile(imagePath, m_commandPool.handle))
             return false;
-
-        const std::array<VkDescriptorBufferInfo, 2> bufferInfos = 
-        {
-            VkDescriptorBufferInfo
-            {
-                .buffer = m_uniformBuffers[0].handle,
-                .offset = 0,
-                .range = sizeof(mat4s)
-            },
-            VkDescriptorBufferInfo
-            {
-                .buffer = m_uniformBuffers[1].handle,
-                .offset = 0,
-                .range = sizeof(mat4s)
-            }
-        };
                 
         const VkDescriptorImageInfo imageInfo = 
         {
@@ -156,10 +124,8 @@ bool Engine::createPipeline() noexcept
             .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         };
 
-		m_descriptorPool.writeBufferInfo(bufferInfos.data(), m_descriptorSets[0], 0);
-		m_descriptorPool.writeBufferInfo(bufferInfos.data() + 1, m_descriptorSets[1], 0);
-		m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[0], 1);
-		m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[1], 1);
+		m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[0], 0);
+		m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[1], 0);
     }
 
 	{
@@ -256,10 +222,7 @@ void Engine::drawFrame() noexcept
     mat4s viewMatrix  = m_camera.getViewMatrix();
     mat4s modelViewProjection = glms_mat4_mul(projection, viewMatrix);
 
-    void* data;
-    vkMapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory, 0, sizeof(mat4s), 0, &data);
-    memcpy(data, &modelViewProjection, sizeof(mat4s));
-    vkUnmapMemory(logicalDevice, m_uniformBuffers[imageIndex].memory);
+    vkCmdPushConstants(commandBuffer, m_pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), modelViewProjection.raw);
 
 //  write command buffer
     const VkDeviceSize offsets[1] = {0};

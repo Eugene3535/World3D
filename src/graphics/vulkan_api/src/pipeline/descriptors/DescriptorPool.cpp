@@ -15,7 +15,7 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
     };
 
     bool result = (vkCreateDescriptorPool(vkContext->get<VkDevice>(), &poolInfo, VK_NULL_HANDLE, &handle) == VK_SUCCESS);
-
+ 
     if (result)
     {
         for(const auto& poolSize : poolSizes)
