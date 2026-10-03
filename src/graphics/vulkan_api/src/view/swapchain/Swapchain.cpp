@@ -9,11 +9,11 @@
 
 struct SwapChainSupportDetails
 {
-    static std::shared_ptr<SwapChainSupportDetails> querySupport(VkSurfaceKHR surface) noexcept
+    static std::unique_ptr<SwapChainSupportDetails> querySupport(VkSurfaceKHR surface) noexcept
     {
         const auto physicalDevice = vkContext->get<VkPhysicalDevice>(); 
 
-        auto details = std::make_shared<SwapChainSupportDetails>();
+        auto details = std::make_unique<SwapChainSupportDetails>();
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details->capabilities);
 
         uint32_t formatCount;
@@ -32,7 +32,7 @@ struct SwapChainSupportDetails
     }
 
 
-    static VkExtent2D chooseSwapExtent(const std::shared_ptr<SwapChainSupportDetails> details, VkExtent2D currentExtent) noexcept
+    static VkExtent2D chooseSwapExtent(const SwapChainSupportDetails* details, VkExtent2D currentExtent) noexcept
     {
         VkExtent2D actualExtent = { 0, 0 };
 
@@ -110,7 +110,7 @@ bool Swapchain::create() noexcept
     auto swapChainSupportDetails = SwapChainSupportDetails::querySupport(m_surface);
     const uint32_t minImageCount = swapChainSupportDetails->capabilities.minImageCount;
     const auto imageFormat = swapChainSupportDetails->getSurfaceFormat().format;
-    m_extent = SwapChainSupportDetails::chooseSwapExtent(swapChainSupportDetails, m_extent);
+    m_extent = SwapChainSupportDetails::chooseSwapExtent(swapChainSupportDetails.get(), m_extent);
 
     const VkSwapchainCreateInfoKHR swapchainInfo = 
     {
