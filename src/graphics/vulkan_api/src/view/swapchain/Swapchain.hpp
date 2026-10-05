@@ -24,9 +24,9 @@ public:
 
     VkResult present(const VkSemaphore semaphore, uint32_t imageIndex) const noexcept;
 
-    const VkSwapchainKHR& getHandle()                      const noexcept;
-    const Attachment&     getColorAttachment(size_t index) const noexcept;
-    const Attachment&     getDepthAttachment()             const noexcept;
+    const VkSwapchainKHR getHandle()                      const noexcept;
+    const Attachment&    getColorAttachment(size_t index) const noexcept;
+    const Attachment&    getDepthAttachment()             const noexcept;
 
     size_t getImageCount() const noexcept;
     VkExtent2D getSize() const noexcept;

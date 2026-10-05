@@ -247,7 +247,7 @@ VkResult Swapchain::present(const VkSemaphore semaphore, uint32_t imageIndex) co
 }
 
 
-const VkSwapchainKHR& Swapchain::getHandle() const noexcept
+const VkSwapchainKHR Swapchain::getHandle() const noexcept
 {
     return m_handle;
 }
