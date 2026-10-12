@@ -7,7 +7,7 @@
 #include "window/MainWindow.hpp"
 
 
-static bool vulkanAvailable = true;
+static int vulkanAvailable = 1;
 
 
 MainWindow::MainWindow(Camera& camera) noexcept:
@@ -134,6 +134,7 @@ bool MainWindow::createOpenGLApi(int width, int height) noexcept
             return false;
 
         m_data.cursor = { width * 0.5f, height * 0.5f };
+        glfwSetCursorPos(m_glfwWindow, width * 0.5, height * 0.5);
 
         return true;
     }
@@ -164,6 +165,8 @@ bool MainWindow::createVulkanApi(int width, int height) noexcept
 
     if (!m_graphicsApi->createView(windowHandle))
         return false;
+
+    glfwSetCursorPos(m_glfwWindow, width * 0.5, height * 0.5);
 
     return true;
 }

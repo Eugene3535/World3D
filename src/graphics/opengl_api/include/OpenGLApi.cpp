@@ -162,6 +162,12 @@ bool OpenGLApi::createView(uint64_t windowHandle) noexcept
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
+    m_camera.position = { -1.f, 3.f, -1.f };
+    m_camera.yaw = 45.f;
+    m_camera.pitch = -30.f;
+
+    m_camera.processMouseMovement(0, 0);
+
     return true;
 }
 

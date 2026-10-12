@@ -4,30 +4,11 @@
 #include "camera/Camera.hpp"
 
 
-// Default camera values
-static const float YAW         = -90.0f;
-static const float PITCH       = -45.0f;
-static const float SPEED       = 2.5f;
-static const float SENSITIVITY = 0.1f;
-
-
-static void update_camera_vectors(Camera* camera)
-{
-    // calculate the new Front vector
-    vec3s front;
-    front.x = cos(glm_rad(camera->yaw)) * cos(glm_rad(camera->pitch));
-    front.y = sin(glm_rad(camera->pitch));
-    front.z = sin(glm_rad(camera->yaw)) * cos(glm_rad(camera->pitch));
-    camera->front = glms_vec3_normalize(front);
-    
-    // also re-calculate the Right and Up vector
-    camera->right = glms_vec3_normalize(glms_cross(camera->front, camera->worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-    camera->up    = glms_cross(camera->right, camera->front);
-}
-
-
-
-Camera::Camera() noexcept
+Camera::Camera() noexcept:
+    yaw(0.f),
+    pitch(0.f),
+    movementSpeed(2.5f), 
+    mouseSensitivity(0.1f)
 {
     position = { 0.f, 2.f,  3.f };
     front    = { 0.f, 0.f, -1.f };
@@ -35,13 +16,7 @@ Camera::Camera() noexcept
     right    = { 0.f, 0.f,  0.f };
     worldUp  = { 0.f, 1.f,  0.f };
 
-    yaw   = YAW;
-    pitch = PITCH;
-
-    movementSpeed    = SPEED; 
-    mouseSensitivity = SENSITIVITY; 
-
-    update_camera_vectors(this);
+    updateCameraVectors();
 }
 
 
@@ -79,7 +54,7 @@ void Camera::processMouseMovement(float xoffset, float yoffset) noexcept
     pitch = glm_clamp(pitch, -89.f, 89.f);
 
 //  update Front, Right and Up Vectors using the updated Euler angles
-    update_camera_vectors(this);
+    updateCameraVectors();
 }
 
 
@@ -88,4 +63,19 @@ mat4s Camera::getViewMatrix() noexcept
     vec3s center = glms_vec3_add(position, front);
 
     return glms_lookat(position, center, up);
+}
+
+
+void Camera::updateCameraVectors() noexcept
+{
+    // calculate the new Front vector
+    vec3s dir;
+    dir.x = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
+    dir.y = sin(glm_rad(pitch));
+    dir.z = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
+    front = glms_vec3_normalize(dir);
+    
+    // also re-calculate the Right and Up vector
+    right = glms_vec3_normalize(glms_cross(front, worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    up    = glms_cross(right, front);
 }

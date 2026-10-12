@@ -43,6 +43,12 @@ bool Engine::createView(uint64_t windowHandle) noexcept
     if (!m_sync.create())
 		return false;
 
+    m_camera.position = { -1.f, -3.f, -1.f };
+    m_camera.yaw = 45.f;
+    m_camera.pitch = 45.f;
+
+    m_camera.processMouseMovement(0, 0);
+
     return true;
 }
 

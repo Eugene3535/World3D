@@ -23,18 +23,19 @@ public:
     void processMouseMovement(float xoffset, float yoffset) noexcept;
     mat4s getViewMatrix() noexcept;
 
-//  camera Attributes
+
+
+    void updateCameraVectors() noexcept;
+
     vec3s position;
     vec3s front;
     vec3s up;
     vec3s right;
     vec3s worldUp;
 
-//  euler Angles
     float yaw;
     float pitch;
 
-//  camera options
     float movementSpeed;
     float mouseSensitivity;
 };
