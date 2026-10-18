@@ -10,11 +10,8 @@
 static int vulkanAvailable = 1;
 
 
-MainWindow::MainWindow(Camera& camera) noexcept:
-    m_glfwWindow(nullptr),
-    m_camera(camera)
+MainWindow::MainWindow(Camera& camera) noexcept : m_glfwWindow(nullptr), m_camera(camera)
 {
-
 }
 
 
@@ -32,7 +29,7 @@ bool MainWindow::open(int width, int height) noexcept
 
     if (vulkanAvailable)
     {
-        m_graphicsApi = std::make_unique<VulkanApi>(m_camera);
+        m_graphicsApi   = std::make_unique<VulkanApi>(m_camera);
         vulkanAvailable = m_graphicsApi->createContext();
     }
 
@@ -41,7 +38,7 @@ bool MainWindow::open(int width, int height) noexcept
         m_graphicsApi.reset(new OpenGLApi(m_camera));
         vulkanAvailable = false;
     }
-    
+
     if (vulkanAvailable)
     {
         if (!createVulkanApi(width, height))
@@ -59,7 +56,7 @@ bool MainWindow::open(int width, int height) noexcept
     initCallbacks();
 
     m_graphicsApi->resize(width, height);
-    m_data.cursor = { width * 0.5f, height * 0.5f };
+    m_data.cursor = {width * 0.5f, height * 0.5f};
 
     return true;
 }
@@ -95,9 +92,9 @@ float MainWindow::getElapsedTime() const noexcept
 ivec2s MainWindow::getSize() const noexcept
 {
     int width, height;
-	glfwGetWindowSize(m_glfwWindow, &width, &height);
+    glfwGetWindowSize(m_glfwWindow, &width, &height);
 
-    return { width, height };
+    return {width, height};
 }
 
 
@@ -133,7 +130,7 @@ bool MainWindow::createOpenGLApi(int width, int height) noexcept
         if (!m_graphicsApi->createView(0))
             return false;
 
-        m_data.cursor = { width * 0.5f, height * 0.5f };
+        m_data.cursor = {width * 0.5f, height * 0.5f};
         glfwSetCursorPos(m_glfwWindow, width * 0.5, height * 0.5);
 
         return true;
@@ -174,29 +171,33 @@ bool MainWindow::createVulkanApi(int width, int height) noexcept
 
 void MainWindow::initCallbacks() noexcept
 {
-    glfwSetFramebufferSizeCallback(m_glfwWindow, [](GLFWwindow* window, int width, int height) -> void
-    {
-        if (auto* wnd = static_cast<MainWindow*>(glfwGetWindowUserPointer(window)))
-        {
-            wnd->m_graphicsApi->resize(width, height);
-        }
-    });
+    glfwSetFramebufferSizeCallback(m_glfwWindow,
+                                   [](GLFWwindow* window, int width, int height) -> void
+                                   {
+                                       if (auto* wnd = static_cast<MainWindow*>(glfwGetWindowUserPointer(window)))
+                                       {
+                                           wnd->m_graphicsApi->resize(width, height);
+                                       }
+                                   });
 
-    glfwSetKeyCallback(m_glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void
-    {
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-    });
+    glfwSetKeyCallback(m_glfwWindow,
+                       [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void
+                       {
+                           if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+                               glfwSetWindowShouldClose(window, GLFW_TRUE);
+                       });
 
-    glfwSetCursorPosCallback(m_glfwWindow, [](GLFWwindow* window, double xpos, double ypos) -> void
-    {
-        if (auto* wnd = static_cast<MainWindow*>(glfwGetWindowUserPointer(window)))
-        {
-            float xoffset = static_cast<float>(xpos) - wnd->m_data.cursor.x;
-            float yoffset = vulkanAvailable ? (static_cast<float>(ypos) - wnd->m_data.cursor.y) : (wnd->m_data.cursor.y - static_cast<float>(ypos));
+    glfwSetCursorPosCallback(m_glfwWindow,
+                             [](GLFWwindow* window, double xpos, double ypos) -> void
+                             {
+                                 if (auto* wnd = static_cast<MainWindow*>(glfwGetWindowUserPointer(window)))
+                                 {
+                                     float xoffset = static_cast<float>(xpos) - wnd->m_data.cursor.x;
+                                     float yoffset = vulkanAvailable ? (static_cast<float>(ypos) - wnd->m_data.cursor.y)
+                                                                     : (wnd->m_data.cursor.y - static_cast<float>(ypos));
 
-            wnd->m_data.cursor = { static_cast<float>(xpos), static_cast<float>(ypos) };
-            wnd->m_camera.processMouseMovement(xoffset, yoffset);
-        }
-    });
+                                     wnd->m_data.cursor = {static_cast<float>(xpos), static_cast<float>(ypos)};
+                                     wnd->m_camera.processMouseMovement(xoffset, yoffset);
+                                 }
+                             });
 }

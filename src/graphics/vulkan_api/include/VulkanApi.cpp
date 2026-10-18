@@ -1,11 +1,9 @@
-#include "engine/Engine.hpp"
 #include "VulkanApi.hpp"
+#include "engine/Engine.hpp"
 
 
-VulkanApi::VulkanApi(Camera& camera) noexcept:
-    GraphicsApi(camera)
+VulkanApi::VulkanApi(Camera& camera) noexcept : GraphicsApi(camera)
 {
-
 }
 
 
@@ -14,7 +12,6 @@ VulkanApi::~VulkanApi()
     if (m_engine)
         m_engine->destroy();
 }
-
 
 
 bool VulkanApi::createContext() noexcept

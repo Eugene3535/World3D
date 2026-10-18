@@ -1,23 +1,20 @@
 #include <array>
 
+#include "spdlog/spdlog.h"
 #include <cglm/struct/affine-pre.h>
 #include <cglm/struct/cam.h>
-#include "spdlog/spdlog.h"
 #include <spdlog/sinks/basic_file_sink.h>
 
 
+#include "engine/Engine.hpp"
 #include "geometry/Geometry3D.hpp"
-#include "view/swapchain/Swapchain.hpp"
 #include "pipeline/descriptors/DescriptorSetLayout.hpp"
 #include "pipeline/state/PipelineState.hpp"
-#include "engine/Engine.hpp"
+#include "view/swapchain/Swapchain.hpp"
 
 
-
-Engine::Engine(Camera& camera) noexcept:
-    m_camera(camera)
+Engine::Engine(Camera& camera) noexcept : m_camera(camera)
 {
-
 }
 
 
@@ -41,11 +38,11 @@ bool Engine::createView(uint64_t windowHandle) noexcept
         return false;
 
     if (!m_sync.create())
-		return false;
+        return false;
 
-    m_camera.position = { -1.f, -3.f, -1.f };
-    m_camera.yaw = 45.f;
-    m_camera.pitch = 45.f;
+    m_camera.position = {-1.f, -3.f, -1.f};
+    m_camera.yaw      = 45.f;
+    m_camera.pitch    = 45.f;
 
     m_camera.processMouseMovement(0, 0);
 
@@ -55,144 +52,123 @@ bool Engine::createView(uint64_t windowHandle) noexcept
 
 bool Engine::createPipeline() noexcept
 {
-	VkDevice device = m_context.get<VkDevice>();
+    VkDevice device = m_context.get<VkDevice>();
 
-	{// Pipeline
-		std::array<Shader, 2> shaders = { Shader(device), Shader(device) };
+    { // Pipeline
+        std::array<Shader, 2> shaders = {Shader(device), Shader(device)};
 
         const auto vertPath = FileProvider::findPathToFile("vertex_shader.spv");
         const auto fragPath = FileProvider::findPathToFile("fragment_shader.spv");
 
-		if (!shaders[0].loadFromFile(vertPath, VK_SHADER_STAGE_VERTEX_BIT))
-			return false;
+        if (!shaders[0].loadFromFile(vertPath, VK_SHADER_STAGE_VERTEX_BIT))
+            return false;
 
-		if (!shaders[1].loadFromFile(fragPath, VK_SHADER_STAGE_FRAGMENT_BIT))
-			return false;
+        if (!shaders[1].loadFromFile(fragPath, VK_SHADER_STAGE_FRAGMENT_BIT))
+            return false;
 
-        std::array<const VertexInputState::AttributeType, 2> attributes =
-        {
-            VertexInputState::Float3,
-            VertexInputState::Float2
-        };
+        std::array<const VertexInputState::AttributeType, 2> attributes = {VertexInputState::Float3, VertexInputState::Float2};
 
-        DescriptorSetLayout uniformDescriptors;
-        uniformDescriptors.addDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+        DescriptorSetLayout descriptorLayout;
+        descriptorLayout.addDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
 
         PipelineState pipelineState;
-        pipelineState.setupShaderStages(shaders, attributes);
+        pipelineState.setupShaderStages(shaders, attributes, descriptorLayout);
         pipelineState.setupInputAssembler(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         pipelineState.setupViewport();
         pipelineState.setupRasterization(VK_POLYGON_MODE_FILL);
         pipelineState.setupMultisampling();
         pipelineState.setupColorBlending(VK_FALSE);
-        pipelineState.layoutInfo = uniformDescriptors.getInfo();
-            
-		if (!m_pipeline.create(pipelineState))
-			return false;
-	}
 
-	{// Descriptors
-		const std::array<VkDescriptorPoolSize, 1> poolSizes = 
-		{
-            VkDescriptorPoolSize
-			{
-				.type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-				.descriptorCount = MAX_FRAMES_IN_FLIGHT
-			}
-		};
+        if (!m_pipeline.create(pipelineState))
+            return false;
+    }
 
-		if (!m_descriptorPool.create(poolSizes))
-			return false;
+    { // Descriptors
+        const std::array<VkDescriptorPoolSize, 1> poolSizes = {
+            VkDescriptorPoolSize{.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, .descriptorCount = MAX_FRAMES_IN_FLIGHT}};
 
-		VkDescriptorSetLayout layouts[MAX_FRAMES_IN_FLIGHT] = 
-		{ 
-			m_pipeline.descriptorSetLayout, 
-			m_pipeline.descriptorSetLayout 
-		};
+        if (!m_descriptorPool.create(poolSizes))
+            return false;
 
-		if (!m_descriptorPool.allocateDescriptorSets(m_descriptorSets, layouts))
-			return false;	
-	}
+        VkDescriptorSetLayout layouts[MAX_FRAMES_IN_FLIGHT] = {m_pipeline.descriptorSetLayout, m_pipeline.descriptorSetLayout};
 
-	if (!m_commandPool.create())
+        if (!m_descriptorPool.allocateDescriptorSets(m_descriptorSets, layouts))
+            return false;
+    }
+
+    if (!m_commandPool.create())
         return false;
 
-	{
+    {
         const auto imagePath = FileProvider::findPathToFile("container.jpg");
 
         if (!m_texture.loadFromFile(imagePath, m_commandPool.handle))
             return false;
-                
-        const VkDescriptorImageInfo imageInfo = 
-        {
-            .sampler     = m_texture.sampler,
-            .imageView   = m_texture.imageView,
-            .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-        };
 
-		m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[0], 0);
-		m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[1], 0);
+        const VkDescriptorImageInfo imageInfo = {.sampler     = m_texture.sampler,
+                                                 .imageView   = m_texture.imageView,
+                                                 .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+
+        m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[0], 0);
+        m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[1], 0);
     }
 
-	{
-        Grid3D grid = 
-        {
-            .cellCount = { 5, 5 },
-            .isTiled = true,
-            .texture =
-            {
-                .size = m_texture.m_size,
-                .isEnabled = true,
-                .isRepeated = false
-            }
-        };
+    {
+        Grid3D grid = {.cellCount = {5, 5},
+                       .isTiled   = true,
+                       .texture   = {.size = m_texture.m_size, .isEnabled = true, .isRepeated = false}};
 
         if (!grid.create())
             return false;
 
-        std::span<const float> vertices = grid.vertices;
-        std::span<const uint32_t> indices = grid.indices;
+        std::span<const float>    vertices = grid.vertices;
+        std::span<const uint32_t> indices  = grid.indices;
 
-		m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, m_commandPool.handle);
-		m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, m_commandPool.handle);
+        m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, m_commandPool.handle);
+        m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, m_commandPool.handle);
 
-		if (!m_vertexBuffer.handle)
-			return false;
+        if (!m_vertexBuffer.handle)
+            return false;
 
-		if (!m_indexBuffer.handle)
-			return false;
-	}
+        if (!m_indexBuffer.handle)
+            return false;
+    }
 
-	return true;
+    return true;
 }
 
 
 void Engine::drawFrame() noexcept
 {
-    if ( ! (m_width && m_height) )
+    if (!(m_width && m_height))
         return;
 
-	uint32_t frame  = m_sync.currentFrame;
+    uint32_t   frame         = m_sync.currentFrame;
     const auto logicalDevice = vkContext->get<VkDevice>();
-    const auto queue = vkContext->get<VkQueue>();
+    const auto queue         = vkContext->get<VkQueue>();
 
     VkResult result = vkWaitForFences(logicalDevice, 1, &m_sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
 
-	if (result != VK_SUCCESS)
+    if (result != VK_SUCCESS)
     {
 #ifdef DEBUG
         printf("failed to wait for fences!\n");
 #endif
-		return;
+        return;
     }
 
     uint32_t imageIndex;
-    result = vkAcquireNextImageKHR(logicalDevice, m_view.getSwapchain()->getHandle(), UINT64_MAX, m_sync.imageAvailableSemaphores[frame], VK_NULL_HANDLE, &imageIndex);
+    result = vkAcquireNextImageKHR(logicalDevice,
+                                   m_view.getSwapchain()->getHandle(),
+                                   UINT64_MAX,
+                                   m_sync.imageAvailableSemaphores[frame],
+                                   VK_NULL_HANDLE,
+                                   &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
         vkDeviceWaitIdle(logicalDevice);
-		m_view.resize();
+        m_view.resize();
 
         return;
     }
@@ -201,17 +177,17 @@ void Engine::drawFrame() noexcept
 #ifdef DEBUG
         printf("failed to acquire swap chain image!\n");
 #endif
-		return;
+        return;
     }
 
     result = vkResetFences(logicalDevice, 1, &m_sync.inFlightFences[frame]);
 
-	if (result != VK_SUCCESS)
+    if (result != VK_SUCCESS)
     {
 #ifdef DEBUG
         printf("failed to reset fences!\n");
 #endif
-		return;
+        return;
     }
 
     VkCommandBuffer commandBuffer = m_commandPool.commandBuffers[frame];
@@ -223,16 +199,21 @@ void Engine::drawFrame() noexcept
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.handle);
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
 
-//  update matrices
-    mat4s projection = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
-    mat4s viewMatrix  = m_camera.getViewMatrix();
+    //  update matrices
+    mat4s projection          = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
+    mat4s viewMatrix          = m_camera.getViewMatrix();
     mat4s modelViewProjection = glms_mat4_mul(projection, viewMatrix);
 
-    vkCmdPushConstants(commandBuffer, m_pipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4s), modelViewProjection.raw);
+    vkCmdPushConstants(commandBuffer,
+                       m_pipeline.layout,
+                       VK_SHADER_STAGE_VERTEX_BIT,
+                       0,
+                       sizeof(mat4s),
+                       modelViewProjection.raw);
 
-//  write command buffer
-    const VkDeviceSize offsets[1] = {0};
-    const VkBuffer vertexBuffers[1] = { m_vertexBuffer.handle };
+    //  write command buffer
+    const VkDeviceSize offsets[1]       = {0};
+    const VkBuffer     vertexBuffers[1] = {m_vertexBuffer.handle};
 
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.handle, 0, VK_INDEX_TYPE_UINT32);
@@ -241,72 +222,70 @@ void Engine::drawFrame() noexcept
     if (!m_renderer.end(commandBuffer, imageIndex))
         return;
 
-    const VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-	
-    const VkSubmitInfo submitInfo = 
-	{
-		.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		.pNext                = VK_NULL_HANDLE,
-		.waitSemaphoreCount   = 1,
-		.pWaitSemaphores      = m_sync.imageAvailableSemaphores.data() + frame,
-		.pWaitDstStageMask    = waitStages,
-		.commandBufferCount   = 1,
-		.pCommandBuffers      = &m_commandPool.commandBuffers[frame],
-		.signalSemaphoreCount = 1,
-		.pSignalSemaphores    = &m_sync.renderFinishedSemaphores[frame]
-	};
+    const VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
-	result = vkQueueSubmit(queue, 1, &submitInfo, m_sync.inFlightFences[frame]);
+    const VkSubmitInfo submitInfo =
+        {.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+         .pNext                = VK_NULL_HANDLE,
+         .waitSemaphoreCount   = 1,
+         .pWaitSemaphores      = m_sync.imageAvailableSemaphores.data() + frame,
+         .pWaitDstStageMask    = waitStages,
+         .commandBufferCount   = 1,
+         .pCommandBuffers      = &m_commandPool.commandBuffers[frame],
+         .signalSemaphoreCount = 1,
+         .pSignalSemaphores    = &m_sync.renderFinishedSemaphores[frame]};
+
+    result = vkQueueSubmit(queue, 1, &submitInfo, m_sync.inFlightFences[frame]);
 
     if (result != VK_SUCCESS)
     {
 #ifdef DEBUG
         printf("failed to submit draw command buffer!\n");
 #endif
-		return;
+        return;
     }
 
     const auto* swapchain = m_view.getSwapchain();
-    result = swapchain->present(m_sync.renderFinishedSemaphores[frame], imageIndex);
+    result                = swapchain->present(m_sync.renderFinishedSemaphores[frame], imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
     {
         m_framebufferResized = false;
         vkDeviceWaitIdle(logicalDevice);
-		m_view.resize();
+        m_view.resize();
     }
     else if (result != VK_SUCCESS)
     {
 #ifdef DEBUG
         printf("failed to present swap chain image!!\n");
 #endif
-		return;
+        return;
     }
 
     m_sync.currentFrame = (frame + 1) % MAX_FRAMES_IN_FLIGHT;
 
-	vkDeviceWaitIdle(logicalDevice);
+    vkDeviceWaitIdle(logicalDevice);
 }
 
 
 void Engine::destroy() noexcept
 {
-	const auto logicalDevice = vkContext->get<VkDevice>();
+    const auto logicalDevice = vkContext->get<VkDevice>();
 
-	m_bufferHolder.destroy();
-	m_texture.destroy();
-	m_sync.destroy();
-	m_commandPool.destroy();
-	m_descriptorPool.destroy();
-	m_pipeline.destroy();
-	m_view.destroy();
+    m_bufferHolder.destroy();
+    m_texture.destroy();
+    m_sync.destroy();
+    m_commandPool.destroy();
+    m_descriptorPool.destroy();
+    m_pipeline.destroy();
+    m_view.destroy();
     m_context.destroy();
 }
 
 
 void Engine::resize(int width, int height) noexcept
 {
-	m_width = width;
-	m_height = height;
-	m_framebufferResized = true;
+    m_width              = width;
+    m_height             = height;
+    m_framebufferResized = true;
 }

@@ -1,29 +1,29 @@
+#include <array>
 #include <span>
 #include <type_traits>
-#include <array>
 #ifdef DEBUG
 #include <cstdio>
 #endif
 
-#include <glad/glad.h>
 #include <cglm/struct/affine-pre.h>
 #include <cglm/struct/cam.h>
+#include <glad/glad.h>
 
+#include "OpenGLApi.hpp"
 #include "files/FileProvider.hpp"
+#include "geometry/Geometry3D.hpp"
 #include "program/Shader.hpp"
 #include "texture/Texture2D.hpp"
 #include "vao/VertexBufferLayout.hpp"
-#include "geometry/Geometry3D.hpp"
-#include "OpenGLApi.hpp"
 
 
 static GLuint create_program(std::span<const Shader> shaders) noexcept
 {
     GLint program = glCreateProgram();
 
-    for(const auto& shader : shaders)
+    for (const auto& shader : shaders)
         glAttachShader(program, shader.getHandle());
-    
+
     glLinkProgram(program);
 
     int32_t success = GL_FALSE;
@@ -48,17 +48,15 @@ static GLuint create_program(std::span<const Shader> shaders) noexcept
             glUniformBlockBinding(program, uniformBlockIndex, 0);
     }
 
-    for(const auto& shader : shaders)
+    for (const auto& shader : shaders)
         glDetachShader(program, shader.getHandle());
 
     return program;
 }
 
 
-OpenGLApi::OpenGLApi(Camera& camera) noexcept:
-    GraphicsApi(camera)
+OpenGLApi::OpenGLApi(Camera& camera) noexcept : GraphicsApi(camera)
 {
-
 }
 
 
@@ -70,7 +68,6 @@ OpenGLApi::~OpenGLApi()
     glDeleteTextures(1, &m_texture);
     glDeleteProgram(m_shaderProgram);
 }
-
 
 
 bool OpenGLApi::createContext() noexcept
@@ -110,37 +107,26 @@ bool OpenGLApi::createContext() noexcept
     if (!texture.loadFromFile(FileProvider::findPathToFile("container.jpg")))
         return false;
 
-    Grid3D grid = 
-    {
-        .cellCount = { 5, 5 },
-        .isTiled = true,
-        .texture =
-        {
-            .size = texture.getSize(),
-            .isEnabled = true,
-            .isRepeated = false
-        }
-    };
+    Grid3D grid = {.cellCount = {5, 5},
+                   .isTiled   = true,
+                   .texture   = {.size = texture.getSize(), .isEnabled = true, .isRepeated = false}};
 
     if (!grid.create())
         return false;
 
-    std::span<float> vertices = grid.vertices;
-    std::span<uint32_t> indices = grid.indices;
+    std::span<float>    vertices = grid.vertices;
+    std::span<uint32_t> indices  = grid.indices;
 
     glCreateBuffers(1, &m_vertexBufferObject);
     glCreateBuffers(1, &m_indexBufferObject);
 
     glNamedBufferStorage(m_vertexBufferObject, static_cast<GLsizeiptr>(vertices.size_bytes()), vertices.data(), 0);
-	glNamedBufferStorage(m_indexBufferObject, static_cast<GLsizeiptr>(indices.size_bytes()), indices.data(), 0);
+    glNamedBufferStorage(m_indexBufferObject, static_cast<GLsizeiptr>(indices.size_bytes()), indices.data(), 0);
 
     glCreateVertexArrays(1, &m_vertexArrayObject);
 
-    const std::array<VertexBufferLayout::Attribute, 2> attributes 
-    { 
-        VertexBufferLayout::Attribute::Float3,
-        VertexBufferLayout::Attribute::Float2
-    };
+    const std::array<VertexBufferLayout::Attribute, 2> attributes{VertexBufferLayout::Attribute::Float3,
+                                                                  VertexBufferLayout::Attribute::Float2};
 
     VertexBufferLayout layout(attributes);
     layout.createVertexInputState(m_vertexArrayObject, m_vertexBufferObject);
@@ -162,9 +148,9 @@ bool OpenGLApi::createView(uint64_t windowHandle) noexcept
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-    m_camera.position = { -1.f, 3.f, -1.f };
-    m_camera.yaw = 45.f;
-    m_camera.pitch = -30.f;
+    m_camera.position = {-1.f, 3.f, -1.f};
+    m_camera.yaw      = 45.f;
+    m_camera.pitch    = -30.f;
 
     m_camera.processMouseMovement(0, 0);
 
@@ -174,8 +160,8 @@ bool OpenGLApi::createView(uint64_t windowHandle) noexcept
 
 void OpenGLApi::drawFrame() const noexcept
 {
-    mat4s projection = glms_perspective(glm_rad(60.f), (float)m_width / (float)m_height, 0.1f, 100.f);
-    const auto modelView = m_camera.getViewMatrix();
+    mat4s       projection          = glms_perspective(glm_rad(60.f), (float)m_width / (float)m_height, 0.1f, 100.f);
+    const auto  modelView           = m_camera.getViewMatrix();
     const mat4s modelViewProjection = glms_mat4_mul(projection, modelView);
 
     glNamedBufferSubData(m_uniformBuffer, 0, sizeof(mat4s), static_cast<const void*>(modelViewProjection.raw));
@@ -192,8 +178,8 @@ void OpenGLApi::drawFrame() const noexcept
 
 void OpenGLApi::resize(int width, int height) noexcept
 {
-    glViewport(0, 0, width,  height);
-    m_width = width;
+    glViewport(0, 0, width, height);
+    m_width  = width;
     m_height = height;
 }
 
@@ -201,61 +187,83 @@ void OpenGLApi::resize(int width, int height) noexcept
 void OpenGLApi::initializeDebug() noexcept
 {
 #ifdef DEBUG
-	printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
-	printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	printf("Vendor: %s\n", glGetString(GL_VENDOR));
-	printf("Renderer: %s\n", glGetString(GL_RENDERER));
+    printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+    printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    printf("Vendor: %s\n", glGetString(GL_VENDOR));
+    printf("Renderer: %s\n", glGetString(GL_RENDERER));
 
-	glEnable(GL_DEBUG_OUTPUT);
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-	glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, GLchar const* message, void const* user_param)
-	{
-		auto source_str = [source]() -> const char*
-		{
-			switch (source)
-			{
-				case GL_DEBUG_SOURCE_API:             return "API";
-				case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   return "WINDOW SYSTEM";
-				case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER COMPILER";
-				case GL_DEBUG_SOURCE_THIRD_PARTY:     return "THIRD PARTY";
-				case GL_DEBUG_SOURCE_APPLICATION:     return "APPLICATION";
-				case GL_DEBUG_SOURCE_OTHER:           return "OTHER";
-				
-				default: return "UNKNOWN";
-			}
-		}();
+    glDebugMessageCallback(
+        [](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* user_param)
+        {
+            auto source_str = [source]() -> const char*
+            {
+                switch (source)
+                {
+                    case GL_DEBUG_SOURCE_API:
+                        return "API";
+                    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+                        return "WINDOW SYSTEM";
+                    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+                        return "SHADER COMPILER";
+                    case GL_DEBUG_SOURCE_THIRD_PARTY:
+                        return "THIRD PARTY";
+                    case GL_DEBUG_SOURCE_APPLICATION:
+                        return "APPLICATION";
+                    case GL_DEBUG_SOURCE_OTHER:
+                        return "OTHER";
 
-		auto type_str = [type]() -> const char*
-		{
-			switch (type)
-			{
-				case GL_DEBUG_TYPE_ERROR:               return "ERROR";
-				case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
-				case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  return "UNDEFINED_BEHAVIOR";
-				case GL_DEBUG_TYPE_PORTABILITY:         return "PORTABILITY";
-				case GL_DEBUG_TYPE_PERFORMANCE:         return "PERFORMANCE";
-				case GL_DEBUG_TYPE_MARKER:              return "MARKER";
-				case GL_DEBUG_TYPE_OTHER:               return "OTHER";
+                    default:
+                        return "UNKNOWN";
+                }
+            }();
 
-				default: return "UNKNOWN";
-			}
-		}();
+            auto type_str = [type]() -> const char*
+            {
+                switch (type)
+                {
+                    case GL_DEBUG_TYPE_ERROR:
+                        return "ERROR";
+                    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+                        return "DEPRECATED_BEHAVIOR";
+                    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+                        return "UNDEFINED_BEHAVIOR";
+                    case GL_DEBUG_TYPE_PORTABILITY:
+                        return "PORTABILITY";
+                    case GL_DEBUG_TYPE_PERFORMANCE:
+                        return "PERFORMANCE";
+                    case GL_DEBUG_TYPE_MARKER:
+                        return "MARKER";
+                    case GL_DEBUG_TYPE_OTHER:
+                        return "OTHER";
 
-		auto severity_str = [severity]() -> const char*
-		{
-			switch (severity) 
-			{
-				case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
-				case GL_DEBUG_SEVERITY_LOW:          return "LOW";
-				case GL_DEBUG_SEVERITY_MEDIUM:       return "MEDIUM";
-				case GL_DEBUG_SEVERITY_HIGH:         return "HIGH";
+                    default:
+                        return "UNKNOWN";
+                }
+            }();
 
-				default: return "UNKNOWN";
-			}
-		}();
+            auto severity_str = [severity]() -> const char*
+            {
+                switch (severity)
+                {
+                    case GL_DEBUG_SEVERITY_NOTIFICATION:
+                        return "NOTIFICATION";
+                    case GL_DEBUG_SEVERITY_LOW:
+                        return "LOW";
+                    case GL_DEBUG_SEVERITY_MEDIUM:
+                        return "MEDIUM";
+                    case GL_DEBUG_SEVERITY_HIGH:
+                        return "HIGH";
 
-		printf("%s, %s, %s, %u: %s\n", source_str, type_str, severity_str, id, message);
-	}, nullptr);
+                    default:
+                        return "UNKNOWN";
+                }
+            }();
+
+            printf("%s, %s, %s, %u: %s\n", source_str, type_str, severity_str, id, message);
+        },
+        nullptr);
 #endif
 }

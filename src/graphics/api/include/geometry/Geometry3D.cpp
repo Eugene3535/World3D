@@ -23,12 +23,12 @@ bool Grid3D::create() noexcept
 
     auto fillTexturedTiledGrid = [this, vertexComponentCount]() -> void
     {
-        const uint32_t width = cellCount.x;
+        const uint32_t width  = cellCount.x;
         const uint32_t height = cellCount.y;
 
-        float* vertexData = vertices.data();
-        uint32_t index = 0;
-        uint32_t cell = 0;
+        float*   vertexData = vertices.data();
+        uint32_t index      = 0;
+        uint32_t cell       = 0;
 
         for (uint32_t i = 0; i < height; ++i)
         {
@@ -73,7 +73,6 @@ bool Grid3D::create() noexcept
 
     if (isTiled && texture.isEnabled && !texture.isRepeated)
         fillTexturedTiledGrid();
-    
+
     return true;
 }
-

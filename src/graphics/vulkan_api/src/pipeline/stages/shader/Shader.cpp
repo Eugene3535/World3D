@@ -12,12 +12,11 @@ static size_t read_shader_file(const char* filename, char** buffer) noexcept;
 static VkShaderModule create_shader_module(VkDevice device, const char* filename) noexcept;
 
 
-Shader::Shader(VkDevice device) noexcept:
+Shader::Shader(VkDevice device) noexcept :
     m_device(device),
     m_module(VK_NULL_HANDLE),
     m_stage(VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM)
 {
-    
 }
 
 
@@ -33,11 +32,11 @@ bool Shader::loadFromFile(const std::filesystem::path& filePath, VkShaderStageFl
     if (auto shaderModule = create_shader_module(m_device, filePath.string().c_str()))
     {
         m_module = shaderModule;
-        m_stage = stage;
+        m_stage  = stage;
 
         return true;
     }
-        
+
     return false;
 }
 
@@ -45,26 +44,23 @@ bool Shader::loadFromFile(const std::filesystem::path& filePath, VkShaderStageFl
 VkPipelineShaderStageCreateInfo Shader::getInfo() const noexcept
 {
     const VkPipelineShaderStageCreateInfo info =
-    {
-        .sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-        .pNext               = VK_NULL_HANDLE,
-        .flags               = 0,
-        .stage               = m_stage,
-        .module              = m_module,
-        .pName               = "main",
-        .pSpecializationInfo = VK_NULL_HANDLE
-    };
+        {.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+         .pNext               = VK_NULL_HANDLE,
+         .flags               = 0,
+         .stage               = m_stage,
+         .module              = m_module,
+         .pName               = "main",
+         .pSpecializationInfo = VK_NULL_HANDLE};
 
     return info;
 }
-
 
 
 size_t read_shader_file(const char* filename, char** buffer) noexcept
 {
     FILE* file = fopen(filename, "rb");
 
-    if (!file) 
+    if (!file)
     {
 #ifdef DEBUG
         fprintf(stderr, "Failed to open file: %s\n", filename);
@@ -78,7 +74,7 @@ size_t read_shader_file(const char* filename, char** buffer) noexcept
 
     *buffer = (char*)malloc(fileSize);
 
-    if (!(*buffer)) 
+    if (!(*buffer))
     {
         fclose(file);
 #ifdef DEBUG
@@ -89,7 +85,7 @@ size_t read_shader_file(const char* filename, char** buffer) noexcept
 
     size_t bytesRead = fread(*buffer, 1, fileSize, file);
 
-    if (bytesRead != fileSize) 
+    if (bytesRead != fileSize)
     {
         free(*buffer);
         fclose(file);
@@ -107,14 +103,13 @@ size_t read_shader_file(const char* filename, char** buffer) noexcept
 
 VkShaderModule create_shader_module(VkDevice device, const char* filename) noexcept
 {
-    char* code;
+    char*  code;
     size_t codeSize = read_shader_file(filename, &code);
 
     if (codeSize == 0)
         return VK_NULL_HANDLE;
 
-    const VkShaderModuleCreateInfo createInfo = 
-    {
+    const VkShaderModuleCreateInfo createInfo = {
         .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
         .pNext    = VK_NULL_HANDLE,
         .flags    = 0,
@@ -124,7 +119,7 @@ VkShaderModule create_shader_module(VkDevice device, const char* filename) noexc
 
     VkShaderModule shaderModule;
 
-    if (vkCreateShaderModule(device, &createInfo, NULL, &shaderModule) != VK_SUCCESS) 
+    if (vkCreateShaderModule(device, &createInfo, NULL, &shaderModule) != VK_SUCCESS)
     {
 #ifdef DEBUG
         fprintf(stderr, "Failed to create shader module from file: %s\n", filename);

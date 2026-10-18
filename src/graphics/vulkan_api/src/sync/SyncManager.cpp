@@ -1,24 +1,18 @@
-#include "context/Context.hpp"
 #include "sync/SyncManager.hpp"
+#include "context/Context.hpp"
 
 
 bool SyncManager::create() noexcept
 {
     auto logicalDevice = vkContext->get<VkDevice>();
 
-    const VkSemaphoreCreateInfo semaphoreInfo = 
-    {
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-        .pNext = VK_NULL_HANDLE,
-        .flags = 0
-    };
+    const VkSemaphoreCreateInfo semaphoreInfo = {.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+                                                 .pNext = VK_NULL_HANDLE,
+                                                 .flags = 0};
 
-    const VkFenceCreateInfo fenceInfo = 
-    {
-        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-        .pNext = VK_NULL_HANDLE,
-        .flags = VK_FENCE_CREATE_SIGNALED_BIT
-    };
+    const VkFenceCreateInfo fenceInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+                                         .pNext = VK_NULL_HANDLE,
+                                         .flags = VK_FENCE_CREATE_SIGNALED_BIT};
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {

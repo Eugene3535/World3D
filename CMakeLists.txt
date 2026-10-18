@@ -66,3 +66,24 @@ if(WIN32)
 endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
+
+
+# Running as: cmake --build build/<config> --target format
+find_program(CLANG_FORMAT_EXECUTABLE NAMES clang-format)
+
+if(CLANG_FORMAT_EXECUTABLE)
+	file(GLOB_RECURSE ALL_SOURCE_FILES
+			"${CMAKE_SOURCE_DIR}/src/*.cpp"
+			"${CMAKE_SOURCE_DIR}/include/*.hpp"
+		)
+
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT_EXECUTABLE} -i ${ALL_SOURCE_FILES}
+        COMMENT "Running clang-format on all source files"
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src
+        VERBATIM
+    )
+
+else()
+    message(WARNING "clang-format not found. 'format' target will not be available.")
+endif()

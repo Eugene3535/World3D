@@ -8,12 +8,16 @@
 
 struct PipelineState
 {
-    void setupShaderStages(std::span<const Shader> shaders, std::span<const VertexInputState::AttributeType> attributes) noexcept;
-    void setupInputAssembler(const VkPrimitiveTopology primitive)                                                        noexcept;
-    void setupViewport()                                                                                                 noexcept;
-    void setupRasterization(VkPolygonMode mode)                                                                          noexcept;
-    void setupMultisampling()                                                                                            noexcept;
-    void setupColorBlending(VkBool32 enabled)                                                                            noexcept;
+    void setupShaderStages(
+        std::span<const Shader> shaders, 
+        std::span<const VertexInputState::AttributeType> attributes,
+        const class DescriptorSetLayout& layout) noexcept;
+
+    void setupInputAssembler(const VkPrimitiveTopology primitive) noexcept;
+    void setupViewport()                                          noexcept;
+    void setupRasterization(VkPolygonMode mode)                   noexcept;
+    void setupMultisampling()                                     noexcept;
+    void setupColorBlending(VkBool32 enabled)                     noexcept;
 
     std::vector<VkPipelineShaderStageCreateInfo> shaderInfo;
     VertexInputState                             vertexInputState;

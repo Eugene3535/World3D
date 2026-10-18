@@ -1,9 +1,9 @@
-#include <memory>
-#include <array>
 #include <algorithm>
+#include <array>
+#include <memory>
 
-#include "utils/Tools.hpp"
 #include "context/Context.hpp"
+#include "utils/Tools.hpp"
 #include "view/swapchain/Swapchain.hpp"
 
 
@@ -11,7 +11,7 @@ struct SwapChainSupportDetails
 {
     static std::unique_ptr<SwapChainSupportDetails> querySupport(VkSurfaceKHR surface) noexcept
     {
-        const auto physicalDevice = vkContext->get<VkPhysicalDevice>(); 
+        const auto physicalDevice = vkContext->get<VkPhysicalDevice>();
 
         auto details = std::make_unique<SwapChainSupportDetails>();
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details->capabilities);
@@ -21,20 +21,20 @@ struct SwapChainSupportDetails
 
         details->surfaceFormats.resize(formatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details->surfaceFormats.data());
-        
+
         uint32_t presentModeCount = 0;
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, VK_NULL_HANDLE);
 
         details->presentModes.resize(presentModeCount);
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details->presentModes.data());
-        
+
         return details;
     }
 
 
     static VkExtent2D chooseSwapExtent(const SwapChainSupportDetails* details, VkExtent2D currentExtent) noexcept
     {
-        VkExtent2D actualExtent = { 0, 0 };
+        VkExtent2D actualExtent = {0, 0};
 
         if (details->capabilities.currentExtent.width != UINT32_MAX)
         {
@@ -42,9 +42,13 @@ struct SwapChainSupportDetails
         }
         else
         {
-            actualExtent = currentExtent;
-            actualExtent.width  = std::clamp(actualExtent.width, details->capabilities.minImageExtent.width, details->capabilities.maxImageExtent.width);
-            actualExtent.height = std::clamp(actualExtent.height, details->capabilities.minImageExtent.height, details->capabilities.maxImageExtent.height);
+            actualExtent        = currentExtent;
+            actualExtent.width  = std::clamp(actualExtent.width,
+                                            details->capabilities.minImageExtent.width,
+                                            details->capabilities.maxImageExtent.width);
+            actualExtent.height = std::clamp(actualExtent.height,
+                                             details->capabilities.minImageExtent.height,
+                                             details->capabilities.maxImageExtent.height);
         }
 
         return actualExtent;
@@ -63,14 +67,13 @@ struct SwapChainSupportDetails
 
     VkSurfaceFormatKHR getSurfaceFormat() const noexcept
     {
-        if(surfaceFormats.empty())
+        if (surfaceFormats.empty())
             return {};
 
         for (const auto& surfaceFmt : surfaceFormats)
-            if (surfaceFmt.format == VK_FORMAT_B8G8R8A8_SRGB &&
-                surfaceFmt.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-                    return surfaceFmt;
-        
+            if (surfaceFmt.format == VK_FORMAT_B8G8R8A8_SRGB && surfaceFmt.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+                return surfaceFmt;
+
         return surfaceFormats[0];
     }
 
@@ -81,21 +84,15 @@ struct SwapChainSupportDetails
 };
 
 
-
-
-Swapchain::Swapchain(VkSurfaceKHR surface) noexcept:
-    m_surface(surface),
-    m_handle(VK_NULL_HANDLE),
-    m_depthBuffer{}
+Swapchain::Swapchain(VkSurfaceKHR surface) noexcept : m_surface(surface), m_handle(VK_NULL_HANDLE), m_depthBuffer{}
 {
-
 }
 
 
 bool Swapchain::create() noexcept
 {
-    auto context = vkContext;
-    VkDevice device = context->get<VkDevice>();
+    auto     context = vkContext;
+    VkDevice device  = context->get<VkDevice>();
 
     VkSwapchainKHR oldSwapchain = m_handle;
 
@@ -107,32 +104,30 @@ bool Swapchain::create() noexcept
         m_handle = VK_NULL_HANDLE;
     }
 
-    auto swapChainSupportDetails = SwapChainSupportDetails::querySupport(m_surface);
-    const uint32_t minImageCount = swapChainSupportDetails->capabilities.minImageCount;
-    const auto imageFormat = swapChainSupportDetails->getSurfaceFormat().format;
+    auto           swapChainSupportDetails = SwapChainSupportDetails::querySupport(m_surface);
+    const uint32_t minImageCount           = swapChainSupportDetails->capabilities.minImageCount;
+    const auto     imageFormat             = swapChainSupportDetails->getSurfaceFormat().format;
     m_extent = SwapChainSupportDetails::chooseSwapExtent(swapChainSupportDetails.get(), m_extent);
 
-    const VkSwapchainCreateInfoKHR swapchainInfo = 
-    {
-        .sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .pNext                 = VK_NULL_HANDLE,
-        .flags                 = 0,
-        .surface               = m_surface,
-        .minImageCount         = minImageCount,
-        .imageFormat           = imageFormat,
-        .imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
-        .imageExtent           = m_extent,
-        .imageArrayLayers      = 1,
-        .imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-        .imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE,
-        .queueFamilyIndexCount = 0,
-        .pQueueFamilyIndices   = VK_NULL_HANDLE,
-        .preTransform          = swapChainSupportDetails->capabilities.currentTransform,
-        .compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-        .presentMode           = swapChainSupportDetails->getPresentMode(),
-        .clipped               = VK_TRUE,
-        .oldSwapchain          = oldSwapchain
-    };
+    const VkSwapchainCreateInfoKHR swapchainInfo =
+        {.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+         .pNext                 = VK_NULL_HANDLE,
+         .flags                 = 0,
+         .surface               = m_surface,
+         .minImageCount         = minImageCount,
+         .imageFormat           = imageFormat,
+         .imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+         .imageExtent           = m_extent,
+         .imageArrayLayers      = 1,
+         .imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+         .imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE,
+         .queueFamilyIndexCount = 0,
+         .pQueueFamilyIndices   = VK_NULL_HANDLE,
+         .preTransform          = swapChainSupportDetails->capabilities.currentTransform,
+         .compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+         .presentMode           = swapChainSupportDetails->getPresentMode(),
+         .clipped               = VK_TRUE,
+         .oldSwapchain          = oldSwapchain};
 
     if (vkCreateSwapchainKHR(device, &swapchainInfo, VK_NULL_HANDLE, &m_handle) == VK_SUCCESS)
     {
@@ -140,7 +135,7 @@ bool Swapchain::create() noexcept
             vkDestroySwapchainKHR(device, oldSwapchain, VK_NULL_HANDLE);
 
         uint32_t imageCount = 0;
-        
+
         if (vkGetSwapchainImagesKHR(device, m_handle, &imageCount, VK_NULL_HANDLE) != VK_SUCCESS)
             return false;
 
@@ -148,23 +143,23 @@ bool Swapchain::create() noexcept
 
         if (attachments.empty())
             attachments.resize(imageCount);
-        
+
         std::vector<VkImage> newImages(imageCount);
-        
+
         if (vkGetSwapchainImagesKHR(device, m_handle, &imageCount, newImages.data()) == VK_SUCCESS)
         {
             for (uint32_t i = 0; i < attachments.size(); ++i)
             {
-                attachments[i].image = newImages[i];
+                attachments[i].image  = newImages[i];
                 attachments[i].format = imageFormat;
-                
+
                 if (auto imageView = vktools::create_image_view_2D(newImages[i], imageFormat, VK_IMAGE_ASPECT_COLOR_BIT))
                     attachments[i].imageView = imageView;
                 else
-                    return false;  
+                    return false;
             }
 
-//          Depth buffering
+            //          Depth buffering
             if (m_depthBuffer.attachment.imageView)
                 vkDestroyImageView(device, m_depthBuffer.attachment.imageView, VK_NULL_HANDLE);
 
@@ -176,22 +171,29 @@ bool Swapchain::create() noexcept
 
             if (m_depthBuffer.attachment.format == VK_FORMAT_UNDEFINED)
             {
-                constexpr std::array<VkFormat, 3> formats = { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
-                m_depthBuffer.attachment.format = vktools::find_supported_format(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, context->get<VkPhysicalDevice>());
+                constexpr std::array<VkFormat, 3> formats = {VK_FORMAT_D32_SFLOAT,
+                                                             VK_FORMAT_D32_SFLOAT_S8_UINT,
+                                                             VK_FORMAT_D24_UNORM_S8_UINT};
+                m_depthBuffer.attachment.format           = vktools::find_supported_format(formats,
+                                                                                 VK_IMAGE_TILING_OPTIMAL,
+                                                                                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                                                                 context->get<VkPhysicalDevice>());
             }
 
             if (m_depthBuffer.attachment.format != VK_FORMAT_UNDEFINED)
             {
-                m_depthBuffer.attachment.image = vktools::create_image_2D(m_extent, 
-                                                                          m_depthBuffer.attachment.format, 
-                                                                          VK_IMAGE_TILING_OPTIMAL, 
-                                                                          VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
-                                                                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                m_depthBuffer.attachment.image = vktools::create_image_2D(m_extent,
+                                                                          m_depthBuffer.attachment.format,
+                                                                          VK_IMAGE_TILING_OPTIMAL,
+                                                                          VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                                                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                                                           &m_depthBuffer.memory);
 
                 if (m_depthBuffer.attachment.image)
-                    m_depthBuffer.attachment.imageView = vktools::create_image_view_2D(m_depthBuffer.attachment.image, m_depthBuffer.attachment.format, VK_IMAGE_ASPECT_DEPTH_BIT);
-                
+                    m_depthBuffer.attachment.imageView = vktools::create_image_view_2D(m_depthBuffer.attachment.image,
+                                                                                       m_depthBuffer.attachment.format,
+                                                                                       VK_IMAGE_ASPECT_DEPTH_BIT);
+
                 if (m_depthBuffer.attachment.imageView)
                     return true;
             }
@@ -208,9 +210,9 @@ void Swapchain::destroy() noexcept
 {
     VkDevice device = vkContext->get<VkDevice>();
 
-    if(m_handle)
+    if (m_handle)
     {
-        for(const auto& attachment : m_colorAttachments)
+        for (const auto& attachment : m_colorAttachments)
             vkDestroyImageView(device, attachment.imageView, VK_NULL_HANDLE);
 
         vkDestroySwapchainKHR(device, m_handle, VK_NULL_HANDLE);
@@ -231,17 +233,15 @@ VkResult Swapchain::present(const VkSemaphore semaphore, uint32_t imageIndex) co
 {
     const VkQueue queue = vkContext->get<VkQueue>();
 
-    const VkPresentInfoKHR presentInfo = 
-	{
-		.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-		.pNext              = VK_NULL_HANDLE,
-		.waitSemaphoreCount = 1,
-		.pWaitSemaphores    = &semaphore,
-		.swapchainCount     = 1,
-		.pSwapchains        = &m_handle,
-		.pImageIndices      = &imageIndex,
-		.pResults           = VK_NULL_HANDLE
-	};
+    const VkPresentInfoKHR presentInfo =
+        {.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+         .pNext              = VK_NULL_HANDLE,
+         .waitSemaphoreCount = 1,
+         .pWaitSemaphores    = &semaphore,
+         .swapchainCount     = 1,
+         .pSwapchains        = &m_handle,
+         .pImageIndices      = &imageIndex,
+         .pResults           = VK_NULL_HANDLE};
 
     return vkQueuePresentKHR(queue, &presentInfo);
 }

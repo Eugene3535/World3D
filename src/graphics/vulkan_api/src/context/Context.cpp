@@ -1,25 +1,22 @@
-#include <string>
-#include <cstring>
-#include <cassert>
 #include <array>
-#include <vector>
+#include <cassert>
+#include <cstring>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 #include "spdlog/spdlog.h"
 #include <magic_enum/magic_enum.hpp>
 
-#include "utils/Tools.hpp"
 #include "context/Context.hpp"
+#include "utils/Tools.hpp"
 
 static VulkanContext* g_vulkanContext;
 
 
 #ifdef DEBUG
 
-static std::array<const char*, 1> validation_layers = 
-{
-    "VK_LAYER_KHRONOS_validation"
-};
+static std::array<const char*, 1> validation_layers = {"VK_LAYER_KHRONOS_validation"};
 
 static bool check_validation_layer_support() noexcept
 {
@@ -33,8 +30,8 @@ static bool check_validation_layer_support() noexcept
 
     for (uint32_t i = 0; i < validation_layers.size(); ++i)
     {
-        const char* layerName = validation_layers[i];
-        bool layerFound = false;
+        const char* layerName  = validation_layers[i];
+        bool        layerFound = false;
 
         for (uint32_t j = 0; j < layerCount; ++j)
         {
@@ -58,8 +55,7 @@ static bool check_validation_layer_support() noexcept
 #endif // !DEBUG
 
 
-
-VulkanContext::VulkanContext() noexcept:
+VulkanContext::VulkanContext() noexcept :
     m_instance(VK_NULL_HANDLE),
     m_physicalDevice(VK_NULL_HANDLE),
     m_logicalDevice(VK_NULL_HANDLE),
@@ -112,11 +108,11 @@ bool VulkanContext::createInstance() noexcept
     spdlog::info("Starting instance initialization");
 
 #ifdef DEBUG
-    if ( ! check_validation_layer_support() )
+    if (!check_validation_layer_support())
         return false;
 #endif // !DEBUG
 
-    std::vector<const char*> requiredExtensions = { VK_KHR_SURFACE_EXTENSION_NAME };
+    std::vector<const char*> requiredExtensions = {VK_KHR_SURFACE_EXTENSION_NAME};
 
 #ifdef _WIN32
     requiredExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
@@ -142,7 +138,7 @@ bool VulkanContext::createInstance() noexcept
     vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, availableExtensions.data());
 
     std::unordered_set<std::string> deviceExtensions;
-    
+
     for (const auto& it : availableExtensions)
     {
         deviceExtensions.insert(it.extensionName);
@@ -156,19 +152,16 @@ bool VulkanContext::createInstance() noexcept
             spdlog::error("The vulkan API extension is not available: {}", it);
 
             return false;
-        }	
+        }
     }
 
-    const VkApplicationInfo appInfo = 
-    {
-        .sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-        .pNext              = VK_NULL_HANDLE,
-        .pApplicationName   = "World3D",
-        .applicationVersion = 1,
-        .pEngineName        = "Engine_3D",
-        .engineVersion      = 1,
-        .apiVersion         = VK_API_VERSION_1_3
-    };
+    const VkApplicationInfo appInfo = {.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+                                       .pNext              = VK_NULL_HANDLE,
+                                       .pApplicationName   = "World3D",
+                                       .applicationVersion = 1,
+                                       .pEngineName        = "Engine_3D",
+                                       .engineVersion      = 1,
+                                       .apiVersion         = VK_API_VERSION_1_3};
 
     {
         spdlog::info("Application name: {}", appInfo.pApplicationName);
@@ -176,40 +169,37 @@ bool VulkanContext::createInstance() noexcept
         spdlog::info("Api version: {:.1f}", 1.3f);
     }
 
-    VkInstanceCreateInfo instanceInfo = 
-    {
-        .sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-        .pNext                   = VK_NULL_HANDLE,
-        .flags                   = 0,
-        .pApplicationInfo        = &appInfo,
-        .enabledLayerCount       = 0,
-        .ppEnabledLayerNames     = VK_NULL_HANDLE,
-        .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
-        .ppEnabledExtensionNames = requiredExtensions.data()
-    };
+    VkInstanceCreateInfo instanceInfo =
+        {.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+         .pNext                   = VK_NULL_HANDLE,
+         .flags                   = 0,
+         .pApplicationInfo        = &appInfo,
+         .enabledLayerCount       = 0,
+         .ppEnabledLayerNames     = VK_NULL_HANDLE,
+         .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
+         .ppEnabledExtensionNames = requiredExtensions.data()};
 
 #ifdef DEBUG
     instanceInfo.enabledLayerCount   = static_cast<uint32_t>(validation_layers.size());
     instanceInfo.ppEnabledLayerNames = validation_layers.data();
 
-    const VkDebugUtilsMessengerCreateInfoEXT debugInfo = 
-    {
-    .sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-    .pNext           = VK_NULL_HANDLE,
-    .flags           = 0,
-    .messageSeverity = 0,
-    .messageType     = 0,
-    .pfnUserCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
-                            VkDebugUtilsMessageTypeFlagsEXT messageType, 
-                            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, 
-                            void* pUserData)
-                            {
-                                printf("validation layer: %s\n", pCallbackData->pMessage);
+    const VkDebugUtilsMessengerCreateInfoEXT debugInfo =
+        {.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+         .pNext           = VK_NULL_HANDLE,
+         .flags           = 0,
+         .messageSeverity = 0,
+         .messageType     = 0,
+         .pfnUserCallback =
+             [](VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+                VkDebugUtilsMessageTypeFlagsEXT             messageType,
+                const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                void*                                       pUserData)
+         {
+             printf("validation layer: %s\n", pCallbackData->pMessage);
 
-                                return VK_FALSE;
-                            },
-    .pUserData = VK_NULL_HANDLE
-    };
+             return VK_FALSE;
+         },
+         .pUserData = VK_NULL_HANDLE};
 
     instanceInfo.pNext = static_cast<const void*>(&debugInfo);
 #endif // !DEBUG
@@ -236,17 +226,19 @@ bool VulkanContext::selectVideoCard() noexcept
         spdlog::info("Physical devices found: {}", deviceCount);
         uint32_t i = 0;
 
-        for(; i < deviceCount; ++i)
+        for (; i < deviceCount; ++i)
         {
             VkPhysicalDeviceProperties properties;
             vkGetPhysicalDeviceProperties(devices[i], &properties);
 
-            spdlog::info("Physical device available: {}, type: {}", properties.deviceName, magic_enum::enum_name(properties.deviceType));
+            spdlog::info("Physical device available: {}, type: {}",
+                         properties.deviceName,
+                         magic_enum::enum_name(properties.deviceType));
 
-            if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
+            if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
                 m_physicalDevice = devices[i];
 
-            if(properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+            if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
             {
                 m_physicalDevice = devices[i];
 
@@ -256,7 +248,9 @@ bool VulkanContext::selectVideoCard() noexcept
 
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(devices[i], &properties);
-        spdlog::info("The physical device is selected: {}, type: {}", properties.deviceName, magic_enum::enum_name(properties.deviceType));
+        spdlog::info("The physical device is selected: {}, type: {}",
+                     properties.deviceName,
+                     magic_enum::enum_name(properties.deviceType));
     }
 
     return (m_physicalDevice ? true : false);
@@ -273,9 +267,9 @@ bool VulkanContext::createDevice() noexcept
     vkGetPhysicalDeviceFeatures(m_physicalDevice, &supportedFeatures);
 
     enabledFeatures.samplerAnisotropy = supportedFeatures.samplerAnisotropy;
-    enabledFeatures.fillModeNonSolid = supportedFeatures.fillModeNonSolid;
+    enabledFeatures.fillModeNonSolid  = supportedFeatures.fillModeNonSolid;
 
-    {// Find main queue family index
+    { // Find main queue family index
         uint32_t queueFamilyCount;
         vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, VK_NULL_HANDLE);
 
@@ -288,8 +282,9 @@ bool VulkanContext::createDevice() noexcept
         {
             if (queueFamilies[i].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
             {
-                spdlog::info("The main queue family index with flags is selected: {} | {}", 
-                    magic_enum::enum_name(VK_QUEUE_GRAPHICS_BIT), magic_enum::enum_name(VK_QUEUE_TRANSFER_BIT));
+                spdlog::info("The main queue family index with flags is selected: {} | {}",
+                             magic_enum::enum_name(VK_QUEUE_GRAPHICS_BIT),
+                             magic_enum::enum_name(VK_QUEUE_TRANSFER_BIT));
 
                 m_queueFamilyIndex = i;
                 break;
@@ -301,25 +296,19 @@ bool VulkanContext::createDevice() noexcept
     {
         const float queuePriority = 1.0f;
 
-        const VkDeviceQueueCreateInfo queueInfo = 
-        {
-            .sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-            .pNext            = VK_NULL_HANDLE,
-            .flags            = 0,
-            .queueFamilyIndex = m_queueFamilyIndex,
-            .queueCount       = 1,
-            .pQueuePriorities = &queuePriority
-        };
+        const VkDeviceQueueCreateInfo queueInfo = {.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                                                   .pNext            = VK_NULL_HANDLE,
+                                                   .flags            = 0,
+                                                   .queueFamilyIndex = m_queueFamilyIndex,
+                                                   .queueCount       = 1,
+                                                   .pQueuePriorities = &queuePriority};
 
-        const std::array<const char*, 2> requiredExtensions = 
-        {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-            VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
-        };
+        const std::array<const char*, 2> requiredExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                                               VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME};
 
         for (const char* ext : requiredExtensions)
             spdlog::info("Required device extension: {}", ext);
-        
+
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(m_physicalDevice, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
 
@@ -336,7 +325,7 @@ bool VulkanContext::createDevice() noexcept
 
         for (const auto& extension : requiredExtensions)
         {
-            if(deviceExtensions.find(extension) == deviceExtensions.end())
+            if (deviceExtensions.find(extension) == deviceExtensions.end())
             {
                 spdlog::error("The device extension is not available: {}", extension);
 
@@ -344,25 +333,20 @@ bool VulkanContext::createDevice() noexcept
             }
         }
 
-        const VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature = 
-        {
-            .sType            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
-            .dynamicRendering = VK_TRUE
-        };
+        const VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature =
+            {.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR, .dynamicRendering = VK_TRUE};
 
-        VkDeviceCreateInfo deviceInfo = 
-        {
-            .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-            .pNext                   = &dynamicRenderingFeature,
-            .flags                   = 0,
-            .queueCreateInfoCount    = 1,
-            .pQueueCreateInfos       = &queueInfo,
-            .enabledLayerCount       = 0,
-            .ppEnabledLayerNames     = VK_NULL_HANDLE,
-            .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
-            .ppEnabledExtensionNames = requiredExtensions.data(),
-            .pEnabledFeatures        = &enabledFeatures
-        };
+        VkDeviceCreateInfo deviceInfo =
+            {.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+             .pNext                   = &dynamicRenderingFeature,
+             .flags                   = 0,
+             .queueCreateInfoCount    = 1,
+             .pQueueCreateInfos       = &queueInfo,
+             .enabledLayerCount       = 0,
+             .ppEnabledLayerNames     = VK_NULL_HANDLE,
+             .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
+             .ppEnabledExtensionNames = requiredExtensions.data(),
+             .pEnabledFeatures        = &enabledFeatures};
 #ifdef DEBUG
         deviceInfo.enabledLayerCount   = static_cast<uint32_t>(validation_layers.size());
         deviceInfo.ppEnabledLayerNames = validation_layers.data();
@@ -372,14 +356,15 @@ bool VulkanContext::createDevice() noexcept
 
         if (result == VK_SUCCESS)
         {
-            spdlog::info("Initialization of the device has been completed with the result: {}", magic_enum::enum_name(result));
+            spdlog::info("Initialization of the device has been completed with the result: {}",
+                         magic_enum::enum_name(result));
             vkGetDeviceQueue(m_logicalDevice, m_queueFamilyIndex, 0, &m_queue);
 
             return static_cast<void*>(m_logicalDevice);
         }
 
         spdlog::error("Initialization of the device has been failed with the result: {}", magic_enum::enum_name(result));
-        
+
         return false;
     }
 

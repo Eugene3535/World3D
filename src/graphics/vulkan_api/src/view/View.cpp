@@ -1,15 +1,14 @@
 #include <cassert>
 
 #include "context/Context.hpp"
-#include "view/swapchain/Swapchain.hpp"
 #include "view/View.hpp"
+#include "view/swapchain/Swapchain.hpp"
 
 
 static View* g_view;
 
 
-View::View() noexcept:
-    m_surface(VK_NULL_HANDLE)
+View::View() noexcept : m_surface(VK_NULL_HANDLE)
 {
     assert(g_view == nullptr);
     g_view = this;
@@ -61,7 +60,7 @@ VkSurfaceKHR View::getSurface() const noexcept
 
 
 const Swapchain* View::getSwapchain() const noexcept
-{   
+{
     return m_swapchain.get();
 }
 
@@ -80,14 +79,11 @@ bool View::createSurface(uint64_t windowHandle) noexcept
     auto instance = vkContext->get<VkInstance>();
 
 #ifdef _WIN32
-    const VkWin32SurfaceCreateInfoKHR surfaceInfo = 
-    {
-        .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-        .pNext     = VK_NULL_HANDLE,
-        .flags     = 0,
-        .hinstance = GetModuleHandle(VK_NULL_HANDLE),
-        .hwnd      = reinterpret_cast<HWND>(windowHandle)
-    };
+    const VkWin32SurfaceCreateInfoKHR surfaceInfo = {.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+                                                     .pNext     = VK_NULL_HANDLE,
+                                                     .flags     = 0,
+                                                     .hinstance = GetModuleHandle(VK_NULL_HANDLE),
+                                                     .hwnd      = reinterpret_cast<HWND>(windowHandle)};
 
     return (vkCreateWin32SurfaceKHR(instance, &surfaceInfo, VK_NULL_HANDLE, &m_surface) == VK_SUCCESS);
 #endif
@@ -97,15 +93,12 @@ bool View::createSurface(uint64_t windowHandle) noexcept
 
     if (xcb_connection_has_error(connection))
         return false;
-        
-    const VkXcbSurfaceCreateInfoKHR surfaceInfo =
-    {
-        .sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
-        .pNext      = VK_NULL_HANDLE,
-        .flags      = 0,
-        .connection = connection,
-        .window     = static_cast<xcb_window_t>(windowHandle)
-    };
+
+    const VkXcbSurfaceCreateInfoKHR surfaceInfo = {.sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
+                                                   .pNext      = VK_NULL_HANDLE,
+                                                   .flags      = 0,
+                                                   .connection = connection,
+                                                   .window     = static_cast<xcb_window_t>(windowHandle)};
 
     return (vkCreateXcbSurfaceKHR(instance, &surfaceInfo, VK_NULL_HANDLE, &m_surface) == VK_SUCCESS);
 #endif
