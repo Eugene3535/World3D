@@ -1,8 +1,6 @@
 #include <cstring>
 #include <span>
 
-#include <cglm/call/vec2.h>
-
 #include "geometry/Geometry2D.hpp"
 
 
@@ -84,11 +82,10 @@ std::vector<float> Geometry2D::createRectWithRoundedEdges(const RoundedRect2D& i
 
 void Geometry2D::calculateOutline(std::span<vec2s> points, std::vector<float>& result, float thickness) noexcept
 {
-    auto compute_normal = [](vec2 p1, vec2 p2) -> vec2s // Compute the normal of a segment
+    auto compute_normal = [](const vec2s& p1, const vec2s& p2) -> vec2s // Compute the normal of a segment
     {
-        vec2 v;
-        glmc_vec2_sub(p2, p1, v);
-        vec2s normal = {-v[1], v[0]}; // make perpendicular
+        vec2s v = glms_vec2_sub(p2, p1);
+        vec2s normal = {-v.y, v.x}; // make perpendicular
         float length = sqrt(normal.x * normal.x + normal.y * normal.y);
 
         if (length != 0.f)
@@ -108,12 +105,11 @@ void Geometry2D::calculateOutline(std::span<vec2s> points, std::vector<float>& r
         const size_t index = i + 1;
 
         //  Get the two segments shared by the current point
-        vec2   p0, p1, p2;
         size_t j = (i == 0) ? count : index - 1;
 
-        glmc_vec2_copy(points[j].raw, p0);
-        glmc_vec2_copy(points[index].raw, p1);
-        glmc_vec2_copy(points[index + 1].raw, p2);
+        vec2s p0 = points[j];
+        vec2s p1 = points[index];
+        vec2s p2 = points[index + 1];
 
         //  Compute their normal
         vec2s n1 = compute_normal(p0, p1);
@@ -122,16 +118,15 @@ void Geometry2D::calculateOutline(std::span<vec2s> points, std::vector<float>& r
         //  Make sure that the normals point towards the outside of the shape
         //  (this depends on the order in which the points were defined)
         {
-            vec2 vertex;
-            glmc_vec2_sub(points[0].raw, p1, vertex);
+            vec2s vertex = glms_vec2_sub(points[0], p1);
 
-            if (glmc_vec2_dot(n1.raw, vertex) > 0.f)
+            if (glms_vec2_dot(n1, vertex) > 0.f)
             {
                 n1.x = -n1.x;
                 n1.y = -n1.y;
             }
 
-            if (glmc_vec2_dot(n2.raw, vertex) > 0.f)
+            if (glms_vec2_dot(n2, vertex) > 0.f)
             {
                 n2.x = -n2.x;
                 n2.y = -n2.y;
@@ -141,16 +136,15 @@ void Geometry2D::calculateOutline(std::span<vec2s> points, std::vector<float>& r
         //  Combine them to get the extrusion direction
         const float factor = 1.f + (n1.x * n2.x + n1.y * n2.y);
         vec2s       normal;
-        glmc_vec2_add(n1.raw, n2.raw, normal.raw);
+        normal = glms_vec2_add(n1, n2);
         normal.x /= factor;
         normal.y /= factor;
 
         //  Update the outline points
-        glmc_vec2_copy(p1, vertices[i * 2 + 0].raw);
+        vertices[i * 2 + 0] = p1;
         {
-            vec2 v;
-            glmc_vec2_scale(normal.raw, thickness, v);
-            glmc_vec2_add(p1, v, vertices[i * 2 + 1].raw);
+            vec2s v = glms_vec2_scale(normal, thickness);
+            vertices[i * 2 + 1] = glms_vec2_add(p1, v);
         }
     }
 

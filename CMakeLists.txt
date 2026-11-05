@@ -2,21 +2,17 @@ cmake_minimum_required(VERSION 4.0.0)
 
 project(World3D LANGUAGES C CXX)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(BUILD_SHARED_LIBS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 
-set(EXTERNAL_SOURCE_DIR $ENV{External})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
-if(CMAKE_BUILD_TYPE)
-    string(APPEND CMAKE_RUNTIME_OUTPUT_DIRECTORY "/${CMAKE_BUILD_TYPE}")
-	string(APPEND CMAKE_LIBRARY_OUTPUT_DIRECTORY "/${CMAKE_BUILD_TYPE}")
-	string(APPEND CMAKE_ARCHIVE_OUTPUT_DIRECTORY "/${CMAKE_BUILD_TYPE}")
+if(NOT DEFINED ENV{External})
+    message(FATAL_ERROR "Environment variable External is not set")
 endif()
+
+set(EXTERNAL_SOURCE_DIR $ENV{External})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
 
 if(MSVC)
 	string(APPEND CMAKE_RUNTIME_OUTPUT_DIRECTORY "/bin")
@@ -27,30 +23,40 @@ else()
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 endif()
 
+if(NOT DEFINED BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build using shared libraries")
+endif()
+
+set(LIB_TYPE_FOLDER "static")
+
+if(BUILD_SHARED_LIBS)
+	set(LIB_TYPE_FOLDER "shared")
+endif()
+
 if(WIN32)
-	if(MSVC)
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/msvc/glfw3")
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/msvc/glad")
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/msvc/cglm")
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/msvc/magic_enum")
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/msvc/spdlog")
-	elseif(MINGW)
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/mingw/glfw3")
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/mingw/glad")
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/mingw/cglm")
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/mingw/magic_enum")
-		list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/mingw/spdlog")
-	endif()
+    if(MSVC)
+        set(EXTERNAL_INSTALL "${EXTERNAL_SOURCE_DIR}/install/msvc")
+    elseif(MINGW)
+        set(EXTERNAL_INSTALL "${EXTERNAL_SOURCE_DIR}/install/mingw")
+    endif()
+
+    foreach(lib glfw3 cglm magic_enum spdlog)
+        list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL}/${LIB_TYPE_FOLDER}/${lib}")
+    endforeach()
 endif()
 
 if(LINUX)
-	list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_SOURCE_DIR}/install/linux")
+	set(EXTERNAL_INSTALL "${EXTERNAL_SOURCE_DIR}/install/linux")
+	
+	foreach(lib glfw3 cglm magic_enum spdlog)
+        list(APPEND CMAKE_PREFIX_PATH "${EXTERNAL_INSTALL}/${LIB_TYPE_FOLDER}/${lib}")
+    endforeach()
 endif()
 
-find_package(glfw3 CONFIG REQUIRED)
-find_package(cglm CONFIG REQUIRED)
-find_package(magic_enum CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
+foreach(lib glfw3 cglm magic_enum spdlog)
+	find_package(${lib} CONFIG REQUIRED)
+endforeach()
+
 find_package(Vulkan REQUIRED COMPONENTS glslc)
 find_program(glslc_executable NAMES glslc HINTS Vulkan::glslc)
 
@@ -82,8 +88,8 @@ target_sources(${PROJECT_NAME} PRIVATE ${SHADER_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${APP_SRC_FILES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-	glfw
 	cglm::cglm
+	glfw
 	$<$<BOOL:${UNIX}>:xcb>
 	${Vulkan_LIBRARIES}
 	spdlog::spdlog
@@ -123,7 +129,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	VERBATIM
 )
 
-if(WIN32)
+if(WIN32 AND BUILD_SHARED_LIBS)
 	if(MSVC)
 		set(EXTERNAL_BIN_DIR "${EXTERNAL_SOURCE_DIR}/install/msvc")
 
