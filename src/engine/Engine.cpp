@@ -115,7 +115,7 @@ bool Engine::createPipeline() noexcept
     }
 
     {
-        Grid3D grid = {.cellCount = {5, 5},
+        Grid3D grid = {.cellCount = {50, 50},
                        .isTiled   = true,
                        .texture   = {.size = m_texture.m_size, .isEnabled = true, .isRepeated = false}};
 
@@ -125,8 +125,12 @@ bool Engine::createPipeline() noexcept
         std::span<const float>    vertices = grid.vertices;
         std::span<const uint32_t> indices  = grid.indices;
 
-        m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, m_commandPool.handle);
-        m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, m_commandPool.handle);
+        m_vertexBuffer = m_bufferHolder.create<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        m_indexBuffer  = m_bufferHolder.create<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+        // Or for more fast rendering
+        // m_vertexBuffer = m_bufferHolder.allocate<float>(vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, m_commandPool.handle);
+        // m_indexBuffer = m_bufferHolder.allocate<uint32_t>(indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, m_commandPool.handle);
 
         if (!m_vertexBuffer.handle)
             return false;

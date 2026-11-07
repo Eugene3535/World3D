@@ -26,7 +26,7 @@ struct BufferHolder
         const auto logicalDevice  = context->get<VkDevice>();
 
         Buffer       bufferData = {VK_NULL_HANDLE, VK_NULL_HANDLE, static_cast<uint32_t>(rawData.size())};
-        VkDeviceSize bufferSize = sizeof(T) * rawData.size();
+        VkDeviceSize bufferSize = rawData.size_bytes();
 
         VkDeviceMemory stagingBufferMemory;
         VkBuffer       stagingBuffer = vktools::create_buffer(bufferSize,
@@ -88,6 +88,59 @@ struct BufferHolder
         }
 
         return {};
+    }
+
+
+    template <class T>
+    Buffer create(std::span<const T> rawData, VkBufferUsageFlags usage) noexcept
+    {
+        const auto context       = vkContext;
+        const auto logicalDevice = context->get<VkDevice>();
+
+        const VkBufferCreateInfo bufferInfo =
+            {.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+             .pNext                 = nullptr,
+             .flags                 = 0,
+             .size                  = rawData.size_bytes(),
+             .usage                 = usage,
+             .sharingMode           = VK_SHARING_MODE_EXCLUSIVE,
+             .queueFamilyIndexCount = 0,
+             .pQueueFamilyIndices   = nullptr};
+
+        VkBuffer       vertexBuffer;
+        VkDeviceMemory vertexBufferMemory;
+
+        if (vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
+            return {};
+
+        VkMemoryRequirements memRequirements;
+        vkGetBufferMemoryRequirements(logicalDevice, vertexBuffer, &memRequirements);
+
+        const VkMemoryAllocateInfo allocInfo =
+            {.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+             .pNext           = nullptr,
+             .allocationSize  = memRequirements.size,
+             .memoryTypeIndex = vktools::find_memory_type(memRequirements.memoryTypeBits,
+                                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                                          vkContext->get<VkPhysicalDevice>())};
+
+        if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
+        {
+            vkDestroyBuffer(logicalDevice, vertexBuffer, VK_NULL_HANDLE);
+
+            return {};
+        }
+
+        vkBindBufferMemory(logicalDevice, vertexBuffer, vertexBufferMemory, 0);
+
+        void* data;
+        vkMapMemory(logicalDevice, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+        memcpy(data, rawData.data(), (size_t)bufferInfo.size);
+        vkUnmapMemory(logicalDevice, vertexBufferMemory);
+
+        m_buffers.push_back({vertexBuffer, vertexBufferMemory, (uint32_t)bufferInfo.size});
+
+        return {vertexBuffer, vertexBufferMemory, (uint32_t)bufferInfo.size};
     }
 
     void destroy() noexcept;

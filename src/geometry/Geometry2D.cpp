@@ -84,7 +84,7 @@ void Geometry2D::calculateOutline(std::span<vec2s> points, std::vector<float>& r
 {
     auto compute_normal = [](const vec2s& p1, const vec2s& p2) -> vec2s // Compute the normal of a segment
     {
-        vec2s v = glms_vec2_sub(p2, p1);
+        vec2s v      = glms_vec2_sub(p2, p1);
         vec2s normal = {-v.y, v.x}; // make perpendicular
         float length = sqrt(normal.x * normal.x + normal.y * normal.y);
 
@@ -143,7 +143,7 @@ void Geometry2D::calculateOutline(std::span<vec2s> points, std::vector<float>& r
         //  Update the outline points
         vertices[i * 2 + 0] = p1;
         {
-            vec2s v = glms_vec2_scale(normal, thickness);
+            vec2s v             = glms_vec2_scale(normal, thickness);
             vertices[i * 2 + 1] = glms_vec2_add(p1, v);
         }
     }
