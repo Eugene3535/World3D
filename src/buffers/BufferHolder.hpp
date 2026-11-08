@@ -139,9 +139,9 @@ struct BufferHolder
         memcpy(data, rawData.data(), bufferInfo.size);
         vkUnmapMemory(logicalDevice, vertexBufferMemory);
 
-        m_buffers.push_back({vertexBuffer, vertexBufferMemory, static_cast<uint32_t>(bufferInfo.size)});
+        m_buffers.push_back({vertexBuffer, vertexBufferMemory, static_cast<uint32_t>(rawData.size())});
 
-        return {vertexBuffer, vertexBufferMemory, static_cast<uint32_t>(bufferInfo.size)};
+        return {vertexBuffer, vertexBufferMemory, static_cast<uint32_t>(rawData.size())};
     }
 
     void destroy() noexcept;
