@@ -14,7 +14,7 @@ static VkShaderModule create_shader_module(VkDevice device, const char* filename
 
 Shader::Shader(VkDevice device) noexcept :
     m_device(device),
-    m_module(VK_NULL_HANDLE),
+    m_module(nullptr),
     m_stage(VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM)
 {
 }
@@ -23,7 +23,7 @@ Shader::Shader(VkDevice device) noexcept :
 Shader::~Shader()
 {
     if (m_module)
-        vkDestroyShaderModule(m_device, m_module, VK_NULL_HANDLE);
+        vkDestroyShaderModule(m_device, m_module, nullptr);
 }
 
 
@@ -45,12 +45,12 @@ VkPipelineShaderStageCreateInfo Shader::getInfo() const noexcept
 {
     const VkPipelineShaderStageCreateInfo info =
         {.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-         .pNext               = VK_NULL_HANDLE,
+         .pNext               = nullptr,
          .flags               = 0,
          .stage               = m_stage,
          .module              = m_module,
          .pName               = "main",
-         .pSpecializationInfo = VK_NULL_HANDLE};
+         .pSpecializationInfo = nullptr};
 
     return info;
 }
@@ -107,11 +107,11 @@ VkShaderModule create_shader_module(VkDevice device, const char* filename) noexc
     size_t codeSize = read_shader_file(filename, &code);
 
     if (codeSize == 0)
-        return VK_NULL_HANDLE;
+        return nullptr;
 
     const VkShaderModuleCreateInfo createInfo = {
         .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .pNext    = VK_NULL_HANDLE,
+        .pNext    = nullptr,
         .flags    = 0,
         .codeSize = codeSize,             // The pointer must be a uint32_t pointer and aligned correctly.
         .pCode    = (const uint32_t*)code // Ensure your memory allocation is suitable for this (malloc usually is).
@@ -124,7 +124,7 @@ VkShaderModule create_shader_module(VkDevice device, const char* filename) noexc
 #ifdef DEBUG
         fprintf(stderr, "Failed to create shader module from file: %s\n", filename);
 #endif
-        shaderModule = VK_NULL_HANDLE;
+        shaderModule = nullptr;
     }
 
     free(code);

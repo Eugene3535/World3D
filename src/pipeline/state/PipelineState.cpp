@@ -17,7 +17,7 @@ void PipelineState::setupShaderStages(std::span<const Shader>                   
 void PipelineState::setupInputAssembler(const VkPrimitiveTopology primitive) noexcept
 {
     inputAssembly.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.pNext                  = VK_NULL_HANDLE;
+    inputAssembly.pNext                  = nullptr;
     inputAssembly.flags                  = 0;
     inputAssembly.topology               = primitive;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
@@ -27,19 +27,19 @@ void PipelineState::setupInputAssembler(const VkPrimitiveTopology primitive) noe
 void PipelineState::setupViewport() noexcept
 {
     viewportState.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportState.pNext         = VK_NULL_HANDLE;
+    viewportState.pNext         = nullptr;
     viewportState.flags         = 0;
     viewportState.viewportCount = 1;
-    viewportState.pViewports    = VK_NULL_HANDLE;
+    viewportState.pViewports    = nullptr;
     viewportState.scissorCount  = 1;
-    viewportState.pScissors     = VK_NULL_HANDLE;
+    viewportState.pScissors     = nullptr;
 }
 
 
 void PipelineState::setupRasterization(VkPolygonMode mode) noexcept
 {
     rasterizer.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterizer.pNext                   = VK_NULL_HANDLE;
+    rasterizer.pNext                   = nullptr;
     rasterizer.flags                   = 0;
     rasterizer.depthClampEnable        = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -57,12 +57,12 @@ void PipelineState::setupRasterization(VkPolygonMode mode) noexcept
 void PipelineState::setupMultisampling() noexcept
 {
     multisampling.sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampling.pNext                 = VK_NULL_HANDLE;
+    multisampling.pNext                 = nullptr;
     multisampling.flags                 = 0;
     multisampling.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
     multisampling.sampleShadingEnable   = VK_FALSE;
     multisampling.minSampleShading      = 1.f;
-    multisampling.pSampleMask           = VK_NULL_HANDLE;
+    multisampling.pSampleMask           = nullptr;
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable      = VK_FALSE;
 }

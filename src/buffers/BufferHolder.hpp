@@ -10,22 +10,22 @@
 
 struct Buffer
 {
-    VkBuffer       handle = VK_NULL_HANDLE;
-    VkDeviceMemory memory = VK_NULL_HANDLE;
+    VkBuffer       handle = nullptr;
+    VkDeviceMemory memory = nullptr;
     uint32_t       size;
 };
 
 
 struct BufferHolder
 {
-    template <class T>
+    template <class T> // Fast memory
     Buffer allocate(std::span<const T> rawData, VkBufferUsageFlagBits flag, VkCommandPool pool) noexcept
     {
         const auto context        = vkContext;
         const auto physicalDevice = context->get<VkPhysicalDevice>();
         const auto logicalDevice  = context->get<VkDevice>();
 
-        Buffer       bufferData = {VK_NULL_HANDLE, VK_NULL_HANDLE, static_cast<uint32_t>(rawData.size())};
+        Buffer       bufferData = {nullptr, nullptr, static_cast<uint32_t>(rawData.size())};
         VkDeviceSize bufferSize = rawData.size_bytes();
 
         VkDeviceMemory stagingBufferMemory;
@@ -43,13 +43,13 @@ struct BufferHolder
         {
             ~BufferMemoryDeleter()
             {
-                vkDestroyBuffer(device, buffer, VK_NULL_HANDLE);
-                vkFreeMemory(device, memory, VK_NULL_HANDLE);
+                vkDestroyBuffer(device, buffer, nullptr);
+                vkFreeMemory(device, memory, nullptr);
             }
 
-            VkDeviceMemory memory = VK_NULL_HANDLE;
-            VkBuffer       buffer = VK_NULL_HANDLE;
-            VkDevice       device = VK_NULL_HANDLE;
+            VkDeviceMemory memory = nullptr;
+            VkBuffer       buffer = nullptr;
+            VkDevice       device = nullptr;
         } guard = {stagingBufferMemory, stagingBuffer, logicalDevice};
 
         if (void* ptr; vkMapMemory(logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &ptr) == VK_SUCCESS)
@@ -91,7 +91,7 @@ struct BufferHolder
     }
 
 
-    template <class T>
+    template <class T> // Slow memory, but may be mapped
     Buffer create(std::span<const T> rawData, VkBufferUsageFlags usage) noexcept
     {
         const auto context       = vkContext;
@@ -107,8 +107,7 @@ struct BufferHolder
              .queueFamilyIndexCount = 0,
              .pQueueFamilyIndices   = nullptr};
 
-        VkBuffer       vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
+        VkBuffer vertexBuffer;
 
         if (vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
             return {};
@@ -124,9 +123,11 @@ struct BufferHolder
                                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                                           vkContext->get<VkPhysicalDevice>())};
 
+        VkDeviceMemory vertexBufferMemory;
+
         if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
         {
-            vkDestroyBuffer(logicalDevice, vertexBuffer, VK_NULL_HANDLE);
+            vkDestroyBuffer(logicalDevice, vertexBuffer, nullptr);
 
             return {};
         }
@@ -135,16 +136,15 @@ struct BufferHolder
 
         void* data;
         vkMapMemory(logicalDevice, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-        memcpy(data, rawData.data(), (size_t)bufferInfo.size);
+        memcpy(data, rawData.data(), bufferInfo.size);
         vkUnmapMemory(logicalDevice, vertexBufferMemory);
 
-        m_buffers.push_back({vertexBuffer, vertexBufferMemory, (uint32_t)bufferInfo.size});
+        m_buffers.push_back({vertexBuffer, vertexBufferMemory, static_cast<uint32_t>(bufferInfo.size)});
 
-        return {vertexBuffer, vertexBufferMemory, (uint32_t)bufferInfo.size};
+        return {vertexBuffer, vertexBufferMemory, static_cast<uint32_t>(bufferInfo.size)};
     }
 
     void destroy() noexcept;
-
 
 private:
     std::vector<Buffer> m_buffers;

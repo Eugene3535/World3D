@@ -15,6 +15,6 @@ struct DescriptorPool
                                    uint32_t                     dstBinding) noexcept;
     void destroy() noexcept;
 
-    VkDescriptorPool              handle = VK_NULL_HANDLE;
+    VkDescriptorPool              handle = nullptr;
     std::vector<VkDescriptorType> types;
 };

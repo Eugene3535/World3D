@@ -110,10 +110,10 @@ void Texture2D::destroy() noexcept
 {
     const auto logicalDevice = vkContext->get<VkDevice>();
 
-    vkDestroySampler(logicalDevice, sampler, VK_NULL_HANDLE);
-    vkDestroyImageView(logicalDevice, imageView, VK_NULL_HANDLE);
-    vkDestroyImage(logicalDevice, image, VK_NULL_HANDLE);
-    vkFreeMemory(logicalDevice, imageMemory, VK_NULL_HANDLE);
+    vkDestroySampler(logicalDevice, sampler, nullptr);
+    vkDestroyImageView(logicalDevice, imageView, nullptr);
+    vkDestroyImage(logicalDevice, image, nullptr);
+    vkFreeMemory(logicalDevice, imageMemory, nullptr);
 }
 
 namespace
@@ -125,7 +125,7 @@ bool create_sampler(Texture2D* texture, VkPhysicalDevice gpu, VkDevice device) n
 
     const VkSamplerCreateInfo samplerInfo =
         {.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-         .pNext                   = VK_NULL_HANDLE,
+         .pNext                   = nullptr,
          .flags                   = 0,
          .magFilter               = VK_FILTER_LINEAR,
          .minFilter               = VK_FILTER_LINEAR,
@@ -143,6 +143,6 @@ bool create_sampler(Texture2D* texture, VkPhysicalDevice gpu, VkDevice device) n
          .borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
          .unnormalizedCoordinates = VK_FALSE};
 
-    return (vkCreateSampler(device, &samplerInfo, VK_NULL_HANDLE, &texture->sampler) == VK_SUCCESS);
+    return (vkCreateSampler(device, &samplerInfo, nullptr, &texture->sampler) == VK_SUCCESS);
 }
 } // namespace

@@ -29,7 +29,7 @@ uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties,
 VkCommandBuffer begin_single_time_commands(VkDevice device, VkCommandPool pool) noexcept
 {
     const VkCommandBufferAllocateInfo allocInfo = {.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                                                   .pNext              = VK_NULL_HANDLE,
+                                                   .pNext              = nullptr,
                                                    .commandPool        = pool,
                                                    .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
                                                    .commandBufferCount = 1};
@@ -37,19 +37,19 @@ VkCommandBuffer begin_single_time_commands(VkDevice device, VkCommandPool pool) 
     VkCommandBuffer cmd;
 
     if (vkAllocateCommandBuffers(device, &allocInfo, &cmd) != VK_SUCCESS)
-        return VK_NULL_HANDLE;
+        return nullptr;
 
     const VkCommandBufferBeginInfo beginInfo = {.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                                                .pNext            = VK_NULL_HANDLE,
+                                                .pNext            = nullptr,
                                                 .flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-                                                .pInheritanceInfo = VK_NULL_HANDLE};
+                                                .pInheritanceInfo = nullptr};
 
     if (vkBeginCommandBuffer(cmd, &beginInfo) == VK_SUCCESS)
         return cmd;
 
     vkFreeCommandBuffers(device, pool, 1, &cmd);
 
-    return VK_NULL_HANDLE;
+    return nullptr;
 }
 
 
@@ -59,16 +59,16 @@ void end_single_time_commands(VkCommandBuffer cmd, VkDevice device, VkCommandPoo
 
     const VkSubmitInfo submitInfo =
         {.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-         .pNext                = VK_NULL_HANDLE,
+         .pNext                = nullptr,
          .waitSemaphoreCount   = 0,
-         .pWaitSemaphores      = VK_NULL_HANDLE,
-         .pWaitDstStageMask    = VK_NULL_HANDLE,
+         .pWaitSemaphores      = nullptr,
+         .pWaitDstStageMask    = nullptr,
          .commandBufferCount   = 1,
          .pCommandBuffers      = &cmd,
          .signalSemaphoreCount = 0,
-         .pSignalSemaphores    = VK_NULL_HANDLE};
+         .pSignalSemaphores    = nullptr};
 
-    vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueSubmit(queue, 1, &submitInfo, nullptr);
     vkQueueWaitIdle(queue);
     vkFreeCommandBuffers(device, pool, 1, &cmd);
 }
@@ -83,41 +83,41 @@ VkBuffer create_buffer(VkDeviceSize          size,
 {
     const VkBufferCreateInfo bufferInfo =
         {.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-         .pNext                 = VK_NULL_HANDLE,
+         .pNext                 = nullptr,
          .flags                 = 0,
          .size                  = size,
          .usage                 = usage,
          .sharingMode           = VK_SHARING_MODE_EXCLUSIVE,
          .queueFamilyIndexCount = 0,
-         .pQueueFamilyIndices   = VK_NULL_HANDLE};
+         .pQueueFamilyIndices   = nullptr};
 
     VkBuffer buffer;
 
-    if (vkCreateBuffer(device, &bufferInfo, VK_NULL_HANDLE, &buffer) != VK_SUCCESS)
-        return VK_NULL_HANDLE;
+    if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+        return nullptr;
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
 
     const VkMemoryAllocateInfo allocInfo =
         {.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-         .pNext           = VK_NULL_HANDLE,
+         .pNext           = nullptr,
          .allocationSize  = memRequirements.size,
          .memoryTypeIndex = find_memory_type(memRequirements.memoryTypeBits, properties, gpu)};
 
-    if (vkAllocateMemory(device, &allocInfo, VK_NULL_HANDLE, bufferMemory) != VK_SUCCESS)
+    if (vkAllocateMemory(device, &allocInfo, nullptr, bufferMemory) != VK_SUCCESS)
     {
-        vkDestroyBuffer(device, buffer, VK_NULL_HANDLE);
+        vkDestroyBuffer(device, buffer, nullptr);
 
-        return VK_NULL_HANDLE;
+        return nullptr;
     }
 
     if (vkBindBufferMemory(device, buffer, *bufferMemory, 0) != VK_SUCCESS)
     {
-        vkFreeMemory(device, *bufferMemory, VK_NULL_HANDLE);
-        vkDestroyBuffer(device, buffer, VK_NULL_HANDLE);
+        vkFreeMemory(device, *bufferMemory, nullptr);
+        vkDestroyBuffer(device, buffer, nullptr);
 
-        return VK_NULL_HANDLE;
+        return nullptr;
     }
 
     return buffer;
@@ -149,7 +149,7 @@ bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLa
     {
         VkImageMemoryBarrier barrier =
             {.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-             .pNext               = VK_NULL_HANDLE,
+             .pNext               = nullptr,
              .srcAccessMask       = VK_ACCESS_NONE,
              .dstAccessMask       = VK_ACCESS_NONE,
              .oldLayout           = oldLayout,
@@ -197,7 +197,7 @@ bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLa
             return false; // unsupported transition
         }
 
-        vkCmdPipelineBarrier(cmd, sourceStage, destinationStage, 0, 0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 1, &barrier);
+        vkCmdPipelineBarrier(cmd, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
         end_single_time_commands(cmd, device, pool, queue);
 
@@ -245,11 +245,11 @@ VkImage create_image_2D(VkExtent2D            extent,
     auto physicalDevive = vkContext->get<VkPhysicalDevice>();
     auto logicalDevice  = vkContext->get<VkDevice>();
 
-    VkImage image = VK_NULL_HANDLE;
+    VkImage image = nullptr;
 
     const VkImageCreateInfo imageInfo =
         {.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-         .pNext                 = VK_NULL_HANDLE,
+         .pNext                 = nullptr,
          .flags                 = 0,
          .imageType             = VK_IMAGE_TYPE_2D,
          .format                = format,
@@ -261,10 +261,10 @@ VkImage create_image_2D(VkExtent2D            extent,
          .usage                 = usage,
          .sharingMode           = VK_SHARING_MODE_EXCLUSIVE,
          .queueFamilyIndexCount = 0,
-         .pQueueFamilyIndices   = VK_NULL_HANDLE,
+         .pQueueFamilyIndices   = nullptr,
          .initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED};
 
-    if (vkCreateImage(logicalDevice, &imageInfo, VK_NULL_HANDLE, &image) != VK_SUCCESS)
+    if (vkCreateImage(logicalDevice, &imageInfo, nullptr, &image) != VK_SUCCESS)
         return nullptr;
 
     VkMemoryRequirements memRequirements;
@@ -272,27 +272,27 @@ VkImage create_image_2D(VkExtent2D            extent,
 
     const VkMemoryAllocateInfo allocInfo =
         {.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-         .pNext           = VK_NULL_HANDLE,
+         .pNext           = nullptr,
          .allocationSize  = memRequirements.size,
          .memoryTypeIndex = find_memory_type(memRequirements.memoryTypeBits, properties, physicalDevive)};
 
-    if (vkAllocateMemory(logicalDevice, &allocInfo, VK_NULL_HANDLE, imageMemory) == VK_SUCCESS)
+    if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, imageMemory) == VK_SUCCESS)
     {
         if ((vkBindImageMemory(logicalDevice, image, *imageMemory, 0) == VK_SUCCESS))
             return image;
     }
 
-    return VK_NULL_HANDLE;
+    return nullptr;
 }
 
 
 VkImageView create_image_view_2D(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) noexcept
 {
-    VkImageView imageView = VK_NULL_HANDLE;
+    VkImageView imageView = nullptr;
 
     const VkImageViewCreateInfo viewInfo =
         {.sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-         .pNext      = VK_NULL_HANDLE,
+         .pNext      = nullptr,
          .flags      = 0,
          .image      = image,
          .viewType   = VK_IMAGE_VIEW_TYPE_2D,
@@ -304,10 +304,10 @@ VkImageView create_image_view_2D(VkImage image, VkFormat format, VkImageAspectFl
          .subresourceRange =
              {.aspectMask = aspectFlags, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
 
-    if (vkCreateImageView(vkContext->get<VkDevice>(), &viewInfo, VK_NULL_HANDLE, &imageView) == VK_SUCCESS)
+    if (vkCreateImageView(vkContext->get<VkDevice>(), &viewInfo, nullptr, &imageView) == VK_SUCCESS)
         return imageView;
 
-    return VK_NULL_HANDLE;
+    return nullptr;
 }
 
 

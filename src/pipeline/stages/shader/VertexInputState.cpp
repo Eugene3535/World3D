@@ -32,7 +32,7 @@ VkPipelineVertexInputStateCreateInfo VertexInputState::getInfo() const noexcept
 {
     const VkPipelineVertexInputStateCreateInfo info =
         {.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-         .pNext                           = VK_NULL_HANDLE,
+         .pNext                           = nullptr,
          .flags                           = 0,
          .vertexBindingDescriptionCount   = 1,
          .pVertexBindingDescriptions      = &bindingDescription,

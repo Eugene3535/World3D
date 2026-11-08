@@ -9,7 +9,7 @@ static View* g_view;
 
 
 View::View() noexcept :
-    m_surface(VK_NULL_HANDLE)
+    m_surface(nullptr)
 {
     assert(g_view == nullptr);
     g_view = this;
@@ -43,7 +43,7 @@ void View::destroy() noexcept
     if (m_swapchain)
         m_swapchain->destroy();
 
-    vkDestroySurfaceKHR(vkContext->get<VkInstance>(), m_surface, VK_NULL_HANDLE);
+    vkDestroySurfaceKHR(vkContext->get<VkInstance>(), m_surface, nullptr);
 }
 
 
@@ -81,27 +81,27 @@ bool View::createSurface(uint64_t windowHandle) noexcept
 
 #ifdef _WIN32
     const VkWin32SurfaceCreateInfoKHR surfaceInfo = {.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-                                                     .pNext     = VK_NULL_HANDLE,
+                                                     .pNext     = nullptr,
                                                      .flags     = 0,
-                                                     .hinstance = GetModuleHandle(VK_NULL_HANDLE),
+                                                     .hinstance = GetModuleHandle(nullptr),
                                                      .hwnd      = reinterpret_cast<HWND>(windowHandle)};
 
-    return (vkCreateWin32SurfaceKHR(instance, &surfaceInfo, VK_NULL_HANDLE, &m_surface) == VK_SUCCESS);
+    return (vkCreateWin32SurfaceKHR(instance, &surfaceInfo, nullptr, &m_surface) == VK_SUCCESS);
 #endif
 
 #ifdef __linux__
-    xcb_connection_t* connection = xcb_connect(VK_NULL_HANDLE, VK_NULL_HANDLE);
+    xcb_connection_t* connection = xcb_connect(nullptr, nullptr);
 
     if (xcb_connection_has_error(connection))
         return false;
 
     const VkXcbSurfaceCreateInfoKHR surfaceInfo = {.sType      = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
-                                                   .pNext      = VK_NULL_HANDLE,
+                                                   .pNext      = nullptr,
                                                    .flags      = 0,
                                                    .connection = connection,
                                                    .window     = static_cast<xcb_window_t>(windowHandle)};
 
-    return (vkCreateXcbSurfaceKHR(instance, &surfaceInfo, VK_NULL_HANDLE, &m_surface) == VK_SUCCESS);
+    return (vkCreateXcbSurfaceKHR(instance, &surfaceInfo, nullptr, &m_surface) == VK_SUCCESS);
 #endif
 
     return false;

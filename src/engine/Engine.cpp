@@ -115,7 +115,7 @@ bool Engine::createPipeline() noexcept
     }
 
     {
-        Grid3D grid = {.cellCount = {50, 50},
+        Grid3D grid = {.cellCount = {5, 5},
                        .isTiled   = true,
                        .texture   = {.size = m_texture.m_size, .isEnabled = true, .isRepeated = false}};
 
@@ -167,7 +167,7 @@ void Engine::drawFrame() noexcept
                                    m_view.getSwapchain()->getHandle(),
                                    UINT64_MAX,
                                    m_sync.imageAvailableSemaphores[frame],
-                                   VK_NULL_HANDLE,
+                                   nullptr,
                                    &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -202,7 +202,7 @@ void Engine::drawFrame() noexcept
         return;
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.handle);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.layout, 0, 1, &descriptorSet, 0, nullptr);
 
     //  update matrices
     mat4s projection          = glms_perspective(glm_rad(60.f), m_width / (float)m_height, 0.1f, 100.f);
@@ -231,7 +231,7 @@ void Engine::drawFrame() noexcept
 
     const VkSubmitInfo submitInfo =
         {.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-         .pNext                = VK_NULL_HANDLE,
+         .pNext                = nullptr,
          .waitSemaphoreCount   = 1,
          .pWaitSemaphores      = m_sync.imageAvailableSemaphores.data() + frame,
          .pWaitDstStageMask    = waitStages,

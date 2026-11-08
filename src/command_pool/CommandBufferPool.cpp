@@ -7,15 +7,15 @@ bool CommandBufferPool::create() noexcept
     const auto logicalDevice = vkContext->get<VkDevice>();
 
     const VkCommandPoolCreateInfo poolInfo = {.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-                                              .pNext            = VK_NULL_HANDLE,
+                                              .pNext            = nullptr,
                                               .flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
                                               .queueFamilyIndex = vkContext->getQueueFamilyIndex()};
 
-    if (vkCreateCommandPool(logicalDevice, &poolInfo, VK_NULL_HANDLE, &handle) != VK_SUCCESS)
+    if (vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &handle) != VK_SUCCESS)
         return false;
 
     const VkCommandBufferAllocateInfo allocInfo = {.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                                                   .pNext              = VK_NULL_HANDLE,
+                                                   .pNext              = nullptr,
                                                    .commandPool        = handle,
                                                    .level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
                                                    .commandBufferCount = static_cast<uint32_t>(commandBuffers.size())};
@@ -27,5 +27,5 @@ bool CommandBufferPool::create() noexcept
 void CommandBufferPool::destroy() noexcept
 {
     const auto logicalDevice = vkContext->get<VkDevice>();
-    vkDestroyCommandPool(logicalDevice, handle, VK_NULL_HANDLE);
+    vkDestroyCommandPool(logicalDevice, handle, nullptr);
 }

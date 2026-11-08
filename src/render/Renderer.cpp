@@ -12,10 +12,8 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
     if (vkResetCommandBuffer(cmd, /*VkCommandBufferResetFlagBits*/ 0) != VK_SUCCESS)
         return false;
 
-    const VkCommandBufferBeginInfo beginInfo = {.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                                                .pNext            = VK_NULL_HANDLE,
-                                                .flags            = 0,
-                                                .pInheritanceInfo = VK_NULL_HANDLE};
+    const VkCommandBufferBeginInfo beginInfo =
+        {.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .pNext = nullptr, .flags = 0, .pInheritanceInfo = nullptr};
 
     VkResult result = vkBeginCommandBuffer(cmd, &beginInfo);
 
@@ -24,7 +22,7 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 
     const VkImageMemoryBarrier imageMemoryBarrier =
         {.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-         .pNext               = VK_NULL_HANDLE,
+         .pNext               = nullptr,
          .srcAccessMask       = VK_ACCESS_NONE,
          .dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
          .oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED,
@@ -43,16 +41,16 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, // dstStageMask
                          0,
                          0,
-                         VK_NULL_HANDLE,
+                         nullptr,
                          0,
-                         VK_NULL_HANDLE,
+                         nullptr,
                          1,                  // imageMemoryBarrierCount
                          &imageMemoryBarrier // pImageMemoryBarriers
     );
 
     VkImageMemoryBarrier depthBufferBarrier =
         {.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-         .pNext               = VK_NULL_HANDLE,
+         .pNext               = nullptr,
          .srcAccessMask       = VK_ACCESS_NONE,
          .dstAccessMask       = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
          .oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED,
@@ -71,9 +69,9 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
                          VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
                          0,
                          0,
-                         VK_NULL_HANDLE,
+                         nullptr,
                          0,
-                         VK_NULL_HANDLE,
+                         nullptr,
                          1,
                          &depthBufferBarrier);
 
@@ -81,11 +79,11 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 
     const VkRenderingAttachmentInfoKHR colorAttachmentInfo =
         {.sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-         .pNext              = VK_NULL_HANDLE,
+         .pNext              = nullptr,
          .imageView          = colorAttachment.imageView,
          .imageLayout        = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR,
          .resolveMode        = VK_RESOLVE_MODE_NONE,
-         .resolveImageView   = VK_NULL_HANDLE,
+         .resolveImageView   = nullptr,
          .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
          .loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR,
          .storeOp            = VK_ATTACHMENT_STORE_OP_STORE,
@@ -93,11 +91,11 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 
     const VkRenderingAttachmentInfoKHR depthAttachmentInfo =
         {.sType              = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
-         .pNext              = VK_NULL_HANDLE,
+         .pNext              = nullptr,
          .imageView          = depthAttachment.imageView,
          .imageLayout        = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
          .resolveMode        = VK_RESOLVE_MODE_NONE,
-         .resolveImageView   = VK_NULL_HANDLE,
+         .resolveImageView   = nullptr,
          .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
          .loadOp             = VK_ATTACHMENT_LOAD_OP_CLEAR,
          .storeOp            = VK_ATTACHMENT_STORE_OP_DONT_CARE,
@@ -105,7 +103,7 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 
     const VkRenderingInfoKHR renderingInfo =
         {.sType                = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-         .pNext                = VK_NULL_HANDLE,
+         .pNext                = nullptr,
          .flags                = 0,
          .renderArea           = {{0, 0}, extent},
          .layerCount           = 1,
@@ -113,7 +111,7 @@ bool Renderer::begin(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
          .colorAttachmentCount = 1,
          .pColorAttachments    = &colorAttachmentInfo,
          .pDepthAttachment     = &depthAttachmentInfo,
-         .pStencilAttachment   = VK_NULL_HANDLE};
+         .pStencilAttachment   = nullptr};
 
     vkCmdBeginRendering(cmd, &renderingInfo);
 
@@ -136,7 +134,7 @@ bool Renderer::end(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
 
     const VkImageMemoryBarrier imageMemoryBarrier =
         {.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-         .pNext               = VK_NULL_HANDLE,
+         .pNext               = nullptr,
          .srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
          .dstAccessMask       = VK_ACCESS_NONE,
          .oldLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
@@ -155,9 +153,9 @@ bool Renderer::end(VkCommandBuffer cmd, uint32_t imageIndex) noexcept
                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,          // dstStageMask
                          0,
                          0,
-                         VK_NULL_HANDLE,
+                         nullptr,
                          0,
-                         VK_NULL_HANDLE,
+                         nullptr,
                          1,                  // imageMemoryBarrierCount
                          &imageMemoryBarrier // pImageMemoryBarriers
     );

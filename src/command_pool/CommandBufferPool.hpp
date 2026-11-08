@@ -10,6 +10,6 @@ struct CommandBufferPool
     bool create() noexcept;
     void destroy() noexcept;
 
-    VkCommandPool                                     handle         = VK_NULL_HANDLE;
-    std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> commandBuffers = {VK_NULL_HANDLE, VK_NULL_HANDLE};
+    VkCommandPool                                     handle         = nullptr;
+    std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> commandBuffers = {nullptr, nullptr};
 };

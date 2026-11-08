@@ -7,7 +7,7 @@ void BufferHolder::destroy() noexcept
 
     for (const auto& data : m_buffers)
     {
-        vkDestroyBuffer(logicalDevice, data.handle, VK_NULL_HANDLE);
-        vkFreeMemory(logicalDevice, data.memory, VK_NULL_HANDLE);
+        vkDestroyBuffer(logicalDevice, data.handle, nullptr);
+        vkFreeMemory(logicalDevice, data.memory, nullptr);
     }
 }

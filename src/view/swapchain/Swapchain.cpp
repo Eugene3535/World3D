@@ -17,13 +17,13 @@ struct SwapChainSupportDetails
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details->capabilities);
 
         uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, VK_NULL_HANDLE);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
 
         details->surfaceFormats.resize(formatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details->surfaceFormats.data());
 
         uint32_t presentModeCount = 0;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, VK_NULL_HANDLE);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 
         details->presentModes.resize(presentModeCount);
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details->presentModes.data());
@@ -86,7 +86,7 @@ struct SwapChainSupportDetails
 
 Swapchain::Swapchain(VkSurfaceKHR surface) noexcept :
     m_surface(surface),
-    m_handle(VK_NULL_HANDLE),
+    m_handle(nullptr),
     m_depthBuffer{}
 {
 }
@@ -102,9 +102,9 @@ bool Swapchain::create() noexcept
     if (m_handle)
     {
         for (const auto& attachment : m_colorAttachments)
-            vkDestroyImageView(device, attachment.imageView, VK_NULL_HANDLE);
+            vkDestroyImageView(device, attachment.imageView, nullptr);
 
-        m_handle = VK_NULL_HANDLE;
+        m_handle = nullptr;
     }
 
     auto           swapChainSupportDetails = SwapChainSupportDetails::querySupport(m_surface);
@@ -114,7 +114,7 @@ bool Swapchain::create() noexcept
 
     const VkSwapchainCreateInfoKHR swapchainInfo =
         {.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-         .pNext                 = VK_NULL_HANDLE,
+         .pNext                 = nullptr,
          .flags                 = 0,
          .surface               = m_surface,
          .minImageCount         = minImageCount,
@@ -125,21 +125,21 @@ bool Swapchain::create() noexcept
          .imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
          .imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE,
          .queueFamilyIndexCount = 0,
-         .pQueueFamilyIndices   = VK_NULL_HANDLE,
+         .pQueueFamilyIndices   = nullptr,
          .preTransform          = swapChainSupportDetails->capabilities.currentTransform,
          .compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
          .presentMode           = swapChainSupportDetails->getPresentMode(),
          .clipped               = VK_TRUE,
          .oldSwapchain          = oldSwapchain};
 
-    if (vkCreateSwapchainKHR(device, &swapchainInfo, VK_NULL_HANDLE, &m_handle) == VK_SUCCESS)
+    if (vkCreateSwapchainKHR(device, &swapchainInfo, nullptr, &m_handle) == VK_SUCCESS)
     {
         if (oldSwapchain)
-            vkDestroySwapchainKHR(device, oldSwapchain, VK_NULL_HANDLE);
+            vkDestroySwapchainKHR(device, oldSwapchain, nullptr);
 
         uint32_t imageCount = 0;
 
-        if (vkGetSwapchainImagesKHR(device, m_handle, &imageCount, VK_NULL_HANDLE) != VK_SUCCESS)
+        if (vkGetSwapchainImagesKHR(device, m_handle, &imageCount, nullptr) != VK_SUCCESS)
             return false;
 
         auto& attachments = m_colorAttachments;
@@ -164,13 +164,13 @@ bool Swapchain::create() noexcept
 
             //          Depth buffering
             if (m_depthBuffer.attachment.imageView)
-                vkDestroyImageView(device, m_depthBuffer.attachment.imageView, VK_NULL_HANDLE);
+                vkDestroyImageView(device, m_depthBuffer.attachment.imageView, nullptr);
 
             if (m_depthBuffer.attachment.image)
-                vkDestroyImage(device, m_depthBuffer.attachment.image, VK_NULL_HANDLE);
+                vkDestroyImage(device, m_depthBuffer.attachment.image, nullptr);
 
             if (m_depthBuffer.memory)
-                vkFreeMemory(device, m_depthBuffer.memory, VK_NULL_HANDLE);
+                vkFreeMemory(device, m_depthBuffer.memory, nullptr);
 
             if (m_depthBuffer.attachment.format == VK_FORMAT_UNDEFINED)
             {
@@ -216,19 +216,19 @@ void Swapchain::destroy() noexcept
     if (m_handle)
     {
         for (const auto& attachment : m_colorAttachments)
-            vkDestroyImageView(device, attachment.imageView, VK_NULL_HANDLE);
+            vkDestroyImageView(device, attachment.imageView, nullptr);
 
-        vkDestroySwapchainKHR(device, m_handle, VK_NULL_HANDLE);
+        vkDestroySwapchainKHR(device, m_handle, nullptr);
     }
 
     if (m_depthBuffer.attachment.imageView)
-        vkDestroyImageView(device, m_depthBuffer.attachment.imageView, VK_NULL_HANDLE);
+        vkDestroyImageView(device, m_depthBuffer.attachment.imageView, nullptr);
 
     if (m_depthBuffer.attachment.image)
-        vkDestroyImage(device, m_depthBuffer.attachment.image, VK_NULL_HANDLE);
+        vkDestroyImage(device, m_depthBuffer.attachment.image, nullptr);
 
     if (m_depthBuffer.memory)
-        vkFreeMemory(device, m_depthBuffer.memory, VK_NULL_HANDLE);
+        vkFreeMemory(device, m_depthBuffer.memory, nullptr);
 }
 
 
@@ -238,13 +238,13 @@ VkResult Swapchain::present(const VkSemaphore semaphore, uint32_t imageIndex) co
 
     const VkPresentInfoKHR presentInfo =
         {.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-         .pNext              = VK_NULL_HANDLE,
+         .pNext              = nullptr,
          .waitSemaphoreCount = 1,
          .pWaitSemaphores    = &semaphore,
          .swapchainCount     = 1,
          .pSwapchains        = &m_handle,
          .pImageIndices      = &imageIndex,
-         .pResults           = VK_NULL_HANDLE};
+         .pResults           = nullptr};
 
     return vkQueuePresentKHR(queue, &presentInfo);
 }

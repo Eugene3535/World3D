@@ -25,7 +25,7 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
 
     const VkPipelineRenderingCreateInfoKHR pipelineRenderingInfo =
         {.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR,
-         .pNext                   = VK_NULL_HANDLE,
+         .pNext                   = nullptr,
          .viewMask                = 0,
          .colorAttachmentCount    = 1,
          .pColorAttachmentFormats = &colorFormat,
@@ -34,7 +34,7 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
 
     const VkPipelineColorBlendStateCreateInfo colorBlending =
         {.sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-         .pNext           = VK_NULL_HANDLE,
+         .pNext           = nullptr,
          .flags           = 0,
          .logicOpEnable   = VK_FALSE,
          .logicOp         = VK_LOGIC_OP_COPY,
@@ -45,31 +45,31 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
 
     const VkPipelineDynamicStateCreateInfo dynamicStateInfo =
         {.sType             = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-         .pNext             = VK_NULL_HANDLE,
+         .pNext             = nullptr,
          .flags             = 0,
          .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()),
          .pDynamicStates    = dynamicStates.data()};
 
-    if (vkCreateDescriptorSetLayout(logicalDevice, &state.layoutInfo, VK_NULL_HANDLE, &descriptorSetLayout) != VK_SUCCESS)
+    if (vkCreateDescriptorSetLayout(logicalDevice, &state.layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
         return false;
 
     const VkPushConstantRange pushConstantRange = {.stageFlags = VK_SHADER_STAGE_VERTEX_BIT, .offset = 0, .size = sizeof(mat4s)};
 
     const VkPipelineLayoutCreateInfo pipelineLayoutInfo =
         {.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-         .pNext                  = VK_NULL_HANDLE,
+         .pNext                  = nullptr,
          .flags                  = 0,
          .setLayoutCount         = 1,
          .pSetLayouts            = &descriptorSetLayout,
          .pushConstantRangeCount = 1,
          .pPushConstantRanges    = &pushConstantRange};
 
-    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, VK_NULL_HANDLE, &layout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &layout) != VK_SUCCESS)
         return false;
 
     const VkPipelineDepthStencilStateCreateInfo depthStencilInfo =
         {.sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
-         .pNext                 = VK_NULL_HANDLE,
+         .pNext                 = nullptr,
          .flags                 = 0,
          .depthTestEnable       = VK_TRUE,
          .depthWriteEnable      = VK_TRUE,
@@ -89,7 +89,7 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
          .pStages             = state.shaderInfo.data(),
          .pVertexInputState   = &vertexInput,
          .pInputAssemblyState = &state.inputAssembly,
-         .pTessellationState  = VK_NULL_HANDLE,
+         .pTessellationState  = nullptr,
          .pViewportState      = &state.viewportState,
          .pRasterizationState = &state.rasterizer,
          .pMultisampleState   = &state.multisampling,
@@ -97,13 +97,12 @@ bool GraphicsPipeline::create(const PipelineState& state) noexcept
          .pColorBlendState    = &colorBlending,
          .pDynamicState       = &dynamicStateInfo,
          .layout              = layout,
-         .renderPass          = VK_NULL_HANDLE,
+         .renderPass          = nullptr,
          .subpass             = 0,
-         .basePipelineHandle  = VK_NULL_HANDLE,
+         .basePipelineHandle  = nullptr,
          .basePipelineIndex   = 0};
 
-    return (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, VK_NULL_HANDLE, &handle) ==
-            VK_SUCCESS);
+    return (vkCreateGraphicsPipelines(logicalDevice, nullptr, 1, &pipelineInfo, nullptr, &handle) == VK_SUCCESS);
 }
 
 
@@ -112,15 +111,15 @@ void GraphicsPipeline::destroy() noexcept
     const auto logicalDevice = vkContext->get<VkDevice>();
 
     if (handle)
-        vkDestroyPipeline(logicalDevice, handle, VK_NULL_HANDLE);
+        vkDestroyPipeline(logicalDevice, handle, nullptr);
 
     if (layout)
-        vkDestroyPipelineLayout(logicalDevice, layout, VK_NULL_HANDLE);
+        vkDestroyPipelineLayout(logicalDevice, layout, nullptr);
 
     if (descriptorSetLayout)
-        vkDestroyDescriptorSetLayout(logicalDevice, descriptorSetLayout, VK_NULL_HANDLE);
+        vkDestroyDescriptorSetLayout(logicalDevice, descriptorSetLayout, nullptr);
 
-    handle              = VK_NULL_HANDLE;
-    layout              = VK_NULL_HANDLE;
-    descriptorSetLayout = VK_NULL_HANDLE;
+    handle              = nullptr;
+    layout              = nullptr;
+    descriptorSetLayout = nullptr;
 }

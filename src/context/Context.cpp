@@ -23,7 +23,7 @@ static bool check_validation_layer_support() noexcept
     VkResult result = VK_SUCCESS;
 
     uint32_t layerCount;
-    vkEnumerateInstanceLayerProperties(&layerCount, VK_NULL_HANDLE);
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
@@ -56,10 +56,10 @@ static bool check_validation_layer_support() noexcept
 
 
 VulkanContext::VulkanContext() noexcept :
-    m_instance(VK_NULL_HANDLE),
-    m_physicalDevice(VK_NULL_HANDLE),
-    m_logicalDevice(VK_NULL_HANDLE),
-    m_queue(VK_NULL_HANDLE),
+    m_instance(nullptr),
+    m_physicalDevice(nullptr),
+    m_logicalDevice(nullptr),
+    m_queue(nullptr),
     m_queueFamilyIndex(0)
 {
     assert(g_vulkanContext == nullptr);
@@ -84,10 +84,10 @@ bool VulkanContext::create() noexcept
 
 void VulkanContext::destroy() noexcept
 {
-    vkDestroyDevice(m_logicalDevice, VK_NULL_HANDLE);
+    vkDestroyDevice(m_logicalDevice, nullptr);
 
     if (m_instance)
-        vkDestroyInstance(m_instance, VK_NULL_HANDLE);
+        vkDestroyInstance(m_instance, nullptr);
 }
 
 
@@ -132,10 +132,10 @@ bool VulkanContext::createInstance() noexcept
     }
 
     uint32_t availableExtensionCount;
-    vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, VK_NULL_HANDLE);
+    vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, nullptr);
 
     std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
-    vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &availableExtensionCount, availableExtensions.data());
+    vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionCount, availableExtensions.data());
 
     std::unordered_set<std::string> deviceExtensions;
 
@@ -156,7 +156,7 @@ bool VulkanContext::createInstance() noexcept
     }
 
     const VkApplicationInfo appInfo = {.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-                                       .pNext              = VK_NULL_HANDLE,
+                                       .pNext              = nullptr,
                                        .pApplicationName   = "World3D",
                                        .applicationVersion = 1,
                                        .pEngineName        = "Engine_3D",
@@ -171,11 +171,11 @@ bool VulkanContext::createInstance() noexcept
 
     VkInstanceCreateInfo instanceInfo =
         {.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-         .pNext                   = VK_NULL_HANDLE,
+         .pNext                   = nullptr,
          .flags                   = 0,
          .pApplicationInfo        = &appInfo,
          .enabledLayerCount       = 0,
-         .ppEnabledLayerNames     = VK_NULL_HANDLE,
+         .ppEnabledLayerNames     = nullptr,
          .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
          .ppEnabledExtensionNames = requiredExtensions.data()};
 
@@ -185,7 +185,7 @@ bool VulkanContext::createInstance() noexcept
 
     const VkDebugUtilsMessengerCreateInfoEXT debugInfo =
         {.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-         .pNext           = VK_NULL_HANDLE,
+         .pNext           = nullptr,
          .flags           = 0,
          .messageSeverity = 0,
          .messageType     = 0,
@@ -199,12 +199,12 @@ bool VulkanContext::createInstance() noexcept
 
              return VK_FALSE;
          },
-         .pUserData = VK_NULL_HANDLE};
+         .pUserData = nullptr};
 
     instanceInfo.pNext = static_cast<const void*>(&debugInfo);
 #endif // !DEBUG
 
-    const auto result = vkCreateInstance(&instanceInfo, VK_NULL_HANDLE, &m_instance);
+    const auto result = vkCreateInstance(&instanceInfo, nullptr, &m_instance);
     spdlog::info("Completing instance initialization: {}", magic_enum::enum_name(result));
 
     return (result == VK_SUCCESS);
@@ -216,7 +216,7 @@ bool VulkanContext::selectVideoCard() noexcept
     spdlog::info("Start selecting a physical device");
 
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(m_instance, &deviceCount, VK_NULL_HANDLE);
+    vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
 
     if (deviceCount)
     {
@@ -271,7 +271,7 @@ bool VulkanContext::createDevice() noexcept
 
     { // Find main queue family index
         uint32_t queueFamilyCount;
-        vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, VK_NULL_HANDLE);
+        vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, nullptr);
 
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(m_physicalDevice, &queueFamilyCount, queueFamilies.data());
@@ -297,7 +297,7 @@ bool VulkanContext::createDevice() noexcept
         const float queuePriority = 1.0f;
 
         const VkDeviceQueueCreateInfo queueInfo = {.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-                                                   .pNext            = VK_NULL_HANDLE,
+                                                   .pNext            = nullptr,
                                                    .flags            = 0,
                                                    .queueFamilyIndex = m_queueFamilyIndex,
                                                    .queueCount       = 1,
@@ -310,10 +310,10 @@ bool VulkanContext::createDevice() noexcept
             spdlog::info("Required device extension: {}", ext);
 
         uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(m_physicalDevice, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
+        vkEnumerateDeviceExtensionProperties(m_physicalDevice, nullptr, &extensionCount, nullptr);
 
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(m_physicalDevice, VK_NULL_HANDLE, &extensionCount, availableExtensions.data());
+        vkEnumerateDeviceExtensionProperties(m_physicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
         std::unordered_set<std::string> deviceExtensions;
 
@@ -343,7 +343,7 @@ bool VulkanContext::createDevice() noexcept
              .queueCreateInfoCount    = 1,
              .pQueueCreateInfos       = &queueInfo,
              .enabledLayerCount       = 0,
-             .ppEnabledLayerNames     = VK_NULL_HANDLE,
+             .ppEnabledLayerNames     = nullptr,
              .enabledExtensionCount   = static_cast<uint32_t>(requiredExtensions.size()),
              .ppEnabledExtensionNames = requiredExtensions.data(),
              .pEnabledFeatures        = &enabledFeatures};
@@ -352,7 +352,7 @@ bool VulkanContext::createDevice() noexcept
         deviceInfo.ppEnabledLayerNames = validation_layers.data();
 #endif
 
-        const auto result = vkCreateDevice(m_physicalDevice, &deviceInfo, VK_NULL_HANDLE, &m_logicalDevice);
+        const auto result = vkCreateDevice(m_physicalDevice, &deviceInfo, nullptr, &m_logicalDevice);
 
         if (result == VK_SUCCESS)
         {

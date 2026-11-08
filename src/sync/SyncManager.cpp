@@ -6,23 +6,21 @@ bool SyncManager::create() noexcept
 {
     auto logicalDevice = vkContext->get<VkDevice>();
 
-    const VkSemaphoreCreateInfo semaphoreInfo = {.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-                                                 .pNext = VK_NULL_HANDLE,
-                                                 .flags = 0};
+    const VkSemaphoreCreateInfo semaphoreInfo = {.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, .pNext = nullptr, .flags = 0};
 
     const VkFenceCreateInfo fenceInfo = {.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-                                         .pNext = VK_NULL_HANDLE,
+                                         .pNext = nullptr,
                                          .flags = VK_FENCE_CREATE_SIGNALED_BIT};
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, VK_NULL_HANDLE, &imageAvailableSemaphores[i]) != VK_SUCCESS)
+        if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS)
             return false;
 
-        if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, VK_NULL_HANDLE, &renderFinishedSemaphores[i]) != VK_SUCCESS)
+        if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS)
             return false;
 
-        if (vkCreateFence(logicalDevice, &fenceInfo, VK_NULL_HANDLE, &inFlightFences[i]) != VK_SUCCESS)
+        if (vkCreateFence(logicalDevice, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
             return false;
     }
 
@@ -36,8 +34,8 @@ void SyncManager::destroy() noexcept
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], VK_NULL_HANDLE);
-        vkDestroySemaphore(logicalDevice, imageAvailableSemaphores[i], VK_NULL_HANDLE);
-        vkDestroyFence(logicalDevice, inFlightFences[i], VK_NULL_HANDLE);
+        vkDestroySemaphore(logicalDevice, renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(logicalDevice, imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
     }
 }
