@@ -1,7 +1,7 @@
 #pragma once
 
 #include <span>
-#include <vector>
+// #include <vector>
 
 #include "utils/Tools.hpp"
 
@@ -15,6 +15,6 @@ struct DescriptorPool
                                    uint32_t                     dstBinding) noexcept;
     void destroy() noexcept;
 
-    VkDescriptorPool              handle = nullptr;
-    std::vector<VkDescriptorType> types;
+    VkDescriptorPool handle = nullptr;
+    //std::vector<VkDescriptorType> types;
 };

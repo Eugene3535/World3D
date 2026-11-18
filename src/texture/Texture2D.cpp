@@ -44,7 +44,7 @@ bool Texture2D::loadFromFile(const std::filesystem::path& filepath, VkCommandPoo
     VkDeviceSize imageSize = stbImage.width * stbImage.height * 4;
 
     VkDeviceMemory stagingBufferMemory;
-    VkBuffer       stagingBuffer = vktools::create_buffer(imageSize,
+    VkBuffer stagingBuffer = vktools::create_buffer(imageSize,
                                                     VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                                     &stagingBufferMemory,

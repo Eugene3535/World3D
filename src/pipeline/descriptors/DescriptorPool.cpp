@@ -16,8 +16,8 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
 
     if (result)
     {
-        for (const auto& poolSize : poolSizes)
-            types.push_back(poolSize.type);
+        // for (const auto& poolSize : poolSizes)
+        //     types.push_back(poolSize.type);
 
         return true;
     }

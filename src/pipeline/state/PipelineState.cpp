@@ -1,16 +1,35 @@
+#include <cassert>
+
 #include "pipeline/state/PipelineState.hpp"
-#include "pipeline/descriptors/DescriptorSetLayout.hpp"
+
+
+void PipelineState::addDescriptor(VkDescriptorType type, VkShaderStageFlagBits shaderStage) noexcept
+{
+    const uint32_t           binding = static_cast<uint32_t>(m_bindings.size());
+    const VkShaderStageFlags flags   = shaderStage;
+
+    m_bindings.push_back(
+        {.binding = binding, .descriptorType = type, .descriptorCount = 1, .stageFlags = flags, .pImmutableSamplers = nullptr});
+}
 
 
 void PipelineState::setupShaderStages(std::span<const Shader>                          shaders,
-                                      std::span<const VertexInputState::AttributeType> attributes,
-                                      const DescriptorSetLayout&                       layout) noexcept
+                                      std::span<const VertexInputState::AttributeType> attributes) noexcept
 {
+    assert(!m_bindings.empty());
+    assert(!shaders.empty());
+    assert(!attributes.empty());
+
     for (const auto& shader : shaders)
         shaderInfo.emplace_back(shader.getInfo());
 
     vertexInputState.create(attributes);
-    layoutInfo = layout.getInfo();
+
+    layoutInfo = {.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+                  .pNext        = nullptr,
+                  .flags        = 0,
+                  .bindingCount = static_cast<uint32_t>(m_bindings.size()),
+                  .pBindings    = m_bindings.data()};
 }
 
 
@@ -78,5 +97,5 @@ void PipelineState::setupColorBlending(VkBool32 enabled) noexcept
     colorBlending.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     colorBlending.alphaBlendOp        = VK_BLEND_OP_ADD;
     colorBlending.colorWriteMask      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
-                                   VK_COLOR_COMPONENT_A_BIT;
+                                        VK_COLOR_COMPONENT_A_BIT;
 }

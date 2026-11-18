@@ -44,8 +44,8 @@ struct SwapChainSupportDetails
         {
             actualExtent        = currentExtent;
             actualExtent.width  = std::clamp(actualExtent.width,
-                                            details->capabilities.minImageExtent.width,
-                                            details->capabilities.maxImageExtent.width);
+                                             details->capabilities.minImageExtent.width,
+                                             details->capabilities.maxImageExtent.width);
             actualExtent.height = std::clamp(actualExtent.height,
                                              details->capabilities.minImageExtent.height,
                                              details->capabilities.maxImageExtent.height);
@@ -177,7 +177,7 @@ bool Swapchain::create() noexcept
                 constexpr std::array<VkFormat, 3> formats = {VK_FORMAT_D32_SFLOAT,
                                                              VK_FORMAT_D32_SFLOAT_S8_UINT,
                                                              VK_FORMAT_D24_UNORM_S8_UINT};
-                m_depthBuffer.attachment.format           = vktools::find_supported_format(formats,
+                m_depthBuffer.attachment.format = vktools::find_supported_format(formats,
                                                                                  VK_IMAGE_TILING_OPTIMAL,
                                                                                  VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
                                                                                  context->get<VkPhysicalDevice>());

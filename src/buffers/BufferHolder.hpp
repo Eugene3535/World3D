@@ -29,7 +29,7 @@ struct BufferHolder
         VkDeviceSize bufferSize = rawData.size_bytes();
 
         VkDeviceMemory stagingBufferMemory;
-        VkBuffer       stagingBuffer = vktools::create_buffer(bufferSize,
+        VkBuffer stagingBuffer = vktools::create_buffer(bufferSize,
                                                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                                         &stagingBufferMemory,
@@ -116,9 +116,9 @@ struct BufferHolder
         vkGetBufferMemoryRequirements(logicalDevice, vertexBuffer, &memRequirements);
 
         const VkMemoryAllocateInfo allocInfo =
-            {.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-             .pNext           = nullptr,
-             .allocationSize  = memRequirements.size,
+            {.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+             .pNext          = nullptr,
+             .allocationSize = memRequirements.size,
              .memoryTypeIndex = vktools::find_memory_type(memRequirements.memoryTypeBits,
                                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                                           vkContext->get<VkPhysicalDevice>())};

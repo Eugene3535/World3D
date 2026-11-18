@@ -1,12 +1,14 @@
 #pragma once
 
 
-struct GraphicsPipeline
+class GraphicsPipeline
 {
+public:
     bool create(const struct PipelineState& state) noexcept;
     void destroy() noexcept;
 
-    VkDescriptorSetLayout descriptorSetLayout = nullptr;
-    VkPipelineLayout      layout              = nullptr;
+
     VkPipeline            handle              = nullptr;
+    VkPipelineLayout      layout              = nullptr;
+    VkDescriptorSetLayout descriptorSetLayout = nullptr;
 };

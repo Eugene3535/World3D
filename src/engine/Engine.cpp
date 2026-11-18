@@ -8,7 +8,6 @@
 
 #include "engine/Engine.hpp"
 #include "geometry/Geometry3D.hpp"
-#include "pipeline/descriptors/DescriptorSetLayout.hpp"
 #include "pipeline/state/PipelineState.hpp"
 #include "view/swapchain/Swapchain.hpp"
 
@@ -69,11 +68,10 @@ bool Engine::createPipeline() noexcept
 
         std::array<const VertexInputState::AttributeType, 2> attributes = {VertexInputState::Float3, VertexInputState::Float2};
 
-        DescriptorSetLayout descriptorLayout;
-        descriptorLayout.addDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-
         PipelineState pipelineState;
-        pipelineState.setupShaderStages(shaders, attributes, descriptorLayout);
+        pipelineState.addDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+        pipelineState.constantRanges.push_back({.stageFlags = VK_SHADER_STAGE_VERTEX_BIT, .offset = 0, .size = sizeof(mat4s)});
+        pipelineState.setupShaderStages(shaders, attributes);
         pipelineState.setupInputAssembler(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         pipelineState.setupViewport();
         pipelineState.setupRasterization(VK_POLYGON_MODE_FILL);

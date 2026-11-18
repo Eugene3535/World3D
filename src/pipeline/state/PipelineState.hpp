@@ -8,9 +8,9 @@
 
 struct PipelineState
 {
-    void setupShaderStages(std::span<const Shader>                          shaders,
-                           std::span<const VertexInputState::AttributeType> attributes,
-                           const class DescriptorSetLayout&                 layout) noexcept;
+    void addDescriptor(VkDescriptorType type, VkShaderStageFlagBits shaderStage) noexcept;
+    void setupShaderStages(std::span<const Shader> shaders,
+                           std::span<const VertexInputState::AttributeType> attributes) noexcept;
 
     void setupInputAssembler(const VkPrimitiveTopology primitive) noexcept;
     void setupViewport() noexcept;
@@ -19,6 +19,7 @@ struct PipelineState
     void setupColorBlending(VkBool32 enabled) noexcept;
 
     std::vector<VkPipelineShaderStageCreateInfo> shaderInfo;
+    std::vector<VkPushConstantRange>             constantRanges;
     VertexInputState                             vertexInputState;
     VkPipelineInputAssemblyStateCreateInfo       inputAssembly;
     VkPipelineViewportStateCreateInfo            viewportState;
@@ -26,5 +27,7 @@ struct PipelineState
     VkPipelineMultisampleStateCreateInfo         multisampling;
     VkPipelineColorBlendAttachmentState          colorBlending;
     VkDescriptorSetLayoutCreateInfo              layoutInfo;
-    std::span<const VkPushConstantRange>         constantRanges;
+
+private:
+    std::vector<VkDescriptorSetLayoutBinding> m_bindings;
 };
