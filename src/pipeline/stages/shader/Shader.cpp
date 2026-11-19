@@ -1,15 +1,21 @@
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <memory>
+#include <vector>
 
 #include "pipeline/stages/shader/Shader.hpp"
 
 
-// Helper function to read a file into a buffer
-static size_t read_shader_file(const char* filename, char** buffer) noexcept;
+struct FileCloser
+{
+    void operator()(FILE* f) const noexcept
+    {
+        if (f)
+            fclose(f);
+    }
+};
 
-// Function to create a shader module from SPIR-V data
-static VkShaderModule create_shader_module(VkDevice device, const char* filename) noexcept;
+using FileOpener = std::unique_ptr<FILE, FileCloser>;
+
 
 
 Shader::Shader(VkDevice device) noexcept :
@@ -29,7 +35,48 @@ Shader::~Shader()
 
 bool Shader::loadFromFile(const std::filesystem::path& filePath, VkShaderStageFlagBits stage) noexcept
 {
-    if (auto shaderModule = create_shader_module(m_device, filePath.string().c_str()))
+    if (m_module)
+    {
+        vkDestroyShaderModule(m_device, m_module, nullptr);
+        m_module = nullptr;
+        m_stage = VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+    }
+
+    namespace fs = std::filesystem;
+    std::error_code ec;
+
+    if (!fs::exists(filePath, ec))
+        return false;
+
+    FileOpener fileOpener(fopen(filePath.string().c_str(), "rb"));
+
+    if (!fileOpener)
+        return false;
+
+    auto* fp = fileOpener.get();
+    
+    fseek(fp, 0, SEEK_END);
+    size_t fileSize = (size_t)ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    std::vector<std::byte> byteCode(fileSize);
+    size_t bytesRead = fread(byteCode.data(), 1, fileSize, fp);
+
+    if (bytesRead != fileSize)
+        return false;
+
+    const VkShaderModuleCreateInfo createInfo = 
+    {
+        .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .pNext    = nullptr,
+        .flags    = 0,
+        .codeSize = byteCode.size(),
+        .pCode    = reinterpret_cast<const uint32_t*>(byteCode.data())
+    };
+
+    VkShaderModule shaderModule;
+
+    if (vkCreateShaderModule(m_device, &createInfo, NULL, &shaderModule) == VK_SUCCESS)
     {
         m_module = shaderModule;
         m_stage  = stage;
@@ -41,9 +88,9 @@ bool Shader::loadFromFile(const std::filesystem::path& filePath, VkShaderStageFl
 }
 
 
-VkPipelineShaderStageCreateInfo Shader::getInfo() const noexcept
+VkPipelineShaderStageCreateInfo Shader::operator()() const noexcept
 {
-    const VkPipelineShaderStageCreateInfo info =
+    return
         {.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
          .pNext               = nullptr,
          .flags               = 0,
@@ -51,83 +98,4 @@ VkPipelineShaderStageCreateInfo Shader::getInfo() const noexcept
          .module              = m_module,
          .pName               = "main",
          .pSpecializationInfo = nullptr};
-
-    return info;
-}
-
-
-size_t read_shader_file(const char* filename, char** buffer) noexcept
-{
-    FILE* file = fopen(filename, "rb");
-
-    if (!file)
-    {
-#ifdef DEBUG
-        fprintf(stderr, "Failed to open file: %s\n", filename);
-#endif
-        return 0;
-    }
-
-    fseek(file, 0, SEEK_END);
-    size_t fileSize = (size_t)ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    *buffer = (char*)malloc(fileSize);
-
-    if (!(*buffer))
-    {
-        fclose(file);
-#ifdef DEBUG
-        fprintf(stderr, "Failed to allocate memory for shader file: %s\n", filename);
-#endif
-        return 0;
-    }
-
-    size_t bytesRead = fread(*buffer, 1, fileSize, file);
-
-    if (bytesRead != fileSize)
-    {
-        free(*buffer);
-        fclose(file);
-#ifdef DEBUG
-        fprintf(stderr, "Failed to read full file: %s\n", filename);
-#endif
-        return 0;
-    }
-
-    fclose(file);
-
-    return fileSize;
-}
-
-
-VkShaderModule create_shader_module(VkDevice device, const char* filename) noexcept
-{
-    char*  code;
-    size_t codeSize = read_shader_file(filename, &code);
-
-    if (codeSize == 0)
-        return nullptr;
-
-    const VkShaderModuleCreateInfo createInfo = {
-        .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .pNext    = nullptr,
-        .flags    = 0,
-        .codeSize = codeSize,             // The pointer must be a uint32_t pointer and aligned correctly.
-        .pCode    = (const uint32_t*)code // Ensure your memory allocation is suitable for this (malloc usually is).
-    };
-
-    VkShaderModule shaderModule;
-
-    if (vkCreateShaderModule(device, &createInfo, NULL, &shaderModule) != VK_SUCCESS)
-    {
-#ifdef DEBUG
-        fprintf(stderr, "Failed to create shader module from file: %s\n", filename);
-#endif
-        shaderModule = nullptr;
-    }
-
-    free(code);
-
-    return shaderModule;
 }

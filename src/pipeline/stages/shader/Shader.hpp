@@ -4,6 +4,7 @@
 
 #include <vulkan/vulkan.h>
 
+
 class Shader
 {
 public:
@@ -16,7 +17,7 @@ public:
 
     bool loadFromFile(const std::filesystem::path& filePath, VkShaderStageFlagBits stage) noexcept;
 
-    VkPipelineShaderStageCreateInfo getInfo() const noexcept;
+    VkPipelineShaderStageCreateInfo operator()() const noexcept;
 
 private:
     VkDevice              m_device;

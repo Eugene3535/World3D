@@ -21,7 +21,7 @@ void PipelineState::setupShaderStages(std::span<const Shader>                   
     assert(!attributes.empty());
 
     for (const auto& shader : shaders)
-        shaderInfo.emplace_back(shader.getInfo());
+        shaderInfo.emplace_back(shader());
 
     vertexInputState.create(attributes);
 
