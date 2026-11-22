@@ -5,19 +5,6 @@
 #include "pipeline/stages/shader/Shader.hpp"
 
 
-struct FileCloser
-{
-    void operator()(FILE* f) const noexcept
-    {
-        if (f)
-            fclose(f);
-    }
-};
-
-using FileOpener = std::unique_ptr<FILE, FileCloser>;
-
-
-
 Shader::Shader(VkDevice device) noexcept :
     m_device(device),
     m_module(nullptr),
@@ -47,7 +34,17 @@ bool Shader::loadFromFile(const std::filesystem::path& filePath, VkShaderStageFl
 
     if (!fs::exists(filePath, ec))
         return false;
+        
+    struct FileCloser
+    {
+        void operator()(FILE* f) const noexcept
+        {
+            if (f)
+                fclose(f);
+        }
+    };
 
+    using FileOpener = std::unique_ptr<FILE, FileCloser>;
     FileOpener fileOpener(fopen(filePath.string().c_str(), "rb"));
 
     if (!fileOpener)

@@ -11,7 +11,7 @@ struct SwapChainSupportDetails
 {
     static std::unique_ptr<SwapChainSupportDetails> querySupport(VkSurfaceKHR surface) noexcept
     {
-        const auto physicalDevice = vkContext->get<VkPhysicalDevice>();
+        const auto physicalDevice = vkContext->get<VulkanPhysicalDevice>()->getHandle();
 
         auto details = std::make_unique<SwapChainSupportDetails>();
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details->capabilities);
@@ -95,7 +95,7 @@ Swapchain::Swapchain(VkSurfaceKHR surface) noexcept :
 bool Swapchain::create() noexcept
 {
     auto     context = vkContext;
-    VkDevice device  = context->get<VkDevice>();
+    VkDevice device  = context->get<VulkanDevice>()->getHandle();
 
     VkSwapchainKHR oldSwapchain = m_handle;
 
@@ -180,7 +180,7 @@ bool Swapchain::create() noexcept
                 m_depthBuffer.attachment.format = vktools::find_supported_format(formats,
                                                                                  VK_IMAGE_TILING_OPTIMAL,
                                                                                  VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                                                                 context->get<VkPhysicalDevice>());
+                                                                                 context->get<VulkanPhysicalDevice>()->getHandle());
             }
 
             if (m_depthBuffer.attachment.format != VK_FORMAT_UNDEFINED)
@@ -211,7 +211,7 @@ bool Swapchain::create() noexcept
 
 void Swapchain::destroy() noexcept
 {
-    VkDevice device = vkContext->get<VkDevice>();
+    VkDevice device = vkContext->get<VulkanDevice>()->getHandle();
 
     if (m_handle)
     {
@@ -234,7 +234,7 @@ void Swapchain::destroy() noexcept
 
 VkResult Swapchain::present(const VkSemaphore semaphore, uint32_t imageIndex) const noexcept
 {
-    const VkQueue queue = vkContext->get<VkQueue>();
+    const VkQueue queue = vkContext->get<VulkanDevice>()->getGraphicsQueue();
 
     const VkPresentInfoKHR presentInfo =
         {.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,

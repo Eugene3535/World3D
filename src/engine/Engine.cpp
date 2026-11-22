@@ -52,7 +52,7 @@ bool Engine::createView(uint64_t windowHandle) noexcept
 
 bool Engine::createPipeline() noexcept
 {
-    VkDevice device = m_context.get<VkDevice>();
+    VkDevice device = m_context.get<VulkanDevice>()->getHandle();
 
     { // Pipeline
         std::array<Shader, 2> shaders = {Shader(device), Shader(device)};
@@ -147,10 +147,11 @@ void Engine::drawFrame() noexcept
         return;
 
     uint32_t   frame         = m_sync.currentFrame;
-    const auto logicalDevice = vkContext->get<VkDevice>();
-    const auto queue         = vkContext->get<VkQueue>();
+    const auto* logicalDevice = vkContext->get<VulkanDevice>();
+    const auto device = logicalDevice->getHandle();
+    const auto queue         = logicalDevice->getGraphicsQueue();;
 
-    VkResult result = vkWaitForFences(logicalDevice, 1, &m_sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
+    VkResult result = vkWaitForFences(device, 1, &m_sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
 
     if (result != VK_SUCCESS)
     {
@@ -161,7 +162,7 @@ void Engine::drawFrame() noexcept
     }
 
     uint32_t imageIndex;
-    result = vkAcquireNextImageKHR(logicalDevice,
+    result = vkAcquireNextImageKHR(device,
                                    m_view.getSwapchain()->getHandle(),
                                    UINT64_MAX,
                                    m_sync.imageAvailableSemaphores[frame],
@@ -170,7 +171,7 @@ void Engine::drawFrame() noexcept
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        vkDeviceWaitIdle(logicalDevice);
+        vkDeviceWaitIdle(device);
         m_view.resize();
 
         return;
@@ -183,7 +184,7 @@ void Engine::drawFrame() noexcept
         return;
     }
 
-    result = vkResetFences(logicalDevice, 1, &m_sync.inFlightFences[frame]);
+    result = vkResetFences(device, 1, &m_sync.inFlightFences[frame]);
 
     if (result != VK_SUCCESS)
     {
@@ -254,7 +255,7 @@ void Engine::drawFrame() noexcept
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
     {
         m_framebufferResized = false;
-        vkDeviceWaitIdle(logicalDevice);
+        vkDeviceWaitIdle(device);
         m_view.resize();
     }
     else if (result != VK_SUCCESS)
@@ -267,7 +268,7 @@ void Engine::drawFrame() noexcept
 
     m_sync.currentFrame = (frame + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    vkDeviceWaitIdle(logicalDevice);
+    vkDeviceWaitIdle(device);
 }
 
 

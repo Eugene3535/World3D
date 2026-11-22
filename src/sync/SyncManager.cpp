@@ -4,7 +4,7 @@
 
 bool SyncManager::create() noexcept
 {
-    auto logicalDevice = vkContext->get<VkDevice>();
+    auto logicalDevice = vkContext->get<VulkanDevice>()->getHandle();
 
     const VkSemaphoreCreateInfo semaphoreInfo = {.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, .pNext = nullptr, .flags = 0};
 
@@ -30,7 +30,7 @@ bool SyncManager::create() noexcept
 
 void SyncManager::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->get<VkDevice>();
+    const auto logicalDevice = vkContext->get<VulkanDevice>()->getHandle();
 
     for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {

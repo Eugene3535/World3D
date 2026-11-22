@@ -140,8 +140,9 @@ void copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDe
 
 bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool pool) noexcept
 {
-    auto device = vkContext->get<VkDevice>();
-    auto queue  = vkContext->get<VkQueue>();
+    auto* logicalDevice = vkContext->get<VulkanDevice>();
+    auto device = logicalDevice->getHandle();
+    auto queue  = logicalDevice->getGraphicsQueue();
 
     VkCommandBuffer cmd = begin_single_time_commands(device, pool);
 
@@ -210,10 +211,11 @@ bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLa
 
 bool copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool pool) noexcept
 {
-    auto logicalDevice = vkContext->get<VkDevice>();
-    auto queue         = vkContext->get<VkQueue>();
+    auto* logicalDevice = vkContext->get<VulkanDevice>();
+    auto device = logicalDevice->getHandle();
+    auto queue  = logicalDevice->getGraphicsQueue();
 
-    VkCommandBuffer cmd = begin_single_time_commands(logicalDevice, pool);
+    VkCommandBuffer cmd = begin_single_time_commands(device, pool);
 
     if (cmd)
     {
@@ -226,7 +228,7 @@ bool copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32
              .imageExtent = {.width = width, .height = height, .depth = 1}};
 
         vkCmdCopyBufferToImage(cmd, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-        end_single_time_commands(cmd, logicalDevice, pool, queue);
+        end_single_time_commands(cmd, device, pool, queue);
 
         return true;
     }
@@ -242,8 +244,8 @@ VkImage create_image_2D(VkExtent2D            extent,
                         VkMemoryPropertyFlags properties,
                         VkDeviceMemory*       imageMemory) noexcept
 {
-    auto physicalDevive = vkContext->get<VkPhysicalDevice>();
-    auto logicalDevice  = vkContext->get<VkDevice>();
+    auto physicalDevice = vkContext->get<VulkanPhysicalDevice>()->getHandle();
+    auto logicalDevice  = vkContext->get<VulkanDevice>()->getHandle();
 
     VkImage image = nullptr;
 
@@ -274,7 +276,7 @@ VkImage create_image_2D(VkExtent2D            extent,
         {.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
          .pNext           = nullptr,
          .allocationSize  = memRequirements.size,
-         .memoryTypeIndex = find_memory_type(memRequirements.memoryTypeBits, properties, physicalDevive)};
+         .memoryTypeIndex = find_memory_type(memRequirements.memoryTypeBits, properties, physicalDevice)};
 
     if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, imageMemory) == VK_SUCCESS)
     {
@@ -304,7 +306,7 @@ VkImageView create_image_view_2D(VkImage image, VkFormat format, VkImageAspectFl
          .subresourceRange =
              {.aspectMask = aspectFlags, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}};
 
-    if (vkCreateImageView(vkContext->get<VkDevice>(), &viewInfo, nullptr, &imageView) == VK_SUCCESS)
+    if (vkCreateImageView(vkContext->get<VulkanDevice>()->getHandle(), &viewInfo, nullptr, &imageView) == VK_SUCCESS)
         return imageView;
 
     return nullptr;

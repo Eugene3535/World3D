@@ -30,10 +30,8 @@ bool create_sampler(Texture2D* texture, VkPhysicalDevice gpu, VkDevice device) n
 
 bool Texture2D::loadFromFile(const std::filesystem::path& filepath, VkCommandPool pool) noexcept
 {
-    const auto context        = vkContext;
-    const auto physicalDevice = vkContext->get<VkPhysicalDevice>();
-    const auto logicalDevice  = vkContext->get<VkDevice>();
-    const auto queue          = vkContext->get<VkQueue>();
+    const auto physicalDevice = vkContext->get<VulkanPhysicalDevice>()->getHandle();
+    const auto logicalDevice  = vkContext->get<VulkanDevice>()->getHandle();
 
     StbImage stbImage;
 
@@ -108,7 +106,7 @@ bool Texture2D::loadFromFile(const std::filesystem::path& filepath, VkCommandPoo
 
 void Texture2D::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->get<VkDevice>();
+    const auto logicalDevice = vkContext->get<VulkanDevice>()->getHandle();
 
     vkDestroySampler(logicalDevice, sampler, nullptr);
     vkDestroyImageView(logicalDevice, imageView, nullptr);

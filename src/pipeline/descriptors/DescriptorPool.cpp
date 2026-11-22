@@ -12,7 +12,7 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
          .poolSizeCount = static_cast<uint32_t>(poolSizes.size()),
          .pPoolSizes    = poolSizes.data()};
 
-    bool result = (vkCreateDescriptorPool(vkContext->get<VkDevice>(), &poolInfo, nullptr, &handle) == VK_SUCCESS);
+    bool result = (vkCreateDescriptorPool(vkContext->get<VulkanDevice>()->getHandle(), &poolInfo, nullptr, &handle) == VK_SUCCESS);
 
     if (result)
     {
@@ -34,7 +34,7 @@ bool DescriptorPool::allocateDescriptorSets(std::span<VkDescriptorSet> descripto
                                                       .descriptorSetCount = static_cast<uint32_t>(descriptorSets.size()),
                                                       .pSetLayouts = layouts};
 
-    return (vkAllocateDescriptorSets(vkContext->get<VkDevice>(), &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
+    return (vkAllocateDescriptorSets(vkContext->get<VulkanDevice>()->getHandle(), &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
 }
 
 
@@ -54,7 +54,7 @@ void DescriptorPool::writeBufferInfo(const VkDescriptorBufferInfo* bufferInfo,
          .pBufferInfo      = bufferInfo,
          .pTexelBufferView = nullptr};
 
-    vkUpdateDescriptorSets(vkContext->get<VkDevice>(), 1, &descriptorWrite, 0, nullptr);
+    vkUpdateDescriptorSets(vkContext->get<VulkanDevice>()->getHandle(), 1, &descriptorWrite, 0, nullptr);
 }
 
 
@@ -74,11 +74,11 @@ void DescriptorPool::writeCombinedImageSampler(const VkDescriptorImageInfo* imag
          .pBufferInfo      = nullptr,
          .pTexelBufferView = nullptr};
 
-    vkUpdateDescriptorSets(vkContext->get<VkDevice>(), 1, &descriptorWrite, 0, nullptr);
+    vkUpdateDescriptorSets(vkContext->get<VulkanDevice>()->getHandle(), 1, &descriptorWrite, 0, nullptr);
 }
 
 
 void DescriptorPool::destroy() noexcept
 {
-    vkDestroyDescriptorPool(vkContext->get<VkDevice>(), handle, nullptr);
+    vkDestroyDescriptorPool(vkContext->get<VulkanDevice>()->getHandle(), handle, nullptr);
 }

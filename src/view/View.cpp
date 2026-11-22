@@ -43,7 +43,7 @@ void View::destroy() noexcept
     if (m_swapchain)
         m_swapchain->destroy();
 
-    vkDestroySurfaceKHR(vkContext->get<VkInstance>(), m_surface, nullptr);
+    vkDestroySurfaceKHR(vkContext->get<VulkanInstance>()->getHandle(), m_surface, nullptr);
 }
 
 
@@ -77,7 +77,7 @@ bool View::createSurface(uint64_t windowHandle) noexcept
     if (m_surface)
         return true;
 
-    auto instance = vkContext->get<VkInstance>();
+    auto instance = vkContext->get<VulkanInstance>()->getHandle();
 
 #ifdef _WIN32
     const VkWin32SurfaceCreateInfoKHR surfaceInfo = {.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,

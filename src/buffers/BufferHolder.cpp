@@ -3,11 +3,12 @@
 
 void BufferHolder::destroy() noexcept
 {
-    const auto logicalDevice = vkContext->get<VkDevice>();
+    const auto* logicalDevice = vkContext->get<VulkanDevice>();
+    const auto device = logicalDevice->getHandle();
 
     for (const auto& data : m_buffers)
     {
-        vkDestroyBuffer(logicalDevice, data.handle, nullptr);
-        vkFreeMemory(logicalDevice, data.memory, nullptr);
+        vkDestroyBuffer(device, data.handle, nullptr);
+        vkFreeMemory(device, data.memory, nullptr);
     }
 }

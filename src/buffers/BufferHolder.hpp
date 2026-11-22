@@ -21,9 +21,8 @@ struct BufferHolder
     template <class T> // Fast memory
     Buffer allocate(std::span<const T> rawData, VkBufferUsageFlagBits flag, VkCommandPool pool) noexcept
     {
-        const auto context        = vkContext;
-        const auto physicalDevice = context->get<VkPhysicalDevice>();
-        const auto logicalDevice  = context->get<VkDevice>();
+        const auto physicalDevice = vkContext->get<VulkanPhysicalDevice>()->getHandle();
+        const auto logicalDevice  = vkContext->get<VulkanDevice>()->getHandle();
 
         Buffer       bufferData = {nullptr, nullptr, static_cast<uint32_t>(rawData.size())};
         VkDeviceSize bufferSize = rawData.size_bytes();
@@ -81,7 +80,7 @@ struct BufferHolder
 
         if (bufferData.handle)
         {
-            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, logicalDevice, pool, context->get<VkQueue>());
+            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, logicalDevice, pool, vkContext->get<VulkanDevice>()->getGraphicsQueue());
             m_buffers.push_back(bufferData);
 
             return bufferData;
@@ -94,8 +93,8 @@ struct BufferHolder
     template <class T> // Slow memory, but may be mapped
     Buffer create(std::span<const T> rawData, VkBufferUsageFlags usage) noexcept
     {
-        const auto context       = vkContext;
-        const auto logicalDevice = context->get<VkDevice>();
+        const auto* logicalDevice = vkContext->get<VulkanDevice>();
+        const auto device = logicalDevice->getHandle();
 
         const VkBufferCreateInfo bufferInfo =
             {.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -109,11 +108,11 @@ struct BufferHolder
 
         VkBuffer vertexBuffer;
 
-        if (vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
+        if (vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
             return {};
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(logicalDevice, vertexBuffer, &memRequirements);
+        vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
 
         const VkMemoryAllocateInfo allocInfo =
             {.sType          = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
@@ -121,23 +120,23 @@ struct BufferHolder
              .allocationSize = memRequirements.size,
              .memoryTypeIndex = vktools::find_memory_type(memRequirements.memoryTypeBits,
                                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                                          vkContext->get<VkPhysicalDevice>())};
+                                                          vkContext->get<VulkanPhysicalDevice>()->getHandle())};
 
         VkDeviceMemory vertexBufferMemory;
 
-        if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
+        if (vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
         {
-            vkDestroyBuffer(logicalDevice, vertexBuffer, nullptr);
+            vkDestroyBuffer(device, vertexBuffer, nullptr);
 
             return {};
         }
 
-        vkBindBufferMemory(logicalDevice, vertexBuffer, vertexBufferMemory, 0);
+        vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
 
         void* data;
-        vkMapMemory(logicalDevice, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+        vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
         memcpy(data, rawData.data(), bufferInfo.size);
-        vkUnmapMemory(logicalDevice, vertexBufferMemory);
+        vkUnmapMemory(device, vertexBufferMemory);
 
         m_buffers.push_back({vertexBuffer, vertexBufferMemory, static_cast<uint32_t>(rawData.size())});
 

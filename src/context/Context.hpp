@@ -2,7 +2,9 @@
 
 #include <type_traits>
 
-#include <vulkan/vulkan.h>
+#include "context/instance/VulkanInstance.hpp"
+#include "context/gpu/VulkanPhysicalDevice.hpp"
+#include "context/device/VulkanDevice.hpp"
 
 
 class VulkanContext final
@@ -14,37 +16,26 @@ public:
     void destroy() noexcept;
 
     template <class T>
-    T get() const noexcept
+    const T* get() const noexcept
     {
-        if constexpr (std::is_same_v<T, VkInstance>)
-            return m_instance;
+        if constexpr (std::is_same_v<T, VulkanInstance>)
+            return &m_instance;
 
-        if constexpr (std::is_same_v<T, VkPhysicalDevice>)
-            return m_physicalDevice;
+        if constexpr (std::is_same_v<T, VulkanPhysicalDevice>)
+            return &m_physicalDevice;
 
-        if constexpr (std::is_same_v<T, VkDevice>)
-            return m_logicalDevice;
+        if constexpr (std::is_same_v<T, VulkanDevice>)
+            return &m_logicalDevice;
 
-        if constexpr (std::is_same_v<T, VkQueue>)
-            return m_queue;
-
-        return {};
+        return nullptr;
     }
-
-    uint32_t getQueueFamilyIndex() const noexcept;
 
     static VulkanContext* getContext() noexcept;
 
 private:
-    bool createInstance() noexcept;
-    bool selectVideoCard() noexcept;
-    bool createDevice() noexcept;
-
-    VkInstance       m_instance;
-    VkPhysicalDevice m_physicalDevice;
-    VkDevice         m_logicalDevice;
-    VkQueue          m_queue;
-    uint32_t         m_queueFamilyIndex;
+    VulkanInstance       m_instance;
+    VulkanPhysicalDevice m_physicalDevice;
+    VulkanDevice         m_logicalDevice;
 };
 
 #define vkContext VulkanContext::getContext()
