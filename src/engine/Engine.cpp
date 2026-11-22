@@ -70,7 +70,8 @@ bool Engine::createPipeline() noexcept
 
         PipelineState pipelineState;
         pipelineState.addDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-        pipelineState.constantRanges.push_back({.stageFlags = VK_SHADER_STAGE_VERTEX_BIT, .offset = 0, .size = sizeof(mat4s)});
+        pipelineState.constantRanges.push_back(
+            {.stageFlags = VK_SHADER_STAGE_VERTEX_BIT, .offset = 0, .size = sizeof(mat4s)});
         pipelineState.setupShaderStages(shaders, attributes);
         pipelineState.setupInputAssembler(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         pipelineState.setupViewport();
@@ -146,10 +147,10 @@ void Engine::drawFrame() noexcept
     if (!(m_width && m_height))
         return;
 
-    uint32_t   frame         = m_sync.currentFrame;
+    uint32_t    frame         = m_sync.currentFrame;
     const auto* logicalDevice = vkContext->get<VulkanDevice>();
-    const auto device = logicalDevice->getHandle();
-    const auto queue         = logicalDevice->getGraphicsQueue();;
+    const auto  device        = logicalDevice->getHandle();
+    const auto  queue         = logicalDevice->getGraphicsQueue();
 
     VkResult result = vkWaitForFences(device, 1, &m_sync.inFlightFences[frame], VK_TRUE, UINT64_MAX);
 

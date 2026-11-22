@@ -177,10 +177,11 @@ bool Swapchain::create() noexcept
                 constexpr std::array<VkFormat, 3> formats = {VK_FORMAT_D32_SFLOAT,
                                                              VK_FORMAT_D32_SFLOAT_S8_UINT,
                                                              VK_FORMAT_D24_UNORM_S8_UINT};
-                m_depthBuffer.attachment.format = vktools::find_supported_format(formats,
-                                                                                 VK_IMAGE_TILING_OPTIMAL,
-                                                                                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                                                                 context->get<VulkanPhysicalDevice>()->getHandle());
+                m_depthBuffer.attachment
+                    .format = vktools::find_supported_format(formats,
+                                                             VK_IMAGE_TILING_OPTIMAL,
+                                                             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                                             context->get<VulkanPhysicalDevice>()->getHandle());
             }
 
             if (m_depthBuffer.attachment.format != VK_FORMAT_UNDEFINED)

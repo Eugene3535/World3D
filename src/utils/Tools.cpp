@@ -141,8 +141,8 @@ void copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDe
 bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkCommandPool pool) noexcept
 {
     auto* logicalDevice = vkContext->get<VulkanDevice>();
-    auto device = logicalDevice->getHandle();
-    auto queue  = logicalDevice->getGraphicsQueue();
+    auto  device        = logicalDevice->getHandle();
+    auto  queue         = logicalDevice->getGraphicsQueue();
 
     VkCommandBuffer cmd = begin_single_time_commands(device, pool);
 
@@ -212,8 +212,8 @@ bool transition_image_layout(VkImage image, VkFormat format, VkImageLayout oldLa
 bool copy_buffer_to_image(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkCommandPool pool) noexcept
 {
     auto* logicalDevice = vkContext->get<VulkanDevice>();
-    auto device = logicalDevice->getHandle();
-    auto queue  = logicalDevice->getGraphicsQueue();
+    auto  device        = logicalDevice->getHandle();
+    auto  queue         = logicalDevice->getGraphicsQueue();
 
     VkCommandBuffer cmd = begin_single_time_commands(device, pool);
 

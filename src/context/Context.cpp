@@ -14,8 +14,6 @@
 static VulkanContext* g_vulkanContext;
 
 
-
-
 VulkanContext::VulkanContext() noexcept
 {
     assert(g_vulkanContext == nullptr);

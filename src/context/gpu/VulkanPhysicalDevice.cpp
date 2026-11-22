@@ -5,7 +5,7 @@
 
 
 VulkanPhysicalDevice::VulkanPhysicalDevice() noexcept = default;
-VulkanPhysicalDevice::~VulkanPhysicalDevice() = default;
+VulkanPhysicalDevice::~VulkanPhysicalDevice()         = default;
 
 
 bool VulkanPhysicalDevice::select(VkInstance instance) noexcept

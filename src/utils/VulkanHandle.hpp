@@ -5,15 +5,12 @@
 #include <vulkan/vulkan.h>
 
 
-template<class T>
+template <class T>
 class VulkanHandle
 {
 public:
 #ifdef DEBUG
-    static constexpr std::array<const char*, 1> validationLayers = 
-    {
-        "VK_LAYER_KHRONOS_validation"
-    };
+    static constexpr std::array<const char*, 1> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 #endif
 
     VulkanHandle() noexcept = default;

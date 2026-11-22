@@ -3,8 +3,7 @@
 #include "utils/VulkanHandle.hpp"
 
 
-class VulkanDevice:
-    public VulkanHandle<VkDevice>
+class VulkanDevice : public VulkanHandle<VkDevice>
 {
 public:
     VulkanDevice() noexcept;
@@ -12,7 +11,7 @@ public:
 
     bool create(VkPhysicalDevice gpu) noexcept;
 
-    VkQueue getGraphicsQueue() const noexcept;
+    VkQueue  getGraphicsQueue() const noexcept;
     uint32_t getQueueFamilyIndex() const noexcept;
 
 private:

@@ -1,6 +1,6 @@
+#include <array>
 #include <string>
 #include <unordered_set>
-#include <array>
 
 #include "spdlog/spdlog.h"
 #include <magic_enum/magic_enum.hpp>
@@ -9,7 +9,7 @@
 
 
 VulkanDevice::VulkanDevice() noexcept = default;
-VulkanDevice::~VulkanDevice() = default;
+VulkanDevice::~VulkanDevice()         = default;
 
 
 bool VulkanDevice::create(VkPhysicalDevice gpu) noexcept

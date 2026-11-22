@@ -3,8 +3,7 @@
 #include "utils/VulkanHandle.hpp"
 
 
-class VulkanPhysicalDevice:
-    public VulkanHandle<VkPhysicalDevice>
+class VulkanPhysicalDevice : public VulkanHandle<VkPhysicalDevice>
 {
 public:
     VulkanPhysicalDevice() noexcept;
@@ -13,5 +12,4 @@ public:
     bool select(VkInstance instance) noexcept;
 
 private:
-
 };

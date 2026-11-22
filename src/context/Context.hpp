@@ -2,9 +2,9 @@
 
 #include <type_traits>
 
-#include "context/instance/VulkanInstance.hpp"
-#include "context/gpu/VulkanPhysicalDevice.hpp"
 #include "context/device/VulkanDevice.hpp"
+#include "context/gpu/VulkanPhysicalDevice.hpp"
+#include "context/instance/VulkanInstance.hpp"
 
 
 class VulkanContext final

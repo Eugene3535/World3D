@@ -12,7 +12,8 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
          .poolSizeCount = static_cast<uint32_t>(poolSizes.size()),
          .pPoolSizes    = poolSizes.data()};
 
-    bool result = (vkCreateDescriptorPool(vkContext->get<VulkanDevice>()->getHandle(), &poolInfo, nullptr, &handle) == VK_SUCCESS);
+    bool result = (vkCreateDescriptorPool(vkContext->get<VulkanDevice>()->getHandle(), &poolInfo, nullptr, &handle) ==
+                   VK_SUCCESS);
 
     if (result)
     {
@@ -34,7 +35,8 @@ bool DescriptorPool::allocateDescriptorSets(std::span<VkDescriptorSet> descripto
                                                       .descriptorSetCount = static_cast<uint32_t>(descriptorSets.size()),
                                                       .pSetLayouts = layouts};
 
-    return (vkAllocateDescriptorSets(vkContext->get<VulkanDevice>()->getHandle(), &allocateInfo, descriptorSets.data()) == VK_SUCCESS);
+    return (vkAllocateDescriptorSets(vkContext->get<VulkanDevice>()->getHandle(), &allocateInfo, descriptorSets.data()) ==
+            VK_SUCCESS);
 }
 
 

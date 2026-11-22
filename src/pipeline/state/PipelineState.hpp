@@ -9,7 +9,7 @@
 struct PipelineState
 {
     void addDescriptor(VkDescriptorType type, VkShaderStageFlagBits shaderStage) noexcept;
-    void setupShaderStages(std::span<const Shader> shaders,
+    void setupShaderStages(std::span<const Shader>                          shaders,
                            std::span<const VertexInputState::AttributeType> attributes) noexcept;
 
     void setupInputAssembler(const VkPrimitiveTopology primitive) noexcept;

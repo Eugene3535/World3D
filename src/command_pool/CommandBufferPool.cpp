@@ -5,7 +5,7 @@
 bool CommandBufferPool::create() noexcept
 {
     const auto* logicalDevice = vkContext->get<VulkanDevice>();
-    const auto device = logicalDevice->getHandle();
+    const auto  device        = logicalDevice->getHandle();
 
     const VkCommandPoolCreateInfo poolInfo = {.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                                               .pNext            = nullptr,

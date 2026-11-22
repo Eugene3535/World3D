@@ -4,7 +4,7 @@
 void BufferHolder::destroy() noexcept
 {
     const auto* logicalDevice = vkContext->get<VulkanDevice>();
-    const auto device = logicalDevice->getHandle();
+    const auto  device        = logicalDevice->getHandle();
 
     for (const auto& data : m_buffers)
     {

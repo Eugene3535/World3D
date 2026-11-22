@@ -80,7 +80,12 @@ struct BufferHolder
 
         if (bufferData.handle)
         {
-            vktools::copy_buffer(stagingBuffer, bufferData.handle, bufferSize, logicalDevice, pool, vkContext->get<VulkanDevice>()->getGraphicsQueue());
+            vktools::copy_buffer(stagingBuffer,
+                                 bufferData.handle,
+                                 bufferSize,
+                                 logicalDevice,
+                                 pool,
+                                 vkContext->get<VulkanDevice>()->getGraphicsQueue());
             m_buffers.push_back(bufferData);
 
             return bufferData;
@@ -94,7 +99,7 @@ struct BufferHolder
     Buffer create(std::span<const T> rawData, VkBufferUsageFlags usage) noexcept
     {
         const auto* logicalDevice = vkContext->get<VulkanDevice>();
-        const auto device = logicalDevice->getHandle();
+        const auto  device        = logicalDevice->getHandle();
 
         const VkBufferCreateInfo bufferInfo =
             {.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,

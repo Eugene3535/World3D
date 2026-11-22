@@ -1,6 +1,6 @@
-#include <vector>
 #include <array>
 #include <unordered_set>
+#include <vector>
 
 #include "spdlog/spdlog.h"
 #include <magic_enum/magic_enum.hpp>
@@ -48,7 +48,7 @@ static bool check_validation_layer_support(const std::array<const char*, 1>& val
 
 
 VulkanInstance::VulkanInstance() noexcept = default;
-VulkanInstance::~VulkanInstance() = default;
+VulkanInstance::~VulkanInstance()         = default;
 
 
 bool VulkanInstance::create() noexcept
@@ -143,9 +143,9 @@ bool VulkanInstance::create() noexcept
                 const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                 void*                                       pUserData)
          {
-            printf("validation layer: %s\n", pCallbackData->pMessage);
+             printf("validation layer: %s\n", pCallbackData->pMessage);
 
-            return VK_FALSE;
+             return VK_FALSE;
          },
          .pUserData = nullptr};
 

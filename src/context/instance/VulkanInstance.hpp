@@ -3,15 +3,13 @@
 #include "utils/VulkanHandle.hpp"
 
 
-class VulkanInstance:
-    public VulkanHandle<VkInstance>
+class VulkanInstance : public VulkanHandle<VkInstance>
 {
 public:
     VulkanInstance() noexcept;
     ~VulkanInstance();
 
-    bool create() noexcept; 
+    bool create() noexcept;
 
 private:
-
 };
