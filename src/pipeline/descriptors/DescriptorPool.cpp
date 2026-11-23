@@ -8,34 +8,23 @@ bool DescriptorPool::create(std::span<const VkDescriptorPoolSize> poolSizes) noe
         {.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
          .pNext         = nullptr,
          .flags         = 0,
-         .maxSets       = MAX_FRAMES_IN_FLIGHT,
+         .maxSets       = 1,
          .poolSizeCount = static_cast<uint32_t>(poolSizes.size()),
          .pPoolSizes    = poolSizes.data()};
 
-    bool result = (vkCreateDescriptorPool(vkContext->get<VulkanDevice>()->getHandle(), &poolInfo, nullptr, &handle) ==
-                   VK_SUCCESS);
-
-    if (result)
-    {
-        // for (const auto& poolSize : poolSizes)
-        //     types.push_back(poolSize.type);
-
-        return true;
-    }
-
-    return false;
+    return (vkCreateDescriptorPool(vkContext->get<VulkanDevice>()->getHandle(), &poolInfo, nullptr, &handle) == VK_SUCCESS);
 }
 
 
-bool DescriptorPool::allocateDescriptorSets(std::span<VkDescriptorSet> descriptorSets, const VkDescriptorSetLayout* layouts) noexcept
+bool DescriptorPool::allocateDescriptorSet(VkDescriptorSet* descriptorSet, const VkDescriptorSetLayout* layout) noexcept
 {
     const VkDescriptorSetAllocateInfo allocateInfo = {.sType          = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
                                                       .pNext          = nullptr,
                                                       .descriptorPool = handle,
-                                                      .descriptorSetCount = static_cast<uint32_t>(descriptorSets.size()),
-                                                      .pSetLayouts = layouts};
+                                                      .descriptorSetCount = 1,
+                                                      .pSetLayouts        = layout};
 
-    return (vkAllocateDescriptorSets(vkContext->get<VulkanDevice>()->getHandle(), &allocateInfo, descriptorSets.data()) ==
+    return (vkAllocateDescriptorSets(vkContext->get<VulkanDevice>()->getHandle(), &allocateInfo, descriptorSet) ==
             VK_SUCCESS);
 }
 

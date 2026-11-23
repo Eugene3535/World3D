@@ -1,14 +1,13 @@
 #pragma once
 
 #include <span>
-// #include <vector>
 
 #include "utils/Tools.hpp"
 
 struct DescriptorPool
 {
     bool create(std::span<const VkDescriptorPoolSize> poolSizes) noexcept;
-    bool allocateDescriptorSets(std::span<VkDescriptorSet> descriptorSets, const VkDescriptorSetLayout* layouts) noexcept;
+    bool allocateDescriptorSet(VkDescriptorSet* descriptorSet, const VkDescriptorSetLayout* layout) noexcept;
     void writeBufferInfo(const VkDescriptorBufferInfo* bufferInfo, VkDescriptorSet descriptorSet, uint32_t dstBinding) noexcept;
     void writeCombinedImageSampler(const VkDescriptorImageInfo* imageInfo,
                                    VkDescriptorSet              descriptorSet,
@@ -16,5 +15,4 @@ struct DescriptorPool
     void destroy() noexcept;
 
     VkDescriptorPool handle = nullptr;
-    //std::vector<VkDescriptorType> types;
 };

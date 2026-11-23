@@ -85,14 +85,14 @@ bool Engine::createPipeline() noexcept
 
     { // Descriptors
         const std::array<VkDescriptorPoolSize, 1> poolSizes = {
-            VkDescriptorPoolSize{.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, .descriptorCount = MAX_FRAMES_IN_FLIGHT}};
+            VkDescriptorPoolSize{.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, .descriptorCount = 1}};
 
         if (!m_descriptorPool.create(poolSizes))
             return false;
 
-        VkDescriptorSetLayout layouts[MAX_FRAMES_IN_FLIGHT] = {m_pipeline.descriptorSetLayout, m_pipeline.descriptorSetLayout};
+        VkDescriptorSetLayout layout = m_pipeline.descriptorSetLayout;
 
-        if (!m_descriptorPool.allocateDescriptorSets(m_descriptorSets, layouts))
+        if (!m_descriptorPool.allocateDescriptorSet(&m_descriptorSet, &layout))
             return false;
     }
 
@@ -109,8 +109,7 @@ bool Engine::createPipeline() noexcept
                                                  .imageView   = m_texture.imageView,
                                                  .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
 
-        m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[0], 0);
-        m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSets[1], 0);
+        m_descriptorPool.writeCombinedImageSampler(&imageInfo, m_descriptorSet, 0);
     }
 
     {
@@ -196,7 +195,7 @@ void Engine::drawFrame() noexcept
     }
 
     VkCommandBuffer commandBuffer = m_commandPool.commandBuffers[frame];
-    VkDescriptorSet descriptorSet = m_descriptorSets[frame];
+    VkDescriptorSet descriptorSet = m_descriptorSet;
 
     if (!m_renderer.begin(commandBuffer, imageIndex))
         return;

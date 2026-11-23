@@ -29,8 +29,8 @@ public:
     View             m_view;
     GraphicsPipeline m_pipeline;
 
-    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descriptorSets;
-    DescriptorPool                                    m_descriptorPool;
+    DescriptorPool  m_descriptorPool;
+    VkDescriptorSet m_descriptorSet;
 
     CommandBufferPool m_commandPool;
     SyncManager       m_sync;

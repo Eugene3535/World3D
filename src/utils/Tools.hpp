@@ -2,9 +2,7 @@
 #define VULKAN_TOOLS_HPP
 
 #include <cstdint>
-#include <memory>
 #include <span>
-#include <vector>
 
 #include <vulkan/vulkan.h>
 
